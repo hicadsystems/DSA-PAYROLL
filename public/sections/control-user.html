@@ -1,0 +1,794 @@
+<style>
+  @keyframes grow-up {
+    0% { height: 0; bottom: 0; }
+    100% { height: 100%; bottom: 0; }
+  }
+  @keyframes grow-down {
+    0% { height: 0; top: 0; }
+    100% { height: 100%; top: 0; }
+  }
+  @keyframes expand {
+    0% { width: 0; left: 50%; transform: translate(-50%, -50%); }
+    100% { width: 100%; left: 0; transform: translateY(-50%); }
+  }
+  .animate-grow-up {
+    animation: grow-up 0.6s ease-in-out infinite alternate;
+    position: absolute;
+    bottom: 0;
+  }
+  .animate-grow-down {
+    animation: grow-down 0.6s ease-in-out infinite alternate;
+    position: absolute;
+    top: 0;
+  }
+  .animate-expand {
+    animation: expand 0.6s ease-in-out infinite alternate;
+  }
+</style>
+
+<div class="p-6">
+  <div class="flex flex-wrap gap-2 items-center justify-between mb-6">
+    <h3 id="page-title" class="text-lg font-semibold text-gray-900">Current Users</h3>
+    <div id="action-view" class="flex flex-wrap items-center gap-2">
+      <input id="personnel-search" placeholder="Search..." class="px-3 py-2 border rounded w-56" />
+      <button onclick="window.navigation?.navigateToSection?.('create-user','Create User')"
+              class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+        Add New User
+      </button>
+    </div>
+  </div>
+
+  <div id="view-root">
+    <!-- TABLE VIEW -->
+    <div id="table-view">
+      <div class="overflow-x-auto">
+        <table class="w-full border-collapse border border-gray-300">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="border border-gray-300 px-4 py-3 text-left font-medium">User ID</th>
+              <th class="border border-gray-300 px-4 py-3 text-left font-medium">Full Name</th>
+              <th class="border border-gray-300 px-4 py-3 text-left font-medium">Role</th>
+              <th class="border border-gray-300 px-4 py-3 text-left font-medium">Status</th>
+              <th class="border border-gray-300 px-4 py-3 text-center font-medium">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="personnel-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- EDIT FORM (replaces table when active) -->
+    <div id="edit-view" class="hidden p-6">
+
+      <form id="edit-user-form" class="space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">User ID</label>
+            <input type="text" name="user_id" readonly  class="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md cursor-not-allowed">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Full Name *</label>
+            <input type="text" name="full_name" readonly required  class="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md cursor-not-allowed">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Email *</label>
+            <input type="email" name="email" readonly required  class="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md cursor-not-allowed">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Payroll Class *</label>
+            <select id="payroll-class" name="payroll_class" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              <option value="">Select Payroll Class</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">User Role *</label>
+            <select name="user_role" id="role" required  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              <option value="">Select Role...</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Status *</label>
+            <select name="status" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              <option value="">Select Status...</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+              <option value="suspended">Suspended</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+            <input type="tel" name="phone_number"  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Expiry Date</label>
+            <input type="date" name="expiry_date"  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <small class="text-gray-500 text-xs">Leave blank to remove expiry</small>
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-3 pt-4">
+          <button type="button" id="cancel-edit-btn" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">Cancel</button>
+          <button type="submit" id="submit-edit-btn" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- View User Modal -->
+  <div id="viewEmployeeModal" class="fixed inset-0 hidden flex items-center justify-center z-50">
+    <div id="viewEmployeeBackdrop" class="absolute inset-0 bg-black bg-opacity-50"></div>
+    <div class="relative bg-white rounded-lg shadow-lg w-11/12 max-w-lg p-6 z-10 max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-start">
+        <h3 class="text-lg font-semibold text-blue-600">User Details</h3>
+        <button id="close-view-modal" class="text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+      </div>
+
+      <div id="viewEmployeeContent" class="mt-4 space-y-2 text-gray-700"></div>
+
+      <div class="flex justify-end mt-6">
+        <button id="view-modal-close-btn" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Alert Modal -->
+  <div id="alertModal" class="fixed inset-0 hidden flex items-center justify-center z-50">
+    <div class="absolute inset-0 bg-black bg-opacity-50"></div>
+    <div class="relative bg-white rounded-lg shadow-lg w-11/12 max-w-md p-6 z-10">
+      <div class="flex items-start mb-4">
+        <div id="alert-icon" class="flex-shrink-0 mr-3"></div>
+        <div class="flex-1">
+          <h3 id="alert-title" class="text-lg font-semibold mb-2"></h3>
+          <p id="alert-message" class="text-gray-700"></p>
+        </div>
+      </div>
+      <div class="flex justify-end gap-3 mt-6">
+        <button id="alert-cancel-btn" class="hidden px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">Cancel</button>
+        <button id="alert-ok-btn" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success Popup -->
+  <div id="successPopup" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 hidden z-50">
+    <div class="bg-white p-6 rounded shadow flex items-center space-x-3">
+      <div id="successSpinner" class="relative w-10 h-10 mx-auto mb-4">
+      <div class="absolute left-1 w-[6px] bg-blue-600 rounded animate-grow-up"></div>
+      <div class="absolute right-1 w-[6px] bg-blue-600 rounded animate-grow-down [animation-delay:0.3s]"></div>
+      <div
+        class="absolute top-1/2 left-1 h-[6px] bg-blue-600 rounded animate-expand [animation-delay:0.6s] -translate-y-1/2">
+      </div>
+    </div>
+    <span id="successMessage" class="text-gray-700">Processing...</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  const auth = window.authService;
+// Alert Modal System
+const AlertModal = {
+  modal: null,
+  title: null,
+  message: null,
+  icon: null,
+  okBtn: null,
+  cancelBtn: null,
+  resolve: null,
+
+  init() {
+    this.modal = document.getElementById('alertModal');
+    this.title = document.getElementById('alert-title');
+    this.message = document.getElementById('alert-message');
+    this.icon = document.getElementById('alert-icon');
+    this.okBtn = document.getElementById('alert-ok-btn');
+    this.cancelBtn = document.getElementById('alert-cancel-btn');
+
+    this.okBtn?.addEventListener('click', () => this.close(true));
+    this.cancelBtn?.addEventListener('click', () => this.close(false));
+  },
+
+  show(options = {}) {
+    return new Promise((resolve) => {
+      this.resolve = resolve;
+      
+      const type = options.type || 'info'; // 'info', 'error', 'warning', 'success', 'confirm'
+      const title = options.title || this.getDefaultTitle(type);
+      const message = options.message || '';
+      const showCancel = options.showCancel || false;
+
+      this.title.textContent = title;
+      this.message.textContent = message;
+      this.icon.innerHTML = this.getIcon(type);
+
+      if (showCancel) {
+        this.cancelBtn.classList.remove('hidden');
+        this.okBtn.textContent = options.okText || 'Yes';
+      } else {
+        this.cancelBtn.classList.add('hidden');
+        this.okBtn.textContent = options.okText || 'OK';
+      }
+
+      this.modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    });
+  },
+
+  close(result) {
+    this.modal.classList.add('hidden');
+    document.body.style.overflow = '';
+    if (this.resolve) {
+      this.resolve(result);
+      this.resolve = null;
+    }
+  },
+
+  getDefaultTitle(type) {
+    const titles = {
+      info: 'Information',
+      error: 'Error',
+      warning: 'Warning',
+      success: 'Success',
+      confirm: 'Confirm Action'
+    };
+    return titles[type] || 'Alert';
+  },
+
+  getIcon(type) {
+    const icons = {
+      info: '<svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>',
+      error: '<svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>',
+      warning: '<svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>',
+      success: '<svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>',
+      confirm: '<svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>'
+    };
+    return icons[type] || icons.info;
+  }
+};
+
+// Initialize alert modal
+AlertModal.init();
+
+async function fetchRoles() {
+  try {
+    const token = localStorage.getItem('token');
+
+    const res = await auth.fetchWithAuth("/roles", {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}` 
+        }                 
+    });
+
+    if (!res.ok) {
+      throw new Error(`Failed to fetch roles: ${res.status}`);
+    }
+
+    const roles = await res.json();
+    const select = document.getElementById("role");
+    
+    if (!select) return;
+    
+    // Clear existing options first
+    select.innerHTML = "";
+    
+    // Add default option
+    const defaultOption = document.createElement("option");
+    defaultOption.value = "";
+    defaultOption.textContent = "Select a role";
+    defaultOption.disabled = true;
+    defaultOption.selected = true;
+    select.appendChild(defaultOption);
+
+    // Add role options
+    roles.forEach(r => {
+      const opt = document.createElement("option");
+      opt.value = r.name || r.id;
+      opt.textContent = r.name || r.display_name || r.id;
+      select.appendChild(opt);
+    });
+  } catch (err) {
+    console.error("❌ Failed to fetch roles:", err);
+    await AlertModal.show({
+      type: 'error',
+      title: 'Failed to Load Roles',
+      message: 'Could not fetch user roles. Please refresh the page.'
+    });
+  }
+}
+
+//payrollclass dropdown
+async function loadPayrollClasses() {
+  try {
+    const token = localStorage.getItem('token');
+
+    const res = await auth.fetchWithAuth("/db_classes", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      }
+    });
+
+    if (!res.ok) {
+      throw new Error(`HTTP error! Status: ${res.status}`);
+    }
+
+    const classes = await res.json();
+    const select = document.getElementById("payroll-class");
+
+    if (!select) {
+      console.error("⚠️ Element with id 'payroll-class' not found.");
+      return;
+    }
+
+    // Clear existing options
+    select.innerHTML = "";
+
+    // Add default option
+    const defaultOption = document.createElement("option");
+    defaultOption.value = "";
+    defaultOption.textContent = "Select a class";
+    defaultOption.disabled = true;
+    defaultOption.selected = true;
+    select.appendChild(defaultOption);
+
+    // Populate with DB data
+    classes.forEach(cls => {
+      const opt = document.createElement("option");
+      opt.value = cls.classname;            // backend value
+      opt.textContent = cls.classname; // human-readable label
+      select.appendChild(opt);
+    });
+  } catch (err) {
+    console.error("❌ Failed to load payroll classes:", err);
+    await AlertModal.show({
+      type: 'error',
+      title: 'Failed to Load Payroll Classes',
+      message: 'Could not fetch payroll classes. Please refresh the page.'
+    });
+  }
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener("DOMContentLoaded", () => {
+    fetchRoles();
+    loadPayrollClasses();
+  });
+} else {
+  fetchRoles();
+  loadPayrollClasses();
+}
+
+class PersonnelManager {
+  constructor() {
+    this.personnel = [];
+    this.filtered = [];
+    this.editingUserId = null;
+    this.cache();
+    this.bindUI();
+    this.load();
+  }
+
+  cache() {
+    this.tableBody = document.getElementById('personnel-table-body');
+    this.tableView = document.getElementById('table-view');
+    this.actionView = document.getElementById('action-view');
+    this.editView = document.getElementById('edit-view');
+    this.editForm = document.getElementById('edit-user-form');
+    this.search = document.getElementById('personnel-search');
+    this.backBtn = document.getElementById('back-to-list');
+    this.cancelBtn = document.getElementById('cancel-edit-btn');
+    this.submitBtn = document.getElementById('submit-edit-btn');
+    this.successPopup = document.getElementById('successPopup');
+    this.successSpinner = document.getElementById('successSpinner');
+    this.successMessage = document.getElementById('successMessage');
+
+    // view modal elements
+    this.viewModal = document.getElementById('viewEmployeeModal');
+    this.viewBackdrop = document.getElementById('viewEmployeeBackdrop');
+    this.viewContent = document.getElementById('viewEmployeeContent');
+    this.viewCloseBtn = document.getElementById('close-view-modal');
+    this.viewCloseBtn2 = document.getElementById('view-modal-close-btn');
+  }
+
+  bindUI() {
+    this.search?.addEventListener('input', () => this.onSearch());
+    this.backBtn?.addEventListener('click', () => this.showList());
+    this.cancelBtn?.addEventListener('click', () => this.showList());
+
+    // edit form submit - ensure single handler
+    if (this.editForm) {
+      if (this.editForm._handler) this.editForm.removeEventListener('submit', this.editForm._handler);
+      this.editForm._handler = this.onEditSubmit.bind(this);
+      this.editForm.addEventListener('submit', this.editForm._handler);
+    }
+
+    // view modal handlers
+    this.viewBackdrop?.addEventListener('click', () => this.hideViewModal());
+    this.viewCloseBtn?.addEventListener('click', () => this.hideViewModal());
+    this.viewCloseBtn2?.addEventListener('click', () => this.hideViewModal());
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') this.hideViewModal(); });
+  }
+
+  async load() {
+    try {
+      const token = localStorage.getItem("token");
+
+      const res = await auth.fetchWithAuth('/api/users',{   
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`, 
+      }
+    });
+      
+      if (!res.ok) {
+        throw new Error(`Failed to load users: ${res.status}`);
+      }
+      
+      const data = await res.json();
+      this.personnel = Array.isArray(data) ? data : [];
+    } catch (err) {
+      console.error('Failed to load users', err);
+      this.personnel = [];
+      await AlertModal.show({
+        type: 'error',
+        title: 'Failed to Load Users',
+        message: 'Could not fetch user data. Please refresh the page.'
+      });
+    }
+    this.filtered = [...this.personnel];
+    this.renderTable();
+  }
+
+  onSearch() {
+    const q = (this.search?.value || '').toLowerCase();
+    this.filtered = this.personnel.filter(u =>
+      (u.full_name || '').toLowerCase().includes(q) ||
+      (u.user_id || '').toLowerCase().includes(q) ||
+      (u.user_role || '').toLowerCase().includes(q) ||
+      (u.email || '').toLowerCase().includes(q)
+    );
+    this.renderTable();
+  }
+
+  renderTable() {
+    if (!this.tableBody) return;
+
+    if (!this.filtered || this.filtered.length === 0) {
+      this.tableBody.innerHTML = `
+        <tr>
+          <td class="px-4 py-6 text-center text-gray-500" colspan="5">No records found</td>
+        </tr>`;
+      return;
+    }
+
+    this.tableBody.innerHTML = this.filtered.map(u => `
+      <tr>
+        <td class="border border-gray-300 px-4 py-3 text-left">${u.user_id || ''}</td>
+        <td class="border border-gray-300 px-4 py-3 text-left font-medium text-navy">${u.full_name || ''}</td>
+        <td class="border border-gray-300 px-4 py-3 text-left">${u.user_role || ''}</td>
+        <td class="border border-gray-300 px-4 py-3 text-left">
+          <span class="inline-block px-2 py-1 text-xs rounded-full ${this.statusClass(u.status)}">
+            ${u.status ? (u.status.charAt(0).toUpperCase() + u.status.slice(1)) : ''}
+          </span>
+        </td>
+        <td class="border border-gray-300 px-4 py-3 text-left text-center">
+          <button onclick="window.personnelManager.viewUser('${u.user_id}')" class="px-2 py-1 bg-blue-600 text-white text-xs rounded mr-1 hover:bg-blue-700">View</button>
+          <button onclick="window.personnelManager.startEdit('${u.user_id}')" class="px-2 py-1 bg-green-600 text-white text-xs rounded mr-1 hover:bg-green-700">Edit</button>
+          <button onclick="window.personnelManager.deleteUser('${u.user_id}')" class="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700">Delete</button>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  statusClass(status) {
+    switch (status) {
+      case 'active': return 'bg-green-100 text-green-800';
+      case 'inactive': return 'bg-red-100 text-red-800';
+      case 'suspended': return 'bg-yellow-100 text-yellow-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  }
+
+  async viewUser(id) {
+    const u = this.personnel.find(x => x.user_id === id);
+    if (!u) {
+      // try fetch single user
+      try {
+        const token = localStorage.getItem("token");
+        const res = await auth.fetchWithAuth(`/api/users/${encodeURIComponent(id)}`, {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+        
+        if (!res.ok) throw new Error('User not found');
+        const data = await res.json();
+        this.showUserModal(data);
+      } catch (err) {
+        await AlertModal.show({
+          type: 'error',
+          title: 'User Not Found',
+          message: 'Could not find the requested user.'
+        });
+      }
+      return;
+    }
+    this.showUserModal(u);
+  }
+
+  showUserModal(user) {
+    if (!this.viewModal || !this.viewContent) return;
+
+    const rows = [
+      ['User ID', user.user_id || ''],
+      ['Full name', user.full_name || ''],
+      ['Payroll Class', user.class_display_name || user.primary_class || ''],
+      ['Role', user.user_role || ''],
+      ['Status', user.status ? (user.status.charAt(0).toUpperCase() + user.status.slice(1)) : ''],
+      ['Email', user.email || ''],
+      ['Phone', user.phone_number || ''],
+      ['Expiry Date', user.expiry_date ? new Date(user.expiry_date).toLocaleDateString() : 'No expiry']
+    ];
+
+    this.viewContent.innerHTML = rows.map(r => `
+      <div class="grid grid-cols-3 gap-2 py-2 border-b border-gray-200">
+        <dt class="font-medium text-gray-600">
+          <strong class="block text-sm text-gray-700">${r[0]}:</strong>
+        </dt>
+        <dd class="col-span-2 text-gray-800">${r[1]}</dd>
+      </div>
+    `).join('');
+
+    this.viewModal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+  }
+
+  hideViewModal() {
+    if (!this.viewModal) return;
+    this.viewModal.classList.add('hidden');
+    document.body.style.overflow = '';
+  }
+
+  async startEdit(id) {
+    let user = this.personnel.find(x => x.user_id === id);
+    if (!user) {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await auth.fetchWithAuth(`/api/users/${encodeURIComponent(id)}`, {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+        if (res.ok) user = await res.json();
+      } catch (e) { 
+        console.error('Failed to fetch user', e);
+      }
+    }
+    
+    if (!user) {
+      await AlertModal.show({
+        type: 'error',
+        title: 'User Not Found',
+        message: 'Could not find the requested user.'
+      });
+      return;
+    }
+    
+    this.editingUserId = id;
+    this.fillForm(user);
+    this.showEdit();
+  }
+
+  fillForm(user) {
+    if (!this.editForm) return;
+    const f = this.editForm;
+    f.elements['user_id'].value = user.user_id || '';
+    f.elements['full_name'].value = user.full_name || '';
+    f.elements['payroll_class'].value = user.primary_class || '';
+    f.elements['user_role'].value = user.user_role || '';
+    f.elements['status'].value = user.status || '';
+    f.elements['email'].value = user.email || '';
+    f.elements['phone_number'].value = user.phone_number || '';
+    f.elements['expiry_date'].value = user.expiry_date ? new Date(user.expiry_date).toISOString().slice(0,10) : '';
+    this.submitBtn?.removeAttribute('disabled');
+  }
+
+  showEdit() {
+    this.tableView.classList.add('hidden');
+    this.actionView.classList.add('hidden');
+    this.editView.classList.remove('hidden');
+    document.getElementById('page-title').textContent = 'Edit User';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  showList() {
+    this.editingUserId = null;
+    this.editView.classList.add('hidden');
+    this.actionView.classList.remove('hidden');
+    this.tableView.classList.remove('hidden');
+    document.getElementById('page-title').textContent = 'Current Users';
+    this.editForm?.reset();
+    this.renderTable();
+  }
+
+  async onEditSubmit(e) {
+    e.preventDefault();
+    
+    if (!this.editingUserId) {
+      await AlertModal.show({
+        type: 'warning',
+        title: 'Not in Edit Mode',
+        message: 'Please use the Create User page to add new users.'
+      });
+      return;
+    }
+    
+    const btn = this.submitBtn;
+    btn.disabled = true;
+    btn.textContent = 'Saving...';
+
+    const f = this.editForm;
+
+    // Validate required fields
+    if (!f.elements['full_name'].value.trim()) {
+      await AlertModal.show({
+        type: 'error',
+        title: 'Validation Error',
+        message: 'Full name is required.'
+      });
+      btn.disabled = false;
+      btn.textContent = 'Save Changes';
+      return;
+    }
+
+    if (!f.elements['email'].value.trim()) {
+      await AlertModal.show({
+        type: 'error',
+        title: 'Validation Error',
+        message: 'Email is required.'
+      });
+      btn.disabled = false;
+      btn.textContent = 'Save Changes';
+      return;
+    }
+
+    // build raw values from form
+    const raw = {
+      full_name: f.elements['full_name'].value.trim(),
+      payroll_class: f.elements['payroll_class'].value.trim(),
+      user_role: f.elements['user_role'].value,
+      status: f.elements['status'].value,
+      email: f.elements['email'].value.trim(),
+      phone_number: f.elements['phone_number'].value.trim(),
+      expiry_date: f.elements['expiry_date'].value || null
+    };
+
+    // remove keys with empty string or explicit null for fields we don't want to overwrite
+    const payload = {};
+    Object.entries(raw).forEach(([k, v]) => {
+      if (v !== '' && v !== null && typeof v !== 'undefined') payload[k] = v;
+    });
+
+    try {
+      const token = localStorage.getItem("token");
+
+      const res = await auth.fetchWithAuth(`/api/users/${encodeURIComponent(this.editingUserId)}`, {
+        method: 'PUT',
+        headers: { 
+          'Content-Type': 'application/json',
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const ct = res.headers.get?.('content-type') || '';
+      const data = ct.includes('application/json') ? await res.json() : null;
+
+      if (res.ok) {
+        const updated = (data && data.user) ? data.user : Object.assign({ user_id: this.editingUserId }, payload);
+        const idx = this.personnel.findIndex(p => p.user_id === updated.user_id);
+        if (idx > -1) this.personnel[idx] = updated;
+        else this.personnel.unshift(updated);
+        this.filtered = [...this.personnel];
+        this.showSuccess('User Updated Successfully!');
+        this.showList();
+      } else {
+        const msg = (data && (data.error || data.message)) || 'Update failed';
+        await AlertModal.show({
+          type: 'error',
+          title: 'Update Failed',
+          message: msg
+        });
+      }
+    } catch (err) {
+      console.error('Edit error', err);
+      await AlertModal.show({
+        type: 'error',
+        title: 'Server Error',
+        message: 'Failed to connect to server. Please check your connection.'
+      });
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Save Changes';
+    }
+  }
+
+  async deleteUser(id) {
+    // Find user to get their full details for confirmation
+    const user = this.personnel.find(u => u.user_id === id);
+    const userName = user ? user.full_name : '';
+    
+    const confirmed = await AlertModal.show({
+      type: 'confirm',
+      title: 'Confirm Delete',
+      message: `Are you sure you want to delete this user (${id})${userName ? ' - ' + userName : ''}? This action cannot be undone.`,
+      showCancel: true,
+      okText: 'Delete'
+    });
+
+    if (!confirmed) return;
+
+    try {
+      const token = localStorage.getItem("token");
+
+      const res = await auth.fetchWithAuth(`/api/users/${encodeURIComponent(id)}`, { 
+        method: 'DELETE',
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}` 
+        }
+      });
+      
+      if (res.ok) {
+        this.personnel = this.personnel.filter(p => p.user_id !== id);
+        this.filtered = [...this.personnel];
+        this.renderTable();
+        this.showSuccess('User deleted successfully');
+      } else {
+        const txt = await res.json().catch(() => ({error: 'Delete failed'}));
+        await AlertModal.show({
+          type: 'error',
+          title: 'Delete Failed',
+          message: txt.error || txt.message || 'Could not delete user.'
+        });
+      }
+    } catch (err) {
+      console.error('Delete user', err);
+      await AlertModal.show({
+        type: 'error',
+        title: 'Server Error',
+        message: 'Failed to connect to server. Please check your connection.'
+      });
+    }
+  }
+
+  showSuccess(message) {
+    if (!this.successPopup) return;
+
+    // Show processing first
+    this.successMessage.textContent = 'Processing...';
+    this.successSpinner?.classList.remove('hidden');
+    this.successPopup.classList.remove('hidden');
+
+    setTimeout(() => {
+      this.successSpinner?.classList.add('hidden');
+      this.successMessage.innerHTML = `<span class="text-green-600 font-semibold">✔ ${message || 'Success'}</span>`;
+    }, 1000);
+
+    setTimeout(() => {
+      this.successPopup.classList.add('hidden');
+      this.successSpinner?.classList.remove('hidden');
+      this.successMessage.textContent = 'Processing...';
+    }, 3000);
+  }
+}
+
+window.personnelManager = new PersonnelManager();
+</script>

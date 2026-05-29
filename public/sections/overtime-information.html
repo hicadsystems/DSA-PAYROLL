@@ -1,0 +1,141 @@
+
+  <div class="p-6">
+    <h1 class="text-2xl font-bold mb-6 text-gray-800">Overtime Rates</h1>
+
+     <form id="overtimeForm" class="grid grid-cols-2 gap-4">
+        
+        <div >
+          <label class="text-sm font-semibold text-gray-600">Standard or Fixed</label>
+          <select class="border p-2 rounded w-full" id="stdfix" name="stdfix">
+            <option value="">Select</option>
+            <option value="S">Standard</option>
+            <option value="F">Fixed</option>
+          </select>
+        </div>
+
+        <div >
+          <label class="text-sm font-semibold text-gray-600">Ordinary</label>
+          <input class="border p-2 rounded w-full" name="ord" placeholder="Ord" type="number" step="0.1">
+        </div>
+
+        <div >
+          <label class="text-sm font-semibold text-gray-600">Saturday</label>
+          <input class="border p-2 rounded w-full" name="sat" placeholder="Sat" type="number" step="0.1">
+        </div>
+
+        <div >
+          <label class="text-sm font-semibold text-gray-600">Sunday</label>
+          <input class="border p-2 rounded w-full" name="sun" placeholder="Sun" type="number" step="0.1">
+        </div>
+
+        <div >
+          <label class="text-sm font-semibold text-gray-600">Public Holiday</label>
+          <input class="border p-2 rounded w-full" name="pub" placeholder="Pub" type="number" step="0.1">
+        </div>
+
+        <!-- Tax Overtime dropdown -->
+        <div>
+          <label class="text-sm font-semibold text-gray-600">Tax Overtime</label>
+          <select name="taxovertime" class="border p-2 rounded w-full">
+            <option value="">Select</option>
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+          </select>
+        </div>
+        
+
+        <!-- hidden fields -->
+        <input type="hidden" name="basicpay">
+        <input type="hidden" name="type" value="BT03">
+
+        <div class="col-span-2 flex justify-end mt-4">
+          <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+            Save
+          </button>
+        </div>
+      </form>
+
+    <div id="result" class="mt-4 text-sm text-gray-700"></div>
+
+    <!-- Modal -->
+    <div id="successModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center">
+      <div class="bg-white p-6 rounded-xl shadow-xl text-center">
+        <p class="text-lg font-semibold text-green-600">✅ Saved Successfully!</p>
+      </div>
+    </div>
+  </div>
+
+
+<script>
+  const auth = window.authService;
+let hasOvertime = false; // track if record exists
+
+/*function updateStdfixState() {
+  const stdfix = document.getElementById('stdfix');
+  stdfix.disabled = hasOvertime;
+}*/
+
+function showModal() { 
+  const modal = document.getElementById('successModal'); 
+  modal.classList.remove("hidden"); 
+  setTimeout(() => 
+  modal.classList.add("hidden"), 1000); 
+}
+
+async function loadForm() {
+  const token = localStorage.getItem("token");
+  const res = await auth.fetchWithAuth('/overtime', {   
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}` 
+    }
+  });
+  const row = await res.json();
+  if (row && Object.keys(row).length > 0) {
+    hasOvertime = true; // record exists
+    const form = document.getElementById('overtimeForm');
+    for (let [k, v] of Object.entries(row)) {
+      if (form.elements[k]) form.elements[k].value = v ?? '';
+    }
+    // map basicpay → taxovertime field
+    form.elements['taxovertime'].value = row.basicpay == 1 ? "Yes" : "No";
+  }
+  //updateStdfixState();
+}
+
+// Save form
+document.getElementById('overtimeForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const form = e.target;
+  const data = Object.fromEntries(new FormData(form).entries());
+  const token = localStorage.getItem("token");
+
+  data.basicpay = data.taxovertime === "Yes" ? 1 : 0;
+  delete data.taxovertime;
+
+  const method = hasOvertime ? "PUT" : "POST";
+
+  const res = await auth.fetchWithAuth('/overtime', {
+    method,
+    headers: { 
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}` 
+    },
+    body: JSON.stringify(data)
+  });
+
+  const result = await res.json();
+  if (res.ok) {
+    showModal();
+    hasOvertime = true;
+    //updateStdfixState();
+  } else {
+    alert("Error: " + (result.error || result.message));
+  }
+});
+
+
+// Prefill form on load
+loadForm();
+</script>

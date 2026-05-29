@@ -1,0 +1,555 @@
+<!-- One-Off Payments Report Section -->
+<style>
+  @keyframes grow-up {
+    0% {
+      height: 0;
+      bottom: 0;
+    }
+
+    100% {
+      height: 100%;
+      bottom: 0;
+    }
+  }
+
+  @keyframes grow-down {
+    0% {
+      height: 0;
+      top: 0;
+    }
+
+    100% {
+      height: 100%;
+      top: 0;
+    }
+  }
+
+  @keyframes expand {
+    0% {
+      width: 0;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    100% {
+      width: 100%;
+      left: 0;
+      transform: translateY(-50%);
+    }
+  }
+
+  .animate-grow-up {
+    animation: grow-up 0.6s ease-in-out infinite alternate;
+    position: absolute;
+    bottom: 0;
+  }
+
+  .animate-grow-down {
+    animation: grow-down 0.6s ease-in-out infinite alternate;
+    position: absolute;
+    top: 0;
+  }
+
+  .animate-expand {
+    animation: expand 0.6s ease-in-out infinite alternate;
+  }
+</style>
+
+
+<div class="items border rounded-lg m-6 max-w-lg mr-auto p-6 mx-auto">
+  <!-- Header -->
+  <div class="flex justify-between items-center mb-6 border-b border-gray-200 pb-3">
+    <h3 class="text-lg font-bold text-blue-700 flex items-center gap-2">
+      Select an option and Print One-Off Payments Report
+    </h3>
+  </div>
+
+  <form id="oneoffReportForm" class="space-y-4">
+    <!-- Radio + Checkboxes Grid -->
+    <div class="grid grid-cols-2 gap-3">
+      <label class="flex items-center space-x-2">
+        <input type="radio" name="reportType" value="bank" class="text-blue-600" checked>
+        <span class="text-gray-700">Bank Report</span>
+      </label>
+
+      <label class="hidden flex items-center space-x-2">
+        <input type="checkbox" id="chkAllMembers" class="text-blue-600" checked>
+        <span class="text-gray-700 font-medium">ALL Members</span>
+      </label>
+
+      <label class="flex items-center space-x-2">
+        <input type="radio" name="reportType" value="analysis" class="text-blue-600">
+        <span class="text-gray-700">Payment Analysis</span>
+      </label>
+      <label class="hidden flex items-center space-x-2">
+        <input type="checkbox" id="chkUbaUpload" class="text-blue-600">
+        <span class="text-gray-700">UBA Data Upload</span>
+      </label>
+
+      <label class="flex items-center space-x-2">
+        <input type="radio" name="reportType" value="remittance" class="text-blue-600">
+        <span class="text-gray-700">Remittance Advice</span>
+      </label>
+      <label class="hidden flex items-center space-x-2">
+        <input type="checkbox" id="chkIppis" class="text-blue-600">
+        <span class="text-gray-700 font-semibold">IPPIS</span>
+      </label>
+
+      <label class="flex items-center space-x-2">
+        <input type="radio" name="reportType" value="summary" class="text-blue-600">
+        <span class="text-gray-700">Summary</span>
+      </label>
+      <label class="hidden flex items-center space-x-2">
+        <input type="checkbox" id="chkCopyToHistory" class="text-blue-600">
+        <span class="text-gray-700">Copy To History</span>
+      </label>
+    </div>
+
+    <!-- Payroll Class -->
+    <div>
+      <label for="reportPayrollClass" class="block text-sm font-medium text-gray-700 mb-1">
+        Payroll Class <span class="text-red-500">*</span>
+      </label>
+      <select id="reportPayrollClass" name="reportPayrollClass"
+        class="w-full border border-blue-500 rounded px-3 py-2 focus:ring-2 focus:ring-blue-500" required>
+        <option value="">Select Payroll Class...</option>
+      </select>
+    </div>
+
+    <!-- Payment Type Selection (for remittance) -->
+    <div id="paymentTypeSection" class="hidden">
+      <label for="specificPaymentType" class="block text-sm font-medium text-gray-700 mb-1">
+        Select Payment Type
+      </label>
+      <select id="specificPaymentType"
+        class="w-full border border-blue-500 rounded px-3 py-2 focus:ring-2 focus:ring-blue-500">
+        <option value="">All Payment Types</option>
+      </select>
+    </div>
+
+    <!-- Output Format -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-2">
+        Output Format <span class="text-red-500">*</span>
+      </label>
+      <div class="flex space-x-4">
+        <label class="flex items-center space-x-2">
+          <input type="radio" name="outputFormat" value="excel" class="text-blue-600" checked>
+          <span class="text-gray-700">Excel</span>
+        </label>
+        <label class="flex items-center space-x-2">
+          <input type="radio" name="outputFormat" value="pdf" class="text-blue-600">
+          <span class="text-gray-700">PDF</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Bottom Row -->
+    <div class="flex items-center justify-between pt-4 border-t border-gray-200">
+      <label class="flex items-center space-x-2">
+        <input type="checkbox" id="chkAllClasses" class="text-blue-600">
+        <span class="text-gray-700">All Classes</span>
+      </label>
+
+      <div class="flex gap-2">
+        <button type="button" id="reportCancelBtn"
+          class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded border border-gray-300">
+          Cancel
+        </button>
+        <button type="submit" id="reportGenerateBtn"
+          class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded shadow">
+          Generate Report
+        </button>
+        <button type="button" id="button"
+          class="hidden px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded shadow">
+          Debug
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<!-- Loading Indicator -->
+<div id="reportLoadingIndicator" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg shadow-lg w-96 p-6 text-center">
+    <div class="relative w-10 h-10 mx-auto mb-4">
+      <div class="absolute left-1 w-[6px] bg-blue-600 rounded animate-grow-up"></div>
+      <div class="absolute right-1 w-[6px] bg-blue-600 rounded animate-grow-down [animation-delay:0.3s]"></div>
+      <div
+        class="absolute top-1/2 left-1 h-[6px] bg-blue-600 rounded animate-expand [animation-delay:0.6s] -translate-y-1/2">
+      </div>
+    </div>
+    <p class="text-lg font-semibold mb-2" id="loadingTitle">Generating Report</p>
+    <p class="text-sm text-gray-600" id="loadingMessage">Please wait while we process your request...</p>
+  </div>
+</div>
+
+<!-- Preview Modal -->
+<div id="oneoffPreviewModal"
+  class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
+  <div class="bg-gray-50 rounded-lg shadow-lg w-full max-w-5xl max-h-[90vh] overflow-hidden">
+    <!-- Header -->
+    <div class="flex justify-between items-center px-6 py-4 bg-navy">
+      <h3 class="text-lg font-semibold text-white" id="oneoffPreviewTitle">One-Off Payments Report Preview</h3>
+      <button onclick="closeOneoffPreview()"
+        class="text-white hover:text-gray-300 text-2xl leading-none">&times;</button>
+    </div>
+    <!-- Body -->
+    <div class="overflow-auto bg-gray-300" style="max-height: calc(90vh - 100px);">
+      <iframe id="oneoffPreviewIframe" src="about:blank"
+        style="width: 100%; min-height: 842px; border: none; display: block;"></iframe>
+    </div>
+    <!-- Footer -->
+    <div class="flex justify-end gap-3 px-6 py-2 bg-gray-50">
+      <button onclick="closeOneoffPreview()"
+        class="px-4 py-1 bg-gray-200 hover:bg-gray-300 rounded border border-gray-300">
+        Cancel
+      </button>
+      <button onclick="downloadOneoffReport()" class="px-4 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded shadow"
+        id="oneoffDownloadBtn">
+        Download
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Success Modal -->
+<div id="reportSuccessModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg shadow-lg w-96 p-6 text-center">
+    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+      <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+      </svg>
+    </div>
+    <h3 class="text-xl font-semibold text-green-600 mb-2">Download Complete!</h3>
+    <p class="mb-6 text-gray-700" id="reportSuccessMessage">Your report has been downloaded successfully.</p>
+    <button id="reportSuccessOkBtn" class="px-6 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+      OK
+    </button>
+  </div>
+</div>
+
+<!-- Error Modal -->
+<div id="reportErrorModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg shadow-lg w-96 p-6 text-center">
+    <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+      <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+    </div>
+    <h3 class="text-xl font-semibold text-red-600 mb-2">Error</h3>
+    <p class="mb-6 text-gray-700" id="reportErrorMessage">An error occurred while generating the report.</p>
+    <button id="reportErrorOkBtn" class="px-6 py-2 bg-red-600 text-white rounded hover:bg-red-700">
+      OK
+    </button>
+  </div>
+</div>
+
+<script>
+  const auth = window.authService;
+  (function () {
+    const API_BASE = '/oneoffreports';
+    const token = localStorage.getItem('token');
+
+    // DOM Elements
+    const form = document.getElementById('oneoffReportForm');
+    const reportTypeRadios = document.querySelectorAll('input[name="reportType"]');
+    const payrollClassSelect = document.getElementById('reportPayrollClass');
+    const paymentTypeSection = document.getElementById('paymentTypeSection');
+    const specificPaymentType = document.getElementById('specificPaymentType');
+    const chkAllClasses = document.getElementById('chkAllClasses');
+    const chkUbaUpload = document.getElementById('chkUbaUpload');
+    const chkIppis = document.getElementById('chkIppis');
+    const chkCopyToHistory = document.getElementById('chkCopyToHistory');
+    const chkAllMembers = document.getElementById('chkAllMembers');
+    const reportCancelBtn = document.getElementById('reportCancelBtn');
+
+    // Modals
+    const loadingIndicator = document.getElementById('reportLoadingIndicator');
+    const loadingTitle = document.getElementById('loadingTitle');
+    const loadingMessage = document.getElementById('loadingMessage');
+    const successModal = document.getElementById('reportSuccessModal');
+    const successMessage = document.getElementById('reportSuccessMessage');
+    const successOkBtn = document.getElementById('reportSuccessOkBtn');
+    const errorModal = document.getElementById('reportErrorModal');
+    const errorMessage = document.getElementById('reportErrorMessage');
+    const errorOkBtn = document.getElementById('reportErrorOkBtn');
+
+    // Toggle payment type section
+    reportTypeRadios.forEach(radio => {
+      radio.addEventListener('change', (e) => {
+        if (e.target.value === 'remittance') {
+          paymentTypeSection.classList.remove('hidden');
+        } else {
+          paymentTypeSection.classList.add('hidden');
+          specificPaymentType.value = '';
+        }
+      });
+    });
+
+    // Disable payroll class when All Classes is checked
+    chkAllClasses.addEventListener('change', (e) => {
+      payrollClassSelect.disabled = e.target.checked;
+      if (e.target.checked) {
+        payrollClassSelect.value = '';
+      }
+    });
+
+    // Load payroll classes
+    async function loadPayrollClasses() {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await auth.fetchWithAuth(`/payslips/filter-options`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          if (result.success && result.data.locations) {
+            payrollClassSelect.innerHTML = '<option value="">All Locations</option>';
+            result.data.locations.forEach(cls => {
+              const option = document.createElement('option');
+              option.value = cls.classcode;
+              option.textContent = cls.classname || cls.classcode;
+              payrollClassSelect.appendChild(option);
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Error loading locations:', error);
+      }
+    }
+
+    async function fetchDatabaseName() {
+      try {
+        const token = localStorage.getItem("token");
+
+        const res = await auth.fetchWithAuth("/payslips/database", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          }
+        });
+
+        const data = await res.json();
+
+        payrollClassSelect.innerHTML = ""; // clear old options
+
+        const option = document.createElement("option");
+        option.value = data.database;
+        option.textContent = data.class_name;
+        option.selected = true;
+
+        payrollClassSelect.appendChild(option);
+      } catch (err) {
+        console.error("Failed to load payroll class:", err);
+      }
+    }
+
+    // Load payment types for filter
+    async function loadPaymentTypes() {
+      try {
+        const response = await auth.fetchWithAuth(`/off/oneofftypes`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await response.json();
+
+        specificPaymentType.innerHTML = '<option value="">All Payment Types</option>';
+        data.forEach(item => {
+          const option = document.createElement('option');
+          option.value = item.one_type;
+          option.textContent = `${item.one_type}`;
+          specificPaymentType.appendChild(option);
+        });
+      } catch (error) {
+        console.error('Error loading payment types:', error);
+      }
+    }
+
+    // Generate Report
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const reportType = document.querySelector('input[name="reportType"]:checked').value;
+      const outputFormat = document.querySelector('input[name="outputFormat"]:checked').value;
+      const payrollClass = payrollClassSelect.value;
+      const allClasses = chkAllClasses.checked;
+      const ubaUpload = chkUbaUpload.checked;
+      const ippis = chkIppis.checked;
+      const copyToHistory = chkCopyToHistory.checked;
+
+      if (!payrollClass && !allClasses) {
+        errorMessage.textContent = 'Please select a payroll class or check "All Classes"';
+        errorModal.classList.remove('hidden');
+        return;
+      }
+
+      // Show loading
+      loadingTitle.textContent = 'Generating Report';
+      loadingMessage.textContent = 'Processing data...';
+      loadingIndicator.classList.remove('hidden');
+
+      try {
+        const requestBody = {
+          reportType: reportType,
+          payrollClass: payrollClass,
+          allClasses: allClasses,
+          ubaUpload: ubaUpload,
+          ippis: ippis
+        };
+
+        if (reportType === 'remittance' && specificPaymentType.value) {
+          requestBody.specificType = specificPaymentType.value;
+        }
+
+        loadingMessage.textContent = `Generating ${outputFormat.toUpperCase()} file...`;
+
+        const endpoint = outputFormat === 'excel'
+          ? `${API_BASE}/generate-excel-report`
+          : `${API_BASE}/generate-pdf-report`;
+
+        const response = await auth.fetchWithAuth(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(requestBody)
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.message || 'Failed to generate report');
+        }
+
+        loadingMessage.textContent = 'Preparing preview...';
+
+        const blob = await response.blob();
+
+        // Store blob and metadata for download
+        window.oneoffCurrentBlob = blob;
+        window.oneoffCurrentFormat = outputFormat;
+        window.oneoffCurrentReportType = reportType;
+
+        loadingIndicator.classList.add('hidden');
+
+        // Show preview modal
+        const previewModal = document.getElementById('oneoffPreviewModal');
+        const iframe = document.getElementById('oneoffPreviewIframe');
+        const previewTitle = document.getElementById('oneoffPreviewTitle');
+        const downloadBtn = document.getElementById('oneoffDownloadBtn');
+
+        const reportTypeLabels = {
+          bank: 'Bank Report',
+          analysis: 'Payment Analysis',
+          remittance: 'Remittance Advice',
+          summary: 'Summary'
+        };
+        previewTitle.textContent = `One-Off Payments — ${reportTypeLabels[reportType] || reportType} Preview`;
+
+        if (outputFormat === 'pdf') {
+          downloadBtn.textContent = 'Download PDF';
+          const blobUrl = URL.createObjectURL(blob);
+          window.oneoffCurrentBlobUrl = blobUrl;
+          iframe.style.minHeight = '842px';
+          iframe.removeAttribute('srcdoc');
+          iframe.src = blobUrl + '#toolbar=0';
+        } else {
+          downloadBtn.textContent = 'Download Excel';
+          window.oneoffCurrentBlobUrl = null;
+          iframe.style.minHeight = '300px';
+          iframe.srcdoc = `
+            <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:280px;font-family:sans-serif;color:#374151;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="#16a34a" style="margin-bottom:16px;">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
+              <p style="font-size:1.1rem;font-weight:600;margin-bottom:8px;">Excel Report Ready</p>
+              <p style="font-size:0.9rem;color:#6b7280;">Click <strong>Download Excel</strong> to save the file.</p>
+            </div>`;
+        }
+
+        previewModal.classList.remove('hidden');
+
+        // Copy to history if checked (fire-and-forget)
+        if (copyToHistory) {
+          console.log('Copy to history feature to be implemented');
+        }
+
+      } catch (error) {
+        console.error('Error generating report:', error);
+        loadingIndicator.classList.add('hidden');
+        errorMessage.textContent = error.message || 'An error occurred while generating the report';
+        errorModal.classList.remove('hidden');
+      }
+    });
+
+    // Close modals
+    successOkBtn.addEventListener('click', () => {
+      successModal.classList.add('hidden');
+    });
+
+    errorOkBtn.addEventListener('click', () => {
+      errorModal.classList.add('hidden');
+    });
+
+    reportCancelBtn.addEventListener('click', () => {
+      form.reset();
+      chkAllMembers.checked = true;
+      payrollClassSelect.disabled = false;
+    });
+
+    // Debug button
+    document.getElementById('button').addEventListener('click', async () => {
+      try {
+        const response = await auth.fetchWithAuth(`${API_BASE}/font-diagnostic`, {
+          method: 'GET',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await response.json();
+        console.log('Font diagnostic:', JSON.stringify(data, null, 2));
+        alert('Check browser console for font diagnostic results');
+      } catch (err) {
+        console.error('Diagnostic failed:', err);
+        alert('Diagnostic failed: ' + err.message);
+      }
+    });
+
+    // Initialize
+    loadPayrollClasses();
+    fetchDatabaseName();
+    loadPaymentTypes();
+  })();
+
+  // Preview modal controls (global scope)
+  window.closeOneoffPreview = function closeOneoffPreview() {
+    const modal = document.getElementById('oneoffPreviewModal');
+    const iframe = document.getElementById('oneoffPreviewIframe');
+    if (window.oneoffCurrentBlobUrl) {
+      URL.revokeObjectURL(window.oneoffCurrentBlobUrl);
+      window.oneoffCurrentBlobUrl = null;
+    }
+    iframe.src = 'about:blank';
+    modal.classList.add('hidden');
+  }
+
+  window.downloadOneoffReport = function downloadOneoffReport() {
+    if (!window.oneoffCurrentBlob) return;
+    const format = window.oneoffCurrentFormat;
+    const reportType = window.oneoffCurrentReportType;
+    const ext = format === 'excel' ? 'xlsx' : 'pdf';
+    const url = URL.createObjectURL(window.oneoffCurrentBlob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `oneoff_${reportType}_${Date.now()}.${ext}`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+
+    // Show success modal
+    const successMessage = document.getElementById('reportSuccessMessage');
+    successMessage.textContent = `Your ${reportType} report has been downloaded as ${format.toUpperCase()}.`;
+    document.getElementById('reportSuccessModal').classList.remove('hidden');
+  }
+</script>

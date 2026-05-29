@@ -1,0 +1,58 @@
+{
+  "httpPort": 5488,
+  "store": {
+    "provider": "fs"
+  },
+  "blobStorage": {
+    "provider": "fs"
+  },
+  "logger": {
+    "console": {
+      "transport": "console",
+      "level": "debug"
+    },
+    "file": {
+      "transport": "file",
+      "level": "info",
+      "filename": "logs/reporter.log"
+    },
+    "error": {
+      "transport": "file",
+      "level": "error",
+      "filename": "logs/error.log"
+    }
+  },
+  "trustUserCode": false,
+  "reportTimeout": 300000,
+  "workers": {
+    "numberOfWorkers": 2,
+    "timeout": 300000,
+    "taskPingTimeout": 120000
+  },
+  "extensions": {
+    "authentication": {
+      "cookieSession": {},
+      "admin": {
+        "username": "admin",
+        "password": "password"
+      },
+      "enabled": false
+    },
+    "sample-template": {
+      "createSamples": true
+    },
+    "chrome-pdf": {
+      "timeout": 300000,
+      "launchOptions": {
+        "args": [
+          "--no-sandbox",
+          "--disable-setuid-sandbox",
+          "--disable-dev-shm-usage",
+          "--disable-gpu",
+          "--disable-features=VizDisplayCompositor"
+        ]
+      },
+      "strategy": "dedicated-process"
+    }
+  }
+}

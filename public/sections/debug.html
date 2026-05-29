@@ -1,0 +1,450 @@
+<!-- One-Off Payment Debug UI -->
+<div class="items border rounded-lg m-6 max-w-4xl mr-auto p-6 mx-auto">
+  <!-- Header -->
+  <div class="flex justify-between items-center mb-6 border-b border-gray-200 pb-3">
+    <h3 class="text-xl font-bold text-red-700 flex items-center gap-2">
+      🔍 Debug One-Off Payment Calculation
+    </h3>
+  </div>
+
+  <div class="space-y-4">
+    <!-- Payroll Class Input -->
+    <div>
+      <label for="debugPayrollClass" class="block text-sm font-medium text-gray-700 mb-1">
+        Payroll Class
+      </label>
+      <select 
+        id="debugPayrollClass" 
+        class="w-full border border-gray-300 rounded px-3 py-2 focus:ring-2 focus:ring-blue-500">
+        <option value="">Select Payroll Class...</option>
+      </select>
+    </div>
+
+    <!-- Debug Buttons -->
+    <div class="grid grid-cols-2 gap-3">
+      <button 
+        id="debugOverallBtn"
+        class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded shadow">
+        Debug Overall Setup
+      </button>
+      <button 
+        id="debugSingleBtn"
+        class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded shadow">
+        Debug Single Employee
+      </button>
+      <button 
+        id="debugPaymentTypesBtn"
+        class="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded shadow">
+        ⚠️ Why 0 Calculations?
+      </button>
+      <button 
+        id="quickCheckBtn"
+        class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded shadow">
+        Quick Database Check
+      </button>
+    </div>
+
+    <!-- Employee ID Input (for single debug) -->
+    <div id="singleEmployeeSection" class="hidden">
+      <label for="debugEmployeeId" class="block text-sm font-medium text-gray-700 mb-1">
+        Employee ID
+      </label>
+      <input 
+        type="text" 
+        id="debugEmployeeId"
+        placeholder="e.g., NN/4466"
+        class="w-full border border-gray-300 rounded px-3 py-2 focus:ring-2 focus:ring-blue-500">
+    </div>
+
+    <!-- Results Container -->
+    <div id="debugResults" class="hidden mt-6 border border-gray-300 rounded-lg">
+      <div class="bg-gray-100 p-3 border-b border-gray-300 flex justify-between items-center">
+        <h4 class="font-semibold text-gray-800">Debug Results</h4>
+        <button id="copyResultsBtn" class="text-sm px-3 py-1 bg-gray-600 text-white rounded hover:bg-gray-700">
+          Copy to Clipboard
+        </button>
+      </div>
+      <div class="p-4 bg-white">
+        <pre id="debugOutput" class="text-xs overflow-auto max-h-96 bg-gray-50 p-3 rounded"></pre>
+      </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div id="summaryCards" class="hidden grid grid-cols-3 gap-4 mt-6">
+      <div class="bg-blue-50 border border-blue-200 rounded p-4">
+        <div class="text-sm text-blue-600 font-medium mb-1">Active Employees</div>
+        <div id="summaryEmployees" class="text-2xl font-bold text-blue-800">-</div>
+      </div>
+      <div class="bg-green-50 border border-green-200 rounded p-4">
+        <div class="text-sm text-green-600 font-medium mb-1">Payment Types</div>
+        <div id="summaryPaymentTypes" class="text-2xl font-bold text-green-800">-</div>
+      </div>
+      <div class="bg-orange-50 border border-orange-200 rounded p-4">
+        <div class="text-sm text-orange-600 font-medium mb-1">Masterpayded Records</div>
+        <div id="summaryMasterpayded" class="text-2xl font-bold text-orange-800">-</div>
+      </div>
+    </div>
+
+    <!-- Issues Table -->
+    <div id="issuesSection" class="hidden mt-6">
+      <h4 class="font-semibold text-red-700 mb-3">⚠️ Issues Found</h4>
+      <div class="border border-red-200 rounded overflow-hidden">
+        <table class="w-full text-sm">
+          <thead class="bg-red-100">
+            <tr>
+              <th class="text-left p-2 font-semibold">Payment Type</th>
+              <th class="text-left p-2 font-semibold">Method</th>
+              <th class="text-left p-2 font-semibold">Issue</th>
+              <th class="text-left p-2 font-semibold">Solution</th>
+            </tr>
+          </thead>
+          <tbody id="issuesTableBody">
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Loading Indicator -->
+<div id="debugLoadingIndicator" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg shadow-lg w-80 p-6 text-center">
+    <div class="animate-spin h-10 w-10 border-4 border-blue-600 border-t-transparent rounded-full mx-auto mb-4"></div>
+    <span class="text-gray-700">Running diagnostics...</span>
+  </div>
+</div>
+
+<script>
+  const auth = window.authService;
+(function() {
+  const API_BASE = '/oneoff';
+  const token = localStorage.getItem('token');
+
+  // DOM Elements
+  const payrollClassSelect = document.getElementById('debugPayrollClass');
+  const debugOverallBtn = document.getElementById('debugOverallBtn');
+  const debugSingleBtn = document.getElementById('debugSingleBtn');
+  const debugPaymentTypesBtn = document.getElementById('debugPaymentTypesBtn');
+  const quickCheckBtn = document.getElementById('quickCheckBtn');
+  const singleEmployeeSection = document.getElementById('singleEmployeeSection');
+  const debugEmployeeId = document.getElementById('debugEmployeeId');
+  const debugResults = document.getElementById('debugResults');
+  const debugOutput = document.getElementById('debugOutput');
+  const copyResultsBtn = document.getElementById('copyResultsBtn');
+  const summaryCards = document.getElementById('summaryCards');
+  const summaryEmployees = document.getElementById('summaryEmployees');
+  const summaryPaymentTypes = document.getElementById('summaryPaymentTypes');
+  const summaryMasterpayded = document.getElementById('summaryMasterpayded');
+  const issuesSection = document.getElementById('issuesSection');
+  const issuesTableBody = document.getElementById('issuesTableBody');
+  const loadingIndicator = document.getElementById('debugLoadingIndicator');
+
+  // Load payroll classes
+  async function loadPayrollClasses() {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await auth.fetchWithAuth(`/payslips/filter-options`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success && result.data.locations) {
+          payrollClassSelect.innerHTML = '<option value="">All Locations</option>';
+          result.data.locations.forEach(cls => {
+            const option = document.createElement('option');
+            option.value = cls.classcode;
+            option.textContent = cls.classname || cls.classcode;
+            payrollClassSelect.appendChild(option);
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error loading locations:', error);
+    }
+  }
+
+  async function fetchDatabaseName() {
+    try {
+    const token = localStorage.getItem("token");
+
+    const res = await auth.fetchWithAuth("/payslips/database",{
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}` 
+      }                 
+    });
+
+    const data = await res.json();
+
+
+    payrollClassSelect.innerHTML = ""; // clear old options
+
+    const option = document.createElement("option");
+    option.value = data.database;
+    option.textContent = data.class_name;
+    option.selected = true;
+
+    payrollClassSelect.appendChild(option);
+    } catch (err) {
+    console.error("Failed to load payroll class:", err);
+    }
+  }
+
+  // Debug Payment Types - Why 0 Calculations?
+  debugPaymentTypesBtn.addEventListener('click', async () => {
+    loadingIndicator.classList.remove('hidden');
+    singleEmployeeSection.classList.add('hidden');
+
+    try {
+      const response = await auth.fetchWithAuth(`${API_BASE}/debug-payment-types`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      const result = await response.json();
+      loadingIndicator.classList.add('hidden');
+
+      if (result.success) {
+        // Show full JSON
+        debugOutput.textContent = JSON.stringify(result, null, 2);
+        debugResults.classList.remove('hidden');
+
+        // Build issues table
+        const issues = result.payment_types.filter(pt => 
+          pt.will_calculate === 'NO' || pt.will_calculate === 'SKIPPED'
+        );
+
+        if (issues.length > 0) {
+          issuesTableBody.innerHTML = issues.map(issue => `
+            <tr class="border-b hover:bg-yellow-50">
+              <td class="p-2 font-semibold">${issue.one_type}</td>
+              <td class="p-2">${issue.one_perc}</td>
+              <td class="p-2 ${issue.will_calculate === 'NO' ? 'text-red-600' : 'text-orange-600'}">
+                ${issue.will_calculate}: ${issue.reason}
+              </td>
+              <td class="p-2 text-sm">
+                ${issue.will_calculate === 'NO' ? 'Fix required' : 'Working as designed'}
+              </td>
+            </tr>
+          `).join('');
+          issuesSection.classList.remove('hidden');
+        } else {
+          issuesSection.classList.add('hidden');
+        }
+
+        // Show summary
+        summaryEmployees.textContent = '4368';
+        summaryPaymentTypes.textContent = result.summary.will_calculate;
+        summaryMasterpayded.textContent = result.expected_calculations;
+        summaryCards.classList.remove('hidden');
+
+      } else {
+        debugOutput.textContent = JSON.stringify(result, null, 2);
+        debugResults.classList.remove('hidden');
+      }
+    } catch (error) {
+      loadingIndicator.classList.add('hidden');
+      debugOutput.textContent = `Error: ${error.message}`;
+      debugResults.classList.remove('hidden');
+    }
+  });
+
+  // Debug Overall Setup
+  debugOverallBtn.addEventListener('click', async () => {
+    const payrollClass = payrollClassSelect.value;
+    if (!payrollClass) {
+      alert('Please select a payroll class');
+      return;
+    }
+
+    loadingIndicator.classList.remove('hidden');
+    singleEmployeeSection.classList.add('hidden');
+
+    try {
+      const response = await auth.fetchWithAuth(`${API_BASE}/debug-calculation/${payrollClass}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      const result = await response.json();
+      loadingIndicator.classList.add('hidden');
+
+      if (result.success) {
+        displayOverallDebug(result.debug_info);
+      } else {
+        debugOutput.textContent = JSON.stringify(result, null, 2);
+        debugResults.classList.remove('hidden');
+      }
+    } catch (error) {
+      loadingIndicator.classList.add('hidden');
+      debugOutput.textContent = `Error: ${error.message}`;
+      debugResults.classList.remove('hidden');
+    }
+  });
+
+  // Debug Single Employee
+  debugSingleBtn.addEventListener('click', () => {
+    singleEmployeeSection.classList.remove('hidden');
+    debugEmployeeId.focus();
+  });
+
+  debugEmployeeId.addEventListener('keypress', async (e) => {
+    if (e.key === 'Enter') {
+      const empno = debugEmployeeId.value.trim();
+      if (!empno) {
+        alert('Please enter employee ID');
+        return;
+      }
+
+      loadingIndicator.classList.remove('hidden');
+
+      try {
+        // Replace / with _SLASH_ for URL
+        const encodedEmpno = empno.replace(/\//g, '_SLASH_');
+        const response = await auth.fetchWithAuth(`${API_BASE}/debug-single-employee/${encodedEmpno}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        const result = await response.json();
+        loadingIndicator.classList.add('hidden');
+
+        debugOutput.textContent = JSON.stringify(result, null, 2);
+        debugResults.classList.remove('hidden');
+        summaryCards.classList.add('hidden');
+        issuesSection.classList.add('hidden');
+
+      } catch (error) {
+        loadingIndicator.classList.add('hidden');
+        debugOutput.textContent = `Error: ${error.message}`;
+        debugResults.classList.remove('hidden');
+      }
+    }
+  });
+
+  // Quick Database Check
+  quickCheckBtn.addEventListener('click', async () => {
+    loadingIndicator.classList.remove('hidden');
+
+    try {
+      // Use a simple existing endpoint to check tables
+      const checks = [];
+
+      // Check payment types
+      const typesResponse = await auth.fetchWithAuth(`${API_BASE}/oneofftypes`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const types = await typesResponse.json();
+      checks.push({
+        table: 'py_oneofftype',
+        count: types.length,
+        status: types.length > 0 ? '✅' : '❌'
+      });
+
+      // Check individual payments
+      const individualResponse = await auth.fetchWithAuth(`${API_BASE}/`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const individual = await individualResponse.json();
+      checks.push({
+        table: 'py_calculation',
+        count: individual.data ? individual.data.length : 0,
+        status: '✅'
+      });
+
+      loadingIndicator.classList.add('hidden');
+
+      const output = {
+        timestamp: new Date().toLocaleString(),
+        checks: checks,
+        note: 'For full diagnosis, use "Debug Overall Setup" button'
+      };
+
+      debugOutput.textContent = JSON.stringify(output, null, 2);
+      debugResults.classList.remove('hidden');
+      summaryCards.classList.add('hidden');
+      issuesSection.classList.add('hidden');
+
+    } catch (error) {
+      loadingIndicator.classList.add('hidden');
+      debugOutput.textContent = `Error: ${error.message}`;
+      debugResults.classList.remove('hidden');
+    }
+  });
+
+  // Display Overall Debug Results
+  function displayOverallDebug(info) {
+    // Show summary cards
+    summaryEmployees.textContent = info.active_employees;
+    summaryPaymentTypes.textContent = info.payment_types_count;
+    summaryMasterpayded.textContent = info.masterpayded_stats.record_count;
+    summaryCards.classList.remove('hidden');
+
+    // Show full JSON
+    debugOutput.textContent = JSON.stringify(info, null, 2);
+    debugResults.classList.remove('hidden');
+
+    // Analyze issues
+    const issues = [];
+
+    // Check if masterpayded is empty
+    if (info.masterpayded_stats.record_count === 0) {
+      issues.push({
+        type: 'ALL',
+        method: 'P/D',
+        issue: 'py_masterpayded table is EMPTY',
+        solution: 'Run regular payroll first OR use Type S/R payments'
+      });
+    }
+
+    // Check each payment type
+    info.payment_types.forEach(pt => {
+      if (pt.calculation_method === 'R' && pt.rank_data_exists === false) {
+        issues.push({
+          type: pt.type,
+          method: 'R',
+          issue: 'Missing rank amounts',
+          solution: 'Add rank data via POST /oneoffrank endpoint'
+        });
+      }
+
+      if ((pt.calculation_method === 'P' || pt.calculation_method === 'D') && 
+          pt.dependent_exists_for_sample === false) {
+        issues.push({
+          type: pt.type,
+          method: pt.calculation_method,
+          issue: `Dependent payment "${pt.depends_on}" not found in py_masterpayded`,
+          solution: 'Run payroll OR change dependent OR set one_bpay="No"'
+        });
+      }
+    });
+
+    // Display issues
+    if (issues.length > 0) {
+      issuesTableBody.innerHTML = issues.map(issue => `
+        <tr class="border-b hover:bg-red-50">
+          <td class="p-2 font-semibold">${issue.type}</td>
+          <td class="p-2">${issue.method}</td>
+          <td class="p-2 text-red-600">${issue.issue}</td>
+          <td class="p-2 text-sm">${issue.solution}</td>
+        </tr>
+      `).join('');
+      issuesSection.classList.remove('hidden');
+    } else {
+      issuesSection.classList.add('hidden');
+    }
+  }
+
+  // Copy to Clipboard
+  copyResultsBtn.addEventListener('click', () => {
+    navigator.clipboard.writeText(debugOutput.textContent);
+    copyResultsBtn.textContent = 'Copied!';
+    setTimeout(() => {
+      copyResultsBtn.textContent = 'Copy to Clipboard';
+    }, 2000);
+  });
+
+  // Initialize
+  loadPayrollClasses();
+  fetchDatabaseName();
+})();
+</script>

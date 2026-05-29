@@ -1,0 +1,491 @@
+<style>
+  @keyframes grow-up {
+    0% {
+      height: 0;
+      bottom: 0;
+    }
+
+    100% {
+      height: 100%;
+      bottom: 0;
+    }
+  }
+
+  @keyframes grow-down {
+    0% {
+      height: 0;
+      top: 0;
+    }
+
+    100% {
+      height: 100%;
+      top: 0;
+    }
+  }
+
+  @keyframes expand {
+    0% {
+      width: 0;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    100% {
+      width: 100%;
+      left: 0;
+      transform: translateY(-50%);
+    }
+  }
+
+  .animate-grow-up {
+    animation: grow-up 0.6s ease-in-out infinite alternate;
+    position: absolute;
+    bottom: 0;
+  }
+
+  .animate-grow-down {
+    animation: grow-down 0.6s ease-in-out infinite alternate;
+    position: absolute;
+    top: 0;
+  }
+
+  .animate-expand {
+    animation: expand 0.6s ease-in-out infinite alternate;
+  }
+</style>
+
+<!-- Print Options Section -->
+<section class="items border rounded-lg m-6 max-w-lg mr-auto p-6 mx-auto">
+  <h2 class="text-xl text-center border-b font-bold text-blue-600 mb-4">Print Payments by Bank(Branch) Reports</h2>
+
+  <form id="printForm" class="space-y-4">
+    <!-- Bank selection -->
+    <div>
+      <label class="block font-medium mb-2">Select Bank</label>
+      <div class="flex space-x-4">
+        <label class="flex items-center text-sm space-x-2">
+          <input type="radio" id="allBanks" name="bankChoice" value="all" checked>
+          <span>All Banks</span>
+        </label>
+        <label class="flex items-center text-sm space-x-2">
+          <input type="radio" id="specificBank" name="bankChoice" value="specific">
+          <span>Specific Bank</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Bank dropdown -->
+    <div id="bankSelectContainer" class="hidden">
+      <label for="bankName" class="block text-sm font-medium mb-1">Bank Name</label>
+      <select id="bankName" name="bankName"
+        class="w-full bg-transparent border border-blue-500 rounded px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        <option value="">Select Bank</option>
+      </select>
+    </div>
+
+    <!-- Month + Year -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div class="col-span-1">
+        <label for="processingMonth" class="block text-sm font-medium mb-1">Processing Month</label>
+        <select id="processingMonth" name="processingMonth"
+          class="w-full bg-transparent border border-blue-500 rounded px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+          <option value="">Select Month</option>
+          <option value="1">January</option>
+          <option value="2">February</option>
+          <option value="3">March</option>
+          <option value="4">April</option>
+          <option value="5">May</option>
+          <option value="6">June</option>
+          <option value="7">July</option>
+          <option value="8">August</option>
+          <option value="9">September</option>
+          <option value="10">October</option>
+          <option value="11">November</option>
+          <option value="12">December</option>
+        </select>
+      </div>
+      <div class="col-span-1">
+        <label for="processingYear" class="block text-sm font-medium mb-1">Processing Year</label>
+        <input type="number" id="processingYear" name="processingYear"
+          class="w-full bg-transparent border border-blue-500 rounded px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          placeholder="e.g., 2025" min="2020" max="2099">
+      </div>
+    </div>
+
+    <!-- Output Format -->
+    <div class="flex flex-wrap items-center gap-2">
+      <label class="block font-medium">Output Format</label>
+      <div class="flex space-x-4">
+        <label class="flex text-sm items-center space-x-2">
+          <input type="radio" name="bankFormat" value="pdf" checked><span>PDF</span>
+        </label>
+        <label class="flex text-sm items-center space-x-2">
+          <input type="radio" name="bankFormat" value="excel"><span>Excel</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="flex justify-between items-center gap-2 mb-4">
+      <!-- Summary Report checkbox -->
+      <div class="flex items-center space-x-2">
+        <input type="checkbox" id="summaryReport" name="summaryReport" class="h-4 w-4">
+        <label for="summaryReport" class="text-sm">Summary Report</label>
+      </div>
+      <!-- Buttons -->
+      <div class="flex space-x-2 pt-2">
+        <button type="reset" id="clearPrintBtn"
+          class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">Clear</button>
+        <button type="button" id="printBtn"
+          class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Generate</button>
+      </div>
+    </div>
+
+    <!-- All Classes (master DB only) -->
+    <div id="allClassesSection" class="border-t pt-4" style="display: none;">
+      <div class="flex items-center space-x-2 mb-3">
+        <input type="checkbox" id="allClassesCheck" name="allClassesCheck" class="h-4 w-4">
+        <label for="allClassesCheck" class="text-sm font-medium">Generate for All Classes</label>
+      </div>
+      <div id="specificClassContainer" class="hidden">
+        <label for="specificClassSelect" class="block text-sm font-medium mb-1">Or Select Specific Class</label>
+        <select id="specificClassSelect" name="specificClassSelect"
+          class="w-full bg-transparent border border-blue-500 rounded px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+          <option value="">Continue with All Classes</option>
+        </select>
+      </div>
+    </div>
+  </form>
+</section>
+
+<!-- Loading -->
+<div id="bankLoadingIndicator" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg shadow-lg w-80 p-6 text-center">
+    <div class="relative w-10 h-10 mx-auto mb-4">
+      <div class="absolute left-1 w-[6px] bg-blue-600 rounded animate-grow-up"></div>
+      <div class="absolute right-1 w-[6px] bg-blue-600 rounded animate-grow-down [animation-delay:0.3s]"></div>
+      <div
+        class="absolute top-1/2 left-1 h-[6px] bg-blue-600 rounded animate-expand [animation-delay:0.6s] -translate-y-1/2">
+      </div>
+    </div>
+    <span>Generating report...</span>
+  </div>
+</div>
+
+<!-- Confirm -->
+<div id="printConfirmModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg shadow-lg w-96 p-6">
+    <h3 class="text-lg font-semibold mb-4">Confirm Generation</h3>
+    <p class="mb-6 text-gray-700">Do you want to continue with report generation?</p>
+    <div class="flex justify-end space-x-2">
+      <button id="printCancelBtn" class="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500">Cancel</button>
+      <button id="printContinueBtn" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Continue</button>
+    </div>
+  </div>
+</div>
+
+<!-- Success -->
+<div id="printSuccessModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg shadow-lg w-96 p-6 text-center">
+    <h3 class="text-lg font-semibold text-green-600 mb-4">Success</h3>
+    <p class="mb-6 text-gray-700" id="bankSuccessMessage">Report generated successfully!</p>
+    <button id="printSuccessOkBtn" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">OK</button>
+  </div>
+</div>
+
+<!-- Error -->
+<div id="printErrorModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg shadow-lg w-96 p-6 text-center">
+    <h3 class="text-lg font-semibold text-red-600 mb-4">Error</h3>
+    <p class="mb-6 text-gray-700" id="bankErrorMessage">Please complete all required fields.</p>
+    <button id="printErrorOkBtn" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">OK</button>
+  </div>
+</div>
+
+<!-- Preview Modal -->
+<div id="bankPreviewModal"
+  class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
+  <div class="bg-gray-50 rounded-lg shadow-lg w-full max-w-5xl max-h-[90vh] overflow-hidden">
+    <div class="sticky top-0 bg-navy px-6 py-2 flex justify-between items-center">
+      <h3 class="text-lg font-semibold text-white">Payments by Bank Preview</h3>
+      <button id="bankClosePreviewBtn" class="text-white hover:text-gray-200 text-2xl">&times;</button>
+    </div>
+
+    <div class="overflow-auto" style="max-height: calc(90vh - 100px); background: #d1d5db;">
+      <iframe id="bankPreviewIframe" title="Payments by Bank Preview"
+        style="width: 100%; min-height: 842px; border: none; background: white; display: block;">
+      </iframe>
+    </div>
+
+    <div class="sticky bottom-0 bg-gray-50 border-t px-6 py-2 flex justify-end space-x-2">
+      <button id="bankCancelPreviewBtn"
+        class="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500">Cancel</button>
+      <button id="bankDownloadPreviewBtn"
+        class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Download</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const auth = window.authService;
+  const API_BASE = '/paymentsbank';
+
+  const allBanksRadio = document.getElementById("allBanks");
+  const specificBankRadio = document.getElementById("specificBank");
+  const bankNameSelect = document.getElementById("bankName");
+  const bankSelectContainer = document.getElementById("bankSelectContainer");
+  const processingMonth = document.getElementById("processingMonth");
+  const processingYear = document.getElementById("processingYear");
+  const printBtn = document.getElementById("printBtn");
+  const clearPrintBtn = document.getElementById("clearPrintBtn");
+  const bankLoadingIndicator = document.getElementById("bankLoadingIndicator");
+
+  const allClassesCheck = document.getElementById("allClassesCheck");
+  const specificClassContainer = document.getElementById("specificClassContainer");
+  const specificClassSelect = document.getElementById("specificClassSelect");
+
+  const printConfirmModal = document.getElementById("printConfirmModal");
+  const printCancelBtn = document.getElementById("printCancelBtn");
+  const printContinueBtn = document.getElementById("printContinueBtn");
+
+  const printSuccessModal = document.getElementById("printSuccessModal");
+  const printSuccessOkBtn = document.getElementById("printSuccessOkBtn");
+  const bankSuccessMessage = document.getElementById("bankSuccessMessage");
+
+  const printErrorModal = document.getElementById("printErrorModal");
+  const printErrorOkBtn = document.getElementById("printErrorOkBtn");
+  const bankErrorMessage = document.getElementById("bankErrorMessage");
+
+  // ── Load banks ─────────────────────────────────────────────────
+  async function loadBanks() {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await auth.fetchWithAuth(`${API_BASE}/filter-options`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success && result.data.bank) {
+          bankNameSelect.innerHTML = '<option value="">Select Bank</option>';
+          result.data.bank.forEach(bank => {
+            const option = document.createElement('option');
+            option.value = bank.Bankcode;
+            option.textContent = bank.Bankcode + ' - ' + (bank.branchname || bank.bankbranch);
+            bankNameSelect.appendChild(option);
+          });
+        }
+      }
+    } catch (e) { console.error('Error loading banks:', e); }
+  }
+
+  // ── Load payroll classes (master DB only) ───────────────────────
+  async function loadPayrollClasses() {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await auth.fetchWithAuth(`${API_BASE}/payroll-classes`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success && result.data) {
+          const allClassesSection = document.getElementById('allClassesSection');
+          if (result.data.isMasterDb) {
+            allClassesSection.style.display = 'block';
+            specificClassSelect.innerHTML = '<option value="">Continue with All Classes</option>';
+            result.data.classes.forEach(cls => {
+              if (!cls.isCurrent) {
+                const option = document.createElement('option');
+                option.value = cls.name;
+                option.textContent = cls.displayName;
+                specificClassSelect.appendChild(option);
+              }
+            });
+          } else {
+            allClassesSection.style.display = 'none';
+          }
+        }
+      }
+    } catch (e) { console.error('Error loading payroll classes:', e); }
+  }
+
+  // ── Load current period defaults ────────────────────────────────
+  async function loadCurrentPeriod() {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await auth.fetchWithAuth(`${API_BASE}/filter-options`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success && result.data && result.data.currentPeriod) {
+          processingYear.value = result.data.currentPeriod.year;
+          processingMonth.value = result.data.currentPeriod.month;
+        }
+      }
+    } catch (e) { console.error('Error loading current period:', e); }
+  }
+
+  // ── Toggles ─────────────────────────────────────────────────────
+  function toggleBankInput() {
+    bankSelectContainer.classList.toggle('hidden', allBanksRadio.checked);
+  }
+  function toggleSpecificClassSelect() {
+    specificClassContainer.classList.toggle('hidden', !allClassesCheck.checked);
+  }
+
+  allBanksRadio.addEventListener("change", toggleBankInput);
+  specificBankRadio.addEventListener("change", toggleBankInput);
+  allClassesCheck.addEventListener("change", toggleSpecificClassSelect);
+
+  // ── Validate & show confirm ─────────────────────────────────────
+  printBtn.addEventListener("click", () => {
+    if (!processingMonth.value) {
+      bankErrorMessage.textContent = 'Please select a processing month.';
+      printErrorModal.classList.remove("hidden"); return;
+    }
+    if (!processingYear.value) {
+      bankErrorMessage.textContent = 'Please enter a processing year.';
+      printErrorModal.classList.remove("hidden"); return;
+    }
+    if (specificBankRadio.checked && !bankNameSelect.value) {
+      bankErrorMessage.textContent = 'Please select a bank.';
+      printErrorModal.classList.remove("hidden"); return;
+    }
+    printConfirmModal.classList.remove("hidden");
+  });
+
+  printCancelBtn.addEventListener("click", () => printConfirmModal.classList.add("hidden"));
+
+  // ── Generate — fetch blob, show in preview iframe ───────────────
+  printContinueBtn.addEventListener("click", async () => {
+    printConfirmModal.classList.add("hidden");
+    bankLoadingIndicator.classList.remove("hidden");
+    printBtn.disabled = true;
+
+    const format = document.querySelector('input[name="bankFormat"]:checked').value;
+    const month = processingMonth.value;
+    const year = processingYear.value;
+    const summary = document.getElementById("summaryReport").checked;
+
+    try {
+      const token = localStorage.getItem('token');
+
+      const params = new URLSearchParams({
+        format, month, year,
+        summaryOnly: summary ? 'true' : 'false'
+      });
+
+      if (specificBankRadio.checked && bankNameSelect.value) {
+        params.append('bankName', bankNameSelect.value);
+      }
+      if (allClassesCheck.checked) {
+        params.append('allClasses', 'true');
+        if (specificClassSelect.value) {
+          params.append('specificClass', specificClassSelect.value);
+        }
+      }
+
+      const response = await auth.fetchWithAuth(`${API_BASE}/generate?${params.toString()}`, {
+        method: 'GET',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to generate report');
+      }
+
+      const blob = await response.blob();
+
+      bankLoadingIndicator.classList.add("hidden");
+      printBtn.disabled = false;
+
+      // Store blob directly — download reuses it instantly, no second fetch
+      window.bankCurrentBlob = blob;
+      window.bankCurrentFormat = format;
+      window.bankCurrentMonth = month;
+      window.bankCurrentYear = year;
+
+      const iframe = document.getElementById('bankPreviewIframe');
+      const dlBtn = document.getElementById('bankDownloadPreviewBtn');
+
+      // AFTER (blob URL — no size limit)
+      if (format === 'pdf') {
+        const blobUrl = window.URL.createObjectURL(blob);
+        window.bankCurrentBlobUrl = blobUrl;   // store to revoke on close
+        iframe.src = blobUrl + '#toolbar=0';
+        iframe.style.minHeight = '842px';
+        dlBtn.textContent = 'Download PDF';
+      } else {
+        iframe.srcdoc = `<div style="font-family:Arial,sans-serif;padding:40px;text-align:center;color:#555;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#1e40af" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto 16px;display:block;">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+            <line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/>
+          </svg>
+          <p style="font-size:16pt;font-weight:bold;color:#1e40af;margin-bottom:8px;">Excel Report Ready</p>
+          <p style="font-size:10pt;">Click <strong>Download Excel</strong> below to save the file.</p>
+        </div>`;
+        iframe.style.minHeight = '300px';
+        dlBtn.textContent = 'Download Excel';
+      }
+
+      document.getElementById('bankPreviewModal').classList.remove('hidden');
+
+    } catch (error) {
+      bankLoadingIndicator.classList.add("hidden");
+      printBtn.disabled = false;
+      bankErrorMessage.textContent = error.message || 'Failed to generate report. Please try again.';
+      printErrorModal.classList.remove("hidden");
+      console.error('Error:', error);
+    }
+  });
+
+  // ── Preview modal controls ──────────────────────────────────────
+  function closePreview() {
+    document.getElementById('bankPreviewModal').classList.add('hidden');
+    const iframe = document.getElementById('bankPreviewIframe');
+    iframe.src = 'about:blank';
+    iframe.removeAttribute('srcdoc');
+    if (window.bankCurrentBlobUrl) {
+      window.URL.revokeObjectURL(window.bankCurrentBlobUrl);
+      window.bankCurrentBlobUrl = null;
+    }
+  }
+
+  document.getElementById('bankClosePreviewBtn').addEventListener('click', closePreview);
+  document.getElementById('bankCancelPreviewBtn').addEventListener('click', closePreview);
+
+  document.getElementById('bankDownloadPreviewBtn').addEventListener('click', () => {
+    if (!window.bankCurrentBlob) return;
+    const fmt = window.bankCurrentFormat || 'pdf';
+    const url = window.URL.createObjectURL(window.bankCurrentBlob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `payments_by_bank_${window.bankCurrentMonth}_${window.bankCurrentYear}.${fmt === 'pdf' ? 'pdf' : 'xlsx'}`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
+
+    //closePreview();
+    bankSuccessMessage.textContent = `Report downloaded successfully!`;
+    printSuccessModal.classList.remove("hidden");
+  });
+
+  printSuccessOkBtn.addEventListener("click", () => printSuccessModal.classList.add("hidden"));
+  printErrorOkBtn.addEventListener("click", () => printErrorModal.classList.add("hidden"));
+
+  clearPrintBtn.addEventListener("click", () => {
+    allBanksRadio.checked = true;
+    toggleBankInput();
+    processingYear.value = new Date().getFullYear();
+    allClassesCheck.checked = false;
+    toggleSpecificClassSelect();
+  });
+
+  // ── Init ────────────────────────────────────────────────────────
+  toggleBankInput();
+  toggleSpecificClassSelect();
+  loadBanks();
+  loadPayrollClasses();
+  loadCurrentPeriod();
+</script>

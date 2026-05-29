@@ -1,0 +1,284 @@
+<style>
+  @keyframes grow-up {
+    0% {
+      height: 0;
+      bottom: 0;
+    }
+
+    100% {
+      height: 100%;
+      bottom: 0;
+    }
+  }
+
+  @keyframes grow-down {
+    0% {
+      height: 0;
+      top: 0;
+    }
+
+    100% {
+      height: 100%;
+      top: 0;
+    }
+  }
+
+  @keyframes expand {
+    0% {
+      width: 0;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    100% {
+      width: 100%;
+      left: 0;
+      transform: translateY(-50%);
+    }
+  }
+
+  .animate-grow-up {
+    animation: grow-up 0.6s ease-in-out infinite alternate;
+    position: absolute;
+    bottom: 0;
+  }
+
+  .animate-grow-down {
+    animation: grow-down 0.6s ease-in-out infinite alternate;
+    position: absolute;
+    top: 0;
+  }
+
+  .animate-expand {
+    animation: expand 0.6s ease-in-out infinite alternate;
+  }
+</style>
+
+<section class="items border rounded-lg m-6 max-w-lg mr-auto p-6 mx-auto">
+  <div class="hidden mb-6 text-center">
+    <h2 class="text-2xl font-bold text-red-700">Duplicate Account Numbers</h2>
+    <p class="text-sm text-gray-600 mt-1">Detect and manage duplicate bank account numbers</p>
+  </div>
+  <div class="mb-2">
+    <span class="text-red-600 font-bold text-lg block mb-3">Select Report Scope:</span>
+    <div class="flex gap-6">
+      <label class="flex items-center text-sm cursor-pointer"><input type="radio" name="dupScope" value="all"
+          class="text-red-600 w-4 h-4" checked><span class="ml-2 font-medium">All Banks</span></label>
+      <label class="flex items-center text-sm cursor-pointer"><input type="radio" name="dupScope" value="specific"
+          class="text-red-600 w-4 h-4"><span class="ml-2 font-medium">Specific Bank</span></label>
+    </div>
+  </div>
+  <div id="dupForm" class="space-y-2">
+    <div id="bankSelectWrapper" class="hidden">
+      <label class="block text-sm font-medium mb-2"><i class="fas fa-university text-blue-600 mr-2"></i>Select
+        Bank</label>
+      <select id="bankSelect"
+        class="w-full bg-transparent border border-blue-500 rounded px-3 py-2 focus:ring-2 focus:ring-blue-500"></select>
+    </div>
+    <div class="bg-gray-50 p-4 rounded-lg">
+      <label class="flex items-center cursor-pointer">
+        <input type="checkbox" id="includeInactive"
+          class="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500">
+        <span class="ml-2 text-sm font-medium text-gray-900"><i class="fas fa-user-slash text-gray-600 mr-2"></i>Include
+          Inactive/Separated Personnel</span>
+      </label>
+      <p class="text-xs text-gray-500 mt-1 ml-6">Check this to include personnel who have left the service</p>
+    </div>
+    <div class="bg-gray-50 p-4 rounded-lg">
+      <label class="block text-sm font-medium text-gray-900 mb-2"><i
+          class="fas fa-file-export text-gray-600 mr-2"></i>Export Format</label>
+      <div class="flex gap-4">
+        <label class="flex items-center cursor-pointer"><input type="radio" name="exportFormat" value="pdf"
+            class="text-blue-600 w-4 h-4" checked><span class="ml-2">PDF</span></label>
+        <label class="flex items-center cursor-pointer"><input type="radio" name="exportFormat" value="excel"
+            class="text-blue-600 w-4 h-4"><span class="ml-2">Excel</span></label>
+      </div>
+    </div>
+    <div class="flex justify-end gap-3 pt-4 border-t">
+      <button id="cancelDup"
+        class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium py-2 px-6 rounded-lg transition-colors"><i
+          class="fas fa-times mr-2"></i>Clear</button>
+      <button id="generateDup"
+        class="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-6 rounded-lg transition-colors shadow-lg"><i
+          class="fas fa-search mr-2"></i>Scan for Duplicates</button>
+    </div>
+  </div>
+</section>
+
+<!-- Preview Modal (portrait) -->
+<div id="dupPreviewModal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
+  <div class="bg-gray-50 rounded-lg shadow-lg w-full max-w-5xl max-h-[90vh] overflow-hidden">
+    <div class="sticky top-0 px-6 py-2 flex justify-between items-center bg-navy">
+      <h3 class="text-lg font-semibold text-white">Duplicate Account Numbers Preview</h3>
+      <button id="dupClosePreviewBtn" class="text-white hover:text-gray-200 text-2xl">&times;</button>
+    </div>
+    <div class="overflow-auto" style="max-height: calc(90vh - 100px); background: #d1d5db;">
+      <iframe id="dupPreviewIframe" title="Duplicate Accounts Preview"
+        style="width: 100%; min-height: 842px; border: none; background: white; display: block;"></iframe>
+    </div>
+    <div class="sticky bottom-0 bg-gray-50 border-t px-6 py-2 flex justify-end space-x-2">
+      <button id="dupCancelPreviewBtn"
+        class="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500">Cancel</button>
+      <button id="dupDownloadPreviewBtn"
+        class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Download</button>
+    </div>
+  </div>
+</div>
+
+<!-- Loading Modal -->
+<div id="loadingModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg shadow-lg p-8 text-center">
+    <div class="relative w-10 h-10 mx-auto mb-4">
+      <div class="absolute left-1 w-[6px] bg-blue-600 rounded animate-grow-up"></div>
+      <div class="absolute right-1 w-[6px] bg-blue-600 rounded animate-grow-down [animation-delay:0.3s]"></div>
+      <div
+        class="absolute top-1/2 left-1 h-[6px] bg-blue-600 rounded animate-expand [animation-delay:0.6s] -translate-y-1/2">
+      </div>
+    </div>
+    <h3 class="text-lg font-semibold mb-2">Scanning for Duplicates...</h3>
+    <p class="text-gray-600">Please wait while we analyze account numbers.</p>
+  </div>
+</div>
+
+<!-- Success Modal -->
+<div id="dupSuccessModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 text-center">
+    <i class="fas fa-check-circle text-green-500 text-4xl mb-3"></i>
+    <h3 class="text-lg font-semibold mb-2">Success</h3>
+    <p id="dupSuccessMessage" class="text-gray-700 mb-4">Report downloaded successfully!</p>
+    <button id="dupSuccessOkBtn" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg">OK</button>
+  </div>
+</div>
+
+<!-- Message Modal -->
+<div id="dupModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
+    <div class="flex items-start mb-4">
+      <div id="dupModalIcon" class="mr-3 text-2xl"></div>
+      <div class="flex-1">
+        <h3 id="dupModalTitle" class="text-lg font-semibold mb-2"></h3>
+        <p id="dupModalMessage" class="text-gray-700"></p>
+      </div>
+    </div>
+    <div class="flex justify-end"><button id="dupModalCloseBtn"
+        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">OK</button></div>
+  </div>
+</div>
+
+<script>
+  const auth = window.authService;
+  const dupRadios = document.querySelectorAll('input[name="dupScope"]');
+  const bankSelectWrapper = document.getElementById("bankSelectWrapper");
+  const bankSelect = document.getElementById("bankSelect");
+  const includeInactiveCheckbox = document.getElementById("includeInactive");
+  const generateDupBtn = document.getElementById("generateDup");
+  const cancelDupBtn = document.getElementById("cancelDup");
+  const dupModal = document.getElementById("dupModal");
+  const dupModalTitle = document.getElementById("dupModalTitle");
+  const dupModalMessage = document.getElementById("dupModalMessage");
+  const dupModalIcon = document.getElementById("dupModalIcon");
+  const dupModalCloseBtn = document.getElementById("dupModalCloseBtn");
+  const loadingModal = document.getElementById("loadingModal");
+
+  let filterOptions = null;
+
+  async function loadFilterOptions() {
+    try {
+      const token = localStorage.getItem('token') || '';
+      const response = await auth.fetchWithAuth('/duplicate/filter-options', { headers: { 'Authorization': `Bearer ${token}` } });
+      const result = await response.json();
+      if (result.success) {
+        filterOptions = result.data;
+        if (filterOptions.banks && filterOptions.banks.length > 0) {
+          filterOptions.banks.forEach(bank => { const o = document.createElement('option'); o.value = bank.code; o.textContent = `${bank.code} - ${bank.description}`; bankSelect.appendChild(o); });
+        }
+      }
+    } catch (error) { console.error('Error loading filter options:', error); showDupModal('Error', 'Failed to load filter options. Please refresh the page.', true); }
+  }
+
+  function showDupModal(title, message, isError = false) {
+    dupModalTitle.textContent = title; dupModalMessage.textContent = message;
+    dupModalIcon.innerHTML = isError ? '<i class="fas fa-exclamation-circle text-red-500"></i>' : '<i class="fas fa-check-circle text-green-500"></i>';
+    dupModal.classList.remove("hidden");
+  }
+
+  dupModalCloseBtn.onclick = () => dupModal.classList.add("hidden");
+  document.getElementById('dupSuccessOkBtn').onclick = () => document.getElementById('dupSuccessModal').classList.add('hidden');
+
+  dupRadios.forEach(radio => {
+    radio.addEventListener('change', () => { bankSelectWrapper.classList.add("hidden"); if (radio.value === "specific") bankSelectWrapper.classList.remove("hidden"); });
+  });
+
+  function closePreview() {
+    document.getElementById('dupPreviewModal').classList.add('hidden');
+    const iframe = document.getElementById('dupPreviewIframe');
+    iframe.src = 'about:blank'; iframe.removeAttribute('srcdoc');
+    if (window.dupCurrentBlobUrl) { window.URL.revokeObjectURL(window.dupCurrentBlobUrl); window.dupCurrentBlobUrl = null; }
+  }
+
+  document.getElementById('dupClosePreviewBtn').addEventListener('click', closePreview);
+  document.getElementById('dupCancelPreviewBtn').addEventListener('click', closePreview);
+  document.getElementById('dupDownloadPreviewBtn').addEventListener('click', () => {
+    if (!window.dupCurrentBlob) return;
+    const fmt = window.dupCurrentFormat || 'pdf';
+    const url = window.URL.createObjectURL(window.dupCurrentBlob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `duplicate_accounts_${window.dupCurrentDate}.${fmt === 'pdf' ? 'pdf' : 'xlsx'}`;
+    document.body.appendChild(a); a.click(); a.remove();
+    window.URL.revokeObjectURL(url);
+    document.getElementById('dupSuccessMessage').textContent = 'Report downloaded successfully!';
+    document.getElementById('dupSuccessModal').classList.remove('hidden');
+  });
+
+  generateDupBtn.onclick = async () => {
+    const selectedScope = document.querySelector('input[name="dupScope"]:checked')?.value;
+    const includeInactive = includeInactiveCheckbox.checked;
+    const exportFormat = document.querySelector('input[name="exportFormat"]:checked')?.value || 'pdf';
+    if (!selectedScope) return showDupModal("Validation Error", "Please select a report scope!", true);
+    let queryParams = `includeInactive=${includeInactive}&format=${exportFormat}`;
+    if (selectedScope === "specific") {
+      const bankCode = bankSelect.value;
+      if (!bankCode) return showDupModal("Validation Error", "Please select a bank!", true);
+      queryParams += `&bankCode=${bankCode}`;
+    }
+    loadingModal.classList.remove("hidden");
+    try {
+      const token = localStorage.getItem('token') || '';
+      const response = await auth.fetchWithAuth(`/duplicate?${queryParams}`, { headers: { 'Authorization': `Bearer ${token}` } });
+      if (!response.ok) { const e = await response.json().catch(() => ({})); throw new Error(e.error || 'Failed to generate report'); }
+      const blob = await response.blob();
+      if (blob.type === 'application/json') { const text = await blob.text(); const e = JSON.parse(text); throw new Error(e.error || 'Failed to generate report'); }
+      loadingModal.classList.add("hidden");
+
+      window.dupCurrentBlob = blob;
+      window.dupCurrentFormat = exportFormat;
+      window.dupCurrentDate = new Date().toISOString().split('T')[0];
+
+      const iframe = document.getElementById('dupPreviewIframe');
+      const dlBtn = document.getElementById('dupDownloadPreviewBtn');
+      if (exportFormat === 'pdf') {
+        const blobUrl = window.URL.createObjectURL(blob);
+        window.dupCurrentBlobUrl = blobUrl;
+        iframe.src = blobUrl + '#toolbar=0';
+        iframe.style.minHeight = '842px';
+        dlBtn.textContent = 'Download PDF';
+      } else {
+        iframe.srcdoc = `<div style="font-family:Arial,sans-serif;padding:40px;text-align:center;color:#555;"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#1e40af" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto 16px;display:block;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg><p style="font-size:16pt;font-weight:bold;color:#1e40af;margin-bottom:8px;">Excel Report Ready</p><p style="font-size:10pt;">Click <strong>Download Excel</strong> below to save the file.</p></div>`;
+        iframe.style.minHeight = '300px';
+        dlBtn.textContent = 'Download Excel';
+      }
+      document.getElementById('dupPreviewModal').classList.remove('hidden');
+    } catch (error) { loadingModal.classList.add("hidden"); showDupModal("Error", error.message || 'Failed to generate report', true); }
+  };
+
+  cancelDupBtn.onclick = () => {
+    bankSelectWrapper.classList.add("hidden");
+    document.getElementById("bankSelect").value = "";
+    document.getElementById("includeInactive").checked = false;
+    document.querySelector('input[name="dupScope"][value="all"]').checked = true;
+    document.querySelector('input[name="exportFormat"][value="pdf"]').checked = true;
+  };
+
+  loadFilterOptions();
+</script>

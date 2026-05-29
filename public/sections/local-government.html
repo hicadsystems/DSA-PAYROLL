@@ -1,0 +1,954 @@
+<div class="p-6">
+  <!-- Local Government Section Header -->
+  <div class="flex flex-wrap gap-2 justify-between mb-6">
+    <h3 class="text-xl font-semibold text-gray-800">Local Government Management</h3>
+    <div class="flex flex-wrap gap-2">
+      <input type="text" id="searchLga" placeholder="Search by name or state" class="border rounded px-3 py-2">
+      <button id="addNewLgaBtn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">+ Add New LGA</button>
+       <button id="generateReportBtn" class="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700">
+        <i class="fas fa-file-alt mr-2"></i>Generate Report</button>
+    </div>
+  </div>
+
+  <!-- Hidden Local Government Form -->
+  <form id="lgaForm" class="hidden grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded">
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Local Government Name *</label>
+      <input type="text" id="lgaName" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-white">
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Local Government Code *</label>
+      <input type="text" maxlength="3" id="lgaCode" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-white">
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Local Government Headquaters*</label>
+      <input type="text" id="lghqs" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-white">
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Select State *</label>
+      <select id="lgaState" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-white"></select>
+    </div>
+    <div class="col-span-1 md:col-span-3 flex justify-end gap-2">
+      <button type="button" id="saveLgaBtn" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Save</button>
+      <button type="button" id="cancelLgaBtn" class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500">Cancel</button>
+    </div>
+  </form>
+
+  <!-- Local Government Table -->
+  <div class="overflow-x-auto mt-4">
+    <table class="min-w-full border border-gray-200 rounded-lg text-sm">
+      <thead class="bg-blue-100 text-blue-900">
+        <tr>
+          <th class="border px-2 py-3 text-left">LGA Name</th>
+          <th class="border px-6 py-3 text-left">LGA Code</th>
+          <th class="border px-6 py-3 text-left">State</th>
+          <th class="border px-6 py-3 text-left">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="lgaTableBody"></tbody>
+    </table>
+  </div>
+
+  <!-- Pagination Controls -->
+  <div class="mt-4 flex items-center justify-between">
+    <div class="text-sm text-gray-600">
+      Showing <span id="startRecord">0</span> to <span id="endRecord">0</span> of <span id="totalRecords">0</span> records
+    </div>
+    <div class="flex items-center space-x-2">
+      <select id="recordsPerPage" class="border border-gray-300 rounded px-2 py-1 text-sm">
+        <option value="10">10 per page</option>
+        <option value="25">25 per page</option>
+        <option value="50">50 per page</option>
+        <option value="100">100 per page</option>
+      </select>
+      <button id="prevPage" class="px-3 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 disabled:opacity-50">
+        Previous
+      </button>
+      <span class="text-sm">
+        Page <span id="currentPage">1</span> of <span id="totalPages">1</span>
+      </span>
+      <button id="nextPage" class="px-3 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 disabled:opacity-50">
+        Next
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Success Modal -->
+<div id="successModal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+  <div class="bg-white p-6 rounded-lg shadow-xl max-w-md w-full mx-4">
+    <div class="flex items-center mb-4">
+      <div class="flex-shrink-0">
+        <svg class="h-8 w-8 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+      </div>
+      <div class="ml-3">
+        <h3 class="text-lg font-semibold text-green-600">Success!</h3>
+      </div>
+    </div>
+    <p id="successMessage" class="mb-4 text-gray-700">Record saved successfully!</p>
+    <div class="flex justify-end">
+      <button id="closeSuccessModal" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">OK</button>
+    </div>
+  </div>
+</div>
+
+<!-- Error Modal -->
+<div id="errorModal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+  <div class="bg-white p-6 rounded-lg shadow-xl max-w-md w-full mx-4">
+    <div class="flex items-center mb-4">
+      <div class="flex-shrink-0">
+        <svg class="h-8 w-8 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+        </svg>
+      </div>
+      <div class="ml-3">
+        <h3 class="text-lg font-semibold text-red-600">Error</h3>
+      </div>
+    </div>
+    <p id="errorMessage" class="mb-4 text-gray-700">Please fill in all required fields.</p>
+    <div class="flex justify-end">
+      <button id="closeErrorModal" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">OK</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div id="confirmModal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+  <div class="bg-white p-6 rounded-lg shadow-xl max-w-md w-full mx-4">
+    <div class="flex items-center mb-4">
+      <div class="flex-shrink-0">
+        <svg class="h-8 w-8 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+      </div>
+      <div class="ml-3">
+        <h3 class="text-lg font-semibold text-yellow-600">Confirm Action</h3>
+      </div>
+    </div>
+    <p id="confirmMessage" class="mb-4 text-gray-700">Are you sure you want to delete this bank record?</p>
+    <div class="flex justify-end gap-2">
+      <button id="cancelConfirm" class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500">Cancel</button>
+      <button id="confirmAction" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- View Details Modal -->
+<div id="viewModal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+  <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-2xl mx-4 max-h-screen overflow-y-auto">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-lg font-semibold text-blue-600">LGA Details</h3>
+      <button id="closeViewModal" class="text-gray-400 hover:text-gray-600">
+        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+    <div id="viewContent" class="space-y-3 text-sm"></div>
+  </div>
+</div>
+
+<script>
+  const auth = window.authService;
+let lgaData = [];
+let stateMap = {};
+let originalLgaData = null;
+let editingLgaIndex = null;
+let pendingDeleteLgaIndex = null;
+
+let currentPage = 1;
+let recordsPerPage = 10;
+let filteredData = []; // Store filtered results from search
+let currentSearchTerm = ""; // Store current search term
+
+const lgaForm = document.getElementById("lgaForm");
+const addNewLgaBtn = document.getElementById("addNewLgaBtn");
+const saveLgaBtn = document.getElementById("saveLgaBtn");
+const cancelLgaBtn = document.getElementById("cancelLgaBtn");
+const lgaTableBody = document.getElementById("lgaTableBody");
+const searchLga = document.getElementById("searchLga");
+const lgaStateSelect = document.getElementById("lgaState");
+
+// Pagination elements
+const prevPageBtn = document.getElementById('prevPage');
+const nextPageBtn = document.getElementById('nextPage');
+const currentPageSpan = document.getElementById('currentPage');
+const totalPagesSpan = document.getElementById('totalPages');
+const recordsPerPageSelect = document.getElementById('recordsPerPage');
+const startRecordSpan = document.getElementById('startRecord');
+const endRecordSpan = document.getElementById('endRecord');
+const totalRecordsSpan = document.getElementById('totalRecords');
+
+
+// --- API Functions ---
+async function fetchStates(){
+  try{
+    const token = localStorage.getItem('token');
+
+    const result = await fetch ("/dropdown-states", {
+      method: "GET",
+      headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}` 
+      }                 
+    })
+
+    const states = await result.json();
+    const select = document.getElementById("lgaState");
+
+    if (!select) {
+      console.error("⚠️ Element with id 'stateCode' not found.");
+      return;
+    }
+
+    // Clear existing options
+    select.innerHTML = "";
+
+    // Add default option
+    const defaultOption = document.createElement("option");
+    defaultOption.value = "";
+    defaultOption.textContent = "Select a state";
+    defaultOption.disabled = true;
+    defaultOption.selected = true;
+    select.appendChild(defaultOption);
+
+    // Populate with DB data
+    states.forEach(cls => {
+      const opt = document.createElement("option");
+      opt.value = cls.Statecode;            // backend value
+      opt.textContent = cls.Statename; // human-readable label
+      select.appendChild(opt);
+    });
+
+    // Build the stateMap for lookup
+    stateMap = states.reduce((acc, s) => {
+      acc[s.Statecode] = s.Statename;
+      return acc;
+    }, {});
+
+  } catch(err){
+    console.error("❌ Failed to load states:", err);
+  }
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener("DOMContentLoaded", fetchStates);
+} else {
+  fetchStates();
+}
+
+async function prefillStates(selectedCode = null) {
+  try {
+    const token = localStorage.getItem('token');
+
+    const res = await auth.fetchWithAuth("/dropdown-states", {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}` 
+        }                 
+      });
+      
+    const states = await res.json();
+
+    lgaStateSelect.innerHTML = states.map(
+      s => `<option value="${s.Statecode}">${s.Statename}</option>`
+    ).join("");
+
+    // If editing, set selected value
+    if (selectedCode) {
+      lgaStateSelect.value = selectedCode;
+    }
+
+    // Build the stateMap for lookup
+    stateMap = states.reduce((acc, s) => {
+      acc[s.Statecode] = s.Statename;
+      return acc;
+    }, {});
+
+  } catch (err) {
+    console.error("Error fetching states:", err);
+  }
+}
+
+// Fetch LGAs from backend
+async function loadLGAs(preserveLga = false) {
+  try {
+    const token = localStorage.getItem('token');
+
+    const res = await auth.fetchWithAuth("lg/lga", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      }
+    });
+
+    const result = await res.json();
+
+    // Handle different response structures
+    if (result.success) {
+      lgaData = result.data || [];
+    } else if (Array.isArray(result)) {
+      lgaData = result;
+    } else if (result.data) {
+      lgaData = result.data;
+    } else {
+      lgaData = [];
+    }
+
+    if (preserveLga) {
+      // Reapply the current search filter
+      applySearch(currentSearchTerm);
+      
+      // Validate current page is still valid
+      const totalPages = Math.ceil(filteredData.length / recordsPerPage) || 1;
+      if (currentPage > totalPages) {
+        currentPage = totalPages;
+      }
+    } else {
+      // Fresh load - reset everything
+      filteredData = [...lgaData];
+      currentPage = 1;
+      currentSearchTerm = "";
+    }
+    
+    renderWithPagination();
+
+  } catch (err) {
+    console.error("Error loading LGAs:", err);
+  }
+}
+
+// Separate function to apply search filtering
+function applySearch(term) {
+  currentSearchTerm = term;
+  if (term) {
+    filteredData = lgaData.filter(l => {
+      const stateName = stateMap[l.Statecode] || l.Statecode;
+      return stateName.toLowerCase().includes(term) || 
+             l.Lgname.toLowerCase().includes(term) ||
+             l.Lgname.toLowerCase().includes(term);
+    });
+  } else {
+    filteredData = [...lgaData];
+  }
+}
+
+// --- FRONTEND PAGINATION FUNCTIONS ---
+function getPaginationData() {
+  const totalRecords = filteredData.length;
+  const totalPages = Math.ceil(totalRecords / recordsPerPage) || 1;
+  const startIndex = (currentPage - 1) * recordsPerPage;
+  const endIndex = startIndex + recordsPerPage;
+  const currentData = filteredData.slice(startIndex, endIndex);
+  const startRecord = totalRecords === 0 ? 0 : startIndex + 1;
+  const endRecord = Math.min(endIndex, totalRecords);
+
+  return { totalRecords, totalPages, currentData, startRecord, endRecord };
+}
+  
+// Render LGA table
+function renderLgaTable() {
+  const { currentData } = getPaginationData();
+
+  lgaTableBody.innerHTML = currentData.map((item, index) => {
+    // Calculate the real index in the original lgaData array
+    const realIndex = lgaData.findIndex(l => l.Lgcode === item.Lgcode);
+
+    return `
+      <tr class="hover:bg-gray-50">
+        <td class="border px-2 py-3">${item.Lgname}</td>
+        <td class="border px-2 py-3">${item.Lgcode}</td>
+        <td class="border px-2 py-3">${stateMap[item.Statecode] || item.Statecode}</td>
+        <td class="border px-2 py-3">
+          <button onclick="viewLga(${realIndex})" class="text-blue-600 mr-2">View</button>
+          <button onclick="editLga(${realIndex})" class="text-green-600 mr-2">Edit</button>
+          <button onclick="deleteLga(${realIndex})" class="text-red-600">Delete</button>
+        </td>
+      </tr>
+    `;
+  }).join("");
+
+  if (currentData.length === 0) {
+    lgaTableBody.innerHTML = `
+      <tr>
+        <td colspan="4" class="border px-2 py-8 text-center text-gray-500">No records found</td>
+      </tr>
+    `;
+  }
+}
+
+function updatePaginationUI() {
+  const { totalRecords, totalPages, startRecord, endRecord } = getPaginationData();
+  
+  currentPageSpan.textContent = currentPage;
+  totalPagesSpan.textContent = totalPages;
+  startRecordSpan.textContent = startRecord;
+  endRecordSpan.textContent = endRecord;
+  totalRecordsSpan.textContent = totalRecords;
+
+  prevPageBtn.disabled = currentPage <= 1;
+  nextPageBtn.disabled = currentPage >= totalPages;
+}
+
+function renderWithPagination() {
+  renderLgaTable();
+  updatePaginationUI();
+}
+
+// Add new
+addNewLgaBtn.addEventListener("click", () => {
+  lgaForm.classList.remove("hidden");
+  editingLgaIndex = null;
+  document.getElementById("lgaCode").disabled = false;
+  lgaForm.reset();
+  fetchStates();
+});
+
+// Save (Create or Update)
+saveLgaBtn.addEventListener("click", async () => {
+  // Prevent multiple clicks during processing
+  if (saveLgaBtn.disabled) return;
+  
+  saveLgaBtn.disabled = true;
+
+  try {
+    const item = {
+      Lgname: document.getElementById("lgaName").value.trim(),
+      Lgcode: document.getElementById("lgaCode").value.trim(),
+      Statecode: document.getElementById("lgaState").value,
+      Lghqs: document.getElementById("lghqs").value.trim(),
+    };
+
+    const requiredFields = ["Lgname", "Lgcode", "Statecode"];
+    
+    const missingFields = requiredFields.filter(field => !item[field]);
+
+    if (missingFields.length > 0) {
+      showErrorModal(`Please fill in all required fields: ${missingFields.join(", ")}`);
+      return;
+    }
+
+    // Check for duplicates before saving
+    const lgCodeInput = document.getElementById("lgaCode");
+    const lgNameInput = document.getElementById("lgaName");
+
+    // Get the current lgaCode for editing
+    const currentlgCode = editingLgaIndex !== null ? lgaData[editingLgaIndex].Lgcode : null;
+
+    // Perform duplicate checks only for changed fields
+    await checkDuplicate(lgCodeInput, 'Lgcode', currentlgCode);
+    await checkDuplicate(lgNameInput, 'Lgname', currentlgCode);
+
+    // Check if any validation errors exist
+    if (!lgCodeInput.checkValidity() || !lgNameInput.checkValidity()) {
+      showErrorModal("Please fix the validation errors before saving.");
+      return;
+    }
+
+    if (editingLgaIndex !== null) {
+      const token = localStorage.getItem("token");
+
+      // Update existing
+      await auth.fetchWithAuth(`lg/${lgaData[editingLgaIndex].Lgcode}`, {
+        method: "PUT",
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify(item),
+      });
+      showSuccessModal("LGA record updated successfully!");
+    } else {
+      const token = localStorage.getItem("token");
+
+      // Create new
+      await auth.fetchWithAuth('lg/postlga', {
+        method: "POST",
+        headers:{ 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify(item),
+      });
+      showSuccessModal("LGA record saved successfully!");
+    }
+
+    await loadLGAs(true); // Preserve search and pagination state
+    lgaForm.classList.add("hidden");
+    lgaForm.reset();
+    editingLgaIndex = null;
+    originalLgaData = null;
+
+  } catch (err) {
+    showErrorModal("Error saving LGA.");
+    console.error(err);
+  } finally{
+    saveLgaBtn.disabled = false;
+  }
+});
+
+//validation
+async function checkDuplicate(input, field, excludeLgCode = null) {
+  const value = input.value.trim();
+  if (!value) {
+    input.setCustomValidity("");
+    input.reportValidity();
+    return;
+  }
+
+  // If editing, check if this field value has actually changed
+  if (originalLgaData && originalLgaData[field] === value) {
+    input.setCustomValidity(""); // Clear any existing validation message
+    input.reportValidity();
+    return; // Skip duplicate check if value hasn't changed
+  }
+
+  try {
+    const token = localStorage.getItem("token");
+    
+    // Build URL with optional excludeLgaCode parameter
+    let url = `lg/postlga/check/${field}/${encodeURIComponent(value)}`;
+    if (excludeLgCode) {
+      url += `?exclude=${excludeLgCode}`;
+    }
+    
+    const res = await auth.fetchWithAuth(url, {
+      headers: { "Authorization": `Bearer ${token}` }
+    });
+
+    const data = await res.json();
+    if (data.exists) {
+      input.setCustomValidity(`⚠️ This ${field} already exists.`);
+    } else {
+      input.setCustomValidity("");
+    }
+    input.reportValidity();
+  } catch (err) {
+    console.error(`Error checking ${field}:`, err);
+  }
+}
+
+document.getElementById("lgaName")?.addEventListener("blur", function () {
+  const currentlgCode = editingLgaIndex !== null ? lgaData[editingLgaIndex].Lgcode : null;
+  checkDuplicate(this, "Lgname", currentlgCode);
+});
+
+document.getElementById("lgaCode")?.addEventListener("blur", function () {
+  const currentlgCode = editingLgaIndex !== null ? lgaData[editingLgaIndex].Lgcode : null;
+  checkDuplicate(this, "Lgcode", currentlgCode);
+});
+
+// Cancel
+cancelLgaBtn.addEventListener("click", () => {
+  lgaForm.classList.add("hidden");
+  lgaForm.reset();
+});
+
+// View
+window.viewLga = function(index) {
+  const item = lgaData[index];
+  let html = `
+    <div class="grid grid-cols-3 gap-2 py-2 border-b border-gray-200">
+      <dt class="font-medium text-gray-600">LGA Name:</dt>
+      <dd class="col-span-2 text-gray-900">${item.Lgname}</dd>
+    </div>
+    <div class="grid grid-cols-3 gap-2 py-2 border-b border-gray-200">
+      <dt class="font-medium text-gray-600">LGA Code:</dt>
+      <dd class="col-span-2 text-gray-900">${item.Lgcode}</dd>
+    </div>
+    <div class="grid grid-cols-3 gap-2 py-2 border-b border-gray-200">
+      <dt class="font-medium text-gray-600">LGA Headquaters:</dt>
+      <dd class="col-span-2 text-gray-900">${item.Lghqs}</dd>
+    </div>
+    <div class="grid grid-cols-3 gap-2 py-2">
+      <dt class="font-medium text-gray-600">State:</dt>
+      <dd class="col-span-2 text-gray-900">${stateMap[item.Statecode] || item.Statecode}</dd>
+    </div>
+  `;
+  document.getElementById("viewContent").innerHTML = html;
+  showModal("viewModal");
+};
+
+// Edit
+window.editLga = function(index) {
+  const item = lgaData[index];
+
+  // Store original values for comparison
+  originalLgaData = {
+    Lgname: item.Lgname,
+    Lgcode: item.Lgcode
+  };
+
+  document.getElementById("lgaName").value = item.Lgname;
+  document.getElementById("lgaCode").value = item.Lgcode;
+  document.getElementById("lghqs").value = item.Lghqs;
+
+  prefillStates(item.Statecode);
+
+  // Clear any existing validation messages
+  document.getElementById("lgaName").setCustomValidity("");
+  document.getElementById("lgaCode").setCustomValidity("");
+
+  editingLgaIndex = index;
+  document.getElementById("lgaCode").disabled = true;
+  lgaForm.classList.remove("hidden");
+};
+
+// Delete
+window.deleteLga = function(index) {
+  pendingDeleteLgaIndex = index;
+  showConfirmModal("Are you sure you want to delete this local government record? This action cannot be undone.");
+};
+
+document.getElementById("confirmAction").addEventListener("click", async () => {
+  if (pendingDeleteLgaIndex !== null) {
+    try {
+      const token = localStorage.getItem("token");
+
+      await auth.fetchWithAuth(`lg/${lgaData[pendingDeleteLgaIndex].Lgcode}`, {
+        method: "DELETE",
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+      });
+      showSuccessModal("LGA record deleted successfully!");
+      await loadLGAs(true); // Preserve search and pagination state
+    } catch (err) {
+      showErrorModal("Error deleting LGA.");
+      console.error(err);
+    }
+    pendingDeleteLgaIndex = null;
+  }
+  closeModal("confirmModal");
+});
+
+// Search
+searchLga.addEventListener("input", (e) => {
+  const term = e.target.value.toLowerCase();
+  applySearch(term);
+  currentPage = 1; // Reset to first page on new search
+  renderWithPagination();
+});
+
+// --- Pagination Event Listeners---
+prevPageBtn.addEventListener('click', () => {
+  if (currentPage > 1) {
+    currentPage--;
+    renderWithPagination();
+  }
+});
+
+nextPageBtn.addEventListener('click', () => {
+  const { totalPages } = getPaginationData();
+  if (currentPage < totalPages) {
+    currentPage++;
+    renderWithPagination();
+  }
+});
+
+recordsPerPageSelect.addEventListener('change', (e) => {
+  recordsPerPage = parseInt(e.target.value);
+  currentPage = 1; // Reset to first page
+  renderWithPagination();
+});
+
+  // Modal functions
+function showModal(modalId) {
+  document.getElementById(modalId).classList.remove("hidden");
+}
+
+function closeModal(modalId) {
+  document.getElementById(modalId).classList.add("hidden");
+}
+
+function showSuccessModal(message) {
+  document.getElementById("successMessage").textContent = message;
+  showModal("successModal");
+}
+
+function showErrorModal(message) {
+  document.getElementById("errorMessage").textContent = message;
+  showModal("errorModal");
+}
+
+function showConfirmModal(message) {
+  document.getElementById("confirmMessage").textContent = message;
+  showModal("confirmModal");
+}
+
+// Modal event listeners
+document.getElementById("closeSuccessModal").addEventListener("click", () => closeModal("successModal"));
+document.getElementById("closeErrorModal").addEventListener("click", () => closeModal("errorModal"));
+document.getElementById("closeViewModal").addEventListener("click", () => closeModal("viewModal"));
+
+document.getElementById("cancelConfirm").addEventListener("click", () => {
+  closeModal("confirmModal");
+  pendingDeleteLgaIndex = null;
+});
+
+// Close modals when clicking outside
+const modals = ['successModal', 'errorModal', 'confirmModal', 'viewModal'];
+modals.forEach(modalId => {
+  document.getElementById(modalId).addEventListener("click", (e) => {
+    if (e.target === e.currentTarget) closeModal(modalId);
+  });
+});
+
+// Capitalize first letter, keep the rest lower
+function capitalizeWords(str) {
+  return str
+    ? str
+        .toLowerCase()
+        .split(" ")
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ")
+    : "";
+}
+
+["lgaName", "lghqs"].forEach(id => {
+  const el = document.getElementById(id);
+  el.addEventListener("input", () => {
+    el.value = capitalizeWords(el.value);
+  });
+});
+
+// Force uppercase as user types
+["lgaCode"].forEach(id => {
+  const el = document.getElementById(id);
+  el.addEventListener("input", () => {
+    el.value = el.value.toUpperCase();
+  });
+});
+
+function generateReport() {
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('en-GB', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+    const timeStr = now.toLocaleTimeString('en-GB', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+    });
+    
+    const generatedBy = localStorage.getItem('full_name') || 'System User';
+    
+    const printWindow = window.open('', '_blank');
+
+    const printContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="utf-8">
+            <title>Local Government Report</title>
+            <style>
+                @page { 
+                    size: A4; 
+                    margin: 5mm; 
+                    background-color: #f8fbff;
+                }
+                
+                body { 
+                    font-family: Helvetica, Arial, sans-serif; 
+                    font-size: 8pt;
+                    margin: 0;
+                    padding: 0;
+                    position: relative;
+                    color: #333;
+                }
+
+                /* Faint logo overlay */
+                body::before {
+                    content: "";
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background-image: url('photos/logo.png');
+                    background-size: auto 100%;
+                    background-repeat: no-repeat;
+                    background-position: center center;
+                    opacity: 0.02;
+                    z-index: -1;
+                    pointer-events: none;
+                }
+
+                .header-wrapper {
+                    display: flex;
+                    align-items: flex-start;
+                    margin-bottom: 8px;
+                    border-bottom: 2px solid #1a1a1a;
+                    padding-bottom: 5px;
+                }
+
+                .header {
+                    flex-grow: 1;
+                    text-align: center;
+                }
+                
+                .header h1 {
+                    font-size: 13pt;
+                    font-weight: bold;
+                    margin-bottom: 2px;
+                    letter-spacing: 1.5px;
+                    color: #1e40af;
+                    font-family: 'Libre Baskerville', Georgia, serif;
+                }
+                
+                .header h2 {
+                    font-size: 10pt;
+                    font-weight: normal;
+                    margin-top: 2px;
+                    color: #4a4a4a;
+                    font-family: 'Libre Baskerville', Georgia, serif;
+                }
+
+                .header-info {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin: 10px 0;
+                    font-size: 9pt;
+                }
+
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin-bottom: 20px;
+                    font-size: 12px;
+                }
+
+                th {
+                    color: #1e40af;
+                    padding: 8px 4px;
+                    text-align: left;
+                    font-weight: bold;
+                    font-size: 12px;
+                    text-transform: uppercase;
+                    letter-spacing: 0.3px;
+                    border-bottom: 1px solid #0056A0;
+                }
+
+                td {
+                    padding: 6px 4px;
+                    border: none;
+                    vertical-align: middle;
+                }
+
+                .text-center {
+                    text-align: center;
+                }
+
+                .footer {
+                    padding-top: 10px;
+                    border-top: 0.5px solid #1a1a1a;
+                    text-align: center;
+                    font-size: 8pt;
+                    color: #64748b;
+                    margin-top: 20px;
+                }
+
+                @media print {
+                    body {
+                        print-color-adjust: exact;
+                        -webkit-print-color-adjust: exact;
+                    }
+                    
+                    body::before {
+                        position: fixed;
+                        display: block;
+                        content: "";
+                        width: 100%;
+                        height: 100%;
+                        top: 0;
+                        left: 0;
+                        background-image: url('photos/logo.png');
+                        background-size: auto 100%;
+                        background-repeat: no-repeat;
+                        background-position: center center;
+                        opacity: 0.02;
+                        z-index: -1;
+                    }
+                }
+            </style>
+        </head>
+        <body>
+            <div class="header-wrapper">
+                <div class="header">
+                    <h1>Nigerian Navy (Naval Headquarters)</h1>
+                    <h2>CENTRAL PAY OFFICE, 23 POINT ROAD APAPA</h2>
+                </div>
+            </div>
+
+            <div class="header-info">
+                <div class="left">
+                    <strong>LOCAL GOVERNMENT REPORT</strong>
+                </div>
+                <div class="center">
+                    <span>PRODUCED ON</span> 
+                    <strong>${dateStr}</strong> 
+                    <span>AT</span> 
+                    <strong>${timeStr}</strong>
+                </div>
+                <div class="right">
+                    <strong>${lgaData.length}</strong>
+                    <span>LGAs</span>
+                </div>
+            </div>
+
+            <!-- Data Table -->
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 8%;">No.</th>
+                        <th style="width: 28%;">LGA Name</th>
+                        <th style="width: 15%;">LGA Code</th>
+                        <th style="width: 22%;">State</th>
+                        <th style="width: 27%;">LGA Headquarters</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${lgaData.map((item, index) => `
+                        <tr>
+                            <td class="text-center"><strong>${index + 1}</strong></td>
+                            <td><strong>${item.Lgname || '-'}</strong></td>
+                            <td>${item.Lgcode || '-'}</td>
+                            <td>${stateMap[item.Statecode] || item.Statecode || '-'}</td>
+                            <td>${item.Lghqs || '-'}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+
+            <div class="footer">
+                <p>Generated by: <strong>${generatedBy}</strong></p>
+                <p>All rights reserved &#xA9; Hicad Systems Limited.</p>
+            </div>
+        </body>
+        </html>
+    `;
+
+    printWindow.document.write(printContent);
+    printWindow.document.close();
+
+    printWindow.onload = function() {
+        printWindow.print();
+    };
+}
+
+// Add event listener to generate report button
+document.getElementById('generateReportBtn').addEventListener('click', generateReport);
+
+  
+// Initial load
+loadLGAs();
+</script>

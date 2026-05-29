@@ -1,0 +1,402 @@
+<style>
+  @keyframes grow-up {
+    0% { height: 0; bottom: 0; }
+    100% { height: 100%; bottom: 0; }
+  }
+  @keyframes grow-down {
+    0% { height: 0; top: 0; }
+    100% { height: 100%; top: 0; }
+  }
+  @keyframes expand {
+    0% { width: 0; left: 50%; transform: translate(-50%, -50%); }
+    100% { width: 100%; left: 0; transform: translateY(-50%); }
+  }
+  .animate-grow-up {
+    animation: grow-up 0.6s ease-in-out infinite alternate;
+    position: absolute;
+    bottom: 0;
+  }
+  .animate-grow-down {
+    animation: grow-down 0.6s ease-in-out infinite alternate;
+    position: absolute;
+    top: 0;
+  }
+  .animate-expand {
+    animation: expand 0.6s ease-in-out infinite alternate;
+  }
+</style>
+
+
+<!-- Change Active Payroll Class -->
+<div class="p-6 max-w-3xl mx-auto">
+  <p class="text-gray-600 font-semibold mb-6">
+    Only one payroll class can be active at a time. Focus on a class to make it active.
+  </p>
+
+  <!-- Classes Table -->
+  <div class="overflow-hidden border border-gray-200 rounded-lg">
+    <table class="w-full text-left border-collapse">
+      <tbody id="classTable">
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Actions -->
+  <div class="flex justify-end gap-4 mt-6">
+    <button id="cancelFocusBtn" class="px-6 py-2 bg-gray-400 hover:bg-gray-500 rounded-lg text-white">Cancel</button>
+    <button id="confirmFocusBtn" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white">Continue</button>
+  </div>
+</div>
+
+<!-- Success Modal -->
+<div id="focusSuccessModal" class="fixed inset-0 bg-black/50 flex items-center justify-center hidden z-50">
+  <div class="bg-white p-6 rounded-2xl shadow-xl text-center w-72">
+    <div id="focusModalIcon" class="relative w-10 h-10 mx-auto mb-4">
+      <div class="absolute left-1 w-[6px] bg-blue-600 rounded animate-grow-up"></div>
+      <div class="absolute right-1 w-[6px] bg-blue-600 rounded animate-grow-down [animation-delay:0.3s]"></div>
+      <div
+        class="absolute top-1/2 left-1 h-[6px] bg-blue-600 rounded animate-expand [animation-delay:0.6s] -translate-y-1/2">
+      </div>
+    </div>
+    <p id="focusModalText" class="mt-4 text-lg font-semibold text-gray-700">Processing...</p>
+  </div>
+</div>
+
+<script>
+  const auth = window.authService;
+  (function () {
+    const confirmBtn = document.getElementById('confirmFocusBtn');
+    const cancelBtn = document.getElementById('cancelFocusBtn');
+    const table = document.getElementById('classTable');
+    const successModal = document.getElementById('focusSuccessModal');
+    const modalIcon = document.getElementById('focusModalIcon');
+    const modalText = document.getElementById('focusModalText');
+
+    let selectedRow = null;
+    let availableClasses = [];
+    let currentUserClass = null;
+
+    // Get JWT token from localStorage or wherever you store it
+    function getAuthToken() {
+      return localStorage.getItem('token');
+    }
+
+    // Update JWT token
+    function updateAuthToken(newToken) {
+      if (localStorage.getItem('authToken')) {
+        localStorage.setItem('authToken', newToken);
+      } else {
+        sessionStorage.setItem('authToken', newToken);
+      }
+    }
+
+    // API call helper
+    async function apiCall(endpoint, method = 'GET', body = null) {
+      const token = getAuthToken();
+      const options = {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      };
+
+      if (body) {
+        options.body = JSON.stringify(body);
+      }
+
+      const response = await auth.fetchWithAuth(`${endpoint}`, options);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || data.message || 'API request failed');
+      }
+
+      return data;
+    }
+
+    // Load available classes from backend using /db_classes
+    async function loadDbClasses() {
+      try {
+        console.log('🔄 Loading database classes from backend...');
+        const data = await apiCall('/dbclasses');
+        availableClasses = data.classes;
+        currentUserClass = data.currentClass;
+
+        console.log('✅ Loaded classes:', availableClasses);
+        console.log('📊 Current class:', currentUserClass);
+
+        // Clear existing table and rebuild with user's available classes
+        const tbody = table;
+        tbody.innerHTML = '';
+
+        availableClasses.forEach(classInfo => {
+          const row = document.createElement('tr');
+          row.dataset.class = classInfo.display;
+          row.dataset.internalClass = classInfo.id;
+          row.className = 'hover:bg-blue-50';
+
+          // Determine button state
+          let buttonClass = 'focusBtn px-4 py-1 bg-gray-200 rounded hover:bg-gray-300';
+          let buttonText = 'Focus';
+          let isDisabled = false;
+          let rowClass = '';
+
+          if (classInfo.isActive) {
+            buttonClass = 'focusBtn px-4 py-1 bg-green-600 text-white rounded cursor-not-allowed';
+            buttonText = 'Active';
+            isDisabled = true;
+            rowClass = 'bg-green-100 border-green-500';
+          }
+
+          row.className = `hover:bg-blue-50 ${rowClass}`;
+
+          row.innerHTML = `
+          <td class="px-4 py-3 font-semibold text-blue-600">
+            ${classInfo.display}
+            ${classInfo.isPrimary ? '<span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded ml-2">Primary</span>' : ''}
+            ${classInfo.isActive ? '<span class="activeIndicator text-green-600 font-bold ml-2">✓ Active</span>' : ''}
+          </td>
+          <td class="px-4 py-3 text-right">
+            <button class="${buttonClass}" ${isDisabled ? 'disabled' : ''}>${buttonText}</button>
+          </td>
+        `;
+
+          tbody.appendChild(row);
+        });
+
+        // Re-attach event listeners
+        attachEventListeners();
+
+      } catch (error) {
+        console.error('❌ Error loading database classes:', error);
+        showError('Failed to load database classes: ' + error.message);
+      }
+    }
+
+    // Attach event listeners to focus buttons
+    function attachEventListeners() {
+      console.log('🔗 Attaching event listeners to focus buttons...');
+      table.querySelectorAll('.focusBtn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          console.log('🎯 Focus button clicked:', btn);
+          e.preventDefault();
+          e.stopPropagation();
+
+          if (btn.disabled) {
+            console.log('⏸️ Button is disabled, ignoring click');
+            return;
+          }
+
+          resetRows();
+          selectedRow = btn.closest('tr');
+          console.log('📌 Selected row:', selectedRow.dataset.class);
+          markRowFocused(selectedRow);
+        });
+      });
+    }
+
+    // Reset all rows to default
+    function resetRows() {
+      console.log('🔄 Resetting all rows to default state');
+      table.querySelectorAll('tr').forEach(r => {
+        r.classList.remove('bg-yellow-100', 'border-yellow-400', 'bg-green-100', 'border-green-500');
+        const indicator = r.querySelector('.activeIndicator');
+        if (indicator) indicator.remove();
+        const btn = r.querySelector('.focusBtn');
+
+        // Get class data from backend
+        const classData = availableClasses.find(c => c.display === r.dataset.class);
+        const td = r.querySelector('td:first-child');
+
+        if (classData && classData.isActive) {
+          // Mark as active
+          btn.disabled = true;
+          btn.className = "focusBtn px-4 py-1 bg-green-600 text-white rounded cursor-not-allowed";
+          btn.textContent = "Active";
+          r.classList.add('bg-green-100', 'border-green-500');
+
+          // Rebuild td content with proper badges
+          let html = classData.display;
+          if (classData.isPrimary) {
+            html += ' <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded ml-2">Primary</span>';
+          }
+          html += ' <span class="activeIndicator text-green-600 font-bold ml-2">✓ Active</span>';
+          td.innerHTML = html;
+
+        } else {
+          // Mark as inactive
+          btn.disabled = false;
+          btn.className = "focusBtn px-4 py-1 bg-gray-200 rounded hover:bg-gray-300";
+          btn.textContent = "Focus";
+
+          // Rebuild td content with proper badges
+          if (classData) {
+            let html = classData.display;
+            if (classData.isPrimary) {
+              html += ' <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded ml-2">Primary</span>';
+            }
+            td.innerHTML = html;
+          }
+        }
+      });
+    }
+
+    // Mark a row as temporarily focused (yellow, no tick)
+    function markRowFocused(row) {
+      console.log('🟡 Marking row as focused:', row.dataset.class);
+      row.classList.add('bg-yellow-100', 'border-yellow-400');
+      const btn = row.querySelector('.focusBtn');
+      btn.disabled = true;
+      btn.className = "focusBtn px-4 py-1 bg-yellow-500 text-white rounded cursor-not-allowed";
+      btn.textContent = "Focusing...";
+    }
+
+    // Mark a row as permanently active (green, with ✓)
+    function markRowActive(row) {
+      if (!row) {
+        console.warn(`⚠️ No row element passed`);
+        return;
+      }
+
+      console.log('🟢 Marking row as active:', row.dataset.class);
+
+      // Update row styling
+      row.classList.remove('bg-yellow-100', 'border-yellow-400');
+      row.classList.add('bg-green-100', 'border-green-500');
+
+      const td = row.querySelector('td:first-child');
+      if (!td) return;
+
+      // Get class info from backend data (availableClasses array)
+      const className = row.dataset.class;
+      const classInfo = availableClasses.find(cls => cls.display === className);
+
+      // Always show the class name
+      let html = className;
+
+      // Use backend-provided isPrimary information
+      if (classInfo && classInfo.isPrimary) {
+        html += ' <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded ml-2">Primary</span>';
+      }
+
+      // Add active indicator
+      html += ' <span class="activeIndicator text-green-600 font-bold ml-2">✓ Active</span>';
+
+      td.innerHTML = html;
+
+      // Update focus button
+      const btn = row.querySelector('.focusBtn');
+      if (btn) {
+        btn.disabled = true;
+        btn.className = "focusBtn px-4 py-1 bg-green-600 text-white rounded cursor-not-allowed";
+        btn.textContent = "Active";
+      }
+    }
+
+
+    // Show error message
+    function showError(message) {
+      successModal.classList.remove('hidden');
+      modalIcon.className = "mx-auto h-12 w-12 flex items-center justify-center rounded-full bg-red-500 text-white";
+      modalIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+    </svg>`;
+      modalText.textContent = message;
+      setTimeout(() => { successModal.classList.add('hidden'); }, 3000);
+    }
+
+    // Continue → confirm selection and activate
+    confirmBtn.addEventListener('click', async () => {
+      if (!selectedRow) {
+        alert("Please focus on a payroll class first.");
+        return;
+      }
+
+      const targetClass = selectedRow.dataset.class;
+      console.log('🚀 Confirming switch to:', targetClass);
+
+      try {
+        // Show loading modal
+        successModal.classList.remove('hidden');
+        modalIcon.className = "relative w-10 h-10 mx-auto mb-4";
+        modalIcon.innerHTML = `
+          <div class="absolute left-1 w-[6px] bg-blue-600 rounded animate-grow-up"></div>
+          <div class="absolute right-1 w-[6px] bg-blue-600 rounded animate-grow-down [animation-delay:0.3s]"></div>
+          <div class="absolute top-1/2 left-1 h-[6px] bg-blue-600 rounded animate-expand [animation-delay:0.6s] -translate-y-1/2"></div>
+        `;
+        modalText.textContent = `Switching to ${targetClass}...`;
+
+        // Call backend API to switch class
+        const response = await apiCall('/switch-class', 'POST', { targetClass });
+        console.log('✅ Switch successful:', response);
+
+        // Update JWT token
+        updateAuthToken(response.token);
+        localStorage.setItem("token", response.token);
+
+        // ✅ Sync standalone keys to match new token
+        localStorage.setItem("current_class", response.newClass.id);     // db_name e.g. hicaddata2
+        //localStorage.setItem("class", response.newClass.display);         // display name e.g. RATE A
+
+        // Update UI to show success
+        setTimeout(() => {
+          modalIcon.className = "mx-auto h-12 w-12 flex items-center justify-center rounded-full bg-green-500 text-white";
+          modalIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+        </svg>`;
+          modalText.textContent = `${targetClass} is now Active!`;
+
+          // Update the classes data
+          availableClasses.forEach(cls => {
+            cls.isActive = (cls.display === targetClass);
+          });
+
+          // Apply visual changes - mark the selected row as active
+          resetRows();
+          markRowActive(selectedRow);
+
+          // Fire custom event
+          const event = new CustomEvent("payrollClassFocused", {
+            detail: { focusedClass: targetClass, internalClass: selectedRow.dataset.internalClass }
+          });
+          document.dispatchEvent(event);
+
+          // Clear selection after successful switch
+          selectedRow = null;
+
+          // ✅ Redirect to dashboard after 1.5 seconds
+          setTimeout(() => {
+            console.log('🔄 Redirecting to dashboard...');
+            window.location.href = '/dashboard.html';
+          }, 1500);
+        }, 1500);
+
+      } catch (error) {
+        console.error('❌ Class switch error:', error);
+        showError(error.message);
+        // Reset the selected row back to normal state on error
+        if (selectedRow) {
+          resetRows();
+        }
+        selectedRow = null;
+      }
+    });
+
+    // Cancel resets selection
+    cancelBtn.addEventListener('click', () => {
+      console.log('❌ Cancelling selection');
+      selectedRow = null;
+      resetRows();
+    });
+
+    // Load classes when page loads
+    console.log('🌍 Initializing payroll class switcher...');
+    loadDbClasses();
+
+    // Expose function to reload classes (useful after login)
+    window.reloadPayrollClasses = loadDbClasses;
+
+    console.log('✅ Class switcher script initialized');
+  })();
+</script>

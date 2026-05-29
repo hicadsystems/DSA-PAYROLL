@@ -1,0 +1,259 @@
+:root {
+  --emol-bg: #f7f5f1;
+  --emol-navy: rgb(30 64 175);
+  --emol-gold: #f5c842;
+  --emol-amber: #fbbf24;
+  --emol-surface: rgba(255, 255, 255, 0.6);
+  --emol-border: rgba(251, 191, 36, 0.25);
+}
+
+body {
+  margin: 0;
+  font-size: 90%;
+}
+
+/* ── Layout ── */
+.emol-shell {
+  display: flex;
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── Sidebar (desktop) ── */
+.emol-sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  background: transparent;
+  padding: 1.5rem 0.75rem;
+  margin-top: 40px;
+  display: none;
+  overflow-y: auto;
+  height: calc(100vh - 25px);
+  box-sizing: border-box;
+}
+
+@media (min-width: 768px) {
+  .emol-sidebar {
+    display: block;
+    box-shadow:
+      var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000),
+      var(--tw-shadow);
+    backdrop-filter: blur(10px);
+  }
+
+  .emol-bottom-nav {
+    display: none !important;
+  }
+}
+
+.emol-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.375rem;
+  color: rgb(30 64 175);
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background 0.15s;
+  text-decoration: none;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+}
+
+.emol-nav-item:hover {
+  background: rgba(251, 191, 36, 0.07);
+}
+
+.emol-nav-item.active {
+  background: rgba(251, 191, 36, 0.05);
+  font-weight: 700;
+}
+
+/* ── Content ── */
+.emol-content {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+  height: calc(100vh - 25px);
+  box-sizing: border-box;
+  padding: 1.25rem 1rem 5rem;
+  margin-top: 40px;
+}
+
+@media (min-width: 768px) {
+  .emol-content {
+    padding: 1.25rem 2rem 2rem;
+  }
+}
+
+/* ── Section display ── */
+.emol-section {
+  display: none;
+}
+
+.emol-section.active {
+  display: block;
+}
+
+/* ── Bottom nav (mobile) ── */
+.emol-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #f7f5f1;
+  border-top: 1px solid rgba(251, 191, 36, 0.3);
+  display: flex;
+  z-index: 40;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.emol-bn-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 4px 6px;
+  font-size: 9px;
+  font-weight: 600;
+  color: rgba(30, 64, 175, 0.4);
+  cursor: pointer;
+  border: none;
+  background: none;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  transition: color 0.15s;
+}
+
+.emol-bn-item i {
+  font-size: 18px;
+}
+
+.emol-bn-item.active {
+  color: rgb(30 64 175);
+}
+
+/* ── Ship button strip ── */
+
+.ship-btn {
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.25rem 0.35rem;
+  background: rgba(30, 64, 175, 0.08);
+  border: 1px solid rgba(30, 64, 175, 0.2);
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: rgb(30 64 175);
+  cursor: pointer;
+  transition: all 0.15s;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.ship-btn:hover {
+  background: rgba(30, 64, 175, 0.15);
+  border-color: rgba(30, 64, 175, 0.4);
+}
+
+.ship-btn .ship-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #22c55e;
+  flex-shrink: 0;
+}
+
+/* ── Ship picker modal ── */
+.ship-modal-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.ship-modal-backdrop.open {
+  display: flex;
+}
+
+.ship-modal {
+  background: #f7f5f1;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 380px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+}
+
+.ship-modal-title {
+  font-size: 1rem;
+  font-weight: 800;
+  color: rgb(30 64 175);
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.ship-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  background: rgba(255, 255, 255, 0.5);
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.ship-option:hover {
+  background: rgba(245, 200, 66, 0.1);
+  border-color: rgba(245, 200, 66, 0.5);
+}
+
+.ship-option-name {
+  font-weight: 700;
+  font-size: 0.875rem;
+  color: rgb(30 64 175);
+}
+
+.ship-role-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.badge-DO {
+  background: rgba(59, 130, 246, 0.12);
+  color: #1d4ed8;
+}
+
+.badge-FO {
+  background: rgba(245, 158, 11, 0.12);
+  color: #92400e;
+}
+
+.badge-CPO {
+  background: rgba(16, 185, 129, 0.12);
+  color: #065f46;
+}

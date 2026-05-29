@@ -1,0 +1,1021 @@
+
+<style>
+  @keyframes grow-up {
+    0% { height: 0; bottom: 0; }
+    100% { height: 100%; bottom: 0; }
+  }
+  @keyframes grow-down {
+    0% { height: 0; top: 0; }
+    100% { height: 100%; top: 0; }
+  }
+  @keyframes expand {
+    0% { width: 0; left: 50%; transform: translate(-50%, -50%); }
+    100% { width: 100%; left: 0; transform: translateY(-50%); }
+  }
+  .animate-grow-up {
+    animation: grow-up 0.6s ease-in-out infinite alternate;
+    position: absolute;
+    bottom: 0;
+  }
+  .animate-grow-down {
+    animation: grow-down 0.6s ease-in-out infinite alternate;
+    position: absolute;
+    top: 0;
+  }
+  .animate-expand {
+    animation: expand 0.6s ease-in-out infinite alternate;
+  }
+</style>
+
+
+<div class="p-6">
+  <!-- Header -->
+  <div class="flex justify-between items-center mb-6">
+    <h3 class="text-2xl font-bold text-blue-800">Personnel Details</h3>
+
+    <!-- Styled Tabs -->
+    <div class="flex flex-wrap justify-center">
+      <div class="w-fit flex flex-wrap item justify-center bg-white/50 rounded-xl border border-amber-50 shadow-sm p-2 gap-2">
+        <button id="view-tab-personnel" 
+                onclick="window.ViewPersonnel?.switchTab('personnel')"
+                class="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-600">
+          Personnel Details
+        </button>
+        <button id="view-tab-nok" 
+                onclick="window.ViewPersonnel?.switchTab('nok')"
+                class="px-4 py-2 rounded-md bg-yellow-400 text-gray-900 hover:bg-blue-600">
+          Next of Kin
+        </button>
+        <button id="view-tab-spouse" 
+                onclick="window.ViewPersonnel?.switchTab('spouse')"
+                class="px-4 py-2 rounded-md bg-yellow-400 text-gray-900 hover:bg-blue-600">
+          Spouse
+        </button>
+        <button id="view-tab-children" 
+                onclick="window.ViewPersonnel?.switchTab('children')"
+                class="px-4 py-2 rounded-md bg-yellow-400 text-gray-900 hover:bg-blue-600">
+          Children
+        </button>
+      </div>
+    </div>
+
+    <button id="backBtn" 
+      class="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600">
+      Back to List
+    </button>
+  </div>
+
+  <!-- Content Area -->
+  <div id="view-detail-content" class="min-h-[400px]">
+    <div class="flex items-center justify-center py-12">
+      <div class="relative w-10 h-10">
+        <div class="absolute left-1 w-[6px] bg-blue-600 rounded animate-grow-up"></div>
+        <div class="absolute right-1 w-[6px] bg-blue-600 rounded animate-grow-down [animation-delay:0.3s]"></div>
+        <div
+          class="absolute top-1/2 left-1 h-[6px] bg-blue-600 rounded animate-expand [animation-delay:0.6s] -translate-y-1/2">
+        </div>
+      </div>
+      <span class="ml-3 text-gray-600 text-lg">Loading personnel details...</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  const auth = window.authService;
+class ViewPersonnelManager {
+  constructor() {
+    this.currentEmployeeId = null;
+    this.employeeData = null;
+    this.currentTab = 'personnel';
+    this.lookupMaps = {};
+    this.lookupsLoaded = false;
+  }
+
+  async loadEmployee(employeeId) {
+    this.currentEmployeeId = employeeId;
+    sessionStorage.setItem('currentEmployeeId', employeeId);
+    
+    if (!this.lookupsLoaded) {
+      await this.loadLookupData();
+      this.lookupsLoaded = true;
+    }
+
+    await this.loadEmployeeData();
+
+    if (!this.lookupMaps || Object.keys(this.lookupMaps).length === 0) {
+      console.warn("Lookup data not ready, retrying...");
+      await new Promise(resolve => setTimeout(resolve, 200));
+      await this.loadLookupData();
+    }
+
+    await this.switchTab('personnel');
+  }
+
+  formatDateWithOrdinal(dateInput) {
+    if (!dateInput) return 'N/A';
+    
+    const trimmedDate = dateInput.toString().trim();
+    let day, month, year;
+    
+    if (trimmedDate.includes('/')) {
+      const parts = trimmedDate.split('/');
+      if (parts.length !== 3) return 'Invalid Date';
+      day = parseInt(parts[0]);
+      month = parseInt(parts[1]);
+      year = parseInt(parts[2]);
+    } else if (trimmedDate.length === 8 && /^(19|20)\d{6}$/.test(trimmedDate)) {
+      year = parseInt(trimmedDate.substring(0, 4));
+      month = parseInt(trimmedDate.substring(4, 6));
+      day = parseInt(trimmedDate.substring(6, 8));
+    } else if (trimmedDate.length === 8 && /^\d{8}$/.test(trimmedDate)) {
+      day = parseInt(trimmedDate.substring(0, 2));
+      month = parseInt(trimmedDate.substring(2, 4));
+      year = parseInt(trimmedDate.substring(4, 8));
+    } else {
+      return 'Invalid Date';
+    }
+    
+      const monthNames = ['Jan', 'Feb', 'March', 'April', 'May', 'June', 
+                         'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
+    
+    return `${this.getOrdinal(day)} ${monthNames[month - 1]}, ${year}`;
+  }
+
+  formatISODateForDisplay(isoDate) {
+    if (!isoDate) return 'N/A';
+    
+    try {
+      const date = new Date(isoDate);
+      const day = date.getDate();
+      const month = date.getMonth();
+      const year = date.getFullYear();
+      
+      const monthNames = ['Jan', 'Feb', 'March', 'April', 'May', 'June', 
+                         'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
+      
+      return `${this.getOrdinal(day)} ${monthNames[month]}, ${year}`;
+    } catch (error) {
+      return 'Invalid Date';
+    }
+  }
+
+  getOrdinal(day) {
+    if (day > 3 && day < 21) return day + 'th';
+    switch (day % 10) {
+      case 1: return day + 'st';
+      case 2: return day + 'nd';
+      case 3: return day + 'rd';
+      default: return day + 'th';
+    }
+  }
+
+  calculateEmpAge(dateInput) {
+    if (!dateInput) return null;
+    
+    let birthDate = null;
+    const trimmedDate = dateInput.toString().trim();
+    
+    // Handle ISO format dates (YYYY-MM-DD or with time)
+    if (trimmedDate.includes('T') || trimmedDate.includes('-')) {
+      birthDate = new Date(trimmedDate);
+      // Normalize to local timezone to avoid timezone issues
+      if (!isNaN(birthDate.getTime())) {
+        birthDate = new Date(birthDate.getFullYear(), birthDate.getMonth(), birthDate.getDate());
+      }
+    } 
+    // Handle DD/MM/YYYY format
+    else if (trimmedDate.includes('/')) {
+      const parts = trimmedDate.split('/');
+      if (parts.length === 3) {
+        birthDate = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+      }
+    } 
+    // Handle YYYYMMDD format
+    else if (trimmedDate.length === 8 && /^(19|20)\d{6}$/.test(trimmedDate)) {
+      birthDate = new Date(
+        parseInt(trimmedDate.substring(0, 4)),
+        parseInt(trimmedDate.substring(4, 6)) - 1,
+        parseInt(trimmedDate.substring(6, 8))
+      );
+    } 
+    // Handle DDMMYYYY format
+    else if (trimmedDate.length === 8) {
+      birthDate = new Date(
+        parseInt(trimmedDate.substring(4, 8)),
+        parseInt(trimmedDate.substring(2, 4)) - 1,
+        parseInt(trimmedDate.substring(0, 2))
+      );
+    } else {
+      return null;
+    }
+    
+    if (!birthDate || isNaN(birthDate.getTime())) return null;
+    
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    
+    return age;
+  }
+
+  // Calculates duration between two dates; endDate defaults to today if not provided.
+  // Returns a display string: "X years", "X months", or "X days".
+  // Returns null for invalid, negative, or zero results.
+  calculateServiceDuration(startDateInput, endDateInput = null) {
+    const parse = (dateInput) => {
+      if (!dateInput) return null;
+      const t = dateInput.toString().trim();
+      let d;
+      if (t.includes('T') || t.includes('-')) {
+        d = new Date(t);
+        if (!isNaN(d.getTime())) return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+      } else if (t.includes('/')) {
+        const p = t.split('/');
+        if (p.length === 3) d = new Date(parseInt(p[2]), parseInt(p[1]) - 1, parseInt(p[0]));
+      } else if (t.length === 8 && /^(19|20)\d{6}$/.test(t)) {
+        d = new Date(parseInt(t.substring(0,4)), parseInt(t.substring(4,6)) - 1, parseInt(t.substring(6,8)));
+      } else if (t.length === 8) {
+        d = new Date(parseInt(t.substring(4,8)), parseInt(t.substring(2,4)) - 1, parseInt(t.substring(0,2)));
+      }
+      return d && !isNaN(d.getTime()) ? d : null;
+    };
+    const startDate = parse(startDateInput);
+    const endDate = endDateInput ? parse(endDateInput) : new Date();
+
+    if (!startDate || !endDate) return null;
+
+    const diffMs = endDate - startDate;
+    if (diffMs <= 0) return null; // negative or zero — weird date
+
+    // Years
+    let years = endDate.getFullYear() - startDate.getFullYear();
+    const monthDiff = endDate.getMonth() - startDate.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && endDate.getDate() < startDate.getDate())) {
+      years--;
+    }
+
+    if (years >= 1) return `${years} year${years !== 1 ? 's' : ''}`;
+
+    // Months
+    let months = (endDate.getFullYear() - startDate.getFullYear()) * 12
+                 + (endDate.getMonth() - startDate.getMonth());
+    if (endDate.getDate() < startDate.getDate()) months--;
+
+    if (months >= 1) return `${months} month${months !== 1 ? 's' : ''}`;
+
+    // Days
+    const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    if (days >= 1) return `${days} day${days !== 1 ? 's' : ''}`;
+
+    return null; // less than a day — treat as weird
+  }
+
+  getFirstTwo(str) {
+    if (!str) return "";
+
+    return str.toString().substring(0, 2);
+  }
+
+  getGradeStepDisplay() {
+    if (this.gradeStepData && this.gradeStepData.displayValue) {
+      return this.gradeStepData.displayValue;
+    }
+    
+    const emp = this.employeeData?.employee;
+    if (!emp || !emp.gradelevel) return 'N/A';
+    
+    const gradeLevel = this.getFirstTwo(emp.gradelevel);
+    return `${gradeLevel}0`;
+  }
+
+  getGradeStepTooltip() {
+    if (!this.gradeStepData) return '';
+    
+    const { currentStep, step20, yearsSincePromotion } = this.gradeStepData;
+    
+    if (!currentStep) return '';
+    
+    const atMaxStep = currentStep >= step20;
+    
+    return `Step ${currentStep} of ${step20} (${yearsSincePromotion} years since promotion)${atMaxStep ? ' - Maximum step reached' : ''}`;
+  }
+    
+  async loadLookupData() {
+    const endpoints = [
+      'location', 'branch', 'state', 'lga', 'command', 'title', 'religion', 'pfa', 
+      'salarygrade', 'salarygroup', 'country', 'payrollclass', 'relationship', 'marital', 
+      'exittype', 'sex', 'bankbranch', 'bankcode'
+    ];
+    
+    const token = localStorage.getItem('token');
+    
+    await Promise.all(endpoints.map(async endpoint => {
+      try {
+        const res = await auth.fetchWithAuth(`/reference/${endpoint}`, {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        if (!res.ok) {
+          this.lookupMaps[endpoint] = {};
+          return;
+        }
+        
+        const result = await res.json();
+        let data = result.data || result;
+        
+        if (!Array.isArray(data)) {
+          this.lookupMaps[endpoint] = {};
+          return;
+        }
+        
+        const valueField = this.getValueField(endpoint);
+        const textField = this.getTextField(endpoint);
+        
+        this.lookupMaps[endpoint] = Object.fromEntries(
+          data.map(item => [item[valueField], item[textField]])
+        );
+      } catch (err) {
+        this.lookupMaps[endpoint] = {};
+      }
+    }));
+  }
+
+  getValueField(endpoint) {
+    const fieldMap = {
+      'location': 'unitcode',
+      'branch': 'busline',
+      'state': 'Statecode',
+      'lga': 'Lgcode',
+      'command': 'navalcmd',
+      'title': 'Titlecode',
+      'religion': 'ReligionCode',
+      'pfa': 'pfacode',
+      'relationship': 'RShipcode',
+      'marital': 'MaritalCode',
+      'exittype': 'Name',
+      'salarygrade': 'grade_no',
+      'salarygroup': 'groupcode',
+      'country': 'countrycode',
+      'payrollclass': 'classcode',
+      'sex': 'sex_code',
+      'bankbranch': 'branchcode',
+      'bankcode': 'bankcode',
+    };
+    return fieldMap[endpoint] || 'code';
+  }
+
+  getTextField(endpoint) {
+    const fieldMap = {
+      'location': 'unitdesc', 
+      'branch': 'busdesc',
+      'state': 'Statename',
+      'lga': 'Lgname',
+      'command': 'name',
+      'title': 'Description',
+      'religion': 'ReligionName',
+      'pfa': 'pfadesc',
+      'relationship': 'Relationship',
+      'marital': 'MaritalStatus',
+      'exittype': 'Description',
+      'salarygrade': 'grade_desc',
+      'salarygroup': 'grpdesc',
+      'country': 'Countryname',
+      'payrollclass': 'classname',
+      'sex': 'sex_desc',
+      'bankbranch': 'branchname',
+      'bankcode': 'bankname',
+    };
+    return fieldMap[endpoint] || 'name';
+  }
+
+  resolveName(code, endpoint) {
+    if (!code) return 'N/A';
+    return this.lookupMaps[endpoint]?.[code] || code;
+  }
+
+  async loadEmployeeData() {
+    try {
+      const token = localStorage.getItem('token');
+      const safeId = this.currentEmployeeId.replace(/\//g, '_SLASH_');
+      
+      const response = await auth.fetchWithAuth(`/personnel/employees/${safeId}`, {
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      const result = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to load employee data');
+      }
+      
+      this.employeeData = result.data;
+      
+      // Store grade step data if available
+      this.gradeStepData = result.data.gradeStep || null;
+      
+    } catch (error) {
+      document.getElementById('view-detail-content').innerHTML = `
+        <div class="text-red-500 p-4 text-center">
+          <p class="text-lg font-medium">Error loading personnel details</p>
+          <p class="text-sm mt-2">${error.message}</p>
+        </div>
+      `;
+      throw error;
+    }
+  }
+
+  async switchTab(tab) {
+    this.currentTab = tab;
+
+    if (!this.employeeData || !this.lookupsLoaded) {
+      setTimeout(() => this.switchTab(tab), 150);
+      return;
+    }
+    
+    const isMarried = this.employeeData?.employee?.MaritalStatus === 'M' || 
+                      this.employeeData?.employee?.MaritalStatus === 'Married';
+    
+    const tabs = ['personnel', 'nok', 'spouse', 'children'];
+    tabs.forEach(t => {
+      const tabBtn = document.getElementById(`view-tab-${t}`);
+      if (tabBtn) {
+        if (t === 'spouse' && !isMarried) {
+          tabBtn.style.display = 'none';
+          return;
+        } else {
+          tabBtn.style.display = '';
+        }
+        
+        if (t === tab) {
+          tabBtn.className = 'px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-600';
+        } else {
+          tabBtn.className = 'px-4 py-2 rounded-md bg-yellow-400 text-gray-900 hover:bg-blue-600';
+        }
+      }
+    });
+
+    if (tab === 'spouse' && !isMarried) {
+      this.switchTab('personnel');
+      return;
+    }
+
+    const contentArea = document.getElementById('view-detail-content');
+    if (!contentArea || !this.employeeData) return;
+
+    switch (tab) {
+      case 'personnel':
+        contentArea.innerHTML = this.renderPersonnelDetails();
+        break;
+      case 'nok':
+        contentArea.innerHTML = this.renderNOKDetails();
+        break;
+      case 'spouse':
+        contentArea.innerHTML = this.renderSpouseDetails();
+        break;
+      case 'children':
+        contentArea.innerHTML = this.renderChildrenDetails();
+        break;
+    }
+  }
+
+  renderPersonnelDetails() {
+    const emp = this.employeeData.employee;
+    
+    const age = this.calculateEmpAge(emp.Birthdate);
+
+    // Must be declared first — used by multiple calculations below
+    const hasDateLeft = emp.DateLeft && emp.DateLeft.toString().trim() !== '';
+
+    // Date Employed: if exited use DateLeft as end, else today; result is a duration string
+    const yearsEmployed = hasDateLeft
+      ? this.calculateServiceDuration(emp.DateEmpl, emp.DateLeft)
+      : this.calculateServiceDuration(emp.DateEmpl);
+
+    // Date Left: time since exit (DateLeft to today)
+    const yearsSinceExit = hasDateLeft ? this.calculateServiceDuration(emp.DateLeft) : null;
+
+    // Confirmation & Seniority: only calculate/show for active employees (no DateLeft)
+    const yearsOfService = !hasDateLeft ? this.calculateServiceDuration(emp.dateconfirmed) : null;
+    const yearsSinceSeniority = !hasDateLeft ? this.calculateServiceDuration(emp.datepmted) : null;
+
+    const gradeStepDisplay = this.getGradeStepDisplay();
+    const gradeStepTooltip = this.getGradeStepTooltip();
+    
+    const photoSrc = emp.passport 
+        ? `data:image/jpeg;base64,${emp.passport}` 
+        : 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"%3E%3Crect width="200" height="200" fill="%23e5e7eb"/%3E%3Cpath d="M100 60c-16.569 0-30 13.431-30 30 0 16.569 13.431 30 30 30s30-13.431 30-30c0-16.569-13.431-30-30-30zm0 80c-27.614 0-50 17.909-50 40h100c0-22.091-22.386-40-50-40z" fill="%239ca3af"/%3E%3C/svg%3E';
+
+    const detailItemClass = "flex justify-between items-start py-3 border-b border-gray-300";
+    const dtClass = "text-sm font-medium text-gray-600";
+    const ddClass = "text-sm font-medium text-gray-900 text-right ml-4";
+    const highlightDDClass = "text-sm font-semibold text-blue-600 text-right ml-4";
+    const sectionTitleClass = "text-xl font-bold text-blue-700 mb-4 pb-2 border-b border-blue-200";
+    const cardClass = "p-6 rounded-lg shadow-sm hover:shadow-lg transition duration-300";
+
+    // Helper: only render the blue annotation span when the date is not N/A and value is valid
+    const dateSpan = (label) =>
+      label !== null && label !== undefined
+        ? `<span class="text-md font-semibold text-blue-500">(${label})</span>`
+        : '';
+
+    // Formatted dates
+    const fmtBirthdate    = this.formatDateWithOrdinal(emp.Birthdate);
+    const fmtDateEmpl     = this.formatDateWithOrdinal(emp.DateEmpl);
+    const fmtDateConfirmed= this.formatDateWithOrdinal(emp.dateconfirmed);
+    const fmtDatePmted    = this.formatDateWithOrdinal(emp.datepmted);
+    const fmtDateLeft     = hasDateLeft ? this.formatDateWithOrdinal(emp.DateLeft) : 'N/A';
+
+    return `
+        <div class="grid grid-cols-1 border-2 border-blue-200 rounded-lg shadow-md lg:grid-cols-4 gap-2">
+        
+        <div class="lg:col-span-1 space-y-2">
+            <div class="${cardClass} text-center">
+                <div class="flex justify-center mb-4">
+                    <div class="w-36 h-36">
+                        <img src="${photoSrc}" 
+                        alt="Personnel Photo" 
+                        class="w-full h-full rounded-full border-4 border-blue-500 object-cover shadow-lg"
+                        onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22 viewBox=%220 0 200 200%22%3E%3Crect width=%22200%22 height=%22200%22 fill=%22%23e5e7eb%22/%3E%3Cpath d=%22M100 60c-16.569 0-30 13.431-30 30 0 16.569 13.431 30 30 30s30-13.431 30-30c0-16.569-13.431-30-30-30zm0 80c-27.614 0-50 17.909-50 40h100c0-22.091-22.386-40-50-40z%22 fill=%22%239ca3af%22/%3E%3C/svg%3E'">
+                    </div>
+                </div>
+                <p class="text-[15px] font-bold text-gray-900">${this.escape(emp.Surname || '')}, ${this.escape(emp.OtherName || '')}</p>
+                <p class="text-md font-semibold text-blue-600">${this.escape(this.resolveName(emp.Title, 'title'))}</p>
+            </div>
+            
+            <div class="${cardClass} space-y-2">
+                <h4 class="${sectionTitleClass.replace('text-xl font-bold', 'text-lg font-semibold')}">Banking Details</h4>
+                <dl>
+                    <div class="${detailItemClass}"><dt class="${dtClass}">Bank:</dt><dd class="${ddClass}">${this.escape(this.resolveName(emp.Bankcode, 'bankcode'))}</dd></div>
+                    <div class="${detailItemClass}"><dt class="${dtClass}">Bank Branch:</dt><dd class="${ddClass}">${this.escape(this.resolveName(emp.bankbranch, 'bankbranch'))}</dd></div>
+                    <div class="${detailItemClass}"><dt class="${dtClass}">Bank AC Number:</dt><dd class="${ddClass}">${this.escape(emp.BankACNumber || 'N/A')}</dd></div>
+                    <div class="${detailItemClass}"><dt class="${dtClass}">Internal AC No:</dt><dd class="${ddClass}">${this.escape(emp.InternalACNo || 'N/A')}</dd></div>
+                </dl>
+            </div>
+
+            <div class="${cardClass} space-y-2">
+                <h4 class="${sectionTitleClass.replace('text-xl font-bold', 'text-lg font-semibold')}">Other Details</h4>
+                <dl>
+                    <div class="${detailItemClass}"><dt class="${dtClass}">Payroll Class:</dt><dd class="${ddClass}">${this.escape(this.resolveName(emp.payrollclass, 'payrollclass'))}</dd></div>
+                    <div class="${detailItemClass}"><dt class="${dtClass}">Emolument Form?</dt><dd class="${ddClass}">${this.escape(emp.emolumentform || 'N/A')}</dd></div>
+                    <div class="${detailItemClass}"><dt class="${dtClass}">Job Title:</dt><dd class="${ddClass}">${this.escape(emp.Jobtitle || 'N/A')}</dd></div>                      
+                    <div class="${detailItemClass}"><dt class="${dtClass}">NHF Code:</dt><dd class="${ddClass}">${this.escape(emp.NHFcode || 'N/A')}</dd></div>
+                    <div class="${detailItemClass}"><dt class="${dtClass}">Award:</dt><dd class="${ddClass}">${this.escape(emp.award || 'N/A')}</dd></div>
+                    <div class="${detailItemClass}"><dt class="${dtClass}">Rent Subsidy:</dt><dd class="${ddClass}">${this.escape(emp.rent_subsidy || 'N/A')}</dd></div>
+                    <div class="${detailItemClass}"><dt class="${dtClass}">Accomm Type:</dt><dd class="${ddClass}">${this.escape(emp.accomm_type || 'N/A')}</dd></div>
+                </dl>
+            </div>
+        </div>
+
+        <div class="lg:col-span-3 space-y-2">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                <div class="${cardClass} space-y-2">
+                    <h4 class="${sectionTitleClass}">Basic Information</h4>
+                    <dl>
+                        <div class="${detailItemClass}"><dt class="${dtClass}">Service Number:</dt><dd class="${highlightDDClass}">${this.escape(emp.Empl_ID || 'N/A')}</dd></div>
+                        <div class="${detailItemClass}"><dt class="${dtClass}">Surname:</dt><dd class="${ddClass}">${this.escape(emp.Surname || 'N/A')}</dd></div>
+                        <div class="${detailItemClass}"><dt class="${dtClass}">Other Names:</dt><dd class="${ddClass}">${this.escape(emp.OtherName || 'N/A')}</dd></div>
+                        <div class="${detailItemClass}"><dt class="${dtClass}">Rank:</dt><dd class="${highlightDDClass}">${this.escape(this.resolveName(emp.Title, 'title'))}</dd></div>
+                        <div class="${detailItemClass}"><dt class="${dtClass}">Sex:</dt><dd class="${ddClass}">${this.escape(this.resolveName(emp.Sex, 'sex') || 'N/A')}</dd></div>
+                        <div class="${detailItemClass}">
+                          <dt class="${dtClass}">Date of Birth:</dt>
+                          <dd class="${ddClass}">
+                            ${fmtBirthdate !== 'N/A' ? fmtBirthdate : 'N/A'}
+                            ${fmtBirthdate !== 'N/A' ? dateSpan(age !== null ? age + ' years old' : null) : ''}
+                          </dd>
+                        </div>
+                        <div class="${detailItemClass}"><dt class="${dtClass}">Marital Status:</dt><dd class="${ddClass}">${this.escape(this.resolveName(emp.MaritalStatus, 'marital'))}</dd></div>
+                        <div class="${detailItemClass}"><dt class="${dtClass}">Religion:</dt><dd class="${ddClass}">${this.escape(this.resolveName(emp.religion, 'religion'))}</dd></div>
+                    </dl>
+                </div>
+
+                <div class="${cardClass} space-y-2">
+                    <h4 class="${sectionTitleClass}">Contact & Location</h4>
+                    <dl>
+                        <div class="${detailItemClass}"><dt class="${dtClass}">Email:</dt><dd class="${ddClass}"><a href="mailto:${this.escape(emp.email)}" class="text-blue-500 hover:text-blue-700">${this.escape(emp.email || 'N/A')}</a></dd></div>
+                        <div class="${detailItemClass}"><dt class="${dtClass}">Phone:</dt><dd class="${ddClass}">${this.escape(emp.gsm_number || 'N/A')}</dd></div>
+                        <div class="${detailItemClass}"><dt class="${dtClass}">State of Origin:</dt><dd class="${ddClass}">${this.escape(this.resolveName(emp.StateofOrigin, 'state'))}</dd></div>
+                        <div class="${detailItemClass}"><dt class="${dtClass}">LGA:</dt><dd class="${ddClass}">${this.escape(this.resolveName(emp.LocalGovt, 'lga'))}</dd></div>
+                        <div class="${detailItemClass}"><dt class="${dtClass}">Town:</dt><dd class="${ddClass}">${this.escape(emp.town || 'N/A')}</dd></div>                        
+                        <h5 class="text-lg font-semibold text-gray-700 pt-4 mb-2 border-t border-gray-100">Residential Address</h5>
+                        <div class="${detailItemClass}"><dt class="${dtClass}">Address:</dt><dd class="col-span-2 text-sm text-gray-900 text-right ml-4 font-bold">${this.escape(emp.HOMEADDR || 'N/A')}</dd></div>
+                    </dl>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                <div class="${cardClass} space-y-2">
+                    <h4 class="${sectionTitleClass}">Employment Information</h4>
+                    <dl>
+                        <div class="${detailItemClass}">
+                          <dt class="${dtClass}">Date Employed:</dt>
+                          <dd class="${ddClass}">
+                            ${fmtDateEmpl !== 'N/A' ? fmtDateEmpl : 'N/A'}
+                            ${fmtDateEmpl !== 'N/A' ? dateSpan(yearsEmployed !== null ? yearsEmployed + (hasDateLeft ? ' served' : ' of service') : null) : ''}
+                          </dd>
+                        </div>
+                        <div class="${detailItemClass}">
+                          <dt class="${dtClass}">Date Confirmed:</dt>
+                          <dd class="${ddClass}">
+                            ${fmtDateConfirmed}
+                            ${!hasDateLeft && fmtDateConfirmed !== 'N/A' ? dateSpan(yearsOfService !== null ? yearsOfService + ' ago' : null) : ''}
+                          </dd>
+                        </div>
+                        <div class="${detailItemClass}"><dt class="${dtClass}">Entry Mode:</dt><dd class="${ddClass}">${this.escape(this.resolveName(emp.entry_mode, 'entrymode'))}</dd></div>
+                        <div class="${detailItemClass}">
+                          <dt class="${dtClass}">Date Left:</dt>
+                          <dd class="${ddClass}">
+                            ${fmtDateLeft}
+                            ${hasDateLeft && fmtDateLeft !== 'N/A' ? dateSpan(yearsSinceExit !== null ? yearsSinceExit + ' since exit' : null) : ''}
+                          </dd>
+                        </div>
+                        <div class="${detailItemClass}"><dt class="${dtClass}">Exit Type:</dt><dd class="${ddClass}">${this.escape(this.resolveName(emp.exittype, 'exittype'))}</dd></div>
+                        <div class="${detailItemClass}">
+                          <dt class="${dtClass}">Seniority Date:</dt>
+                          <dd class="${ddClass}">
+                            ${fmtDatePmted}
+                            ${!hasDateLeft && fmtDatePmted !== 'N/A' ? dateSpan(yearsSinceSeniority !== null ? yearsSinceSeniority + ' since promotion' : null) : ''}
+                          </dd>
+                        </div>
+                        <div class="${detailItemClass}"><dt class="${dtClass}">Location:</dt><dd class="${ddClass}">${this.escape(this.resolveName(emp.Location, 'location'))}</dd></div>
+                        <div class="${detailItemClass}"><dt class="${dtClass}">Command:</dt><dd class="${ddClass}">${this.escape(this.resolveName(emp.command, 'command'))}</dd></div>
+                        <div class="${detailItemClass}"><dt class="${dtClass}">Specialisation:</dt><dd class="${ddClass}">${this.escape(this.resolveName(emp.specialisation, 'specialisations'))}</dd></div>
+                    </dl>
+                </div>
+
+                <div class="${cardClass} space-y-2">
+                    <h4 class="${sectionTitleClass}">Tax & Financial Information</h4>
+                    <dl>
+                        <div class="${detailItemClass}"><dt class="${dtClass}">Taxed:</dt><dd class="${ddClass}">${this.escape(emp.taxed || 'N/A')}</dd></div>
+                        <div class="${detailItemClass}"><dt class="${dtClass}">Tax Code:</dt><dd class="${ddClass}">${this.escape(emp.TaxCode || 'N/A')}</dd></div>
+                        <div class="${detailItemClass}"><dt class="${dtClass}">Tax State:</dt><dd class="${ddClass}">${this.escape(this.resolveName(emp.state, 'state'))}</dd></div>
+                        <div class="${detailItemClass}"><dt class="${dtClass}">RSA(Pension) Code:</dt><dd class="${ddClass}">${this.escape(emp.NSITFcode || 'N/A')}</dd></div>
+                        <div class="${detailItemClass}">
+                          <dt class="${dtClass}">Grade Level:</dt>
+                          <dd class="${ddClass}" title="${gradeStepTooltip}">${this.escape(gradeStepDisplay)}</dd>
+                        </div>
+                        <div class="${detailItemClass}"><dt class="${dtClass}">Grade Type:</dt><dd class="${ddClass}">${this.escape(this.resolveName(emp.gradetype, 'salarygroup'))}</dd></div>
+                        <div class="${detailItemClass}"><dt class="${dtClass}">Branch:</dt><dd class="${ddClass}">${this.escape(this.resolveName(emp.Factory, 'branch'))}</dd></div>
+                        <div class="${detailItemClass}"><dt class="${dtClass}">PFA:</dt><dd class="${ddClass}">${this.escape(this.resolveName(emp.pfacode, 'pfa'))}</dd></div>                          
+                        <div class="${detailItemClass}"><dt class="${dtClass}">Country:</dt><dd class="${ddClass}">${this.escape(this.resolveName(emp.Country, 'country'))}</dd></div>
+                    </dl>
+                </div>
+            </div>
+        </div>
+        </div>
+    `;
+  }
+  
+  renderNOKDetails() {
+    let nokList = this.employeeData.nextOfKin || [];
+    
+    // Fallback: If no NOK records exist, check employee table for fallback data
+    if (nokList.length === 0) {
+      const emp = this.employeeData.employee;
+      if (emp.nok_name || emp.nokphone || emp.nok_addr || emp.nok_relation) {
+        // Create a fallback NOK record from employee table
+        nokList = [{
+          FirstName: emp.nok_name || '',
+          LastName: '',
+          RShipcode: emp.nok_relation || '',
+          NextofkinType: 'Main',
+          MobileNumber: emp.nokphone || '',
+          EmailAddress: '',
+          dateofbirth: null,
+          FullAddress: emp.nok_addr || '',
+          HomeNumber: '',
+          PlaceOfWork: '',
+          _isFallback: true
+        }];
+      }
+    }
+    
+    if (nokList.length === 0) {
+      return '<div class="text-center py-12 text-gray-500 text-lg">No Next of Kin records found.</div>';
+    }
+
+    return `
+      <div class="space-y-6">
+        <h4 class="text-xl font-bold text-blue-700">Next of Kin Records (${nokList.length})</h4>
+        <div class="grid gap-6">
+          ${nokList.map(nok => `
+            <div class="border-2 border-blue-200 rounded-lg p-6 shadow-md hover:shadow-lg transition-shadow">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-2">
+                  <h5 class="text-lg font-bold text-blue-800">${this.escape(nok.FirstName || '')} ${this.escape(nok.LastName || '')}</h5>
+                  <div class="space-y-2">
+                    <div class="grid grid-cols-3 gap-2 py-2 border-b">
+                      <dt class="font-medium">Relationship:</dt>
+                      <dd class="col-span-2">${this.escape(this.resolveName(nok.RShipcode, 'relationship'))}</dd>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2 py-2 border-b">
+                      <dt class="font-medium">Type:</dt>
+                      <dd class="px-2 py-1 bg-blue-100 text-blue-800 font-bold rounded text-sm text-center">${this.escape(nok.NextofkinType || 'Main')}</dd>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2 py-2 border-b">
+                      <dt class="font-medium">Mobile:</dt>
+                      <dd class="col-span-2">${this.escape(nok.MobileNumber || 'N/A')}</dd>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2 py-2 border-b">
+                      <dt class="font-medium">Email:</dt>
+                      <dd class="col-span-2">${this.escape(nok.EmailAddress || 'N/A')}</dd>
+                    </div>
+                  </div>
+                </div>
+                <div class="space-y-2">
+                  <div class="grid grid-cols-3 gap-2 py-2 border-b">
+                    <dt class="font-medium">Date of Birth:</dt>
+                    <dd class="col-span-2">${this.formatISODateForDisplay(nok.dateofbirth)}</dd>
+                  </div>
+                  <div class="grid grid-cols-3 gap-2 py-2 border-b">
+                    <dt class="font-medium text-gray-700 block mb-1">Address:</dt>
+                    <dd class="col-span-2">${this.escape(nok.FullAddress || 'N/A')}</dd>
+                  </div>
+                  <div class="grid grid-cols-3 gap-2 py-2 border-b">
+                    <dt class="font-medium">House Number:</dt>
+                    <dd class="col-span-2">${this.escape(nok.HomeNumber || 'N/A')}</dd>
+                  </div>
+                  <div class="grid grid-cols-3 gap-2 py-2 border-b">
+                    <dt class="font-medium text-gray-700 block mb-1">Place of Work:</dt>
+                    <dd class="col-span-2">${this.escape(nok.PlaceOfWork || 'N/A')}</dd>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  renderSpouseDetails() {
+    let spouseList = this.employeeData.spouse || [];
+    
+    // Fallback: Check if NOK relationship is "wife" and no spouse records exist
+    if (spouseList.length === 0) {
+      const emp = this.employeeData.employee;
+      const nokRelation = (emp.nok_relation || '').toLowerCase();
+      
+      if ((nokRelation === 'wife' || nokRelation === 'husband') || (nokRelation === 'WIFE' || nokRelation === 'HUSBAND') && emp.nok_name) {
+        // Create a fallback spouse record from employee NOK data
+        spouseList = [{
+          spname: emp.nok_name || '',
+          spphone: emp.nokphone || '',
+          spemail: '',
+          dateofbirth: null,
+          marrieddate: null,
+          Statecode: null,
+          Lgcode: null,
+          sptown: '',
+          spstreet: emp.nok_addr || '',
+          sppobox: '',
+          _isFallback: true
+        }];
+      }
+    }
+    
+    if (spouseList.length === 0) {
+      return '<div class="text-center py-12 text-gray-500 text-lg">No spouse records found.</div>';
+    }
+
+    return `
+      <div class="space-y-6">
+        <h4 class="text-xl font-bold text-blue-700">Spouse Records (${spouseList.length})</h4>
+        <div class="grid gap-6">
+          ${spouseList.map(spouse => `
+            <div class="border-2 border-green-200 rounded-lg p-6 bg-gradient-to-r from-green-50 to-white shadow-md hover:shadow-lg transition-shadow">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-3">
+                  <h5 class="text-lg font-bold text-green-800">${this.escape(spouse.spname || '')}</h5>
+                  <div class="space-y-2">
+                    <div class="grid grid-cols-3 gap-2 py-2 border-b">
+                      <dt class="font-medium">Phone:</dt>
+                      <dd class="col-span-2">${this.escape(spouse.spphone || 'N/A')}</dd>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2 py-2 border-b">
+                      <dt class="font-medium">Email:</dt>
+                      <dd class="col-span-2">${this.escape(spouse.spemail || 'N/A')}</dd>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2 py-2 border-b">
+                      <dt class="font-medium">Date of Birth:</dt>
+                      <dd class="col-span-2">${this.formatISODateForDisplay(spouse.dateofbirth)}</dd>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2 py-2 border-b">
+                      <dt class="font-medium">Married Date:</dt>
+                      <dd class="col-span-2">${this.formatISODateForDisplay(spouse.marrieddate)}</dd>
+                    </div>
+                  </div>
+                </div>
+                <div class="space-y-2">
+                  <div class="grid grid-cols-3 gap-2 py-2 border-b">
+                    <dt class="font-medium">State:</dt>
+                    <dd class="col-span-2">${this.escape(this.resolveName(spouse.Statecode, 'state'))}</dd>
+                  </div>
+                  <div class="grid grid-cols-3 gap-2 py-2 border-b">
+                    <dt class="font-medium">Local Government:</dt>
+                    <dd class="col-span-2">${this.escape(this.resolveName(spouse.Lgcode, 'lga'))}</dd>
+                  </div>
+                  <div class="grid grid-cols-3 gap-2 py-2 border-b">
+                    <dt class="font-medium">Town:</dt>
+                    <dd class="col-span-2">${this.escape(this.resolveName(spouse.sptown, ' '))}</dd>
+                  </div>
+                  <div class="grid grid-cols-3 gap-2 py-2 border-b">
+                    <dt class="font-medium text-gray-700">Address:</dt>
+                    <dd class="col-span-2">${this.escape(spouse.spstreet || 'N/A')}</dd>
+                  </div>
+                  <div class="grid grid-cols-3 gap-2 py-2 border-b">
+                    <dt class="font-medium">PoBox:</dt>
+                    <dd class="col-span-2">${this.escape(spouse.sppobox || 'N/A')}</dd>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  renderChildrenDetails() {
+    let childrenList = this.employeeData.children || [];
+    
+    // Fallback: Check if NOK relationship is "son" or "daughter" and no children records exist
+    if (childrenList.length === 0) {
+      const emp = this.employeeData.employee;
+      const nokRelation = (emp.nok_relation || '').toLowerCase();
+      
+      if ((nokRelation === 'son' || nokRelation === 'daughter') && emp.nok_name) {
+        // Create a fallback child record from employee NOK data
+        childrenList = [{
+          chname: emp.nok_name || '',
+          Sex: nokRelation === 'son' ? 'Male' : nokRelation === 'daughter' ? 'Female' : '',
+          dateofbirth: null,
+          chphone: emp.nokphone || '',
+          chemail: '',
+          chpobox: '',
+          chschool: '',
+          occupation: '',
+          officeaddress: '',
+          chstreet: emp.nok_addr || '',
+          chtown: '',
+          Statecode: null,
+          Lgcode: null,
+          _isFallback: true
+        }];
+      }
+    }
+    
+    if (childrenList.length === 0) {
+      return '<div class="text-center py-12 text-gray-500 text-lg">No children records found.</div>';
+    }
+
+    return `
+      <div class="space-y-6">
+        <h4 class="text-xl font-bold text-blue-700">Children Records (${childrenList.length})</h4>
+        <div class="grid gap-6">
+          ${childrenList.map(child => `
+            <div class="border-2 border-purple-200 rounded-lg p-6 shadow-md hover:shadow-lg transition-shadow">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-3">
+                  <h5 class="text-2xl font-bold text-purple-800">${this.escape(child.chname || '')}</h5>
+                  <div class="space-y-2">
+                    <div class="grid grid-cols-3 gap-2 py-2 border-b">
+                      <dt class="font-medium">Sex:</dt>
+                      <dd class="col-span-2">${this.escape(child.Sex || 'N/A')}</dd>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2 py-2 border-b">
+                      <dt class="font-medium">Date of Birth:</dt>
+                      <dd class="col-span-2">${this.formatISODateForDisplay(child.dateofbirth)}</dd>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2 py-2 border-b">
+                      <dt class="font-medium">Age:</dt>
+                      <dd class="col-span-2 font-semibold">${this.calculateAge(child.dateofbirth)} years</dd>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2 py-2 border-b">
+                      <dt class="font-medium">Phone:</dt>
+                      <dd class="col-span-2">${this.escape(child.chphone || 'N/A')}</dd>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2 py-2 border-b">
+                      <dt class="font-medium">Email:</dt>
+                      <dd class="col-span-2">${this.escape(child.chemail || 'N/A')}</dd>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2 py-2 border-b">
+                      <dt class="font-medium">POBOX:</dt>
+                      <dd class="col-span-2">${this.escape(child.chpobox || 'N/A')}</dd>
+                    </div>
+                  </div>
+                </div>
+                <div class="space-y-3">
+                  <div class="grid grid-cols-3 gap-2 py-2 border-b">
+                    <dt class="font-medium">School:</dt>
+                    <dd class="col-span-2">${this.escape(child.chschool || 'N/A')}</dd>
+                  </div>
+                  <div class="grid grid-cols-3 gap-2 py-2 border-b">
+                    <dt class="font-medium">Occupation:</dt>
+                    <dd class="col-span-2">${this.escape(child.occupation || 'N/A')}</dd>
+                  </div>
+                  <div class="grid grid-cols-3 gap-2 py-2 border-b">
+                    <dt class="font-medium text-gray-700 block mb-1">Office Address:</dt>
+                    <dd class="col-span-2">${this.escape(child.officeaddress || 'N/A')}</dd>
+                  </div>
+                  <div class="grid grid-cols-3 gap-2 py-2 border-b">
+                    <dt class="font-medium text-gray-700 block mb-1">Address:</dt>
+                    <dd class="col-span-2">${this.escape(child.chstreet || 'N/A')}</dd>
+                  </div>
+                   <div class="col-span-2 space-y-1">
+                     <div class="grid grid-cols-3 gap-2 py-2 border-b">
+                      <dt class="font-medium text-gray-700 block mb-1">Town:</dt>
+                      <dd class="col-span-2">${this.escape(this.resolveName(child.chtown, ' '))}</dd>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2 py-2 border-b">
+                      <dt class="font-medium text-gray-700 block mb-1">State:</dt>
+                      <dd class="col-span-2">${this.escape(this.resolveName(child.Statecode, 'state'))}</dd>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2 py-2 border-b">
+                      <dt class="font-medium text-gray-700 block mb-1">LGA:</dt>
+                      <dd class="col-span-2">${this.escape(this.resolveName(child.Lgcode, 'lga'))}</dd>
+                    </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  escape(str) {
+    if (!str) return '';
+    return String(str).replace(/[&<>"']/g, m => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
+    }[m]));
+  }
+
+  formatDate(dateString) {
+    if (!dateString) return 'N/A';
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString();
+    } catch {
+      return 'Invalid Date';
+    }
+  }
+
+  calculateAge(birthDate) {
+    if (!birthDate) return 'N/A';
+    try {
+      const birth = new Date(birthDate);
+      const today = new Date();
+      let age = today.getFullYear() - birth.getFullYear();
+      const monthDiff = today.getMonth() - birth.getMonth();
+      
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+        age--;
+      }
+      
+      return age;
+    } catch {
+      return 'N/A';
+    }
+  }
+}
+
+// Initialize
+window.ViewPersonnel = new ViewPersonnelManager();
+
+
+document.getElementById('backBtn').addEventListener('click', () => {
+  const navigatedFromCurrent = localStorage.getItem('navigatedFromCurrentPersonnel') === 'true';
+  const navigatedFromOld = localStorage.getItem('navigatedFromOldPersonnel') === 'true';
+  
+  // Don't clear the flags yet - let the personnel page restore state first
+  if (navigatedFromOld) {
+    if (window.navigation?.navigateToSection) {
+      window.navigation.navigateToSection('old-personnel', 'Old Personnel');
+    }
+  } else if (navigatedFromCurrent) {
+    if (window.navigation?.navigateToSection) {
+      window.navigation.navigateToSection('current-personnel', 'Current Personnel');
+    }
+  }
+});
+
+// Auto-reload employee if navigating back to this view
+(function() {
+  const savedEmployeeId = sessionStorage.getItem('currentEmployeeId');
+  if (savedEmployeeId && document.getElementById('view-detail-content')) {
+    window.ViewPersonnel.loadEmployee(savedEmployeeId);
+  }
+})();
+</script>

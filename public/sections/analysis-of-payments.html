@@ -1,0 +1,439 @@
+<!-- Analysis of Payments/Deductions by Bank -->
+<style>
+  @keyframes grow-up {
+    0% { height: 0; bottom: 0; }
+    100% { height: 100%; bottom: 0; }
+  }
+  @keyframes grow-down {
+    0% { height: 0; top: 0; }
+    100% { height: 100%; top: 0; }
+  }
+  @keyframes expand {
+    0% { width: 0; left: 50%; transform: translate(-50%, -50%); }
+    100% { width: 100%; left: 0; transform: translateY(-50%); }
+  }
+  .animate-grow-up {
+    animation: grow-up 0.6s ease-in-out infinite alternate;
+    position: absolute;
+    bottom: 0;
+  }
+  .animate-grow-down {
+    animation: grow-down 0.6s ease-in-out infinite alternate;
+    position: absolute;
+    top: 0;
+  }
+  .animate-expand {
+    animation: expand 0.6s ease-in-out infinite alternate;
+  }
+</style>
+
+<section class="items border rounded-lg m-6 max-w-2xl mr-auto p-6 mx-auto">
+  <h2 class="text-xl border-b text-center text-blue-600 font-bold mb-8">Print Analysis of Payments/Deductions by Bank Report</h2>
+
+  <form id="bankAnalysisForm" class="space-y-4">
+    <!-- Bank + Type in responsive grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Select Bank -->
+      <div>
+        <label class="block text-lg text-blue-600 font-bold mb-2">Select Bank</label>
+        <div class="flex space-x-4">
+          <label class="flex text-sm items-center space-x-2">
+            <input type="radio" id="bankAnalysisAllBanks" name="bankChoice" value="all" checked>
+            <span>All Banks</span>
+          </label>
+          <label class="flex text-sm items-center space-x-2">
+            <input type="radio" id="bankAnalysisSpecificBank" name="bankChoice" value="specific">
+            <span>Specific Bank</span>
+          </label>
+        </div>
+        <select id="bankAnalysisBankName"
+          class="mt-2 w-full bg-transparent border border-blue-500 rounded px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          placeholder="Enter Bank Name" disabled>
+          <option value="">Select Bank</option>
+          <!-- Options will be loaded from API -->
+        </select>
+      </div>
+
+      <!-- Select Type -->
+      <div>
+        <label class="block text-lg text-blue-600 font-semibold mb-2">Select Type</label>
+        <div class="flex space-x-4">
+          <label class="flex text-sm items-center space-x-2">
+            <input type="radio" id="bankAnalysisAllTypes" name="typeChoice" value="all" checked>
+            <span>All Types</span>
+          </label>
+          <label class="flex text-sm items-center space-x-2">
+            <input type="radio" id="bankAnalysisSpecificType" name="typeChoice" value="specific">
+            <span>Specific Type</span>
+          </label>
+        </div>
+        <select id="bankAnalysisPaymentType"
+          class="mt-2 w-full bg-transparent border border-blue-500 rounded px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" disabled>
+          <option value="">Select Payment Type</option>
+          <!-- Options will be loaded from API -->
+        </select>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Processing Month -->
+      <div>
+        <label for="bankAnalysisMonth" class="block text-sm font-medium mb-1">Processing Month</label>
+        <select id="bankAnalysisMonth"
+          class="mt-2 w-full bg-transparent border border-blue-500 rounded px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+          <option value="">Select Month</option>
+          <option value="1">January</option>
+          <option value="2">February</option>
+          <option value="3">March</option>
+          <option value="4">April</option>
+          <option value="5">May</option>
+          <option value="6">June</option>
+          <option value="7">July</option>
+          <option value="8">August</option>
+          <option value="9">September</option>
+          <option value="10">October</option>
+          <option value="11">November</option>
+          <option value="12">December</option>
+        </select>
+      </div>
+
+      <!-- Processing Year -->
+      <div>
+        <label for="bankAnalysisYear" class="block text-sm font-medium mb-1">Processing Year</label>
+        <input type="number" id="bankAnalysisYear" name="processingYear"
+          class="mt-2 w-full bg-transparent border border-blue-500 rounded px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          placeholder="e.g., 2025" min="2020" max="2099">
+      </div>
+    </div>
+
+
+    <!-- Output Format -->
+    <div>
+      <label class="block font-medium mb-2">Output Format</label>
+      <div class="flex space-x-4">
+        <label class="flex text-sm items-center space-x-2">
+          <input type="radio" name="bankAnalysisFormat" value="pdf" checked>
+          <span>PDF</span>
+        </label>
+        <label class="flex text-sm items-center space-x-2">
+          <input type="radio" name="bankAnalysisFormat" value="excel">
+          <span>Excel</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="flex justify-between items-center gap-2 mb-4">
+      <!-- Summary Report -->
+      <div class="flex items-center space-x-2">
+        <input type="checkbox" id="bankAnalysisSummaryReport" name="summaryReport" class="h-4 w-4">
+        <label for="bankAnalysisSummaryReport" class="text-sm">Summary Report</label>
+      </div>
+
+      <!-- Buttons -->
+      <div class="flex space-x-2 pt-2">
+        <button type="reset" id="bankAnalysisClearBtn"
+          class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">
+          Clear
+        </button>
+        <button type="button" id="bankAnalysisPrintBtn"
+          class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+          Generate
+        </button>
+      </div>
+    </div>
+  </form>
+</section>
+
+<!-- Loading Indicator -->
+<div id="bankAnalysisLoadingIndicator" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg shadow-lg w-80 p-6 text-center">
+    <!-- Replace this spinner -->
+    <div class="relative w-10 h-10 mx-auto mb-4">
+      <div class="absolute left-1 w-[6px] bg-blue-600 rounded animate-grow-up"></div>
+      <div class="absolute right-1 w-[6px] bg-blue-600 rounded animate-grow-down [animation-delay:0.3s]"></div>
+      <div class="absolute top-1/2 left-1 h-[6px] bg-blue-600 rounded animate-expand [animation-delay:0.6s] -translate-y-1/2"></div>
+    </div>
+  <span>Generating report...</span>
+  </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div id="bankAnalysisConfirmModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg shadow-lg w-96 p-6">
+    <h3 class="text-lg font-semibold mb-4">Confirm Generation</h3>
+    <p class="mb-6 text-gray-700">Do you want to continue with report generation?</p>
+    <div class="flex justify-end space-x-2">
+      <button id="bankAnalysisCancelBtn"
+        class="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500">
+        Cancel
+      </button>
+      <button id="bankAnalysisContinueBtn"
+        class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+        Continue
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Success Modal -->
+<div id="bankAnalysisSuccessModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg shadow-lg w-96 p-6 text-center">
+    <h3 class="text-lg font-semibold text-green-600 mb-4">Success</h3>
+    <p class="mb-6 text-gray-700" id="bankAnalysisSuccessMessage">Report generated successfully!</p>
+    <button id="bankAnalysisSuccessOkBtn"
+      class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+      OK
+    </button>
+  </div>
+</div>
+
+<!-- Error Modal -->
+<div id="bankAnalysisErrorModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg shadow-lg w-96 p-6 text-center">
+    <h3 class="text-lg font-semibold text-red-600 mb-4">Error</h3>
+    <p class="mb-6 text-gray-700" id="bankAnalysisErrorMessage">Please complete all required fields.</p>
+    <button id="bankAnalysisErrorOkBtn"
+      class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">
+      OK
+    </button>
+  </div>
+</div>
+
+<script>
+  const auth = window.authService;
+  const BANK_API_BASE = '/paydedbank';
+  let bankLookupMaps = {};
+  
+  const bankAnalysisAllBanks = document.getElementById("bankAnalysisAllBanks");
+  const bankAnalysisSpecificBank = document.getElementById("bankAnalysisSpecificBank");
+  const bankAnalysisBankName = document.getElementById("bankAnalysisBankName");
+
+  const bankAnalysisAllTypes = document.getElementById("bankAnalysisAllTypes");
+  const bankAnalysisSpecificType = document.getElementById("bankAnalysisSpecificType");
+  const bankAnalysisPaymentType = document.getElementById("bankAnalysisPaymentType");
+
+  const bankAnalysisMonth = document.getElementById("bankAnalysisMonth");
+  const bankAnalysisYear = document.getElementById("bankAnalysisYear");
+  const bankAnalysisPrintBtn = document.getElementById("bankAnalysisPrintBtn");
+  const bankAnalysisClearBtn = document.getElementById("bankAnalysisClearBtn");
+  const bankAnalysisLoadingIndicator = document.getElementById("bankAnalysisLoadingIndicator");
+
+  const bankAnalysisConfirmModal = document.getElementById("bankAnalysisConfirmModal");
+  const bankAnalysisCancelBtn = document.getElementById("bankAnalysisCancelBtn");
+  const bankAnalysisContinueBtn = document.getElementById("bankAnalysisContinueBtn");
+
+  const bankAnalysisSuccessModal = document.getElementById("bankAnalysisSuccessModal");
+  const bankAnalysisSuccessOkBtn = document.getElementById("bankAnalysisSuccessOkBtn");
+  const bankAnalysisSuccessMessage = document.getElementById("bankAnalysisSuccessMessage");
+
+  const bankAnalysisErrorModal = document.getElementById("bankAnalysisErrorModal");
+  const bankAnalysisErrorOkBtn = document.getElementById("bankAnalysisErrorOkBtn");
+  const bankAnalysisErrorMessage = document.getElementById("bankAnalysisErrorMessage");
+
+  // Set current year
+  async function loadCurrentPeriod() {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await auth.fetchWithAuth(`/salarysummary/filter-options`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success && result.data) {
+          const period = result.data.currentPeriod;
+          bankAnalysisYear.value = period.year;
+          bankAnalysisMonth.value = period.month;
+        }
+      }
+    } catch (error) {
+      console.error('Error loading current period:', error);
+    }
+  }
+
+  // Load dropdowns on page load
+  async function loadBankDropdown(endpoint, elementId, valueField, textField, placeholder) {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await auth.fetchWithAuth(`/reference/${endpoint}`, {   
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}` 
+        }
+      });
+      const data = await response.json();
+      
+      // BUILD THE LOOKUP MAP FIRST
+      bankLookupMaps[endpoint] = Object.fromEntries(
+        data.map(item => [item[valueField], item[textField]])
+      );
+      
+      // THEN POPULATE THE DROPDOWN IF IT EXISTS
+      const dropdown = document.getElementById(elementId);
+      if (dropdown) {
+        dropdown.innerHTML = `<option value="">${placeholder}</option>`;
+        data.forEach(item => {
+          const option = document.createElement("option");
+          option.value = item[valueField];
+          option.textContent = item[textField];
+          dropdown.appendChild(option);
+        });
+      }
+      
+      return data;
+    } catch (err) {
+      console.error(`Failed to load ${endpoint}:`, err);
+      return [];
+    }
+  }
+
+  async function loadAllBankDropdowns() {
+    try {
+      await loadBankDropdown("elementtype", "bankAnalysisPaymentType", "PaymentType", "elmDesc", "Select Payment Type");
+      await loadBankDropdown("bankcode", "bankAnalysisBankName", "bankcode", "bankname", "Select Bank");
+    } catch (error) {
+      console.error('Error loading dropdowns:', error);
+    }
+  }
+
+  function toggleBankInput() {
+    bankAnalysisBankName.disabled = bankAnalysisAllBanks.checked;
+  }
+
+  function toggleTypeInput() {
+    bankAnalysisPaymentType.disabled = bankAnalysisAllTypes.checked;
+  }
+
+  bankAnalysisAllBanks.addEventListener("change", toggleBankInput);
+  bankAnalysisSpecificBank.addEventListener("change", toggleBankInput);
+
+  bankAnalysisAllTypes.addEventListener("change", toggleTypeInput);
+  bankAnalysisSpecificType.addEventListener("change", toggleTypeInput);
+
+  bankAnalysisPrintBtn.addEventListener("click", () => {
+    // Validation
+    if (!bankAnalysisMonth.value) {
+      bankAnalysisErrorMessage.textContent = 'Please select a processing month.';
+      bankAnalysisErrorModal.classList.remove("hidden");
+      return;
+    }
+    if (!bankAnalysisYear.value) {
+      bankAnalysisErrorMessage.textContent = 'Please enter a processing year.';
+      bankAnalysisErrorModal.classList.remove("hidden");
+      return;
+    }
+    if (bankAnalysisSpecificBank.checked && !bankAnalysisBankName.value) {
+      bankAnalysisErrorMessage.textContent = 'Please select a bank.';
+      bankAnalysisErrorModal.classList.remove("hidden");
+      return;
+    }
+    if (bankAnalysisSpecificType.checked && !bankAnalysisPaymentType.value) {
+      bankAnalysisErrorMessage.textContent = 'Please select a payment type.';
+      bankAnalysisErrorModal.classList.remove("hidden");
+      return;
+    }
+
+    bankAnalysisConfirmModal.classList.remove("hidden");
+  });
+
+  bankAnalysisCancelBtn.addEventListener("click", () => {
+    bankAnalysisConfirmModal.classList.add("hidden");
+  });
+
+  bankAnalysisContinueBtn.addEventListener("click", async () => {
+    bankAnalysisConfirmModal.classList.add("hidden");
+    bankAnalysisLoadingIndicator.classList.remove("hidden");
+    bankAnalysisPrintBtn.disabled = true;
+
+    const format = document.querySelector('input[name="bankAnalysisFormat"]:checked').value;
+    const month = bankAnalysisMonth.value;
+    const year = bankAnalysisYear.value;
+    const summary = document.getElementById("bankAnalysisSummaryReport").checked;
+
+    try {
+      const token = localStorage.getItem('token');
+      
+      // Build query parameters
+      const params = new URLSearchParams({
+        format: format,
+        month: month,
+        year: year,
+        summary: summary ? '1' : '0'
+      });
+
+      if (bankAnalysisSpecificBank.checked && bankAnalysisBankName.value) {
+        params.append('bank_name', bankAnalysisBankName.value);
+      }
+
+      if (bankAnalysisSpecificType.checked && bankAnalysisPaymentType.value) {
+        params.append('payment_type', bankAnalysisPaymentType.value);
+      }
+
+      const response = await auth.fetchWithAuth(`${BANK_API_BASE}/generate?${params.toString()}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to generate report');
+      }
+      
+      // Download file
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+
+      // Open PDF in new tab
+      if (format === 'pdf') {
+        window.open(url, '_blank');
+      }
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `payded_by_bank_${month}_${year}.${format === 'pdf' ? 'pdf' : 'xlsx'}`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      
+      // Clean up blob URL after a delay
+      setTimeout(() => window.URL.revokeObjectURL(url), 100);
+
+      bankAnalysisLoadingIndicator.classList.add("hidden");
+      bankAnalysisPrintBtn.disabled = false;
+      bankAnalysisSuccessMessage.textContent = `Report generated successfully! Your ${format.toUpperCase()} is downloading.`;
+      bankAnalysisSuccessModal.classList.remove("hidden");
+
+    } catch (error) {
+      bankAnalysisLoadingIndicator.classList.add("hidden");
+      bankAnalysisPrintBtn.disabled = false;
+      bankAnalysisErrorMessage.textContent = error.message || 'Failed to generate report. Please try again.';
+      bankAnalysisErrorModal.classList.remove("hidden");
+      console.error('Error:', error);
+    }
+  });
+
+  bankAnalysisSuccessOkBtn.addEventListener("click", () => {
+    bankAnalysisSuccessModal.classList.add("hidden");
+  });
+
+  bankAnalysisErrorOkBtn.addEventListener("click", () => {
+    bankAnalysisErrorModal.classList.add("hidden");
+  });
+
+  bankAnalysisClearBtn.addEventListener("click", () => {
+    bankAnalysisAllBanks.checked = true;
+    bankAnalysisAllTypes.checked = true;
+    toggleBankInput();
+    toggleTypeInput();
+    bankAnalysisYear.value = new Date().getFullYear();
+  });
+
+  // Initialize
+  loadCurrentPeriod();
+  toggleBankInput();
+  toggleTypeInput();
+  loadAllBankDropdowns();
+</script>

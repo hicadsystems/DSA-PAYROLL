@@ -1,0 +1,242 @@
+<style>
+  @keyframes grow-up {
+    0% {
+      height: 0;
+      bottom: 0;
+    }
+
+    100% {
+      height: 100%;
+      bottom: 0;
+    }
+  }
+
+  @keyframes grow-down {
+    0% {
+      height: 0;
+      top: 0;
+    }
+
+    100% {
+      height: 100%;
+      top: 0;
+    }
+  }
+
+  @keyframes expand {
+    0% {
+      width: 0;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    100% {
+      width: 100%;
+      left: 0;
+      transform: translateY(-50%);
+    }
+  }
+
+  .animate-grow-up {
+    animation: grow-up 0.6s ease-in-out infinite alternate;
+    position: absolute;
+    bottom: 0;
+  }
+
+  .animate-grow-down {
+    animation: grow-down 0.6s ease-in-out infinite alternate;
+    position: absolute;
+    top: 0;
+  }
+
+  .animate-expand {
+    animation: expand 0.6s ease-in-out infinite alternate;
+  }
+</style>
+
+<section class="items border rounded-lg m-6 max-w-lg mr-auto p-6 mx-auto">
+  <h2 class="text-2xl text-center border-b font-bold text-red-600 mb-6"><i
+      class="fas fa-exclamation-triangle mr-2"></i>Overpayment Analysis</h2>
+  <div class="mb-6 border-b border-gray-500 p-4">
+    <label class="block font-medium text-gray-900 mb-2"><i class="fas fa-calendar-alt text-blue-600 mr-2"></i>Select
+      Analysis Period</label>
+    <select id="periodSelect"
+      class="w-full border border-slate-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-red-500">
+      <option value="">-- Select Month --</option>
+      <option value="1">January</option>
+      <option value="2">February</option>
+      <option value="3">March</option>
+      <option value="4">April</option>
+      <option value="5">May</option>
+      <option value="6">June</option>
+      <option value="7">July</option>
+      <option value="8">August</option>
+      <option value="9">September</option>
+      <option value="10">October</option>
+      <option value="11">November</option>
+      <option value="12">December</option>
+    </select>
+  </div>
+  <div class="mb-6 p-4 rounded-lg">
+    <label class="block font-medium text-gray-900 mb-2"><i class="fas fa-file-export text-gray-600 mr-2"></i>Export
+      Format</label>
+    <div class="flex gap-4">
+      <label class="flex items-center cursor-pointer"><input type="radio" name="exportFormat" value="excel"
+          class="text-red-600 w-4 h-4" checked><span class="ml-2">Excel</span></label>
+      <label class="flex items-center cursor-pointer"><input type="radio" name="exportFormat" value="pdf"
+          class="text-red-600 w-4 h-4"><span class="ml-2">PDF</span></label>
+    </div>
+  </div>
+  <div class="flex justify-end gap-3 pt-4 border-t">
+    <button id="cancelOverpay"
+      class="bg-gray-300 hover:bg-gray-400 text-gray-800 py-2 px-6 rounded-lg transition-colors"><i
+        class="fas fa-times mr-2"></i>Clear</button>
+    <button id="generateOverpay"
+      class="bg-red-600 hover:bg-red-700 text-white py-2 px-6 rounded-lg transition-colors shadow-lg"><i
+        class="fas fa-search mr-2"></i>Analyze</button>
+  </div>
+</section>
+
+<!-- Preview Modal (portrait) -->
+<div id="overpayPreviewModal"
+  class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
+  <div class="bg-gray-50 rounded-lg shadow-lg w-full max-w-5xl max-h-[90vh] overflow-hidden">
+    <div class="sticky top-0 px-6 py-2 flex justify-between items-center bg-navy">
+      <h3 class="text-lg font-semibold text-white">Overpayment Analysis Preview</h3>
+      <button id="overpayClosePreviewBtn" class="text-white hover:text-gray-200 text-2xl">&times;</button>
+    </div>
+    <div class="overflow-auto" style="max-height: calc(90vh - 100px); background: #d1d5db;">
+      <iframe id="overpayPreviewIframe" title="Overpayment Analysis Preview"
+        style="width: 100%; min-height: 842px; border: none; background: white; display: block;"></iframe>
+    </div>
+    <div class="sticky bottom-0 bg-gray-50 border-t px-6 py-2 flex justify-end space-x-2">
+      <button id="overpayCancelPreviewBtn"
+        class="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500">Cancel</button>
+      <button id="overpayDownloadPreviewBtn"
+        class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Download</button>
+    </div>
+  </div>
+</div>
+
+<!-- Loading Modal -->
+<div id="loadingModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg shadow-lg p-8 text-center">
+    <div class="relative w-10 h-10 mx-auto mb-4">
+      <div class="absolute left-1 w-[6px] bg-blue-600 rounded animate-grow-up"></div>
+      <div class="absolute right-1 w-[6px] bg-blue-600 rounded animate-grow-down [animation-delay:0.3s]"></div>
+      <div
+        class="absolute top-1/2 left-1 h-[6px] bg-blue-600 rounded animate-expand [animation-delay:0.6s] -translate-y-1/2">
+      </div>
+    </div>
+    <h3 class="text-lg font-semibold mb-2">Analyzing Overpayments...</h3>
+    <p class="text-gray-600">Please wait while we check for payment anomalies.</p>
+  </div>
+</div>
+
+<!-- Success Modal -->
+<div id="overpaySuccessModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 text-center">
+    <i class="fas fa-check-circle text-green-500 text-4xl mb-3"></i>
+    <h3 class="text-lg font-semibold mb-2">Success</h3>
+    <p id="overpaySuccessMessage" class="text-gray-700 mb-4">Report downloaded successfully!</p>
+    <button id="overpaySuccessOkBtn" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg">OK</button>
+  </div>
+</div>
+
+<!-- Message Modal -->
+<div id="overpayModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
+    <div class="flex items-start mb-4">
+      <div id="modalIcon" class="mr-3 text-2xl"></div>
+      <div class="flex-1">
+        <h3 id="overpayModalTitle" class="text-lg font-semibold mb-2"></h3>
+        <p id="overpayModalMessage" class="text-gray-700"></p>
+      </div>
+    </div>
+    <div class="flex justify-end"><button id="overpayModalCloseBtn"
+        class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg">OK</button></div>
+  </div>
+</div>
+
+<script>
+  const auth = window.authService;
+  const periodSelect = document.getElementById("periodSelect");
+  const generateBtn = document.getElementById("generateOverpay");
+  const cancelBtn = document.getElementById("cancelOverpay");
+  const modal = document.getElementById("overpayModal");
+  const modalTitle = document.getElementById("overpayModalTitle");
+  const modalMessage = document.getElementById("overpayModalMessage");
+  const modalIcon = document.getElementById("modalIcon");
+  const modalCloseBtn = document.getElementById("overpayModalCloseBtn");
+  const loadingModal = document.getElementById("loadingModal");
+
+  function showModal(title, message, isError = false) {
+    modalTitle.textContent = title; modalMessage.textContent = message;
+    modalIcon.innerHTML = isError ? '<i class="fas fa-exclamation-circle text-red-500"></i>' : '<i class="fas fa-check-circle text-green-500"></i>';
+    modal.classList.remove("hidden");
+  }
+
+  modalCloseBtn.onclick = () => modal.classList.add("hidden");
+  document.getElementById('overpaySuccessOkBtn').onclick = () => document.getElementById('overpaySuccessModal').classList.add('hidden');
+
+  function closePreview() {
+    document.getElementById('overpayPreviewModal').classList.add('hidden');
+    const iframe = document.getElementById('overpayPreviewIframe');
+    iframe.src = 'about:blank'; iframe.removeAttribute('srcdoc');
+    if (window.overpayCurrentBlobUrl) { window.URL.revokeObjectURL(window.overpayCurrentBlobUrl); window.overpayCurrentBlobUrl = null; }
+  }
+
+  document.getElementById('overpayClosePreviewBtn').addEventListener('click', closePreview);
+  document.getElementById('overpayCancelPreviewBtn').addEventListener('click', closePreview);
+  document.getElementById('overpayDownloadPreviewBtn').addEventListener('click', () => {
+    if (!window.overpayCurrentBlob) return;
+    const fmt = window.overpayCurrentFormat || 'excel';
+    const url = window.URL.createObjectURL(window.overpayCurrentBlob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `overpayment_analysis_${window.overpayCurrentPeriod}.${fmt === 'pdf' ? 'pdf' : 'xlsx'}`;
+    document.body.appendChild(a); a.click(); a.remove();
+    window.URL.revokeObjectURL(url);
+    document.getElementById('overpaySuccessMessage').textContent = 'Report downloaded successfully!';
+    document.getElementById('overpaySuccessModal').classList.remove('hidden');
+  });
+
+  generateBtn.onclick = async () => {
+    const period = periodSelect.value;
+    const exportFormat = document.querySelector('input[name="exportFormat"]:checked')?.value || 'excel';
+    if (!period) return showModal("Validation Error", "Please select a period for analysis!", true);
+    const queryParams = `period=${period}&format=${exportFormat}`;
+    loadingModal.classList.remove("hidden");
+    try {
+      const token = localStorage.getItem('token');
+      const response = await auth.fetchWithAuth(`/overpayment/get?${queryParams}`, { headers: { 'Authorization': `Bearer ${token}` } });
+      if (!response.ok) { const e = await response.json().catch(() => ({})); throw new Error(e.message || e.error || 'Failed to generate report'); }
+      const blob = await response.blob();
+      loadingModal.classList.add("hidden");
+
+      window.overpayCurrentBlob = blob;
+      window.overpayCurrentFormat = exportFormat;
+      window.overpayCurrentPeriod = period;
+
+      const iframe = document.getElementById('overpayPreviewIframe');
+      const dlBtn = document.getElementById('overpayDownloadPreviewBtn');
+      if (exportFormat === 'pdf') {
+        const blobUrl = window.URL.createObjectURL(blob);
+        window.overpayCurrentBlobUrl = blobUrl;
+        iframe.src = blobUrl + '#toolbar=0';
+        iframe.style.minHeight = '842px';
+        dlBtn.textContent = 'Download PDF';
+      } else {
+        iframe.srcdoc = `<div style="font-family:Arial,sans-serif;padding:40px;text-align:center;color:#555;"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#1e40af" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto 16px;display:block;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg><p style="font-size:16pt;font-weight:bold;color:#1e40af;margin-bottom:8px;">Excel Report Ready</p><p style="font-size:10pt;">Click <strong>Download Excel</strong> below to save the file.</p></div>`;
+        iframe.style.minHeight = '300px';
+        dlBtn.textContent = 'Download Excel';
+      }
+      document.getElementById('overpayPreviewModal').classList.remove('hidden');
+    } catch (error) { loadingModal.classList.add("hidden"); showModal("Error", `Failed to generate report: ${error.message}`, true); }
+  };
+
+  cancelBtn.onclick = () => {
+    periodSelect.value = "";
+    document.querySelector('input[name="exportFormat"][value="excel"]').checked = true;
+  };
+</script>

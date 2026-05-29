@@ -1,0 +1,335 @@
+<style>
+  @keyframes grow-up {
+    0% {
+      height: 0;
+      bottom: 0;
+    }
+
+    100% {
+      height: 100%;
+      bottom: 0;
+    }
+  }
+
+  @keyframes grow-down {
+    0% {
+      height: 0;
+      top: 0;
+    }
+
+    100% {
+      height: 100%;
+      top: 0;
+    }
+  }
+
+  @keyframes expand {
+    0% {
+      width: 0;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    100% {
+      width: 100%;
+      left: 0;
+      transform: translateY(-50%);
+    }
+  }
+
+  .animate-grow-up {
+    animation: grow-up 0.6s ease-in-out infinite alternate;
+    position: absolute;
+    bottom: 0;
+  }
+
+  .animate-grow-down {
+    animation: grow-down 0.6s ease-in-out infinite alternate;
+    position: absolute;
+    top: 0;
+  }
+
+  .animate-expand {
+    animation: expand 0.6s ease-in-out infinite alternate;
+  }
+</style>
+
+<section class="items border rounded-lg m-6 max-w-2xl mr-auto p-6 mx-auto">
+  <h2 class="text-2xl text-center border-b font-bold text-blue-600 mb-6">Salary Variance Analysis</h2>
+  <div id="paymentTypeSection" class="space-y-4 mb-6">
+    <label class="block font-medium text-gray-900"><i class="fas fa-money-bill-wave text-blue-600 mr-2"></i>Select
+      Payment Type(s)</label>
+    <select id="paymentTypeSelect"
+      class="w-full bg-transparent border border-slate-600 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500">
+      <option value="">-- Choose Payment Type --</option>
+    </select>
+    <div class="flex gap-3">
+      <button id="addPaymentType"
+        class="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg transition-colors shadow-md"><i
+          class="fas fa-plus mr-2"></i>Add Type</button>
+      <button id="generatePaymentTypes"
+        class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition-colors shadow-md"><i
+          class="fas fa-arrow-right mr-2"></i>Continue</button>
+    </div>
+  </div>
+  <div id="addedPaymentsWrapper" class="hidden mb-6">
+    <h3 class="font-semibold text-gray-800 mb-2">Selected Payment Types:</h3>
+    <div class="border rounded-lg overflow-hidden">
+      <table class="w-full text-sm">
+        <thead class="bg-blue-100">
+          <tr>
+            <th class="px-4 py-2 text-left border-b">Code</th>
+            <th class="px-4 py-2 text-left border-b">Description</th>
+            <th class="px-4 py-2 text-center border-b">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="addedPaymentsTable"></tbody>
+      </table>
+    </div>
+  </div>
+  <div id="periodForm" class="hidden space-y-4 border-t border-slate-300 pt-6">
+    <h3 class="font-semibold text-gray-800 mb-3"><i class="fas fa-calendar text-blue-600 mr-2"></i>Select Analysis
+      Period</h3>
+    <div class="border border-blue-400 p-4 rounded-lg">
+      <label class="block text-sm font-medium text-gray-900 mb-2">Period (YYYYMM)</label>
+      <select id="periodSelect"
+        class="w-full border border-slate-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+        <option value="">-- Select Period --</option>
+      </select>
+      <p class="text-xs text-gray-600 mt-1"><i class="fas fa-info-circle mr-1"></i>Current period will compare with last
+        year. Previous periods compare with prior month.</p>
+    </div>
+    <div class="border border-gray-500 p-4 rounded-lg">
+      <label class="block text-sm font-medium text-gray-900 mb-2"><i
+          class="fas fa-file-export text-gray-600 mr-2"></i>Export Format</label>
+      <div class="flex gap-4">
+        <label class="flex items-center cursor-pointer"><input type="radio" name="exportFormat" value="excel"
+            class="text-blue-600 w-4 h-4" checked><span class="ml-2">Excel</span></label>
+        <label class="flex items-center cursor-pointer"><input type="radio" name="exportFormat" value="pdf"
+            class="text-blue-600 w-4 h-4"><span class="ml-2">PDF</span></label>
+      </div>
+    </div>
+    <div class="flex justify-end gap-3 pt-2">
+      <button id="cancelReport"
+        class="bg-gray-300 hover:bg-gray-400 text-gray-800 py-2 px-6 rounded-lg transition-colors"><i
+          class="fas fa-times mr-2"></i>Cancel</button>
+      <button id="proceedReport"
+        class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-6 rounded-lg transition-colors shadow-lg"><i
+          class="fas fa-chart-line mr-2"></i>Generate Report</button>
+    </div>
+  </div>
+</section>
+
+<!-- Preview Modal (portrait) -->
+<div id="variancePreviewModal"
+  class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
+  <div class="bg-gray-50 rounded-lg shadow-lg w-full max-w-5xl max-h-[90vh] overflow-hidden">
+    <div class="sticky top-0 px-6 py-2 flex justify-between items-center bg-navy">
+      <h3 class="text-lg font-semibold text-white">Salary Variance Analysis Preview</h3>
+      <button id="varianceClosePreviewBtn" class="text-white hover:text-gray-200 text-2xl">&times;</button>
+    </div>
+    <div class="overflow-auto" style="max-height: calc(90vh - 100px); background: #d1d5db;">
+      <iframe id="variancePreviewIframe" title="Salary Variance Preview"
+        style="width: 100%; min-height: 842px; border: none; background: white; display: block;"></iframe>
+    </div>
+    <div class="sticky bottom-0 bg-gray-50 border-t px-6 py-2 flex justify-end space-x-2">
+      <button id="varianceCancelPreviewBtn"
+        class="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500">Cancel</button>
+      <button id="varianceDownloadPreviewBtn"
+        class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Download</button>
+    </div>
+  </div>
+</div>
+
+<!-- Loading Modal -->
+<div id="loadingModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg shadow-lg p-8 text-center">
+    <div class="relative w-10 h-10 mx-auto mb-4">
+      <div class="absolute left-1 w-[6px] bg-blue-600 rounded animate-grow-up"></div>
+      <div class="absolute right-1 w-[6px] bg-blue-600 rounded animate-grow-down [animation-delay:0.3s]"></div>
+      <div
+        class="absolute top-1/2 left-1 h-[6px] bg-blue-600 rounded animate-expand [animation-delay:0.6s] -translate-y-1/2">
+      </div>
+    </div>
+    <h3 class="text-lg font-semibold mb-2">Generating Report...</h3>
+    <p class="text-gray-600">Please wait while we analyze salary variances.</p>
+  </div>
+</div>
+
+<!-- Success Modal -->
+<div id="varianceSuccessModal"
+  class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 text-center">
+    <i class="fas fa-check-circle text-green-500 text-4xl mb-3"></i>
+    <h3 class="text-lg font-semibold mb-2">Success</h3>
+    <p id="varianceSuccessMessage" class="text-gray-700 mb-4">Report downloaded successfully!</p>
+    <button id="varianceSuccessOkBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg">OK</button>
+  </div>
+</div>
+
+<!-- Message Modal -->
+<div id="messageModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
+    <div class="flex items-start mb-4">
+      <div id="modalIcon" class="mr-3 text-2xl"></div>
+      <div class="flex-1">
+        <h3 id="modalTitle" class="text-lg font-semibold mb-2"></h3>
+        <p id="modalMessage" class="text-gray-700"></p>
+      </div>
+    </div>
+    <div class="flex justify-end"><button id="modalCloseBtn"
+        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">OK</button></div>
+  </div>
+</div>
+
+<script>
+  const auth = window.authService;
+  const paymentTypeSelect = document.getElementById("paymentTypeSelect");
+  const addPaymentTypeBtn = document.getElementById("addPaymentType");
+  const generatePaymentTypesBtn = document.getElementById("generatePaymentTypes");
+  const addedPaymentsWrapper = document.getElementById("addedPaymentsWrapper");
+  const addedPaymentsTable = document.getElementById("addedPaymentsTable");
+  const periodForm = document.getElementById("periodForm");
+  const periodSelect = document.getElementById("periodSelect");
+  const proceedReportBtn = document.getElementById("proceedReport");
+  const cancelReportBtn = document.getElementById("cancelReport");
+  const messageModal = document.getElementById("messageModal");
+  const modalTitle = document.getElementById("modalTitle");
+  const modalMessage = document.getElementById("modalMessage");
+  const modalIcon = document.getElementById("modalIcon");
+  const modalCloseBtn = document.getElementById("modalCloseBtn");
+  const loadingModal = document.getElementById("loadingModal");
+
+  let addedPayments = [];
+  let filterOptions = null;
+
+  async function loadFilterOptions() {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await auth.fetchWithAuth('/salaryvariance/filter-options', { headers: { 'Authorization': `Bearer ${token}` } });
+      const result = await response.json();
+      if (result.success) {
+        filterOptions = result.data;
+        if (filterOptions.payTypes && filterOptions.payTypes.length > 0) {
+          filterOptions.payTypes.forEach(type => { const o = document.createElement('option'); o.value = type.code; o.textContent = `${type.code} - ${type.description}`; paymentTypeSelect.appendChild(o); });
+        }
+        if (filterOptions.periods && filterOptions.periods.length > 0) {
+          filterOptions.periods.forEach(period => { const o = document.createElement('option'); o.value = period.value; o.textContent = period.label; periodSelect.appendChild(o); });
+          if (filterOptions.currentPeriod) {
+            const cp = `${filterOptions.currentPeriod.year}${String(filterOptions.currentPeriod.month).padStart(2, '0')}`;
+            periodSelect.value = cp;
+          }
+        }
+      }
+    } catch (error) { console.error('Error loading filter options:', error); showModal('Error', 'Failed to load filter options. Please refresh the page.', true); }
+  }
+
+  function showModal(title, message, isError = false) {
+    modalTitle.textContent = title; modalMessage.textContent = message;
+    modalIcon.innerHTML = isError ? '<i class="fas fa-exclamation-circle text-red-500"></i>' : '<i class="fas fa-check-circle text-green-500"></i>';
+    messageModal.classList.remove("hidden");
+  }
+
+  modalCloseBtn.onclick = () => messageModal.classList.add("hidden");
+  document.getElementById('varianceSuccessOkBtn').onclick = () => document.getElementById('varianceSuccessModal').classList.add('hidden');
+
+  addPaymentTypeBtn.onclick = () => {
+    const paymentType = paymentTypeSelect.value;
+    const paymentText = paymentTypeSelect.options[paymentTypeSelect.selectedIndex].text;
+    if (!paymentType) return showModal("Validation Error", "Please select a payment type to add!", true);
+    if (addedPayments.some(p => p.code === paymentType)) return showModal("Duplicate Entry", "This payment type has already been added!", true);
+    addedPayments.push({ code: paymentType, description: paymentText });
+    showModal("Success", `${paymentType} added successfully!`);
+    paymentTypeSelect.value = "";
+    if (!addedPaymentsWrapper.classList.contains('hidden')) updatePaymentTypesTable();
+  };
+
+  function updatePaymentTypesTable() {
+    addedPaymentsTable.innerHTML = "";
+    addedPayments.forEach(pt => {
+      const row = document.createElement("tr");
+      row.className = "hover:bg-gray-50";
+      row.innerHTML = `<td class="px-4 py-2 border-b">${pt.code}</td><td class="px-4 py-2 border-b">${pt.description}</td><td class="px-4 py-2 border-b text-center"><button class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs deleteBtn"><i class="fas fa-trash mr-1"></i>Remove</button></td>`;
+      addedPaymentsTable.appendChild(row);
+      row.querySelector(".deleteBtn").onclick = () => {
+        addedPayments = addedPayments.filter(p => p.code !== pt.code);
+        row.remove();
+        if (addedPayments.length === 0) { addedPaymentsWrapper.classList.add("hidden"); periodForm.classList.add("hidden"); }
+      };
+    });
+  }
+
+  generatePaymentTypesBtn.onclick = () => {
+    if (addedPayments.length === 0) return showModal("Validation Error", "Please add at least one payment type before continuing!", true);
+    addedPaymentsWrapper.classList.remove("hidden");
+    periodForm.classList.remove("hidden");
+    updatePaymentTypesTable();
+  };
+
+  function closePreview() {
+    document.getElementById('variancePreviewModal').classList.add('hidden');
+    const iframe = document.getElementById('variancePreviewIframe');
+    iframe.src = 'about:blank'; iframe.removeAttribute('srcdoc');
+    if (window.varianceCurrentBlobUrl) { window.URL.revokeObjectURL(window.varianceCurrentBlobUrl); window.varianceCurrentBlobUrl = null; }
+  }
+
+  document.getElementById('varianceClosePreviewBtn').addEventListener('click', closePreview);
+  document.getElementById('varianceCancelPreviewBtn').addEventListener('click', closePreview);
+  document.getElementById('varianceDownloadPreviewBtn').addEventListener('click', () => {
+    if (!window.varianceCurrentBlob) return;
+    const fmt = window.varianceCurrentFormat || 'pdf';
+    const url = window.URL.createObjectURL(window.varianceCurrentBlob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `salary_variance_${window.varianceCurrentPeriod}.${fmt === 'pdf' ? 'pdf' : 'xlsx'}`;
+    document.body.appendChild(a); a.click(); a.remove();
+    window.URL.revokeObjectURL(url);
+    document.getElementById('varianceSuccessMessage').textContent = 'Report downloaded successfully!';
+    document.getElementById('varianceSuccessModal').classList.remove('hidden');
+  });
+
+  proceedReportBtn.onclick = async () => {
+    const period = periodSelect.value;
+    const exportFormat = document.querySelector('input[name="exportFormat"]:checked')?.value || 'excel';
+    if (!period) return showModal("Validation Error", "Please select a period!", true);
+    const payTypesParam = addedPayments.map(p => p.code).join(',');
+    const queryParams = `period=${period}&payTypes=${payTypesParam}&format=${exportFormat}`;
+    loadingModal.classList.remove("hidden");
+    try {
+      const token = localStorage.getItem('token');
+      const response = await auth.fetchWithAuth(`/salaryvariance?${queryParams}`, { headers: { 'Authorization': `Bearer ${token}` } });
+      if (!response.ok) { const e = await response.json().catch(() => ({})); throw new Error(e.message || e.error || 'Failed to generate report'); }
+      const blob = await response.blob();
+      loadingModal.classList.add("hidden");
+
+      window.varianceCurrentBlob = blob;
+      window.varianceCurrentFormat = exportFormat;
+      window.varianceCurrentPeriod = period;
+
+      const iframe = document.getElementById('variancePreviewIframe');
+      const dlBtn = document.getElementById('varianceDownloadPreviewBtn');
+      if (exportFormat === 'pdf') {
+        const blobUrl = window.URL.createObjectURL(blob);
+        window.varianceCurrentBlobUrl = blobUrl;
+        iframe.src = blobUrl + '#toolbar=0';
+        iframe.style.minHeight = '842px';
+        dlBtn.textContent = 'Download PDF';
+      } else {
+        iframe.srcdoc = `<div style="font-family:Arial,sans-serif;padding:40px;text-align:center;color:#555;"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#1e40af" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto 16px;display:block;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg><p style="font-size:16pt;font-weight:bold;color:#1e40af;margin-bottom:8px;">Excel Report Ready</p><p style="font-size:10pt;">Click <strong>Download Excel</strong> below to save the file.</p></div>`;
+        iframe.style.minHeight = '300px';
+        dlBtn.textContent = 'Download Excel';
+      }
+      document.getElementById('variancePreviewModal').classList.remove('hidden');
+    } catch (error) { loadingModal.classList.add("hidden"); showModal("Error", `Failed to generate report: ${error.message}`, true); }
+  };
+
+  cancelReportBtn.onclick = () => {
+    addedPayments = [];
+    addedPaymentsWrapper.classList.add("hidden");
+    periodForm.classList.add("hidden");
+    addedPaymentsTable.innerHTML = "";
+    paymentTypeSelect.value = "";
+  };
+
+  loadFilterOptions();
+</script>

@@ -1,0 +1,679 @@
+<style>
+  @keyframes grow-up {
+    0% {
+      height: 0;
+      bottom: 0;
+    }
+
+    100% {
+      height: 100%;
+      bottom: 0;
+    }
+  }
+
+  @keyframes grow-down {
+    0% {
+      height: 0;
+      top: 0;
+    }
+
+    100% {
+      height: 100%;
+      top: 0;
+    }
+  }
+
+  @keyframes expand {
+    0% {
+      width: 0;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    100% {
+      width: 100%;
+      left: 0;
+      transform: translateY(-50%);
+    }
+  }
+
+  .animate-grow-up {
+    animation: grow-up 0.6s ease-in-out infinite alternate;
+    position: absolute;
+    bottom: 0;
+  }
+
+  .animate-grow-down {
+    animation: grow-down 0.6s ease-in-out infinite alternate;
+    position: absolute;
+    top: 0;
+  }
+
+  .animate-expand {
+    animation: expand 0.6s ease-in-out infinite alternate;
+  }
+</style>
+
+<!-- Payroll Calculation Section -->
+<div class="p-6">
+  <!-- Top Action Bar (Hidden after calculation, shown only when stage < 999) -->
+  <div id="topActionBarCalc" class="hidden mb-6 w-full flex justify-between items-center border-b-2 pb-4 no-print">
+    <h2 class="text-blue-600 font-semibold lg:text-lg">
+      <i class="fas fa-info-circle mr-2"></i>Ensure Master File Update is completed before calculating
+    </h2>
+    <button
+      onclick="window.navigation && window.navigation.navigateToSection && window.navigation.navigateToSection('master-file-update', 'Master File Update')"
+      class="px-6 py-2 bg-yellow-600 text-white rounded-lg shadow hover:bg-yellow-700 transition">
+      <i class="fas fa-folder mr-2"></i>Master File Update
+    </button>
+  </div>
+
+  <!-- Main Form Section (Hidden after successful calculation) -->
+  <div id="calcMainContent">
+    <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center space-x-3">
+        <div class="bg-blue-500 text-white p-3 rounded-full shadow">
+          <i class="fas fa-calculator text-2xl"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-blue-800">Payroll Calculations</h2>
+      </div>
+    </div>
+
+    <p class="text-gray-600 font-semibold lg:text-lg mb-6">
+      Calculate payroll for all employees.
+    </p>
+
+    <!-- Period Display (Auto-populated from BT05) -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div>
+        <label for="processingMonth" class="block text-sm font-medium text-gray-700 mb-2">
+          Processing Month
+        </label>
+        <input id="processingMonth" type="text" readonly
+          class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-gray-100 text-gray-700 font-semibold cursor-not-allowed" />
+      </div>
+      <div>
+        <label for="processingYear" class="block text-sm font-medium text-gray-700 mb-2">
+          Processing Year
+        </label>
+        <input id="processingYear" type="text" readonly
+          class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-gray-100 text-gray-700 font-semibold cursor-not-allowed" />
+      </div>
+    </div>
+
+    <!-- Calculate Button -->
+    <div id="calcActionContainer" class="flex justify-center">
+      <button id="openCalcModalBtn"
+        class="px-8 py-3 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition">
+        <i class="fas fa-calculator mr-2"></i>Calculate Payroll
+      </button>
+    </div>
+  </div>
+
+  <!-- Results Section (Shown after successful calculation) -->
+  <div id="calcResults" class="hidden">
+    <!-- Reconciliation Status Banner -->
+    <div id="reconStatusBanner" class="mb-3 p-4 rounded-lg border-2">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <i id="reconStatusIcon" class="text-4xl"></i>
+          <div>
+            <h4 id="reconStatusTitle" class="text-xl font-bold"></h4>
+            <p id="reconStatusMessage" class="text-sm"></p>
+          </div>
+        </div>
+        <div id="reconVariance" class="text-right"></div>
+      </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-2">
+      <div class="p-4 bg-blue-50 rounded-lg border border-blue-200">
+        <div class="text-blue-600 text-sm font-medium">Employees Processed</div>
+        <div id="summaryEmployees" class="text-3xl font-bold text-blue-900">0</div>
+      </div>
+      <div class="p-4 bg-green-50 rounded-lg border border-green-200">
+        <div class="text-green-600 text-sm font-medium">Total Gross Pay</div>
+        <div id="summaryGross" class="text-2xl font-bold text-green-900">₦0.00</div>
+      </div>
+      <div class="p-4 bg-red-50 rounded-lg border border-red-200">
+        <div class="text-red-600 text-sm font-medium">Total Deductions</div>
+        <div id="summaryDeductions" class="text-2xl font-bold text-red-900">₦0.00</div>
+      </div>
+      <div class="p-4 bg-purple-50 rounded-lg border border-purple-200">
+        <div class="text-purple-600 text-sm font-medium">Total Net Pay</div>
+        <div id="summaryNet" class="text-2xl font-bold text-purple-900">₦0.00</div>
+      </div>
+    </div>
+
+    <!-- Detailed Reconciliation Breakdown -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-2">
+      <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
+        <h4 class="font-bold text-gray-800 mb-3 flex items-center">
+          <i class="fas fa-plus-circle mr-2 text-green-600"></i>Income Breakdown
+        </h4>
+        <div class="space-y-2">
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-600">Gross Pay (BP & BT)</span>
+            <span id="reconGrossDetail" class="font-semibold">₦0.00</span>
+          </div>
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-600">Allowances (PT)</span>
+            <span id="reconAllowances" class="font-semibold">₦0.00</span>
+          </div>
+          <div class="border-t pt-2 flex justify-between font-bold">
+            <span>Total Income</span>
+            <span id="reconTotalIncome">₦0.00</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
+        <h4 class="font-bold text-gray-800 mb-3 flex items-center">
+          <i class="fas fa-minus-circle mr-2 text-red-600"></i>Deduction Breakdown
+        </h4>
+        <div class="space-y-2">
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-600">Tax</span>
+            <span id="reconTax" class="font-semibold">₦0.00</span>
+          </div>
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-600">Other Deductions (PR & PL)</span>
+            <span id="reconOtherDeductions" class="font-semibold">₦0.00</span>
+          </div>
+          <div class="border-t pt-2 flex justify-between font-bold">
+            <span>Total Deductions</span>
+            <span id="reconTotalDeductions">₦0.00</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reconciliation Check -->
+    <div class="p-4 bg-gray-50 rounded-lg border border-gray-200 mb-2">
+      <h4 class="font-bold text-gray-800 mb-3">Reconciliation Verification</h4>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="flex justify-between items-center p-3 rounded border">
+          <span class="text-gray-700">Net from Cumulative</span>
+          <span id="reconNetCumulative" class="font-bold text-blue-900">₦0.00</span>
+        </div>
+        <div class="flex justify-between items-center p-3 rounded border">
+          <span class="text-gray-700">Net from Detail</span>
+          <span id="reconNetDetail" class="font-bold text-blue-900">₦0.00</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="text-center">
+      <button
+        onclick="window.navigation && window.navigation.navigateToSection && window.navigation.navigateToSection('calculation-reports', 'Calculation Reports')"
+        class="px-6 py-3 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 transition">
+        <i class="fas fa-file-alt mr-2"></i>View Calculation Reports
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div id="calcModal" class="fixed inset-0 bg-black bg-opacity-40 hidden flex items-center justify-center z-50">
+  <div class="bg-white w-11/12 md:w-2/5 rounded-xl shadow-lg overflow-hidden">
+    <div class="flex justify-between items-center bg-blue-600 text-white px-4 py-3">
+      <h3 class="text-lg font-semibold">
+        <i class="fas fa-calculator mr-2"></i>Confirm Payroll Calculation
+      </h3>
+      <button id="closeCalcModalBtn" class="text-white hover:text-gray-200 text-xl">✖</button>
+    </div>
+
+    <div class="p-4">
+      <div class="mb-4 p-2 bg-blue-50">
+        <p class="text-blue-800 font-semibold flex items-center">
+          <i class="fas fa-info-circle mr-2"></i>This will calculate payroll for all employees
+        </p>
+      </div>
+
+      <p class="text-gray-700 font-semibold mb-4">
+        Are you sure you want to <span class="font-bold text-blue-600">calculate payroll</span> for the current period?
+      </p>
+
+      <ul class="text-sm text-gray-600 space-y-2 mb-4 ml-4">
+        <li class="flex items-start">
+          <i class="fas fa-check-circle text-green-500 mr-2 mt-1"></i>
+          <span>All employee salaries will be calculated</span>
+        </li>
+        <li class="flex items-start">
+          <i class="fas fa-check-circle text-green-500 mr-2 mt-1"></i>
+          <span>Tax and deductions will be computed</span>
+        </li>
+        <li class="flex items-start">
+          <i class="fas fa-check-circle text-green-500 mr-2 mt-1"></i>
+          <span>Reconciliation will be performed</span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="flex justify-end space-x-3 bg-gray-100 px-4 py-3">
+      <button id="cancelCalcBtn" class="px-6 py-2 bg-gray-300 hover:bg-gray-400 rounded-lg transition">
+        Cancel
+      </button>
+      <button id="confirmCalcBtn" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition">
+        Yes, Calculate Payroll
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Progress Modal -->
+<div id="calcProgressModal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+  <div class="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 p-6">
+    <div class="text-center">
+      <div class="flex justify-center mb-4">
+        <div class="relative w-10 h-10">
+          <div class="absolute left-1 w-[6px] bg-blue-600 rounded animate-grow-up"></div>
+          <div class="absolute right-1 w-[6px] bg-blue-600 rounded animate-grow-down [animation-delay:0.3s]"></div>
+          <div class="absolute top-1/2 left-1 h-[6px] bg-blue-600 rounded animate-expand [animation-delay:0.6s] -translate-y-1/2"></div>
+        </div>
+      </div>
+    </div>
+    <h3 class="text-xl text-center font-semibold text-gray-900 mb-2">Calculating Payroll...</h3>
+    <p id="calcProgressMessage" class="text-gray-600 text-center mb-6">Please wait while we process payroll calculations...</p>
+  </div>
+</div>
+</div>
+
+<!-- Success Modal (Shows on calculation complete) -->
+<div id="calcSuccessModal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+  <div class="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 p-6">
+    <div class="text-center">
+      <div class="flex justify-center mb-4">
+        <div class="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center">
+          <i class="fas fa-check-circle text-white text-4xl"></i>
+        </div>
+      </div>
+      <h3 class="text-2xl font-bold text-green-700 mb-2">Payroll Calculation Successful!</h3>
+      <p class="text-green-600 font-semibold mb-6">All payroll calculations have been completed.</p>
+      <button id="closeSuccessModalBtn"
+        class="px-6 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-all shadow-lg w-full">
+        View Results
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Alert Modal -->
+<div id="calcAlertModal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+  <div class="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 p-6">
+    <div class="text-center">
+      <div id="calcAlertIcon" class="flex justify-center mb-4">
+        <i class="fas fa-exclamation-circle text-red-500 text-6xl"></i>
+      </div>
+      <h3 id="calcAlertTitle" class="text-xl font-semibold text-gray-900 mb-2">Error</h3>
+      <p id="calcAlertMessage" class="text-gray-600 mb-6">An error occurred</p>
+      <button id="calcAlertCloseBtn"
+        class="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition">
+        <i class="fas fa-times mr-2"></i>Close
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const auth = window.authService;
+  (function () {
+    const API_BASE = '/payrollcalculation';
+    const STATUS_API = '/status-payroll';
+
+    const STAGE_DATA_ENTRY_OPEN = 0;
+    const STAGE_UPDATE_COMPLETED = 888;
+    const STAGE_CALC_COMPLETED = 999;
+
+    let currentPayrollStage = STAGE_DATA_ENTRY_OPEN;
+    let hasCalculatedOnce = false;
+    let isReturningToPage = false; // Track if user is returning to page
+
+    const monthNames = [
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
+    ];
+
+    // DOM Elements
+    const topActionBarCalc = document.getElementById('topActionBarCalc');
+    const calcMainContent = document.getElementById('calcMainContent');
+    const calcResults = document.getElementById('calcResults');
+    const processingMonth = document.getElementById('processingMonth');
+    const processingYear = document.getElementById('processingYear');
+
+    // Modals
+    const modal = document.getElementById('calcModal');
+    const openBtn = document.getElementById('openCalcModalBtn');
+    const closeBtn = document.getElementById('closeCalcModalBtn');
+    const cancelBtn = document.getElementById('cancelCalcBtn');
+    const confirmBtn = document.getElementById('confirmCalcBtn');
+
+    const progressModal = document.getElementById('calcProgressModal');
+    const progressMessage = document.getElementById('calcProgressMessage');
+
+    const successModal = document.getElementById('calcSuccessModal');
+    const closeSuccessModalBtn = document.getElementById('closeSuccessModalBtn');
+
+    const alertModal = document.getElementById('calcAlertModal');
+    const alertTitle = document.getElementById('calcAlertTitle');
+    const alertMessage = document.getElementById('calcAlertMessage');
+    const alertIcon = document.getElementById('calcAlertIcon');
+    const alertCloseBtn = document.getElementById('calcAlertCloseBtn');
+
+    function formatCurrency(amount) {
+      return new Intl.NumberFormat('en-NG', {
+        style: 'currency',
+        currency: 'NGN',
+        minimumFractionDigits: 2
+      }).format(amount || 0);
+    }
+
+    function showAlert(title, message, type = 'error') {
+      alertTitle.textContent = title;
+      alertMessage.textContent = message;
+      const iconClass = type === 'success'
+        ? 'fa-check-circle text-green-500'
+        : type === 'warning'
+          ? 'fa-exclamation-triangle text-yellow-500'
+          : 'fa-exclamation-circle text-red-500';
+      alertIcon.innerHTML = `<i class="fas ${iconClass} text-6xl"></i>`;
+      alertModal.classList.remove('hidden');
+    }
+
+    function updateUIVisibility() {
+      if (hasCalculatedOnce || currentPayrollStage >= STAGE_CALC_COMPLETED) {
+        // Show results, hide form
+        topActionBarCalc.classList.add('hidden');
+        calcMainContent.classList.add('hidden');
+        calcResults.classList.remove('hidden');
+      } else if (currentPayrollStage >= STAGE_UPDATE_COMPLETED) {
+        // Ready to calculate
+        topActionBarCalc.classList.add('hidden');
+        calcMainContent.classList.remove('hidden');
+        calcResults.classList.add('hidden');
+        openBtn.disabled = false;
+        openBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+      } else {
+        // Not ready yet
+        topActionBarCalc.classList.remove('hidden');
+        calcMainContent.classList.remove('hidden');
+        calcResults.classList.add('hidden');
+        openBtn.disabled = true;
+        openBtn.classList.add('opacity-50', 'cursor-not-allowed');
+      }
+    }
+
+    function displayReconciliation(data) {
+      if (!data || !data.reconciliation) {
+        console.error('No reconciliation data:', data);
+        showAlert('Error', 'Reconciliation data not available', 'error');
+        return;
+      }
+
+      const recon = data.reconciliation;
+
+      const statusBanner = document.getElementById('reconStatusBanner');
+      const statusIcon = document.getElementById('reconStatusIcon');
+      const statusTitle = document.getElementById('reconStatusTitle');
+      const statusMessage = document.getElementById('reconStatusMessage');
+      const varianceDiv = document.getElementById('reconVariance');
+
+      if (recon.is_balanced) {
+        statusBanner.className = 'mb-6 p-4 rounded-lg border-2 bg-green-50 border-green-500';
+        statusIcon.className = 'fas fa-check-circle text-4xl text-green-600';
+        statusTitle.textContent = 'BALANCED';
+        statusTitle.className = 'text-xl font-bold text-green-700';
+        statusMessage.textContent = 'All totals match. Payroll is ready for approval.';
+        statusMessage.className = 'text-sm text-green-600';
+        varianceDiv.innerHTML = '<div class="text-green-600 font-bold">Variance: ₦0.00</div>';
+      } else {
+        statusBanner.className = 'mb-6 p-4 rounded-lg border-2 bg-red-50 border-red-500';
+        statusIcon.className = 'fas fa-exclamation-triangle text-4xl text-red-600';
+        statusTitle.textContent = 'VARIANCE DETECTED';
+        statusTitle.className = 'text-xl font-bold text-red-700';
+        statusMessage.textContent = 'Totals do not match. Please review calculations.';
+        statusMessage.className = 'text-sm text-red-600';
+        varianceDiv.innerHTML = `<div class="text-red-600 font-bold">Variance: ${formatCurrency(recon.variance)}</div>`;
+      }
+
+      document.getElementById('summaryEmployees').textContent = (data.employees_processed || 0).toLocaleString();
+      document.getElementById('summaryGross').textContent = formatCurrency(recon.total_gross || 0);
+      document.getElementById('summaryDeductions').textContent = formatCurrency((recon.total_deductions || 0) + (recon.total_tax || 0));
+      document.getElementById('summaryNet').textContent = formatCurrency(recon.total_net_cumulative || 0);
+
+      document.getElementById('reconGrossDetail').textContent = formatCurrency(recon.total_gross || 0);
+      document.getElementById('reconAllowances').textContent = formatCurrency(recon.total_allowances || 0);
+      document.getElementById('reconTotalIncome').textContent = formatCurrency((recon.total_gross || 0) + (recon.total_allowances || 0));
+
+      document.getElementById('reconTax').textContent = formatCurrency(recon.total_tax || 0);
+      document.getElementById('reconOtherDeductions').textContent = formatCurrency(recon.total_deductions || 0);
+      document.getElementById('reconTotalDeductions').textContent = formatCurrency((recon.total_deductions || 0) + (recon.total_tax || 0));
+
+      document.getElementById('reconNetCumulative').textContent = formatCurrency(recon.total_net_cumulative || 0);
+      document.getElementById('reconNetDetail').textContent = formatCurrency(recon.total_net_detail || 0);
+    }
+
+    async function loadPeriodInfo() {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await auth.fetchWithAuth(STATUS_API, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const month = parseInt(data.mth) || new Date().getMonth() + 1;
+          const year = parseInt(data.ord) || new Date().getFullYear();
+
+          processingMonth.value = monthNames[month - 1];
+          processingYear.value = year;
+        }
+      } catch (error) {
+        console.error('Error loading period:', error);
+      }
+    }
+
+    async function loadCalculationResults() {
+      try {
+        // Show success modal immediately if returning to page (acts as loading screen)
+        if (isReturningToPage) {
+          successModal.classList.remove('hidden');
+        }
+
+        const token = localStorage.getItem('token');
+
+        const response = await auth.fetchWithAuth(`${API_BASE}/results`, {
+          method: 'GET',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!response.ok) throw new Error('Failed to load calculation results');
+
+        const data = await response.json();
+
+        if (data.success && data.data) {
+          // Display reconciliation data
+          displayReconciliation(data.data);
+          hasCalculatedOnce = true;
+          updateUIVisibility();
+
+          // Modal stays open until user clicks "View Results"
+          // (closeSuccessModalBtn handler already exists)
+        }
+      } catch (error) {
+        console.error('Error loading calculation results:', error);
+        // Close modal on error
+        if (isReturningToPage) {
+          successModal.classList.add('hidden');
+        }
+      }
+    }
+
+    openBtn.addEventListener('click', () => {
+      if (currentPayrollStage < STAGE_UPDATE_COMPLETED) {
+        showAlert('Not Ready', 'Please complete Master File Update first', 'warning');
+        return;
+      }
+      modal.classList.remove('hidden');
+    });
+
+    function closeModal() {
+      modal.classList.add('hidden');
+    }
+
+    closeBtn.addEventListener('click', closeModal);
+    cancelBtn.addEventListener('click', closeModal);
+    alertCloseBtn.addEventListener('click', () => alertModal.classList.add('hidden'));
+    closeSuccessModalBtn.addEventListener('click', () => successModal.classList.add('hidden'));
+
+    confirmBtn.addEventListener('click', async () => {
+      confirmBtn.disabled = true;
+      closeModal();
+
+      progressModal.classList.remove('hidden');
+      progressMessage.textContent = 'Please wait while we process payroll calculations...';
+
+      try {
+        const token = localStorage.getItem('token');
+
+        const response = await auth.fetchWithAuth(API_BASE, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        console.log('1. Fetch completed. Status:', response.status);
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.error || `Server error: HTTP ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('2. JSON parsed successfully. Data:', data);
+
+        if (data.status !== 'SUCCESS' || data.error) {
+          throw new Error(data.error || data.progress || data.message || 'Payroll calculation failed');
+        }
+
+        progressMessage.textContent = 'Payroll calculation completed successfully!';
+
+        hasCalculatedOnce = true;
+        currentPayrollStage = STAGE_CALC_COMPLETED;
+        isReturningToPage = false; // This is a fresh calculation, not a page return
+
+        // Display reconciliation data IMMEDIATELY (don't wait for setTimeout)
+        // Handle both response structures: data.result (from calculation) and data.data (from results fetch)
+        const reconData = data.result || data.data;
+        if (reconData && reconData.reconciliation) {
+          displayReconciliation(reconData);
+        }
+
+        // Update UI to show results section immediately
+        updateUIVisibility();
+
+        setTimeout(() => {
+          progressModal.classList.add('hidden');
+
+          // Show success modal AFTER results are already rendered
+          successModal.classList.remove('hidden');
+
+          // Modal will stay until user clicks "View Results" button
+          // (closeSuccessModalBtn handler already exists)
+
+          // Dispatch status change event
+          window.dispatchEvent(new CustomEvent('payrollStatusChanged', {
+            detail: { stage: STAGE_CALC_COMPLETED }
+          }));
+        }, 1500);
+
+      } catch (error) {
+        console.error('Calculation error:', error);
+
+        progressMessage.textContent = error.message;
+        progressMessage.className = 'text-red-600 mb-4 font-semibold';
+
+        const iconDiv = progressModal.querySelector('.relative.w-10.h-10');
+        if (iconDiv) {
+          iconDiv.outerHTML = '<div class="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center"><i class="fas fa-exclamation-circle text-white text-3xl"></i></div>';
+        }
+
+        let cancelBtnError = document.getElementById('progressCancelBtn');
+        if (!cancelBtnError) {
+          cancelBtnError = document.createElement('button');
+          cancelBtnError.id = 'progressCancelBtn';
+          cancelBtnError.className = 'mt-4 px-6 py-3 bg-gray-600 text-white font-medium rounded-lg hover:bg-gray-700 transition';
+          cancelBtnError.innerHTML = '<i class="fas fa-times mr-2"></i>Close';
+          cancelBtnError.onclick = () => {
+            progressModal.classList.add('hidden');
+            progressMessage.textContent = 'Please wait while we process payroll calculations...';
+            progressMessage.className = 'text-gray-600 mb-6';
+            cancelBtnError.remove();
+            confirmBtn.disabled = false;
+          };
+          progressModal.querySelector('.text-center').appendChild(cancelBtnError);
+        }
+      }
+    });
+
+    async function checkPayrollStatus() {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await auth.fetchWithAuth(STATUS_API, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!response.ok) return;
+
+        const data = await response.json();
+        currentPayrollStage = Number(data?.sun || STAGE_DATA_ENTRY_OPEN);
+
+        if (currentPayrollStage >= STAGE_CALC_COMPLETED) {
+          hasCalculatedOnce = true;
+          isReturningToPage = true; // User is returning to a completed calculation
+          await loadCalculationResults();
+        }
+
+        updateUIVisibility();
+      } catch (error) {
+        console.error('Error checking payroll status:', error);
+      }
+    }
+
+    window.addEventListener('payrollStatusChanged', async function (event) {
+      if (event.detail && typeof event.detail.stage === 'number') {
+        currentPayrollStage = event.detail.stage;
+
+        if (currentPayrollStage === STAGE_DATA_ENTRY_OPEN) {
+          hasCalculatedOnce = false;
+          isReturningToPage = false;
+        }
+
+        if (currentPayrollStage >= STAGE_CALC_COMPLETED && !hasCalculatedOnce) {
+          isReturningToPage = true;
+          await loadCalculationResults();
+        }
+
+        updateUIVisibility();
+      } else {
+        await checkPayrollStatus();
+      }
+    });
+
+    window.refreshPayrollCalculationUI = function () {
+      checkPayrollStatus();
+      loadPeriodInfo();
+    };
+
+    function initialize() {
+      loadPeriodInfo();
+      checkPayrollStatus();
+    }
+
+    document.addEventListener('DOMContentLoaded', initialize);
+    if (document.readyState !== 'loading') initialize();
+  })();
+</script>

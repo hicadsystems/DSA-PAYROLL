@@ -1,0 +1,549 @@
+<!-- Change Registration Number -->
+<style>
+  @keyframes grow-up {
+    0% { height: 0; bottom: 0; }
+    100% { height: 100%; bottom: 0; }
+  }
+  @keyframes grow-down {
+    0% { height: 0; top: 0; }
+    100% { height: 100%; top: 0; }
+  }
+  @keyframes expand {
+    0% { width: 0; left: 50%; transform: translate(-50%, -50%); }
+    100% { width: 100%; left: 0; transform: translateY(-50%); }
+  }
+  .animate-grow-up {
+    animation: grow-up 0.6s ease-in-out infinite alternate;
+    position: absolute;
+    bottom: 0;
+  }
+  .animate-grow-down {
+    animation: grow-down 0.6s ease-in-out infinite alternate;
+    position: absolute;
+    top: 0;
+  }
+  .animate-expand {
+    animation: expand 0.6s ease-in-out infinite alternate;
+  }
+</style>
+
+<div class="p-8">
+  <div class="max-w-xl mx-auto p-8 rounded-xl border border-gray-200 shadow-sm">
+    <h3 class="text-xl lg:text-2xl font-semibold text-gray-800 mb-6 text-center">Update Personnel Registration Number</h3>
+
+    <div class="space-y-6">
+      <div class="relative">
+        <input 
+          type="text" 
+          id="searchInput"
+          class="w-full border border-blue-500 focus:border-yellow-500 bg-transparent rounded-md px-3 py-2"
+          placeholder="Search by Name or Number..."
+          autocomplete="off">
+        <input type="hidden" id="hiddenInput">
+        <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+          <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </span>
+        
+        <!-- Dropdown List -->
+        <div id="dropdownList" class="absolute z-10 w-full mt-1 bg-yellow-50 border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto hidden">
+          <div class="py-1">
+            <div class="px-3 py-2 text-center text-gray-500">Click to load employees...</div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <label for="new-reg" class="block text-sm lg:text-lg font-medium text-gray-700 mb-2">New Registration Number</label>
+        <input id="new-reg" type="text" placeholder="Enter New Registration Number"
+          class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" />
+      </div>
+
+      <div class="flex flex-wrap gap-2 justify-end space-x-4 pt-4">
+        <button id="cancelBtn" class="px-6 py-2 bg-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-300 transition-colors">
+          Cancel
+        </button>
+        <button id="saveBtn" class="px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors">
+          Save Changes
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const auth = window.authService;
+// ==================== CONFIGURATION ====================
+const CONFIG = {
+  API_BASE: '/regno',
+  EMPLOYEES_ENDPOINT: '/employees',
+  UPDATE_ENDPOINT: '/update-regno'
+};
+
+// ==================== STATE ====================
+let allEmployees = [];
+let selectedEmployee = null;
+let isLoading = false;
+
+// ==================== DOM ELEMENTS ====================
+const searchInput = document.getElementById('searchInput');
+const hiddenInput = document.getElementById('hiddenInput');
+const dropdownList = document.getElementById('dropdownList');
+const newRegInput = document.getElementById('new-reg');
+const saveBtn = document.getElementById('saveBtn');
+const cancelBtn = document.getElementById('cancelBtn');
+
+// ==================== FETCH EMPLOYEES FROM API ====================
+async function fetchEmployees() {
+  if (isLoading) return;
+  if (allEmployees.length > 0) return; // Already loaded
+  
+  isLoading = true;
+  
+  // Show loading state
+  dropdownList.innerHTML = `
+    <div class="py-1">
+      <div class="px-3 py-4 text-center text-gray-500">
+        <div class="relative w-7 h-7 mx-auto mb-2">
+          <div class="absolute left-1 w-[3px] bg-gray-500 rounded animate-grow-up"></div>
+          <div class="absolute right-1 w-[3px] bg-gray-500 rounded animate-grow-down [animation-delay:0.3s]"></div>
+          <div class="absolute top-1/2 left-1 h-[3px] bg-gray-500 rounded animate-expand [animation-delay:0.6s] -translate-y-1/2"></div>
+        </div>
+        Loading employees...
+      </div>
+    </div>
+  `;
+  
+  try {
+    const token = localStorage.getItem('token');
+    const url = `${CONFIG.API_BASE}${CONFIG.EMPLOYEES_ENDPOINT}`;
+    
+    console.log('Fetching from:', url);
+    
+    const response = await auth.fetchWithAuth(url, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    
+    // Handle different API response structures
+    allEmployees = data.data || data.employees || data.results || (Array.isArray(data) ? data : []);
+    
+    console.log('Loaded employees:', allEmployees.length);
+    
+    if (allEmployees.length === 0) {
+      dropdownList.innerHTML = `
+        <div class="py-1">
+          <div class="px-3 py-4 text-center text-gray-500">No employees found</div>
+        </div>
+      `;
+    } else {
+      renderDropdown(allEmployees);
+    }
+    
+  } catch (error) {
+    console.error('Error fetching employees:', error);
+    dropdownList.innerHTML = `
+      <div class="py-1">
+        <div class="px-3 py-4 text-center text-red-500">
+          Failed to load employees<br>
+          <span class="text-xs">${error.message}</span>
+        </div>
+      </div>
+    `;
+    alert('Failed to load employees. Please try again later.');
+  } finally {
+    isLoading = false;
+  }
+}
+
+// ==================== RENDER DROPDOWN WITH EMPLOYEES ====================
+function renderDropdown(employees) {
+  if (!employees || employees.length === 0) {
+    dropdownList.innerHTML = `
+      <div class="py-1">
+        <div class="px-3 py-4 text-center text-gray-500">No employees found</div>
+      </div>
+    `;
+    return;
+  }
+
+  const html = employees.map(emp => {
+    const id = emp.Empl_ID || 'N/A';
+    const name = `${emp.Surname || ''} ${emp.OtherName || ''}`.trim();
+    const rank = emp.Title || emp.rank || '';
+    
+    return `
+      <div class="dropdown-item px-3 py-2 hover:bg-blue-50 cursor-pointer border-b border-gray-100" 
+           data-value="${id}" 
+           data-name="${name}">
+        <span class="font-semibold text-blue-600">${id}</span> - ${name}
+      </div>
+    `;
+  }).join('');
+
+  dropdownList.innerHTML = `<div class="py-1">${html}</div>`;
+  
+  // Attach click handlers to all dropdown items
+  attachDropdownHandlers();
+}
+
+// ==================== ATTACH HANDLERS TO DROPDOWN ITEMS ====================
+function attachDropdownHandlers() {
+  const dropdownItems = dropdownList.querySelectorAll('.dropdown-item');
+  
+  dropdownItems.forEach(item => {
+    item.addEventListener('click', function() {
+      const value = this.getAttribute('data-value');
+      const name = this.getAttribute('data-name');
+      const text = this.textContent.trim();
+      
+      // Store selected employee
+      selectedEmployee = {
+        Empl_ID: value,
+        Fullname: name
+      };
+      
+      searchInput.value = text;
+      hiddenInput.value = value;
+      dropdownList.classList.add('hidden');
+      
+      console.log('Selected employee:', selectedEmployee);
+      newRegInput.focus();
+    });
+  });
+}
+
+// ==================== FILTER DROPDOWN AS USER TYPES ====================
+function filterDropdown(searchText) {
+  if (allEmployees.length === 0) return;
+  
+  const searchTerm = searchText.toLowerCase();
+  
+  if (!searchTerm) {
+    // Show all employees
+    renderDropdown(allEmployees);
+  } else {
+    // Filter employees
+    const filtered = allEmployees.filter(emp => {
+      const id = (emp.Empl_ID || '').toString().toLowerCase();
+      const name = (emp.Fullname || '').toLowerCase();
+      const rank = (emp.Title || '').toLowerCase();
+      
+      return id.includes(searchTerm) || name.includes(searchTerm) || rank.includes(searchTerm);
+    });
+    
+    renderDropdown(filtered);
+  }
+  
+  dropdownList.classList.remove('hidden');
+}
+
+// ==================== UPDATE REGISTRATION NUMBER ====================
+// Add modal HTML
+const modalHTML = `
+  <!-- Validation Modal -->
+  <div id="validationModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg shadow-xl p-6 max-w-md w-full mx-4">
+      <div class="flex items-center mb-4">
+        <div class="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center mr-4">
+          <i class="fas fa-exclamation-triangle text-yellow-600 text-xl"></i>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-900">Validation Error</h3>
+      </div>
+      <p id="validationMessage" class="text-gray-600 mb-6"></p>
+      <div class="flex justify-end">
+        <button onclick="closeValidationModal()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+          OK
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirmation Modal -->
+  <div id="confirmModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg shadow-xl p-6 max-w-md w-full mx-4">
+      <div class="flex items-center mb-4">
+        <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mr-4">
+          <i class="fas fa-question-circle text-blue-600 text-xl"></i>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-900">Confirm Update</h3>
+      </div>
+      <p id="confirmMessage" class="text-gray-600 mb-6"></p>
+      <div class="flex justify-end space-x-3">
+        <button onclick="closeConfirmModal()" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400">
+          Cancel
+        </button>
+        <button id="confirmBtn" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+          Confirm
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success Modal -->
+  <div id="successModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg shadow-xl p-6 max-w-md w-full mx-4">
+      <div class="flex items-center mb-4">
+        <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mr-4">
+          <i class="fas fa-check-circle text-green-600 text-xl"></i>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-900">Success</h3>
+      </div>
+      <p id="successMessage" class="text-gray-600 mb-6"></p>
+      <div class="flex justify-end">
+        <button onclick="closeSuccessModal()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+          OK
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error Modal -->
+  <div id="errorModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg shadow-xl p-6 max-w-md w-full mx-4">
+      <div class="flex items-center mb-4">
+        <div class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mr-4">
+          <i class="fas fa-times-circle text-red-600 text-xl"></i>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-900">Error</h3>
+      </div>
+      <p id="errorMessage" class="text-gray-600 mb-6"></p>
+      <div class="flex justify-end">
+        <button onclick="closeErrorModal()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
+          OK
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Modal -->
+  <div id="loadingModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg shadow-xl p-6 max-w-sm w-full mx-4">
+      <div class="flex flex-col items-center">
+        <div class="relative w-10 h-10">
+          <div class="absolute left-1 w-[6px] bg-blue-600 rounded animate-grow-up"></div>
+          <div class="absolute right-1 w-[6px] bg-blue-600 rounded animate-grow-down [animation-delay:0.3s]"></div>
+          <div class="absolute top-1/2 left-1 h-[6px] bg-blue-600 rounded animate-expand [animation-delay:0.6s] -translate-y-1/2"></div>
+        </div>
+        <p class="text-gray-700 font-medium">Updating...</p>
+      </div>
+    </div>
+  </div>
+`;
+
+// Insert modals into the page
+document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+// Modal control functions
+function showValidationModal(message) {
+  document.getElementById('validationMessage').textContent = message;
+  document.getElementById('validationModal').classList.remove('hidden');
+}
+
+window.closeValidationModal = function () {
+  document.getElementById('validationModal').classList.add('hidden');
+}
+
+function showConfirmModal(message) {
+  return new Promise((resolve) => {
+    document.getElementById('confirmMessage').textContent = message;
+    document.getElementById('confirmModal').classList.remove('hidden');
+    
+    const confirmBtn = document.getElementById('confirmBtn');
+    const closeBtn = () => {
+      document.getElementById('confirmModal').classList.add('hidden');
+      resolve(false);
+    };
+    
+    confirmBtn.onclick = () => {
+      document.getElementById('confirmModal').classList.add('hidden');
+      resolve(true);
+    };
+    
+    window.closeConfirmModal = closeBtn;
+  });
+}
+
+function showSuccessModal(message) {
+  document.getElementById('successMessage').textContent = message;
+  document.getElementById('successModal').classList.remove('hidden');
+}
+
+window.closeSuccessModal = function () {
+  document.getElementById('successModal').classList.add('hidden');
+}
+
+function showErrorModal(message) {
+  document.getElementById('errorMessage').textContent = message;
+  document.getElementById('errorModal').classList.remove('hidden');
+}
+
+window.closeErrorModal = function () {
+  document.getElementById('errorModal').classList.add('hidden');
+}
+
+function showLoadingModal() {
+  document.getElementById('loadingModal').classList.remove('hidden');
+}
+
+window.hideLoadingModal= function() {
+  document.getElementById('loadingModal').classList.add('hidden');
+}
+
+// Updated function with modals
+async function updateRegistrationNumber() {
+  const oldRegNo = hiddenInput.value;
+  const newRegNo = newRegInput.value.trim();
+
+  // Validation
+  if (!oldRegNo) {
+    showValidationModal('Please select an employee first');
+    return;
+  }
+
+  if (!newRegNo) {
+    showValidationModal('Please enter a new registration number');
+    return;
+  }
+
+  if (newRegNo === oldRegNo) {
+    showValidationModal('New registration number must be different from the current one');
+    return;
+  }
+
+  // Confirm
+  const employeeName = selectedEmployee ? selectedEmployee.Fullname : 'this employee';
+  const confirmed = await showConfirmModal(
+    `Update registration number from "${oldRegNo}" to "${newRegNo}" for ${employeeName}?`
+  );
+  
+  if (!confirmed) {
+    return;
+  }
+
+  // Show loading
+  showLoadingModal();
+  saveBtn.disabled = true;
+
+  try {
+    const token = localStorage.getItem('token');
+    const url = `${CONFIG.API_BASE}${CONFIG.UPDATE_ENDPOINT}`;
+    
+    console.log('Updating:', { oldRegNo, newRegNo });
+    
+    const response = await auth.fetchWithAuth(url, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        oldRegNo: oldRegNo,
+        newRegNo: newRegNo
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || 'Update failed');
+    }
+
+    hideLoadingModal();
+    showSuccessModal(`Registration number for ${employeeName} updated successfully from ${oldRegNo} to ${newRegNo}`);
+    console.log('Update successful:', data);
+    
+    // Reset form and reload employees
+    resetForm();
+    allEmployees = []; // Clear cache
+    fetchEmployees();
+
+  } catch (error) {
+    console.error('Update error:', error);
+    hideLoadingModal();
+    showErrorModal('Failed to update: ' + error.message);
+  } finally {
+    saveBtn.disabled = false;
+  }
+}
+
+// ==================== RESET FORM ====================
+function resetForm() {
+  selectedEmployee = null;
+  searchInput.value = '';
+  hiddenInput.value = '';
+  newRegInput.value = '';
+  dropdownList.classList.add('hidden');
+}
+
+// ==================== EVENT LISTENERS ====================
+
+// Show dropdown when input is clicked or focused
+searchInput.addEventListener('focus', () => {
+  if (allEmployees.length === 0) {
+    fetchEmployees();
+  }
+  dropdownList.classList.remove('hidden');
+});
+
+// Filter items as user types
+searchInput.addEventListener('input', function() {
+  const searchText = this.value.toLowerCase();
+  
+  if (allEmployees.length === 0) {
+    fetchEmployees().then(() => {
+      filterDropdown(searchText);
+    });
+  } else {
+    filterDropdown(searchText);
+  }
+});
+
+// Hide dropdown when clicking outside
+document.addEventListener('click', function(e) {
+  if (!searchInput.contains(e.target) && !dropdownList.contains(e.target)) {
+    dropdownList.classList.add('hidden');
+  }
+});
+
+// Clear selection if user manually types
+searchInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Backspace' || e.key === 'Delete') {
+    selectedEmployee = null;
+    hiddenInput.value = '';
+  }
+});
+
+// Button handlers
+saveBtn.addEventListener('click', updateRegistrationNumber);
+cancelBtn.addEventListener('click', resetForm);
+
+// Allow Enter key to submit
+newRegInput.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') {
+    updateRegistrationNumber();
+  }
+});
+
+["new-reg"].forEach(id => {
+  const el = document.getElementById(id);
+  el.addEventListener("input", () => {
+    el.value = el.value.toUpperCase();
+  });
+});
+
+// ==================== INITIALIZE ====================
+console.log('Registration Number Update Module Loaded');
+console.log('API Configuration:', CONFIG);
+console.log('Token exists:', !!localStorage.getItem('token'));
+</script>

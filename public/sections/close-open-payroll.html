@@ -1,0 +1,40 @@
+<div style="font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'; padding: 2rem;">
+
+  <h3 style="font-size: 1.5rem; font-weight: 600; color: #1f2937; margin-bottom: 1.5rem;">Payroll Period Status</h3>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+    
+    <div style="border-radius: 0.75rem; border: 1px solid #e5e7eb; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; cursor: pointer;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 4px 10px rgba(0, 0, 0, 0.15)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 1px 3px rgba(0, 0, 0, 0.1)';">
+      <p style="font-size: 0.875rem; color: #6b7280; margin-bottom: 0.25rem;">Previous Period:</p>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h4 style="font-size: 1.25rem; font-weight: 600; color: #111827;">July 2025</h4>
+        <span style="display: inline-flex; align-items: center; gap: 0.5rem; color: #dc2626; font-size: 0.875rem; font-weight: 500;">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width: 1rem; height: 1rem;">
+            <path fill-rule="evenodd" d="M10 1a9 9 0 1 0 0 18 9 9 0 0 0 0-18Zm0 9a.75.75 0 0 0-.75.75v4.5a.75.75 0 0 0 1.5 0v-4.5A.75.75 0 0 0 10 10Zm0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2Z" clip-rule="evenodd" />
+          </svg>
+          Not Closed
+        </span>
+      </div>
+      <button style="width: 100%; padding: 0.75rem; background-color: #ef4444; color: #ffffff; font-size: 1rem; font-weight: 600; border: none; border-radius: 0.5rem; cursor: pointer; transition: background-color 0.2s ease-in-out;" onmouseover="this.style.backgroundColor='#dc2626';" onmouseout="this.style.backgroundColor='#ef4444';">
+        Close July 2025
+      </button>
+    </div>
+
+    <div style="border-radius: 0.75rem; border: 1px solid #e5e7eb; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; cursor: pointer;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 4px 10px rgba(0, 0, 0, 0.15)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 1px 3px rgba(0, 0, 0, 0.1)';">
+      <p style="font-size: 0.875rem; color: #6b7280; margin-bottom: 0.25rem;">Current Period:</p>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h4 style="font-size: 1.25rem; font-weight: 600; color: #111827;">August 2025</h4>
+        <span style="display: inline-flex; align-items: center; gap: 0.5rem; color: #917c09; font-size: 0.875rem; font-weight: 500;">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width: 1rem; height: 1rem;">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm.75-11.25a.75.75 0 0 0-1.5 0v4.59L8.435 11.2a.75.75 0 0 0-1.07 1.05l2.25 2.25a.75.75 0 0 0 1.07 0l4.5-4.5a.75.75 0 0 0-1.06-1.06l-3.375 3.375V6.75Z" clip-rule="evenodd" />
+          </svg>
+          Ready to Open
+        </span>
+      </div>
+      <button style="width: 100%; padding: 0.75rem; background-color: #2563eb; color: #ffffff; font-size: 1rem; font-weight: 600; border: none; border-radius: 0.5rem; cursor: pointer; transition: background-color 0.2s ease-in-out;" onmouseover="this.style.backgroundColor='#1d4ed8';" onmouseout="this.style.backgroundColor='#2563eb';">
+        Open August 2025
+      </button>
+    </div>
+
+  </div>
+</div>

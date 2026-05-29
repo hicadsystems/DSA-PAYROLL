@@ -1,0 +1,650 @@
+
+<div class="p-6">
+<div class="">
+<!-- Header -->
+<div class="px-6 py-4 flex flex-wrap gap-2 items-center justify-between">
+    <div class="flex items-center">
+        <h1 class="text-xl font-semibold">PAYMENT TYPES</h1>
+    </div>
+
+        <!-- Add Button -->
+    <div class="flex gap-2 justify-end">
+        <button id="showFormBtn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">+ Add New</button>
+         <button id="generateReportBtn" class="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700">
+        <i class="fas fa-file-alt mr-2"></i>Generate Report</button>
+    </div>
+</div>
+
+<div class="p-6">
+    <!-- Hidden Form -->
+    <div id="paymentTypeForm" class="hidden mb-4 p-6 ">
+        <h3 class="text-lg font-semibold text-blue-600 mb-4">Add New Payment Type</h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 mb-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">High Priority Description</label>
+                <input type="text" id="description" class="w-full bg-transparent border-2 border-blue-500 rounded px-3 py-2 text-sm focus:border-blue-600 focus:outline-none" placeholder="Enter description">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">High Priority Code</label>
+                <input type="text" maxlength="6" id="highPriority" class="w-full bg-transparent border-2 border-blue-500 rounded px-3 py-2 text-sm focus:border-blue-600 focus:outline-none" placeholder="enter high priority code">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Lower Priority Code</label>
+                <input type="text" maxlength="6" id="lowerPriority" class="w-full bg-transparent border-2 border-blue-500 rounded px-3 py-2 text-sm focus:border-blue-600 focus:outline-none" placeholder="enter lower priority code">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Lower Priority Description</label>
+                <input type="text" id="detailDescription" class="w-full bg-transparent border-2 border-blue-500 rounded px-3 py-2 text-sm focus:border-blue-600 focus:outline-none" placeholder="Enter description">
+            </div>
+        </div>
+
+        <!-- Form Buttons -->
+        <div class="flex justify-end gap-2">
+            <button id="saveBtn" class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700">Save</button>
+            <button id="cancelBtn" class="bg-gray-400 text-white px-6 py-2 rounded hover:bg-gray-500">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Main Table -->
+    <div class="overflow-hidden mb-6">
+        <div class="p-3 text-center">
+            <h2 class="font-bold text-gray-800">MUTUALLY EXCLUSIVE PAY ELEMENT DATA TYPES</h2>
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="min-w-full border rounded-lg text-sm">
+                <thead class="border bg-blue-100 text-blue-900">
+                    <tr>
+                        <th class="border px-4 py-3 text-left font-semibold">High Description</th>
+                        <th class="border px-4 py-3 text-left font-semibold">High Priority</th>
+                        <th class="border px-4 py-3 text-left font-semibold">Lower Priority</th>
+                        <th class="border px-4 py-3 text-left font-semibold">Lower Description</th>
+                        <th class="border px-4 py-3 text-center font-semibold">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="paymentTypesTable">
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</div>
+</div>
+
+<!-- Success Modal -->
+<div id="successModal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+  <div class="bg-white p-6 rounded-lg shadow-xl max-w-md w-full mx-4">
+    <h3 class="text-lg font-semibold mb-2 text-green-600">Success!</h3>
+    <p class="mb-4 text-gray-700">Payment type configuration saved successfully!</p>
+    <button id="closeSuccessModal" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">OK</button>
+  </div>
+</div>
+
+<!-- View Modal -->
+<div id="viewModal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+  <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-2xl mx-4 max-h-screen overflow-y-auto">
+    <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-semibold text-blue-600">Payment Type Details</h3>
+        <button id="closeViewModal" class="text-gray-400 hover:text-gray-600">
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+        </button>
+    </div>
+    <div id="viewContent" class="space-y-3 text-sm"></div>
+  </div>
+</div>
+
+<!-- Alert Modal -->
+<div id="alertModal" 
+     class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
+  <div class="bg-white rounded-lg shadow-xl max-w-sm w-full p-6 text-center">
+    <h3 id="alertTitle" class="text-lg font-semibold text-gray-800 mb-2">Alert!</h3>
+    <p id="alertMessage" class="text-gray-600 mb-4"></p>
+    <button id="alertOkBtn" 
+      class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+      OK
+    </button>
+  </div>
+</div>
+
+<!-- Confirm Delete Modal -->
+<div id="sectionConfirmModal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+  <div class="bg-white p-6 rounded-lg shadow-xl max-w-md w-full mx-4">
+    <h3 class="text-lg font-semibold text-yellow-600 mb-2">Confirm Delete</h3>
+    <p id="confirmMessage" class="mb-4 text-gray-700">Are you sure you want to delete this section command?</p>
+    <div class="flex justify-end gap-2">
+      <button id="cancelSectionDelete" class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500">Cancel</button>
+      <button id="sectionConfirmAction" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const auth = window.authService;
+let editingIndex = null;
+let data = [];
+
+const form = document.getElementById("paymentTypeForm");
+const showFormBtn = document.getElementById("showFormBtn");
+const saveBtn = document.getElementById("saveBtn");
+const cancelBtn = document.getElementById("cancelBtn");
+const tableBody = document.getElementById("paymentTypesTable");
+
+
+const API_URL = "/mutually";
+const token = localStorage.getItem("token");
+
+// ==== VIEW ====
+window.viewRow = function(index) {
+  const item = data[index];
+  let html = `
+    <div class="grid grid-cols-2 gap-4">
+        <div class="bg-blue-50 p-3 rounded">
+            <h4 class="font-semibold text-blue-700 mb-2">High Priority:</h4>
+            <p class="text-blue-900 font-mono">${item.typeH}</p>
+            <p class="text-gray-700">${item.typehdesc}</p>
+        </div>
+        <div class="bg-orange-50 p-3 rounded">
+            <h4 class="font-semibold text-orange-700 mb-2">Lower Priority:</h4>
+            <p class="text-orange-900 font-mono">${item.typeL}</p>
+            <p class="text-gray-700">${item.typeldesc}</p>
+        </div>
+    </div>
+  `;
+  document.getElementById("viewContent").innerHTML = html;
+  openModal("viewModal");
+};
+
+// ==== EDIT ====
+window.editRow = function(index) {
+  const item = data[index];
+  document.getElementById("highPriority").value = item.typeH;
+  document.getElementById("description").value = item.typehdesc;
+  document.getElementById("lowerPriority").value = item.typeL;
+  document.getElementById("detailDescription").value = item.typeldesc;
+
+  editingIndex = index;
+  document.getElementById("highPriority").disabled = true;
+  document.getElementById("lowerPriority").disabled = true;
+  form.classList.remove("hidden");
+};
+
+// ==== DELETE ====
+window.deleteRow = async function(index) {
+  const item = data[index];
+  const confirmed = await showConfirmModal("Are you sure you want to delete this payment type?");
+
+  if (confirmed) {
+    try {
+      await auth.fetchWithAuth(`${API_URL}/${item.typeH}/${item.typeL}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      openModal("Record deleted Sucessfuly", "successModal");
+      await loadData();
+      renderTable();
+    } catch (err) {
+      console.error("Delete failed:", err);
+      showAlert("Error deleting record.");
+    }
+  }
+};
+
+// ==== RENDER ====
+function renderTable() {
+  tableBody.innerHTML = data.map((item, index) => {
+    const isSelected = index === 0;
+    return `
+      <tr class="hover:bg-gray-50 ${isSelected ? 'bg-yellow-100' : ''}">
+        <td class="border px-4 py-2 text-left">${isSelected ? '▶ ' : ''}${item.typehdesc}</td>
+        <td class="border px-4 py-2 text-left">${item.typeH}</td>
+        <td class="border px-4 py-2 text-left">${item.typeL}</td>
+        <td class="border px-4 py-2 text-left">${item.typeldesc}</td>
+        <td class="border px-4 py-2 text-center">
+          <button onclick="editRow(${index})" class="text-green-600 hover:text-green-800 mr-2 px-2 py-1 rounded hover:bg-green-50 text-xs">Edit</button>
+          <button onclick="deleteRow(${index})" class="text-red-600 hover:text-red-800 px-2 py-1 rounded hover:bg-red-50 text-xs">Delete</button>
+        </td>
+      </tr>
+    `;
+  }).join("");
+}
+
+// ==== LOAD DATA ====
+async function loadData() {
+  try {
+    const res = await auth.fetchWithAuth(API_URL, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (!res.ok) throw new Error("Failed to fetch data");
+    data = await res.json();
+    renderTable();
+  } catch (err) {
+    console.error("Error loading:", err);
+    showAlert("Failed to load data.");
+  }
+}
+
+
+
+// ==== SAVE ====
+saveBtn.addEventListener("click", async () => {
+  // Collect values
+  const typeH = document.getElementById("highPriority").value.trim().toUpperCase();
+  const typehdesc = document.getElementById("description").value.trim().toUpperCase();
+  const typeL = document.getElementById("lowerPriority").value.trim().toUpperCase();
+  const typeldesc = document.getElementById("detailDescription").value.trim().toUpperCase();
+
+  // Ensure payload is uppercase (Option 1 - safety)
+  const payload = { typeH, typehdesc, typeL, typeldesc };
+
+  const requiredFields = ["typeH", "typeL"];
+  let missingFields = requiredFields.filter(field => !payload[field]);
+
+      if (missingFields.length) {
+      return showAlert(`Please fill in all required fields: ${missingFields.join(", ")}`);
+    }
+
+  try {
+    if (editingIndex !== null) {
+      const existing = data[editingIndex];
+      await auth.fetchWithAuth(`${API_URL}/${existing.typeH}/${existing.typeL}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+      });
+      data[editingIndex] = payload;
+      editingIndex = null;
+    } else {
+      await auth.fetchWithAuth(`${API_URL}/post`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+      });
+      data.push(payload);
+    }
+
+    renderTable();
+    form.classList.add("hidden");
+    clearForm();
+    openModal("Record saved sucessfully");
+  } catch (err) {
+    console.error("Save failed:", err);
+    showAlert("Error saving record.");
+  }
+});
+
+// Force uppercase as user types
+["highPriority", "lowerPriority", "description", "detailDescription"].forEach(id => {
+  const el = document.getElementById(id);
+  el.addEventListener("input", () => {
+    el.value = el.value.toUpperCase();
+  });
+});
+
+
+// ==== UI HELPERS ====
+showFormBtn.addEventListener("click", () => {
+  form.classList.remove("hidden");
+  editingIndex = null;
+  document.getElementById("highPriority").disabled = false;
+  document.getElementById("lowerPriority").disabled = false;
+  clearForm();
+});
+
+cancelBtn.addEventListener("click", () => {
+  form.classList.add("hidden");
+  editingIndex = null;
+  clearForm();
+});
+
+function clearForm() {
+  document.getElementById("description").value = "";
+  document.getElementById("highPriority").value = "";
+  document.getElementById("lowerPriority").value = "";
+  document.getElementById("detailDescription").value = "";
+}
+
+function openModal(message, modalId = "successModal") {
+  const modal = document.getElementById(modalId);
+  if (!modal) {
+    console.error("Modal not found:", modalId);
+    return;
+  }
+
+  // Optional: update the message if there's a <p id="successMessage">
+  const msg = modal.querySelector("p");
+  if (msg) msg.textContent = message;
+
+  modal.classList.remove("hidden");
+
+  // Auto-close after 2 seconds or add close button handler
+  setTimeout(() => modal.classList.add("hidden"), 2000);
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.add("hidden");
+}
+
+function showAlert(message, title = "Alert") {
+  const modal = document.getElementById("alertModal");
+  const msg = document.getElementById("alertMessage");
+  const ttl = document.getElementById("alertTitle");
+  const okBtn = document.getElementById("alertOkBtn");
+
+  ttl.textContent = title;
+  msg.textContent = message;
+
+  modal.classList.remove("hidden");
+
+  okBtn.onclick = () => {
+    modal.classList.add("hidden");
+  };
+}
+
+// Reusable Confirm Modal
+function showConfirmModal(message = "Are you sure?") {
+  return new Promise((resolve) => {
+    const modal = document.getElementById("sectionConfirmModal");
+    const msg = document.getElementById("confirmMessage");
+    const cancelBtn = document.getElementById("cancelSectionDelete");
+    const confirmBtn = document.getElementById("sectionConfirmAction");
+
+    msg.textContent = message;
+    modal.classList.remove("hidden");
+
+    // Remove old listeners
+    cancelBtn.onclick = () => {
+      modal.classList.add("hidden");
+      resolve(false);
+    };
+
+    confirmBtn.onclick = () => {
+      modal.classList.add("hidden");
+      resolve(true);
+    };
+
+    modal.onclick = (e) => {
+      if (e.target.id === "sectionConfirmModal") {
+        modal.classList.add("hidden");
+        resolve(false);
+      }
+    };
+  });
+}
+  
+
+document.getElementById('closeSuccessModal').addEventListener('click', () => closeModal('successModal'));
+document.getElementById('closeViewModal').addEventListener('click', () => closeModal('viewModal'));
+
+document.getElementById('successModal').addEventListener('click', (e) => {
+  if (e.target === e.currentTarget) closeModal('successModal');
+});
+document.getElementById('viewModal').addEventListener('click', (e) => {
+  if (e.target === e.currentTarget) closeModal('viewModal');
+});
+
+// Add selection highlighting to table rows
+tableBody.addEventListener('click', function(e) {
+    const row = e.target.closest('tr');
+    if (row && !e.target.matches('button')) {
+        // Remove previous selection
+        document.querySelectorAll('#paymentTypesTable tr').forEach(tr => {
+            tr.classList.remove('bg-yellow-100');
+            const firstCell = tr.querySelector('td');
+            if (firstCell) {
+                firstCell.innerHTML = firstCell.innerHTML.replace('▶ ', '');
+            }
+        });
+    
+        // Add selection to clicked row
+        row.classList.add('bg-yellow-100');
+        const firstCell = row.querySelector('td');
+        if (firstCell && !firstCell.innerHTML.startsWith('▶')) {
+            firstCell.innerHTML = '▶ ' + firstCell.innerHTML;
+        }
+    }
+});
+
+// ==== REPORT GENERATION ====
+function generateReport() {
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-GB', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+  const timeStr = now.toLocaleTimeString('en-GB', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true
+  });
+  
+  const generatedBy = localStorage.getItem('full_name') || 'System User';
+  
+  // Create a new window for printing
+  const printWindow = window.open('', '_blank');
+  
+  // Generate HTML content
+  const printContent = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <title>Mutually Exclusive Payments Report</title>
+      <style>
+        @page { 
+          size: A4; 
+          margin: 5mm; 
+          background-color: #f8fbff;
+        }
+        
+        body { 
+          font-family: Helvetica, Arial, sans-serif; 
+          font-size: 15pt;
+          margin: 0;
+          padding: 0;
+          position: relative;
+          color: #333;
+        }
+
+        /* Faint logo overlay */
+        body::before {
+          content: "";
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background-image: url('photos/logo.png');
+          background-size: auto 100%;
+          background-repeat: no-repeat;
+          background-position: center center;
+          opacity: 0.02;
+          z-index: -1;
+          pointer-events: none;
+        }
+
+        .header-wrapper {
+          display: flex;
+          align-items: flex-start;
+          margin-bottom: 8px;
+          border-bottom: 2px solid #1a1a1a;
+          padding-bottom: 5px;
+        }
+
+        .header {
+          flex-grow: 1;
+          text-align: center;
+        }
+        
+        .header h1 {
+          font-size: 13pt;
+          font-weight: bold;
+          margin-bottom: 2px;
+          letter-spacing: 1.5px;
+          color: #1e40af;
+          font-family: 'Libre Baskerville', Georgia, serif;
+        }
+        
+        .header h2 {
+          font-size: 10pt;
+          font-weight: normal;
+          margin-top: 2px;
+          color: #4a4a4a;
+          font-family: 'Libre Baskerville', Georgia, serif;
+        }
+
+        .header-info {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin: 10px 0;
+          font-size: 9pt;
+        }
+
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-bottom: 20px;
+          font-size: 10px;
+        }
+
+        th {
+          color: #1e40af;
+          padding: 8px 4px;
+          text-align: left;
+          font-weight: bold;
+          font-size: 12px;
+          text-transform: uppercase;
+          letter-spacing: 0.3px;
+          border-bottom: 1px solid #0056A0;
+        }
+
+        td {
+          padding: 6px 4px;
+          border: none;
+          vertical-align: middle;
+        }
+
+        .text-center {
+          text-align: center;
+        }
+
+        .footer {
+          padding-top: 10px;
+          border-top: 0.5px solid #1a1a1a;
+          text-align: center;
+          font-size: 8pt;
+          color: #64748b;
+          margin-top: 20px;
+        }
+
+        @media print {
+          body {
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact;
+          }
+          
+          body::before {
+            position: fixed;
+            display: block;
+            content: "";
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            background-image: url('photos/logo.png');
+            background-size: auto 100%;
+            background-repeat: no-repeat;
+            background-position: center center;
+            opacity: 0.02;
+            z-index: -1;
+          }
+        }
+      </style>
+    </head>
+    <body>
+      <div class="header-wrapper">
+        <div class="header">
+          <h1>Nigerian Navy (Naval Headquarters)</h1>
+          <h2>CENTRAL PAY OFFICE, 23 POINT ROAD APAPA</h2>
+        </div>
+      </div>
+
+      <div class="header-info">
+        <div class="left">
+          <strong>MUTUALLY EXCLUSIVE PAYMENTS REPORT</strong>
+        </div>
+        <div class="center">
+          <span>PRODUCED ON</span> 
+          <strong>${dateStr}</strong> 
+          <span>AT</span> 
+          <strong>${timeStr}</strong>
+        </div>
+        <div class="right">
+          <strong>${data.length}</strong>
+          <span>RECORDS</span>
+        </div>
+      </div>
+
+      <!-- Data Table -->
+      <table>
+        <thead>
+          <tr>
+            <th class="text-center" style="width: 8%;">No.</th>
+            <th style="width: 33%;">High Description</th>
+            <th style="width: 13%;">High Priority</th>
+            <th style="width: 13%;">Lower Priority</th>
+            <th style="width: 33%;">Lower Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${data.map((item, index) => `
+            <tr>
+              <td class="text-center"><strong>${index + 1}</strong></td>
+              <td>${item.typehdesc || '-'}</td>
+              <td>${item.typeH || '-'}</td>
+              <td>${item.typeL || '-'}</td>
+              <td>${item.typeldesc || '-'}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+
+      <div class="footer">
+        <p><strong>Generated by:</strong> ${generatedBy}</p>
+        <p>All rights reserved &#xA9; Hicad Systems Limited.</p>
+      </div>
+    </body>
+    </html>
+  `;
+  
+  // Write content to new window
+  printWindow.document.write(printContent);
+  printWindow.document.close();
+  
+  // Wait for content to load then print
+  printWindow.onload = function() {
+    printWindow.print();
+  };
+}
+
+// Add event listener to generate report button
+document.getElementById('generateReportBtn').addEventListener('click', generateReport);
+
+
+// ==== INITIAL LOAD ====
+loadData();
+</script>

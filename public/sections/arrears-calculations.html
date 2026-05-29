@@ -1,0 +1,227 @@
+<div class="p-6">
+  <!-- Form Header -->
+  <div id="arrearsForm" class="mb-6 flex flex-wrap justify-between items-center gap-y-2">
+    <div class="relative w-3/4 md:w-1/2 lg:w-1/3">
+      <div class="relative">
+        <input 
+          type="text" 
+          id="searchInput"
+          class="w-full border border-blue-500 focus:border-yellow-500 bg-transparent rounded-md px-3 py-2"
+          placeholder="Name or Number..."
+          autocomplete="off">
+        <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+          <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </span>
+      </div>
+      
+      <div id="dropdownList" class="absolute z-10 w-full mt-1 bg-yellow-50 border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto hidden">
+        <div class="py-1">
+          <div class="dropdown-item px-3 py-2 hover:bg-blue-50 cursor-pointer border-b border-gray-100" data-value="NN001">
+            <span class="font-semibold text-blue-600">NN001</span> - Lt. James 
+          </div>
+          <div class="dropdown-item px-3 py-2 hover:bg-blue-50 cursor-pointer border-b border-gray-100" data-value="NN002">
+            <span class="font-semibold text-blue-600">NN002</span> - Mr. Johnson
+          </div>
+          <div class="dropdown-item px-3 py-2 hover:bg-blue-50 cursor-pointer border-b border-gray-100" data-value="NN003">
+            <span class="font-semibold text-blue-600">NN003</span> - CPO Hicad
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="flex items-center flex-wrap gap-2">
+      <span class="font-bold text-blue-600 text-lg">TOTAL ARREARS:</span>
+      <div class="bg-pink-50 px-4 py-2 border-2 border-blue-500 rounded-md w-40 text-right text-blue-700 font-bold">
+        0.00
+      </div>
+    </div>
+  </div>
+
+  <!-- Regular Section -->
+  <div class="mb-6">
+    <h3 class="text-lg mb-4 text-blue-600 font-bold border-b pb-2">REGULAR</h3>
+    <div class="grid grid-cols-6 gap-x-4 gap-y-2" id="regularSection">
+      <!-- Headers -->
+      <div class="col-span-1 font-medium text-sm text-center">Payroll Item</div>
+      <div class="col-span-1 font-medium text-sm text-center">Start Date</div>
+      <div class="col-span-1 font-medium text-sm text-center">Last Date</div>
+      <div class="col-span-1 font-medium text-sm text-center">OLD Salary Scale</div>
+      <div class="col-span-1 font-medium text-sm text-center">OLD GRADE LEVEL</div>
+      <div class="col-span-1 font-medium text-sm text-center">NEW GRADE LEVEL</div>
+    </div>
+  </div>
+
+  <!-- Others Section -->
+  <div class="mb-6">
+    <h3 class="text-lg mb-4 text-blue-600 font-bold border-b pb-2">OTHERS</h3>
+    <div class="grid grid-cols-5 gap-x-4 gap-y-2" id="othersSection">
+      <!-- Headers -->
+      <div class="col-span-1 font-medium text-sm">Payroll Item</div>
+      <div class="col-span-1 font-medium text-sm">Start Date</div>
+      <div class="col-span-1 font-medium text-sm">End Date</div>
+      <div class="col-span-1 font-medium text-sm">OLD Amount</div>
+      <div class="col-span-1 font-medium text-sm">NEW Amount</div>
+    </div>
+  </div>
+
+  <!-- Total Arrear and Buttons -->
+  <div class="flex flex-wrap gap-2 justify-end items-center mt-6 pt-4 border-t">
+    <button type="button" class="bg-gray-300 text-gray-700 px-6 py-2 rounded hover:bg-gray-300">
+      Cancel
+    </button>
+    <button type="button" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">
+      Calculate
+    </button>
+    <button type="button" class="bg-yellow-500 text-white px-6 py-2 rounded hover:bg-yellow-700">
+      Print
+    </button>
+  </div>
+</div>
+
+<script>
+  const auth = window.authService;
+  // searchable dropdown 
+  const searchInput = document.getElementById('searchInput');
+  const dropdownList = document.getElementById('dropdownList');
+  const dropdownItems = document.querySelectorAll('.dropdown-item');
+
+  // Add hidden input to store the selected employee ID
+  const hiddenInput = document.createElement('input');
+  hiddenInput.type = 'hidden';
+  hiddenInput.name = 'arrearsName';
+  hiddenInput.id = 'arrearsName';
+  document.getElementById('arrearsForm').appendChild(hiddenInput);
+
+  // Show dropdown when input is clicked or focused
+  searchInput.addEventListener('focus', () => {
+    dropdownList.classList.remove('hidden');
+  });
+
+  // Filter items as user types
+  searchInput.addEventListener('input', function() {
+    const searchText = this.value.toLowerCase();
+    
+    dropdownItems.forEach(item => {
+      const text = item.textContent.toLowerCase();
+      const shouldShow = text.includes(searchText);
+      item.style.display = shouldShow ? 'block' : 'none';
+    });
+    
+    dropdownList.classList.remove('hidden');
+  });
+
+  // Handle item selection
+  dropdownItems.forEach(item => {
+    item.addEventListener('click', function() {
+      const value = this.getAttribute('data-value');
+      const text = this.textContent.trim();
+      
+      searchInput.value = text;
+      hiddenInput.value = value;
+      dropdownList.classList.add('hidden');
+    });
+  });
+
+  // Hide dropdown when clicking outside
+  document.addEventListener('click', function(e) {
+    if (!searchInput.contains(e.target) && !dropdownList.contains(e.target)) {
+      dropdownList.classList.add('hidden');
+    }
+  });
+
+  // Basic keyboard support
+  searchInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      dropdownList.classList.add('hidden');
+      this.blur();
+    }
+  });
+
+  // Utility: create element with classes + attributes
+  function createEl(tag, classes, attrs = {}) {
+    const el = document.createElement(tag);
+    if (classes) el.className = classes;
+    Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
+    return el;
+  }
+
+  // Add rows to REGULAR section
+  const regularSection = document.getElementById("regularSection");
+  const regularRows = 5;
+  for (let i = 0; i < regularRows; i++) {
+    // Payroll Item
+    const sel1 = createEl("select", "col-span-1 border border-blue-500 focus:border-yellow-500 bg-transparent rounded-md px-2 py-1 text-sm min-h-[2rem]");
+    sel1.innerHTML = `<option value="">Select Item</option>`;
+    regularSection.appendChild(sel1);
+
+    // Start Date
+    const sd = createEl("input", "col-span-1 border border-blue-500 focus:border-yellow-500 bg-transparent rounded-md px-2 py-1 text-sm min-h-[2rem]", {
+      type: "date",
+      placeholder: "DD/MM/YYYY",
+    });
+    regularSection.appendChild(sd);
+
+    // Last Date
+    const ld = createEl("input", "col-span-1 border border-blue-500 focus:border-yellow-500 bg-transparent rounded-md px-2 py-1 text-sm min-h-[2rem]", {
+      type: "date",
+      placeholder: "DD/MM/YYYY",
+    });
+    regularSection.appendChild(ld);
+
+    // OLD Scale
+    const sel2 = createEl("select", "col-span-1 border border-blue-500 focus:border-yellow-500 bg-transparent rounded-md px-2 py-1 text-sm min-h-[2rem]");
+    sel2.innerHTML = `<option value="">Select Scale</option>`;
+    regularSection.appendChild(sel2);
+
+    // OLD GL
+    const oldGl = createEl("input", "col-span-1 border border-blue-500 focus:border-yellow-500 bg-transparent rounded-md px-2 py-1 text-sm text-right min-h-[2rem]", {
+      type: "text",
+      placeholder: "GGL",
+    });
+    regularSection.appendChild(oldGl);
+
+    // NEW GL
+    const newGl = createEl("input", "col-span-1 border border-blue-500 focus:border-yellow-500 bg-transparent rounded-md px-2 py-1 text-sm text-right min-h-[2rem]", {
+      type: "text",
+      placeholder: "GGL",
+    });
+    regularSection.appendChild(newGl);
+  }
+
+  // Add rows to OTHERS section
+  const othersSection = document.getElementById("othersSection");
+  const otherRows = 3;
+  for (let i = 0; i < otherRows; i++) {
+    // Payroll Item
+    const sel = createEl("select", "col-span-1 border border-blue-500 focus:border-yellow-500 bg-green-50 rounded-md px-2 py-1 text-sm min-h-[2rem]");
+    sel.innerHTML = `<option value="">Select Item</option>`;
+    othersSection.appendChild(sel);
+
+    // Start Date
+    const sd = createEl("input", "col-span-1 border border-blue-500 focus:border-yellow-500 bg-green-50 rounded-md px-2 py-1 text-sm min-h-[2rem]", {
+      type: "date",
+      placeholder: "DD/MM/YYYY",
+    });
+    othersSection.appendChild(sd);
+
+    // End Date
+    const ed = createEl("input", "col-span-1 border border-blue-500 focus:border-yellow-500 bg-green-50 rounded-md px-2 py-1 text-sm min-h-[2rem]", {
+      type: "date",
+      placeholder: "DD/MM/YYYY",
+    });
+    othersSection.appendChild(ed);
+
+    // OLD Amount
+    const oldAmt = createEl("input", "col-span-1 border border-blue-500 focus:border-yellow-500 bg-green-50 rounded-md px-2 py-1 text-sm text-right min-h-[2rem]", {
+      type: "number",
+    });
+    othersSection.appendChild(oldAmt);
+
+    // NEW Amount
+    const newAmt = createEl("input", "col-span-1 border border-blue-500 focus:border-yellow-500 bg-green-50 rounded-md px-2 py-1 text-sm text-right min-h-[2rem]", {
+      type: "number",
+    });
+    othersSection.appendChild(newAmt);
+  }
+</script>

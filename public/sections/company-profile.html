@@ -1,0 +1,714 @@
+<style>
+  @keyframes grow-up {
+    0% { height: 0; bottom: 0; }
+    100% { height: 100%; bottom: 0; }
+  }
+  @keyframes grow-down {
+    0% { height: 0; top: 0; }
+    100% { height: 100%; top: 0; }
+  }
+  @keyframes expand {
+    0% { width: 0; left: 50%; transform: translate(-50%, -50%); }
+    100% { width: 100%; left: 0; transform: translateY(-50%); }
+  }
+  .animate-grow-up {
+    animation: grow-up 0.6s ease-in-out infinite alternate;
+    position: absolute;
+    bottom: 0;
+  }
+  .animate-grow-down {
+    animation: grow-down 0.6s ease-in-out infinite alternate;
+    position: absolute;
+    top: 0;
+  }
+  .animate-expand {
+    animation: expand 0.6s ease-in-out infinite alternate;
+  }
+</style>
+
+<div class="max-w-6xl mx-auto p-6">
+  <!-- Profile Header -->
+  <div class="flex flex-wrap gap-2 items-center justify-between space-x-4 mb-6">
+    <!-- Image with WhatsApp-style hover overlay -->
+    <div class="relative group w-13 h-14">
+      <img id="companyLogo" src="" alt="Logo" class="w-13 h-14 bg-red rounded-[50%] object-contain">
+      <div class="absolute inset-0 bg-black bg-opacity-50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer" onclick="document.getElementById('logoUpload').click()">
+        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+      </div>
+      <input type="file" id="logoUpload" accept="image/*" class="hidden" onchange="handleLogoUpload(event)">
+    </div>
+    <div>
+      <h1 class="text-2xl font-bold text-gray-800">Nigerian Navy (Naval Headquarters)</h1>
+      <p class="text-gray-500">System File Information</p>
+    </div>
+    <button id="toggleEdit" class="ml-auto px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700">
+      Edit
+    </button>
+  </div>
+
+  <!-- Info Grid -->
+  <form id="systemForm" class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+
+    <!-- Code -->
+    <div class="bg-white shadow rounded-lg p-4 hover:shadow-md transition">
+      <dt class="text-sm font-medium text-gray-500">Code</dt>
+      <dd id="codeDisplay" class="text-lg font-semibold text-gray-800">Loading...</dd>
+      <input id="codeInput" name="comp_code" type="text"
+             class="hidden w-full border rounded px-2 py-1 mt-2" />
+    </div>
+
+    <!-- Town -->
+    <div class="bg-white shadow rounded-lg p-4 hover:shadow-md transition">
+      <dt class="text-sm font-medium text-gray-500">Town</dt>
+      <dd id="townDisplay" class="text-lg font-semibold text-gray-800">Loading...</dd>
+      <input id="townInput" name="town" type="text"
+             class="hidden w-full border rounded px-2 py-1 mt-2" />
+    </div>
+
+    <!-- State -->
+    <div class="bg-white shadow rounded-lg p-4 hover:shadow-md transition">
+      <dt class="text-sm font-medium text-gray-500">State</dt>
+      <dd id="stateDisplay" class="text-lg font-semibold text-gray-800">Loading...</dd>
+      <input id="stateInput" name="state" type="text"
+             class="hidden w-full border rounded px-2 py-1 mt-2" />
+    </div>
+
+    <!-- Local-Government -->
+    <div class="bg-white shadow rounded-lg p-4 hover:shadow-md transition">
+      <dt class="text-sm font-medium text-gray-500">Local Government</dt>
+      <dd id="localGovDisplay" class="text-lg font-semibold text-gray-800">Loading...</dd>
+      <input id="localGovInput" name="lg" type="text"
+             class="hidden w-full border rounded px-2 py-1 mt-2" />
+    </div>
+
+    <!-- Country -->
+    <div class="bg-white shadow rounded-lg p-4 hover:shadow-md transition">
+      <dt class="text-sm font-medium text-gray-500">Country</dt>
+      <dd id="countryDisplay" class="text-lg font-semibold text-gray-800">Loading...</dd>
+      <input id="countryInput" name="country" type="text" value="Nigeria"
+             class="hidden w-full border rounded px-2 py-1 mt-2" />
+    </div>
+
+    <!-- PO BOX -->
+    <div class="bg-white shadow rounded-lg p-4 hover:shadow-md transition">
+      <dt class="text-sm font-medium text-gray-500">PO BOX</dt>
+      <dd id="poBoxDisplay" class="text-lg font-semibold text-gray-800">Loading...</dd>
+      <input id="poBoxInput" name="box" type="text"
+             class="hidden w-full border rounded px-2 py-1 mt-2" />
+    </div>
+
+    <!-- Phone -->
+    <div class="bg-white shadow rounded-lg p-4 hover:shadow-md transition">
+      <dt class="text-sm font-medium text-gray-500">Phone</dt>
+      <dd id="phoneDisplay" class="text-lg font-semibold text-gray-800">Loading...</dd>
+      <input id="phoneInput" name="tel" type="text"
+             class="hidden w-full border rounded px-2 py-1 mt-2" />
+    </div>
+
+    <!-- Email -->
+    <div class="bg-white shadow rounded-lg p-4 hover:shadow-md transition">
+      <dt class="text-sm font-medium text-gray-500">Email</dt>
+      <dd id="emailDisplay" class="text-lg font-semibold text-gray-800">Loading...</dd>
+      <input id="emailInput" name="email" type="email"
+             class="hidden w-full border rounded px-2 py-1 mt-2" />
+    </div>
+
+    <!-- Server Address -->
+    <div class="bg-white shadow rounded-lg p-4 hover:shadow-md transition">
+      <dt class="text-sm font-medium text-gray-500">Server Address</dt>
+      <dd id="serverAddressDisplay" class="text-lg font-semibold text-gray-800">Loading...</dd>
+      <input id="serverAddressInput" name="serveraddr" type="text"
+        class="hidden w-full border rounded px-2 py-1 mt-2" />
+    </div>
+
+    <!-- Email Password -->
+    <div class="bg-white shadow rounded-lg p-4 hover:shadow-md transition">
+      <dt class="text-sm font-medium text-gray-500">Email Password</dt>
+      <dd id="emailPasswordDisplay" class="text-lg font-semibold text-gray-800">********</dd>
+      <input id="emailPasswordInput" name="email_pword" type="password"
+             class="hidden w-full border rounded px-2 py-1 mt-2" />
+    </div>
+
+    <!-- Address -->
+    <div class="bg-white shadow rounded-lg p-4 hover:shadow-md transition md:col-span-2 lg:col-span-2">
+      <dt class="text-sm font-medium text-gray-500">Address</dt>
+      <dd id="addressDisplay" class="text-lg font-semibold text-gray-800">
+        Loading...
+      </dd>
+      <textarea id="addressInput" name="Address" rows="3"
+                class="hidden w-full border rounded px-2 py-1 mt-2 resize-none"></textarea>
+    </div>
+
+    <div class="grid md:grid-cols-3 lg:grid-cols-5 gap-4 md:col-span-2 lg:col-span-3">
+      <!-- Salary Scale -->
+      <div class="bg-white shadow rounded-lg p-4 hover:shadow-md transition">
+        <dt class="text-sm font-medium text-gray-500">Shall Use Standard Salary Scale?</dt>
+        <dd id="salaryScaleDisplay" class="text-lg font-semibold text-gray-800">Loading...</dd>
+        <select id="salaryScaleInput" name="salaryscale" class="hidden w-full border rounded px-2 py-1 mt-2">
+          <option value="Yes">YES</option>
+          <option value="No">NO</option>
+        </select>
+      </div>
+
+      <!-- Independent Monthly Tax -->
+      <div class="bg-white shadow rounded-lg p-4 hover:shadow-md transition">
+        <dt class="text-sm font-medium text-gray-500">Independent Monthly Tax</dt>
+        <dd id="independentMonthlyTaxDisplay" class="text-lg font-semibold text-gray-800">Loading...</dd>
+        <select id="independentMonthlyTaxInput" name="mthly_tax" class="hidden w-full border rounded px-2 py-1 mt-2">
+          <option value="Yes">YES</option>
+          <option value="No">NO</option>
+        </select>
+      </div>
+
+      <!-- Link To Human Resources -->
+      <div class="bg-white shadow rounded-lg p-4 hover:shadow-md transition">
+        <dt class="text-sm font-medium text-gray-500">Linked To Human Resources</dt>
+        <dd id="linkToHRDisplay" class="text-lg font-semibold text-gray-800">Loading...</dd>
+        <select id="linkToHRInput" name="hrlink" class="hidden w-full border rounded px-2 py-1 mt-2">
+          <option value="Yes">YES</option>
+          <option value="No">NO</option>
+        </select>
+      </div>
+
+      <!-- Processing Month -->
+      <div class="bg-white shadow rounded-lg p-4 hover:shadow-md transition">
+        <dt class="text-sm font-medium text-gray-500">Processing Month</dt>
+        <dd id="processingMonthDisplay" class="text-lg font-semibold text-gray-800">Loading...</dd>
+        <input id="processingMonthInput" name="processmonth" type="number" min="1" max="12"
+              class="hidden w-full border rounded px-2 py-1 mt-2" />
+      </div>
+
+      <!-- Processing Year -->
+      <div class="bg-white shadow rounded-lg p-4 hover:shadow-md transition">
+        <dt class="text-sm font-medium text-gray-500">Processing Year</dt>
+        <dd id="processingYearDisplay" class="text-lg font-semibold text-gray-800">Loading...</dd>
+        <input id="processingYearInput" name="Processyear" type="number"
+              class="hidden w-full border rounded px-2 py-1 mt-2" />
+      </div>
+    </div>
+
+    <div class="grid md:grid-cols-1 lg:grid-cols-1 gap-4 md:col-span-2 lg:col-span-1">
+
+      <!-- Retirement Age -->
+      <div class="bg-white shadow rounded-lg p-4 hover:shadow-md transition">
+        <dt class="text-sm font-medium text-gray-500">Retirement Age</dt>
+        <dd id="retirementAgeDisplay" class="text-lg font-semibold text-gray-800">Loading...</dd>
+        <input id="retirementAgeInput" name="retireage" type="number"
+              class="hidden w-full border rounded px-2 py-1 mt-2" />
+      </div>
+
+      <!-- Installation Date -->
+      <div class="bg-white shadow rounded-lg p-4 hover:shadow-md transition">
+        <dt class="text-sm font-medium text-gray-500">Installation Date</dt>
+        <dd id="installationDateDisplay" class="text-lg font-semibold text-gray-800">Loading...</dd>
+      </div>
+    </div>
+
+    <!-- Notes -->
+    <div class="bg-white shadow rounded-lg p-4 hover:shadow-md transition md:col-span-2 lg:col-span-2">
+      <dt class="text-sm font-medium text-gray-500">Notes</dt>
+      <dd id="notesDisplay" class="text-lg font-semibold text-gray-800">
+        Loading...
+      </dd>
+      <textarea id="notesInput" name="notes" rows="3"
+        class="hidden w-full border rounded px-2 py-1 mt-2 resize-none"></textarea>
+    </div>
+  </form>
+
+  <!-- Action Buttons -->
+  <div id="formActions" class="hidden mt-6 flex justify-end space-x-2">
+    <button type="button" id="cancelBtn"
+            class="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400">
+      Cancel
+    </button>
+    <button type="submit" form="systemForm"
+            class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+      Save
+    </button>
+  </div>
+</div>
+
+<!-- Success Modal -->
+<div id="successModal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
+  <div class="bg-white rounded-lg shadow-lg p-6 flex flex-col items-center">
+    <!-- Replace this spinner -->
+    <div class="relative w-10 h-10 mx-auto mb-4">
+      <div class="absolute left-1 w-[6px] bg-blue-600 rounded animate-grow-up"></div>
+      <div class="absolute right-1 w-[6px] bg-blue-600 rounded animate-grow-down [animation-delay:0.3s]"></div>
+      <div class="absolute top-1/2 left-1 h-[6px] bg-blue-600 rounded animate-expand [animation-delay:0.6s] -translate-y-1/2"></div>
+    </div>
+    <p class="mt-4 text-gray-700">Saving changes...</p>
+  </div>
+</div>
+
+<script>
+  const auth = window.authService;
+  const toggleEditBtn = document.getElementById("toggleEdit");
+  const form = document.getElementById("systemForm");
+  const formActions = document.getElementById("formActions");
+  const successModal = document.getElementById("successModal");
+  const cancelBtn = document.getElementById("cancelBtn");
+
+  let isEditing = false;
+  let currentSystemId = null;
+  let originalData = {};
+  let pendingLogoUpload = null;
+
+  const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  
+  // Image compression function
+  function compressImage(file, maxWidth, maxHeight, quality) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      
+      reader.onload = (e) => {
+        const img = new Image();
+        
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+
+          // Calculate new dimensions
+          if (width > height) {
+            if (width > maxWidth) {
+              height *= maxWidth / width;
+              width = maxWidth;
+            }
+          } else {
+            if (height > maxHeight) {
+              width *= maxHeight / height;
+              height = maxHeight;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+
+          // Convert to base64 with compression
+          const base64 = canvas.toDataURL('image/jpeg', quality).split(',')[1];
+          resolve(base64);
+        };
+
+        img.onerror = reject;
+        img.src = e.target.result;
+      };
+
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  // Update handleLogoUpload to use compression
+  window.handleLogoUpload = async function(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file');
+      return;
+    }
+
+    // Validate file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      alert('Image size must be less than 2MB');
+      return;
+    }
+
+    try {
+      // Compress and convert to base64
+      const compressedBase64 = await compressImage(file, 500, 500, 0.85);
+
+      // Preview image
+      document.getElementById('companyLogo').src = 'data:image/jpeg;base64,' + compressedBase64;
+
+      // Auto-save the logo
+      await saveLogoToServer(compressedBase64);
+    } catch (error) {
+      console.error('Error processing image:', error);
+      alert('Failed to process image');
+    }
+  }
+
+  // Clean data before sending to server (convert empty strings to null for numeric fields)
+  function cleanDataForUpdate(data) {
+    const cleanedData = { ...data };
+    const numericFields = ['processmonth', 'Processyear', 'retireage', 'serverport'];
+    
+    numericFields.forEach(field => {
+      if (cleanedData[field] === '' || cleanedData[field] === null || cleanedData[field] === undefined) {
+        cleanedData[field] = null;
+      }
+    });
+    
+    return cleanedData;
+  }
+
+  // Save logo to server
+  async function saveLogoToServer(base64Image) {
+    if (!currentSystemId) {
+      alert('System not loaded yet');
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      
+      // Fetch current data from server to ensure we have the latest values
+      const fetchResponse = await auth.fetchWithAuth(`/company/paysystem/${currentSystemId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const fetchResult = await fetchResponse.json();
+
+      if (!fetchResult.success || !fetchResult.data) {
+        throw new Error('Failed to fetch current system data');
+      }
+
+      // Merge logo update with fresh data from server
+      let updateData = {
+        ...fetchResult.data,
+        company_image: base64Image
+      };
+      
+      // Remove Id from the update data as it shouldn't be modified
+      delete updateData.Id;
+      delete updateData.datecreated; // Don't update creation date
+      
+      // Clean the data to handle empty numeric fields
+      updateData = cleanDataForUpdate(updateData);
+      
+      const response = await auth.fetchWithAuth(`/company/paysystem/${currentSystemId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(updateData)
+      });
+
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to upload logo');
+      }
+
+      // Update originalData to reflect the new logo
+      originalData.company_image = base64Image;
+
+      // Show success notification
+      const notification = document.createElement('div');
+      notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+      notification.textContent = 'Logo updated successfully!';
+      document.body.appendChild(notification);
+
+      setTimeout(() => {
+        notification.remove();
+      }, 3000);
+
+    } catch (error) {
+      console.error('Error uploading logo:', error);
+      alert('Failed to upload logo: ' + error.message);
+      // Restore original logo
+      loadCompanyLogo();
+    }
+  }
+
+  // Load company logo
+  async function loadCompanyLogo() {
+    if (!currentSystemId) return;
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await auth.fetchWithAuth(`/company/paysystem/${currentSystemId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const result = await response.json();
+      const logoImg = document.getElementById('companyLogo');
+
+      if (result.success && result.data && result.data.company_image) {
+        const companyImage = result.data.company_image;
+        
+        // Handle different possible formats
+        if (typeof companyImage === 'string') {
+          // If it already has the data URL prefix
+          if (companyImage.startsWith('data:image')) {
+            logoImg.src = companyImage;
+          } else {
+            // It's just the base64 string
+            logoImg.src = `data:image/jpeg;base64,${companyImage}`;
+          }
+        } else if (companyImage && typeof companyImage === 'object') {
+          // If it's a Buffer object, convert it
+          console.warn('company_image is an object (likely Buffer), converting...');
+          
+          // Try to convert Buffer to base64
+          if (companyImage.type === 'Buffer' && Array.isArray(companyImage.data)) {
+            const base64 = btoa(String.fromCharCode(...companyImage.data));
+            logoImg.src = `data:image/jpeg;base64,${base64}`;
+          } else {
+            console.error('Unknown object format for company_image');
+            setDefaultLogo(logoImg);
+          }
+        } else {
+          setDefaultLogo(logoImg);
+        }
+      } else {
+        setDefaultLogo(logoImg);
+      }
+    } catch (error) {
+      console.error('Error loading logo:', error);
+      setDefaultLogo(document.getElementById('companyLogo'));
+    }
+  }
+
+  // Helper function to set default logo
+  function setDefaultLogo(imgElement) {
+    imgElement.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"%3E%3Crect width="200" height="200" fill="%23e5e7eb"/%3E%3Ctext x="100" y="100" text-anchor="middle" dy=".3em" fill="%239ca3af" font-size="60" font-weight="bold"%3ELOGO%3C/text%3E%3C/svg%3E';
+  }
+
+  // Load system data on page load
+  async function loadSystemData() {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await auth.fetchWithAuth('/company/paysystem', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const result = await response.json();
+
+      if (!result.success || !result.data || result.data.length === 0) {
+        console.warn('No system data found');
+        return;
+      }
+
+      // Get the first record (assuming single system setup)
+      const data = result.data[0];
+      currentSystemId = data.Id;
+      originalData = { ...data };
+
+      // Load company logo
+      await loadCompanyLogo();
+
+      // Populate display fields
+      document.getElementById('codeDisplay').textContent = data.comp_code || 'N/A';
+      document.getElementById('townDisplay').textContent = data.town || 'N/A';
+      document.getElementById('stateDisplay').textContent = data.state || 'N/A';
+      document.getElementById('localGovDisplay').textContent = data.lg || 'N/A';
+      document.getElementById('countryDisplay').textContent = 'Nigeria';
+      document.getElementById('poBoxDisplay').textContent = data.box || 'N/A';
+      document.getElementById('phoneDisplay').textContent = data.tel || 'N/A';
+      document.getElementById('emailDisplay').textContent = data.email || 'N/A';
+      document.getElementById('serverAddressDisplay').textContent = data.serveraddr || 'N/A';
+      document.getElementById('addressDisplay').textContent = data.Address || 'N/A';
+      document.getElementById('salaryScaleDisplay').textContent = data.salaryscale || 'N/A';
+      document.getElementById('independentMonthlyTaxDisplay').textContent = data.mthly_tax || 'N/A';
+      document.getElementById('linkToHRDisplay').textContent = data.hrlink || 'N/A';
+      document.getElementById('processingMonthDisplay').textContent = data.processmonth ? monthNames[data.processmonth - 1] : 'N/A';
+      document.getElementById('processingYearDisplay').textContent = data.Processyear || 'N/A';
+      document.getElementById('retirementAgeDisplay').textContent = data.retireage || 'N/A';
+      document.getElementById('notesDisplay').textContent = data.notes || 'N/A';
+
+      // Format installation date
+      if (data.datecreated) {
+        const date = new Date(data.datecreated);
+        document.getElementById('installationDateDisplay').textContent = 
+          date.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      }
+
+      // Populate input fields
+      document.getElementById('codeInput').value = data.comp_code || '';
+      document.getElementById('townInput').value = data.town || '';
+      document.getElementById('stateInput').value = data.state || '';
+      document.getElementById('localGovInput').value = data.lg || '';
+      document.getElementById('countryInput').value = 'Nigeria';
+      document.getElementById('poBoxInput').value = data.box || '';
+      document.getElementById('phoneInput').value = data.tel || '';
+      document.getElementById('emailInput').value = data.email || '';
+      document.getElementById('serverAddressInput').value = data.serveraddr || '';
+      document.getElementById('emailPasswordInput').value = data.email_pword || '';
+      document.getElementById('addressInput').value = data.Address || '';
+      document.getElementById('salaryScaleInput').value = data.salaryscale || 'Yes';
+      document.getElementById('independentMonthlyTaxInput').value = data.mthly_tax || 'Yes';
+      document.getElementById('linkToHRInput').value = data.hrlink || 'Yes';
+      document.getElementById('processingMonthInput').value = data.processmonth || '';
+      document.getElementById('processingYearInput').value = data.Processyear || '';
+      document.getElementById('retirementAgeInput').value = data.retireage || '';
+      document.getElementById('notesInput').value = data.notes || '';
+
+    } catch (error) {
+      console.error('Error loading system data:', error);
+      alert('Failed to load system information');
+    }
+  }
+
+  // Load data on page load
+  loadSystemData();
+
+  toggleEditBtn.onclick = () => {
+    isEditing = !isEditing;
+    toggleEditBtn.textContent = isEditing ? "Editing..." : "Edit";
+    formActions.classList.toggle("hidden", !isEditing);
+
+    form.querySelectorAll("dd").forEach(el => el.classList.toggle("hidden", isEditing));
+    form.querySelectorAll("input, textarea, select").forEach(el => el.classList.toggle("hidden", !isEditing));
+  };
+
+  cancelBtn.onclick = () => {
+    isEditing = false;
+    toggleEditBtn.textContent = "Edit";
+    formActions.classList.add("hidden");
+    form.querySelectorAll("dd").forEach(el => el.classList.remove("hidden"));
+    form.querySelectorAll("input, textarea, select").forEach(el => el.classList.add("hidden"));
+    
+    // Restore original values
+    loadSystemData();
+  };
+
+  // Auto-grow textarea
+  form.querySelectorAll("textarea").forEach(area => {
+    area.addEventListener("input", () => {
+      area.style.height = "auto";
+      area.style.height = area.scrollHeight + "px";
+    });
+  });
+
+  form.onsubmit = async (e) => {
+    e.preventDefault();
+
+    successModal.classList.remove("hidden");
+
+    try {
+      const token = localStorage.getItem('token');
+      
+      // Fetch current data from server to preserve image and other fields
+      const fetchResponse = await auth.fetchWithAuth(`/company/paysystem/${currentSystemId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const fetchResult = await fetchResponse.json();
+
+      if (!fetchResult.success || !fetchResult.data) {
+        throw new Error('Failed to fetch current system data');
+      }
+
+      const formData = new FormData(form);
+      let formValues = Object.fromEntries(formData.entries());
+      
+      // Merge form values with fresh data, preserving image and system fields
+      let data = {
+        ...fetchResult.data,
+        ...formValues
+      };
+      
+      // Remove fields that shouldn't be modified
+      delete data.Id;
+      delete data.datecreated;
+      
+      // Clean the data to handle empty numeric fields
+      data = cleanDataForUpdate(data);
+
+      const response = await auth.fetchWithAuth(`/company/paysystem/${currentSystemId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(data)
+      });
+
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to save changes');
+      }
+
+      setTimeout(() => {
+        successModal.innerHTML = `
+          <div class="bg-white rounded-lg shadow-lg p-6 flex flex-col items-center">
+            <div class="relative w-10 h-10 mx-auto mb-4">
+              <div class="absolute left-1 w-[6px] bg-blue-600 rounded animate-grow-up"></div>
+              <div class="absolute right-1 w-[6px] bg-blue-600 rounded animate-grow-down [animation-delay:0.3s]"></div>
+              <div class="absolute top-1/2 left-1 h-[6px] bg-blue-600 rounded animate-expand [animation-delay:0.6s] -translate-y-1/2"></div>
+            </div>
+            <p class="mt-4 text-green-600 font-semibold">Changes Saved!</p>
+          </div>`;
+
+        // Update display fields
+        form.querySelectorAll("input, textarea, select").forEach(input => {
+          const display = document.getElementById(input.id.replace("Input","Display"));
+          if (display) {
+            if (input.name === 'processmonth') {
+              display.textContent = monthNames[parseInt(input.value) - 1] || input.value;
+            } else if (input.type === 'password') {
+              display.textContent = '********';
+            } else {
+              display.textContent = input.value || 'N/A';
+            }
+          }
+        });
+
+        setTimeout(() => {
+          successModal.classList.add("hidden");
+          successModal.innerHTML = `
+              <div class="bg-white rounded-lg shadow-lg p-6 flex flex-col items-center">
+                <!-- Replace this spinner -->
+                <div class="relative w-10 h-10 mx-auto mb-4">
+                  <div class="absolute left-1 w-[6px] bg-blue-600 rounded animate-grow-up"></div>
+                  <div class="absolute right-1 w-[6px] bg-blue-600 rounded animate-grow-down [animation-delay:0.3s]"></div>
+                  <div class="absolute top-1/2 left-1 h-[6px] bg-blue-600 rounded animate-expand [animation-delay:0.6s] -translate-y-1/2"></div>
+                </div>
+                <p class="mt-4 text-gray-700">Saving changes...</p>
+              </div>`;
+          toggleEditBtn.textContent = "Edit";
+          isEditing = false;
+          formActions.classList.add("hidden");
+          form.querySelectorAll("dd").forEach(el => el.classList.remove("hidden"));
+          form.querySelectorAll("input, textarea, select").forEach(el => el.classList.add("hidden"));
+        }, 1500);
+      }, 1200);
+
+    } catch (error) {
+      console.error('Error saving system data:', error);
+      successModal.innerHTML = `
+        <div class="bg-white rounded-lg shadow-lg p-6 flex flex-col items-center">
+          <div class="relative w-10 h-10 mx-auto mb-4">
+            <div class="absolute left-1 w-[6px] bg-blue-600 rounded animate-grow-up"></div>
+            <div class="absolute right-1 w-[6px] bg-blue-600 rounded animate-grow-down [animation-delay:0.3s]"></div>
+            <div class="absolute top-1/2 left-1 h-[6px] bg-blue-600 rounded animate-expand [animation-delay:0.6s] -translate-y-1/2"></div>
+          </div>
+          <p class="mt-4 text-red-600 font-semibold">Failed to save changes!</p>
+          <p class="text-sm text-gray-600">${error.message}</p>
+        </div>`;
+
+      setTimeout(() => {
+        successModal.classList.add("hidden");
+        successModal.innerHTML = `
+          <div class="bg-white rounded-lg shadow-lg p-6 flex flex-col items-center">
+            <div class="relative w-10 h-10 mx-auto mb-4">
+              <div class="absolute left-1 w-[6px] bg-blue-600 rounded animate-grow-up"></div>
+              <div class="absolute right-1 w-[6px] bg-blue-600 rounded animate-grow-down [animation-delay:0.3s]"></div>
+              <div class="absolute top-1/2 left-1 h-[6px] bg-blue-600 rounded animate-expand [animation-delay:0.6s] -translate-y-1/2"></div>
+            </div>
+            <p class="mt-4 text-gray-700">Saving changes...</p>
+          </div>`;
+      }, 3000);
+    }
+  };
+</script>

@@ -1,0 +1,1183 @@
+<style>
+  @keyframes grow-up {
+    0% { height: 0; bottom: 0; }
+    100% { height: 100%; bottom: 0; }
+  }
+  @keyframes grow-down {
+    0% { height: 0; top: 0; }
+    100% { height: 100%; top: 0; }
+  }
+  @keyframes expand {
+    0% { width: 0; left: 50%; transform: translate(-50%, -50%); }
+    100% { width: 100%; left: 0; transform: translateY(-50%); }
+  }
+  .animate-grow-up {
+    animation: grow-up 0.6s ease-in-out infinite alternate;
+    position: absolute;
+    bottom: 0;
+  }
+  .animate-grow-down {
+    animation: grow-down 0.6s ease-in-out infinite alternate;
+    position: absolute;
+    top: 0;
+  }
+  .animate-expand {
+    animation: expand 0.6s ease-in-out infinite alternate;
+  }
+</style>
+
+
+
+<div class="p-6 max-w-4xl mx-auto">
+  <h2 class="text-2xl font-semibold text-blue-800">
+    Select migration type and assign personnel to a new payroll class.
+  </h2>
+
+  <div class="space-y-2">
+    <!-- Migration Type Selection -->
+    <div class="p-4 flex items-center space-x-6">
+      <h3 class="font-semibold text-gray-700">Migration Type</h3>
+
+      <label class="flex items-center space-x-2 cursor-pointer">
+        <input type="radio" name="migrationType" value="individual" checked
+          class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+        <span class="text-gray-700">Individual Personnel</span>
+      </label>
+
+      <label class="flex items-center space-x-2 cursor-pointer">
+        <input type="radio" name="migrationType" value="all" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+        <span class="text-gray-700">All Personnel (Bulk Migration)</span>
+      </label>
+
+      <label class="flex items-center space-x-2 cursor-pointer">
+        <input type="radio" name="migrationType" value="range" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+        <span class="text-gray-700">Range of Personnel</span>
+      </label>
+    </div>
+
+
+    <form id="changesForm" class="space-y-4">
+      <!-- Individual Form -->
+      <div id="individualForm" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="relative">
+          <input type="text" id="searchInput"
+            class="w-full border border-blue-500 focus:border-yellow-500 bg-transparent rounded-md px-3 py-2"
+            placeholder="Search by Name or Number..." autocomplete="off">
+          <input type="hidden" id="hiddenInput">
+          <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </span>
+
+          <div id="dropdownList"
+            class="absolute z-10 w-full mt-1 bg-yellow-50 border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto hidden">
+            <div class="py-1">
+              <div class="px-3 py-2 text-center text-gray-500">Click to load employees...</div>
+            </div>
+          </div>
+        </div>
+
+        <select name="newClass" id="newClass"
+          class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+          <option value="">Select Payroll Class</option>
+        </select>
+
+        <div></div>
+      </div>
+
+      <!-- Bulk Migration Form -->
+      <div id="bulkForm" class="hidden grid grid-cols-1 md:grid-cols-2 gap-4">
+        <select name="bulkNewClass" id="bulkNewClass"
+          class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+          <option value="">Select Target Payroll Class</option>
+        </select>
+      </div>
+
+      <!-- Range Form -->
+      <div id="rangeForm" class="hidden grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="relative">
+          <input type="text" id="rangeSearchInputStart"
+            class="w-full border border-blue-500 focus:border-yellow-500 bg-transparent rounded-md px-3 py-2"
+            placeholder="From: Search personnel..." autocomplete="off">
+          <input type="hidden" id="rangeHiddenInputStart">
+          <div id="rangeDropdownListStart"
+            class="absolute z-10 w-full mt-1 bg-yellow-50 border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto hidden">
+            <div class="py-1">
+              <div class="px-3 py-2 text-center text-gray-500">Click to load employees...</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="relative">
+          <input type="text" id="rangeSearchInputEnd"
+            class="w-full border border-blue-500 focus:border-yellow-500 bg-transparent rounded-md px-3 py-2"
+            placeholder="To: Search personnel..." autocomplete="off">
+          <input type="hidden" id="rangeHiddenInputEnd">
+          <div id="rangeDropdownListEnd"
+            class="absolute z-10 w-full mt-1 bg-yellow-50 border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto hidden">
+            <div class="py-1">
+              <div class="px-3 py-2 text-center text-gray-500">Click to load employees...</div>
+            </div>
+          </div>
+        </div>
+
+        <select name="rangeNewClass" id="rangeNewClass"
+          class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+          <option value="">Select Payroll Class</option>
+        </select>
+      </div>
+
+      <div class="flex flex-wrap justify-between items-start">
+        <!-- Selection Display -->
+        <div id="selectionDisplay" class="hidden">
+          <h3 class="font-semibold text-gray-700">Current Selection:</h3>
+          <p id="selectionText" class="text-gray-600"></p>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex gap-2 justify-end">
+          <button type="button" id="changeButton"
+            class="px-6 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed">
+            Migrate Personnel
+          </button>
+
+          <button type="button" id="clearButton"
+            class="px-6 py-2 bg-gray-300 rounded-lg shadow hover:bg-gray-400 transition">
+            Clear
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Selection Display -->
+  <div id="selectionDisplay" class="mt-6 p-4 rounded-lg hidden">
+    <h3 class="font-semibold text-gray-700 mb-2">Current Selection:</h3>
+    <p id="selectionText" class="text-gray-600"></p>
+  </div>
+
+  <!-- Payroll Class Statistics -->
+  <div class="p-6 max-w-4xl mx-auto my-6">
+    <h2 class="text-xl font-bold text-gray-800 mb-4">Payroll Class Statistics</h2>
+    <div id="classCards" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <div class="col-span-full text-center py-8">
+        <div class="relative w-10 h-10 mx-auto mb-4">
+          <div class="absolute left-1 w-[6px] bg-blue-600 rounded animate-grow-up"></div>
+          <div class="absolute right-1 w-[6px] bg-blue-600 rounded animate-grow-down [animation-delay:0.3s]"></div>
+          <div
+            class="absolute top-1/2 left-1 h-[6px] bg-blue-600 rounded animate-expand [animation-delay:0.6s] -translate-y-1/2">
+          </div>
+        </div>
+        <p class="text-gray-500 mt-2">Loading statistics...</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Modal -->
+<div id="confirmModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg shadow-lg w-96 p-6">
+    <h2 class="text-lg font-semibold text-gray-800 mb-4">Confirm Payroll Class Migration</h2>
+    <p id="confirmMessage" class="text-gray-600 mb-4"></p>
+    <div class="bg-yellow-50 border border-yellow-200 rounded-md p-3 mb-4">
+      <p class="text-sm text-yellow-800">
+        <strong>⚠️ Warning:</strong> This will move all personnel data to the new Payroll Class. This action cannot be
+        undone.
+      </p>
+    </div>
+    <div class="flex justify-end gap-3">
+      <button id="cancelConfirm" class="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500">Cancel</button>
+      <button id="okConfirm" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Proceed</button>
+    </div>
+  </div>
+</div>
+
+<!-- Migration Progress Modal -->
+<div id="migrationModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg shadow-2xl w-full max-w-2xl max-h-screen overflow-hidden">
+    <!-- Header -->
+    <div class="bg-navy text-white px-6 py-4">
+      <h2 class="text-xl font-bold">Payroll Class Migration Progress</h2>
+      <p class="text-sm text-blue-100 mt-1" id="migrationSubtitle">Migrating personnel between payroll classes...</p>
+    </div>
+
+    <!-- Progress Container -->
+    <div class="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
+      <!-- Overall Progress Bar -->
+      <div class="mb-6">
+        <div class="flex justify-between text-sm text-gray-600 mb-2">
+          <span>Overall Progress</span>
+          <span id="overallProgress">0%</span>
+        </div>
+        <div class="w-full bg-gray-200 rounded-full h-3">
+          <div id="overallProgressBar" class="bg-blue-600 h-3 rounded-full transition-all duration-300"
+            style="width: 0%"></div>
+        </div>
+      </div>
+
+      <!-- Migration Steps -->
+      <div class="space-y-3" id="migrationSteps">
+        <!-- Steps will be dynamically added here -->
+      </div>
+
+      <!-- Summary Section (hidden initially) -->
+      <div id="migrationSummary" class="hidden mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+        <h3 class="font-semibold text-gray-800 mb-3">Migration Summary</h3>
+        <div class="space-y-2 text-sm">
+          <div class="flex justify-between">
+            <span class="text-gray-600">Service No:</span>
+            <span class="font-medium" id="summaryEmployeeId">-</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600">Personnel Name:</span>
+            <span class="font-medium" id="summaryEmployeeName">-</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600">From Payroll Class:</span>
+            <span class="font-medium" id="summaryFromDb">-</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600">To Payroll Class:</span>
+            <span class="font-medium" id="summaryToDb">-</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600">Records Migrated:</span>
+            <span class="font-medium" id="summaryRecordCount">-</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600">Duration:</span>
+            <span class="font-medium" id="summaryDuration">-</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="flex flex-wrap justify-center items-center border-t border-gray-200 px-6 py-4 bg-gray-50">
+      <button id="closeMigration"
+        class="hidden w-fit px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+        Close
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Error Modal -->
+<div id="errorModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg shadow-lg w-96 p-6">
+    <div class="flex items-center gap-3 mb-4">
+      <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+        <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </div>
+      <h2 class="text-lg font-semibold text-red-600">Error</h2>
+    </div>
+    <p id="errorMessage" class="text-gray-600 mb-6"></p>
+    <div class="flex justify-end">
+      <button id="closeError" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const auth = window.authService;
+  const API_BASE = '/payroll-change';
+  const token = localStorage.getItem('token');
+
+  // State management
+  let allEmployees = [];
+  let payrollClasses = {};
+  let selectedEmployee = null;
+  let selectedStartEmployee = null;
+  let selectedEndEmployee = null;
+  let currentClass = null;
+  let newClass = null;
+  let migrationType = 'individual';
+  let isLoading = false;
+  let migrationStartTime = null;
+
+  // Dropdown Managemant
+  let currentPage = 0;
+  const pageSize = 50;
+  let totalEmployeeCount = 0;
+  let isLoadingMore = false;
+  let searchTimeout;
+
+  // DOM elements
+  const migrationTypeRadios = document.querySelectorAll('input[name="migrationType"]');
+  const individualForm = document.getElementById('individualForm');
+  const bulkForm = document.getElementById('bulkForm');
+  const rangeForm = document.getElementById('rangeForm');
+
+  const searchInput = document.getElementById('searchInput');
+  const hiddenInput = document.getElementById('hiddenInput');
+  const dropdownList = document.getElementById('dropdownList');
+  const newClassSelect = document.getElementById('newClass');
+
+  const bulkNewClassSelect = document.getElementById('bulkNewClass');
+
+  const rangeSearchInputStart = document.getElementById('rangeSearchInputStart');
+  const rangeHiddenInputStart = document.getElementById('rangeHiddenInputStart');
+  const rangeDropdownListStart = document.getElementById('rangeDropdownListStart');
+  const rangeSearchInputEnd = document.getElementById('rangeSearchInputEnd');
+  const rangeHiddenInputEnd = document.getElementById('rangeHiddenInputEnd');
+  const rangeDropdownListEnd = document.getElementById('rangeDropdownListEnd');
+  const rangeNewClassSelect = document.getElementById('rangeNewClass');
+
+  // Scroll Listeners
+  setupScrollListener(dropdownList);
+  setupScrollListener(rangeDropdownListStart);
+  setupScrollListener(rangeDropdownListEnd);
+
+  const selectionDisplay = document.getElementById('selectionDisplay');
+  const selectionText = document.getElementById('selectionText');
+  const changeButton = document.getElementById('changeButton');
+
+  // Switch between forms based on migration type
+  migrationTypeRadios.forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      migrationType = e.target.value;
+
+      individualForm.classList.add('hidden');
+      bulkForm.classList.add('hidden');
+      rangeForm.classList.add('hidden');
+      selectionDisplay.classList.add('hidden');
+
+      if (migrationType === 'individual') {
+        individualForm.classList.remove('hidden');
+      } else if (migrationType === 'all') {
+        bulkForm.classList.remove('hidden');
+      } else if (migrationType === 'range') {
+        rangeForm.classList.remove('hidden');
+      }
+
+      // Reset selections
+      clearForm();
+    });
+  });
+
+  // API helper
+  async function apiRequest(url, options = {}) {
+    try {
+      const response = await auth.fetchWithAuth(url, {
+        ...options,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+          ...options.headers
+        }
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || data.message || `HTTP ${response.status}`);
+      }
+
+      return data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // Show error modal
+  function showError(message) {
+    document.getElementById('errorMessage').textContent = message;
+    document.getElementById('errorModal').classList.remove('hidden');
+  }
+
+  document.getElementById('closeError').addEventListener('click', () => {
+    document.getElementById('errorModal').classList.add('hidden');
+  });
+
+  // Migration Modal Functions (keep from original code)
+  function showMigrationModal() {
+    migrationStartTime = Date.now();
+    document.getElementById('migrationModal').classList.remove('hidden');
+    document.getElementById('migrationSteps').innerHTML = '';
+    document.getElementById('overallProgressBar').style.width = '0%';
+    document.getElementById('overallProgress').textContent = '0%';
+    document.getElementById('migrationSummary').classList.add('hidden');
+    document.getElementById('closeMigration').classList.add('hidden');
+  }
+
+  function addMigrationStep(title, status = 'pending') {
+    const step = document.createElement('div');
+    step.className = 'flex items-start gap-3 p-3 rounded-lg border transition-all';
+    step.id = `step-${Date.now()}-${Math.random()}`;
+
+    const icons = {
+      pending: '<div class="w-6 h-6 border-2 border-gray-300 rounded-full"></div>',
+      processing: `
+      <div class="relative w-10 h-10 mx-auto mb-4">
+        <div class="absolute left-1 w-[6px] bg-blue-600 rounded animate-grow-up"></div>
+        <div class="absolute right-1 w-[6px] bg-blue-600 rounded animate-grow-down [animation-delay:0.3s]"></div>
+        <div class="absolute top-1/2 left-1 h-[6px] bg-blue-600 rounded animate-expand [animation-delay:0.6s] -translate-y-1/2"></div>
+      </div>`,
+      success: '<div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center"><svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div>',
+      error: '<div class="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center"><svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></div>'
+    };
+
+    const colors = {
+      pending: 'border-gray-200 bg-white',
+      processing: 'border-blue-200 bg-blue-50',
+      success: 'border-green-200 bg-green-50',
+      error: 'border-red-200 bg-red-50'
+    };
+
+    step.className += ` ${colors[status]}`;
+    step.innerHTML = `
+    <div class="flex-shrink-0 mt-0.5">${icons[status]}</div>
+    <div class="flex-1">
+      <p class="font-medium text-gray-800">${title}</p>
+      <p class="text-sm text-gray-500 mt-1 step-detail hidden"></p>
+    </div>
+  `;
+
+    document.getElementById('migrationSteps').appendChild(step);
+    return step.id;
+  }
+
+  function updateMigrationStep(stepId, status, detail = '') {
+    const step = document.getElementById(stepId);
+    if (!step) return;
+
+    const icons = {
+      pending: '<div class="w-6 h-6 border-2 border-gray-300 rounded-full"></div>',
+      processing: `
+        <div class="relative w-10 h-10 mx-auto mb-4">
+          <div class="absolute left-1 w-[6px] bg-blue-600 rounded animate-grow-up"></div>
+          <div class="absolute right-1 w-[6px] bg-blue-600 rounded animate-grow-down [animation-delay:0.3s]"></div>
+          <div class="absolute top-1/2 left-1 h-[6px] bg-blue-600 rounded animate-expand [animation-delay:0.6s] -translate-y-1/2"></div>
+        </div>
+      `,
+      success: '<div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center"><svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div>',
+      error: '<div class="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center"><svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></div>'
+    };
+
+    const colors = {
+      pending: 'border-gray-200 bg-white',
+      processing: 'border-blue-200 bg-blue-50',
+      success: 'border-green-200 bg-green-50',
+      error: 'border-red-200 bg-red-50'
+    };
+
+    step.className = `flex items-start gap-3 p-3 rounded-lg border transition-all ${colors[status]}`;
+    step.querySelector('.flex-shrink-0').innerHTML = icons[status];
+
+    if (detail) {
+      const detailEl = step.querySelector('.step-detail');
+      detailEl.textContent = detail;
+      detailEl.classList.remove('hidden');
+    }
+  }
+
+  function updateOverallProgress(percent) {
+    document.getElementById('overallProgressBar').style.width = `${percent}%`;
+    document.getElementById('overallProgress').textContent = `${Math.round(percent)}%`;
+  }
+
+  function showMigrationSummary(data) {
+    const duration = ((Date.now() - migrationStartTime) / 1000).toFixed(1);
+
+    document.getElementById('summaryEmployeeId').textContent = data.Empl_ID || data.Range || 'Multiple';
+    document.getElementById('summaryEmployeeName').textContent = data.Name || `${data.TotalEmployees} employees`;
+    document.getElementById('summaryFromDb').textContent = data.SourceDatabaseName || data.SourceDatabase;
+    document.getElementById('summaryToDb').textContent = data.TargetDatabaseName || data.TargetDatabase;
+    document.getElementById('summaryRecordCount').textContent = data.RecordsCopied || data.TotalRecordsMigrated || 'N/A';
+    document.getElementById('summaryDuration').textContent = `${duration}s`;
+
+    document.getElementById('migrationSummary').classList.remove('hidden');
+    document.getElementById('closeMigration').classList.remove('hidden');
+  }
+
+  // Load Personnel
+  async function loadPersonnel(append = false) {
+    if (isLoading || isLoadingMore) return;
+
+    if (append) {
+      isLoadingMore = true;
+    } else {
+      isLoading = true;
+      currentPage = 0;
+      allEmployees = [];
+    }
+
+    const loadingHTML = `
+    <div class="py-1">
+      <div class="px-3 py-4 text-center text-gray-500">
+        <div class="relative w-7 h-7 mx-auto mb-2">
+          <div class="absolute left-1 w-[3px] bg-gray-500 rounded animate-grow-up"></div>
+          <div class="absolute right-1 w-[3px] bg-gray-500 rounded animate-grow-down [animation-delay:0.3s]"></div>
+          <div class="absolute top-1/2 left-1 h-[3px] bg-gray-500 rounded animate-expand [animation-delay:0.6s] -translate-y-1/2"></div>
+        </div>
+        ${append ? 'Loading more...' : 'Loading employees...'}
+      </div>
+    </div>
+  `;
+
+    if (!append) {
+      dropdownList.innerHTML = loadingHTML;
+      rangeDropdownListStart.innerHTML = loadingHTML;
+      rangeDropdownListEnd.innerHTML = loadingHTML;
+    }
+
+    try {
+      const offset = currentPage * pageSize;
+      const result = await apiRequest(`${API_BASE}/active-employees?limit=${pageSize}&offset=${offset}`);
+      const newEmployees = result.data || result.employees || result.results || [];
+      totalEmployeeCount = result.total || newEmployees.length;
+
+      if (append) {
+        allEmployees = [...allEmployees, ...newEmployees];
+      } else {
+        allEmployees = newEmployees;
+      }
+
+      if (allEmployees.length === 0) {
+        const noDataHTML = '<div class="py-1"><div class="px-3 py-4 text-center text-gray-500">No employees found</div></div>';
+        dropdownList.innerHTML = noDataHTML;
+        rangeDropdownListStart.innerHTML = noDataHTML;
+        rangeDropdownListEnd.innerHTML = noDataHTML;
+      } else {
+        renderDropdown(allEmployees, dropdownList);
+        renderDropdown(allEmployees, rangeDropdownListStart, 'start');
+        renderDropdown(allEmployees, rangeDropdownListEnd, 'end');
+      }
+
+      currentPage++;
+
+    } catch (error) {
+      console.error('Error fetching employees:', error);
+      const errorHTML = `<div class="py-1"><div class="px-3 py-4 text-center text-red-500">Failed to load employees<br><span class="text-xs">${error.message}</span></div></div>`;
+      dropdownList.innerHTML = errorHTML;
+      rangeDropdownListStart.innerHTML = errorHTML;
+      rangeDropdownListEnd.innerHTML = errorHTML;
+    } finally {
+      isLoading = false;
+      isLoadingMore = false;
+    }
+  }
+
+  function setupScrollListener(container) {
+    container.addEventListener('scroll', function () {
+      const scrollPercentage = (this.scrollTop + this.clientHeight) / this.scrollHeight;
+
+      // Load more when user scrolls to 80% of the list
+      if (scrollPercentage > 0.8 && !isLoadingMore && allEmployees.length < totalEmployeeCount) {
+        loadPersonnel(true);
+      }
+    });
+  }
+
+  function renderDropdown(employees, container, type = 'individual') {
+    if (!employees || employees.length === 0) {
+      container.innerHTML = '<div class="py-1"><div class="px-3 py-4 text-center text-gray-500">No employees found</div></div>';
+      return;
+    }
+
+    const html = employees.map(emp => {
+      const id = emp.Empl_ID || emp.EMPL_ID || emp.id || 'N/A';
+      const surname = emp.Surname || emp.surname || '';
+      const otherName = emp.OtherName || emp.otherName || '';
+      const name = `${surname} ${otherName}`.trim() || emp.name || 'Unknown';
+      const payrollClass = emp.payrollclass || emp.PayrollClass || emp.PAYROLLCLASS || '';
+
+      return `
+      <div class="dropdown-item px-3 py-2 hover:bg-blue-50 cursor-pointer border-b border-gray-100" 
+           data-value="${id}" 
+           data-name="${name}"
+           data-class="${payrollClass}"
+           data-type="${type}">
+        <span class="font-semibold text-blue-600">${id}</span> - ${name}
+      </div>
+    `;
+    }).join('');
+
+    container.innerHTML = `<div class="py-1">${html}</div>`;
+    attachDropdownHandlers(container, type);
+  }
+
+  function attachDropdownHandlers(container, type) {
+    const dropdownItems = container.querySelectorAll('.dropdown-item');
+
+    dropdownItems.forEach(item => {
+      item.addEventListener('click', function () {
+        const id = this.getAttribute('data-value');
+        const name = this.getAttribute('data-name');
+        const payrollClass = this.getAttribute('data-class');
+        const text = this.textContent.trim();
+
+        const employee = allEmployees.find(emp =>
+          (emp.Empl_ID || emp.EMPL_ID || emp.id) === id
+        );
+
+        const actualClass = employee ? (
+          employee.payrollclass ||
+          employee.PayrollClass ||
+          employee.PAYROLLCLASS ||
+          payrollClass ||
+          null
+        ) : payrollClass;
+
+        if (type === 'individual') {
+          selectedEmployee = {
+            Empl_ID: id,
+            Fullname: name,
+            PayrollClass: actualClass
+          };
+          currentClass = actualClass;
+          searchInput.value = text;
+          hiddenInput.value = id;
+          dropdownList.classList.add('hidden');
+
+          const currentClassName = getClassName(currentClass);
+          selectionDisplay.classList.remove('hidden');
+          selectionText.textContent = `Selected personnel ${id} (${name}) is on ${currentClassName}`;
+
+          if (currentClass) {
+            newClassSelect.value = currentClass;
+          }
+        } else if (type === 'start') {
+          selectedStartEmployee = {
+            Empl_ID: id,
+            Fullname: name,
+            PayrollClass: actualClass
+          };
+          rangeSearchInputStart.value = text;
+          rangeHiddenInputStart.value = id;
+          rangeDropdownListStart.classList.add('hidden');
+          updateRangeSelection();
+        } else if (type === 'end') {
+          selectedEndEmployee = {
+            Empl_ID: id,
+            Fullname: name,
+            PayrollClass: actualClass
+          };
+          rangeSearchInputEnd.value = text;
+          rangeHiddenInputEnd.value = id;
+          rangeDropdownListEnd.classList.add('hidden');
+          updateRangeSelection();
+        }
+      });
+    });
+  }
+
+  function updateRangeSelection() {
+    if (selectedStartEmployee && selectedEndEmployee) {
+      selectionDisplay.classList.remove('hidden');
+      selectionText.textContent = `Range: ${selectedStartEmployee.Empl_ID} to ${selectedEndEmployee.Empl_ID}`;
+    }
+  }
+
+  function filterDropdown(searchText, container, type) {
+    clearTimeout(searchTimeout);
+
+    searchTimeout = setTimeout(async () => {
+      const searchTerm = searchText.trim();
+
+      if (!searchTerm) {
+        // If search is cleared, reload initial data
+        await loadPersonnel(false);
+        container.classList.remove('hidden');
+      } else {
+        // Perform server-side search
+        await searchEmployees(searchTerm, container, type);
+      }
+    }, 300); // Debounce for 300ms
+  }
+
+  async function searchEmployees(searchTerm, container, type) {
+    try {
+      container.innerHTML = `
+      <div class="py-1">
+        <div class="px-3 py-4 text-center text-gray-500">
+          <div class="relative w-7 h-7 mx-auto mb-2">
+            <div class="absolute left-1 w-[3px] bg-gray-500 rounded animate-grow-up"></div>
+            <div class="absolute right-1 w-[3px] bg-gray-500 rounded animate-grow-down [animation-delay:0.3s]"></div>
+            <div class="absolute top-1/2 left-1 h-[3px] bg-gray-500 rounded animate-expand [animation-delay:0.6s] -translate-y-1/2"></div>
+          </div>
+          Searching...
+        </div>
+      </div>
+    `;
+
+      const result = await apiRequest(`${API_BASE}/active-employees?limit=100&offset=0&search=${encodeURIComponent(searchTerm)}`);
+      const employees = result.data || [];
+
+      renderDropdown(employees, container, type);
+      container.classList.remove('hidden');
+
+    } catch (error) {
+      console.error('Error searching employees:', error);
+      container.innerHTML = `
+      <div class="py-1">
+        <div class="px-3 py-4 text-center text-red-500">
+          Search failed<br><span class="text-xs">${error.message}</span>
+        </div>
+      </div>
+    `;
+    }
+  }
+
+  async function loadPayrollClasses() {
+    try {
+      const result = await apiRequest(`/payroll-setup`);
+      const classes = result.data || [];
+
+      const optionHTML = '<option value="">Select Payroll Class</option>';
+      newClassSelect.innerHTML = optionHTML;
+      bulkNewClassSelect.innerHTML = optionHTML.replace('Select', 'Select Target');
+      rangeNewClassSelect.innerHTML = optionHTML;
+
+      classes.forEach(cls => {
+        const option = `<option value="${cls.classcode}">${cls.classname ? `${cls.classcode} - ${cls.classname}` : cls.classcode}</option>`;
+        newClassSelect.innerHTML += option;
+        bulkNewClassSelect.innerHTML += option;
+        rangeNewClassSelect.innerHTML += option;
+
+        payrollClasses[cls.classcode] = {
+          classname: cls.classname || cls.classcode
+        };
+      });
+
+    } catch (error) {
+      console.error('Error loading payroll classes:', error);
+    }
+  }
+
+  async function loadClassStatistics() {
+    try {
+      const result = await apiRequest(`${API_BASE}/payroll-class-stats`);
+      const stats = result.data || {};
+
+      Object.keys(payrollClasses).forEach(code => {
+        if (payrollClasses[code]) {
+          payrollClasses[code].count = 0;
+        }
+      });
+
+      Object.entries(stats).forEach(([code, data]) => {
+        if (payrollClasses[code]) {
+          payrollClasses[code].count = data.count;
+        } else {
+          payrollClasses[code] = data;
+        }
+      });
+
+      renderClassCards();
+    } catch (error) {
+      console.error('Error loading class statistics:', error);
+      renderClassCards();
+    }
+  }
+
+  function renderClassCards() {
+    const container = document.getElementById('classCards');
+
+    if (Object.keys(payrollClasses).length === 0) {
+      container.innerHTML = '<p class="text-gray-500 col-span-full text-center">No statistics available</p>';
+      return;
+    }
+
+    const classesWithPersonnel = Object.entries(payrollClasses).filter(([code, data]) => {
+      const count = data.count || 0;
+      return count > 0;
+    });
+
+    if (classesWithPersonnel.length === 0) {
+      container.innerHTML = '<p class="text-gray-500 col-span-full text-center">No personnel assigned to any class</p>';
+      return;
+    }
+
+    container.innerHTML = classesWithPersonnel.map(([code, data]) => `
+    <div class="border border-gray-200 rounded-lg p-4 text-center shadow-sm hover:shadow-md transition">
+      <h3 class="font-semibold text-blue-600">${data.classname || code}</h3>
+      <p class="text-sm text-gray-600 mt-1">${data.count} Personnel</p>
+    </div>
+  `).join('');
+  }
+
+  function getClassName(code) {
+    if (!code || code === 'N/A' || code === '' || code === null) return 'Not Assigned';
+    const cls = payrollClasses[code];
+    if (!cls) return code;
+    return cls.classname || code;
+  }
+
+  // Event Listeners
+  newClassSelect.addEventListener('change', () => {
+    newClass = newClassSelect.value;
+    if (selectedEmployee && newClass) {
+      const name = selectedEmployee.Fullname || '';
+      const fromName = getClassName(currentClass);
+      const toName = getClassName(newClass);
+      selectionText.textContent = `Migrate ${selectedEmployee.Empl_ID} (${name}) from ${fromName} to ${toName}`;
+    }
+  });
+
+  bulkNewClassSelect.addEventListener('change', () => {
+    newClass = bulkNewClassSelect.value;
+    if (newClass) {
+      const toName = getClassName(newClass);
+      selectionDisplay.classList.remove('hidden');
+      selectionText.textContent = `⚠️ This will migrate ALL personnel to ${toName}`;
+    }
+  });
+
+  rangeNewClassSelect.addEventListener('change', () => {
+    newClass = rangeNewClassSelect.value;
+    updateRangeSelection();
+  });
+
+  // Individual search
+  searchInput.addEventListener('input', function () {
+    const searchText = this.value.trim();
+
+    // Only show dropdown if user has typed something
+    if (searchText.length === 0) {
+      dropdownList.classList.add('hidden');
+      return;
+    }
+
+    if (allEmployees.length === 0) {
+      loadPersonnel().then(() => {
+        filterDropdown(searchText.toLowerCase(), dropdownList, 'individual');
+      });
+    } else {
+      filterDropdown(searchText.toLowerCase(), dropdownList, 'individual');
+    }
+  });
+
+  searchInput.addEventListener('input', function () {
+    const searchText = this.value.toLowerCase();
+
+    if (allEmployees.length === 0) {
+      loadPersonnel().then(() => {
+        filterDropdown(searchText, dropdownList, 'individual');
+      });
+    } else {
+      filterDropdown(searchText, dropdownList, 'individual');
+    }
+  });
+
+  // Range searches
+  rangeSearchInputStart.addEventListener('input', function () {
+    const searchText = this.value.trim();
+
+    if (searchText.length === 0) {
+      rangeDropdownListStart.classList.add('hidden');
+      return;
+    }
+
+    if (allEmployees.length === 0) {
+      loadPersonnel().then(() => {
+        filterDropdown(searchText.toLowerCase(), rangeDropdownListStart, 'start');
+      });
+    } else {
+      filterDropdown(searchText.toLowerCase(), rangeDropdownListStart, 'start');
+    }
+  });
+
+  rangeSearchInputStart.addEventListener('input', function () {
+    filterDropdown(this.value.toLowerCase(), rangeDropdownListStart, 'start');
+  });
+
+  rangeSearchInputEnd.addEventListener('input', function () {
+    const searchText = this.value.trim();
+
+    if (searchText.length === 0) {
+      rangeDropdownListEnd.classList.add('hidden');
+      return;
+    }
+
+    if (allEmployees.length === 0) {
+      loadPersonnel().then(() => {
+        filterDropdown(searchText.toLowerCase(), rangeDropdownListEnd, 'end');
+      });
+    } else {
+      filterDropdown(searchText.toLowerCase(), rangeDropdownListEnd, 'end');
+    }
+  });
+
+  rangeSearchInputEnd.addEventListener('input', function () {
+    filterDropdown(this.value.toLowerCase(), rangeDropdownListEnd, 'end');
+  });
+
+  // Close dropdowns on outside click
+  document.addEventListener('click', function (e) {
+    if (!searchInput.contains(e.target) && !dropdownList.contains(e.target)) {
+      dropdownList.classList.add('hidden');
+    }
+    if (!rangeSearchInputStart.contains(e.target) && !rangeDropdownListStart.contains(e.target)) {
+      rangeDropdownListStart.classList.add('hidden');
+    }
+    if (!rangeSearchInputEnd.contains(e.target) && !rangeDropdownListEnd.contains(e.target)) {
+      rangeDropdownListEnd.classList.add('hidden');
+    }
+  });
+
+  // Change Button Handler
+  changeButton.addEventListener('click', async () => {
+    if (migrationType === 'individual') {
+      await handleIndividualMigration();
+    } else if (migrationType === 'all') {
+      await handleBulkMigration();
+    } else if (migrationType === 'range') {
+      await handleRangeMigration();
+    }
+  });
+
+  // Individual Migration
+  async function handleIndividualMigration() {
+    if (!selectedEmployee || !newClass) {
+      showError('Please select both personnel and new payroll class.');
+      return;
+    }
+    if (currentClass === newClass) {
+      showError('Personnel is already in the selected class.');
+      return;
+    }
+
+    const name = selectedEmployee.Fullname || '';
+    const fromName = getClassName(currentClass);
+    const toName = getClassName(newClass);
+
+    document.getElementById('confirmMessage').textContent =
+      `Migrate ${selectedEmployee.Empl_ID} (${name}) from ${fromName} to ${toName}?`;
+    document.getElementById('confirmModal').classList.remove('hidden');
+  }
+
+  // Bulk Migration
+  async function handleBulkMigration() {
+    newClass = bulkNewClassSelect.value;
+
+    if (!newClass) {
+      showError('Please select target payroll class.');
+      return;
+    }
+    const fromName = getClassName(currentClass);
+    const toName = getClassName(newClass);
+    document.getElementById('confirmMessage').textContent =
+      `This will migrate ALL personnel in this payroll class to ${toName}. Continue?`;
+    document.getElementById('confirmModal').classList.remove('hidden');
+  }
+
+  // Range Migration
+  async function handleRangeMigration() {
+    newClass = rangeNewClassSelect.value;
+
+    if (!selectedStartEmployee || !selectedEndEmployee || !newClass) {
+      showError('Please select start employee, end employee, and target payroll class.');
+      return;
+    }
+
+    const toName = getClassName(newClass);
+    document.getElementById('confirmMessage').textContent =
+      `Migrate personnel between ${selectedStartEmployee.Empl_ID} and ${selectedEndEmployee.Empl_ID} to ${toName}?`;
+    document.getElementById('confirmModal').classList.remove('hidden');
+  }
+
+  // Confirm Modal Handlers
+  document.getElementById('cancelConfirm').addEventListener('click', () => {
+    document.getElementById('confirmModal').classList.add('hidden');
+  });
+
+  document.getElementById('okConfirm').addEventListener('click', async () => {
+    document.getElementById('confirmModal').classList.add('hidden');
+
+    if (migrationType === 'individual') {
+      await executeIndividualMigration();
+    } else if (migrationType === 'all') {
+      await executeBulkMigration();
+    } else if (migrationType === 'range') {
+      await executeRangeMigration();
+    }
+  });
+
+  // Execute Individual Migration
+  async function executeIndividualMigration() {
+    showMigrationModal();
+
+    try {
+      const step1 = addMigrationStep('Verifying personnel...', 'processing');
+      updateOverallProgress(20);
+      await new Promise(resolve => setTimeout(resolve, 500));
+      updateMigrationStep(step1, 'success', `Personnel ${selectedEmployee.Empl_ID} verified`);
+
+      const step2 = addMigrationStep('Migrating employee record...', 'processing');
+      updateOverallProgress(40);
+
+      const result = await apiRequest(`${API_BASE}/payroll-class`, {
+        method: 'POST',
+        body: JSON.stringify({
+          Empl_ID: selectedEmployee.Empl_ID,
+          PayrollClass: newClass
+        })
+      });
+
+      updateOverallProgress(80);
+      updateMigrationStep(step2, 'success', 'Employee record migrated');
+
+      const step3 = addMigrationStep('Finalizing...', 'processing');
+      updateOverallProgress(100);
+      await new Promise(resolve => setTimeout(resolve, 500));
+      updateMigrationStep(step3, 'success', 'Migration completed');
+
+      showMigrationSummary(result.data);
+
+      document.getElementById('migrationSubtitle').textContent = '✅ Migration completed successfully!';
+      document.getElementById('migrationSubtitle').classList.add('text-green-200');
+
+      await loadClassStatistics();
+      allEmployees = [];
+      clearForm();
+
+    } catch (error) {
+      console.error('Migration error:', error);
+      const errorStep = addMigrationStep('Migration failed', 'error');
+      updateMigrationStep(errorStep, 'error', error.message);
+
+      document.getElementById('migrationSubtitle').textContent = '❌ Migration failed';
+      document.getElementById('closeMigration').classList.remove('hidden');
+      showError(`Migration failed: ${error.message}`);
+    }
+  }
+
+  // Execute Bulk Migration
+  async function executeBulkMigration() {
+    showMigrationModal();
+
+    try {
+      const step1 = addMigrationStep('Starting bulk migration...', 'processing');
+      updateOverallProgress(10);
+      await new Promise(resolve => setTimeout(resolve, 500));
+      updateMigrationStep(step1, 'success', 'Bulk migration initiated');
+
+      const step2 = addMigrationStep('Migrating all personnel...', 'processing');
+      updateOverallProgress(30);
+
+      const result = await apiRequest(`${API_BASE}/payroll-class/bulk`, {
+        method: 'POST',
+        body: JSON.stringify({
+          TargetPayrollClass: newClass
+        })
+      });
+
+      updateOverallProgress(90);
+      updateMigrationStep(step2, 'success', `${result.data.SuccessfulMigrations} personnel migrated`);
+
+      const step3 = addMigrationStep('Finalizing...', 'processing');
+      updateOverallProgress(100);
+      await new Promise(resolve => setTimeout(resolve, 500));
+      updateMigrationStep(step3, 'success', 'Bulk migration completed');
+
+      showMigrationSummary(result.data);
+
+      document.getElementById('migrationSubtitle').textContent = '✅ Bulk migration completed!';
+      document.getElementById('migrationSubtitle').classList.add('text-green-200');
+
+      await loadClassStatistics();
+      allEmployees = [];
+      clearForm();
+
+    } catch (error) {
+      console.error('Bulk migration error:', error);
+      const errorStep = addMigrationStep('Bulk migration failed', 'error');
+      updateMigrationStep(errorStep, 'error', error.message);
+
+      document.getElementById('closeMigration').classList.remove('hidden');
+      showError(`Bulk migration failed: ${error.message}`);
+    }
+  }
+
+  // Execute Range Migration
+  async function executeRangeMigration() {
+    showMigrationModal();
+
+    try {
+      const step1 = addMigrationStep('Starting range migration...', 'processing');
+      updateOverallProgress(10);
+      await new Promise(resolve => setTimeout(resolve, 500));
+      updateMigrationStep(step1, 'success', `Range: ${selectedStartEmployee.Empl_ID} to ${selectedEndEmployee.Empl_ID}`);
+
+      const step2 = addMigrationStep('Migrating personnel in range...', 'processing');
+      updateOverallProgress(30);
+
+      const result = await apiRequest(`${API_BASE}/payroll-class/range`, {
+        method: 'POST',
+        body: JSON.stringify({
+          StartEmpl_ID: selectedStartEmployee.Empl_ID,
+          EndEmpl_ID: selectedEndEmployee.Empl_ID,
+          TargetPayrollClass: newClass
+        })
+      });
+
+      updateOverallProgress(90);
+      updateMigrationStep(step2, 'success', `${result.data.SuccessfulMigrations} personnel migrated`);
+
+      const step3 = addMigrationStep('Finalizing...', 'processing');
+      updateOverallProgress(100);
+      await new Promise(resolve => setTimeout(resolve, 500));
+      updateMigrationStep(step3, 'success', 'Range migration completed');
+
+      showMigrationSummary(result.data);
+
+      document.getElementById('migrationSubtitle').textContent = '✅ Range migration completed!';
+      document.getElementById('migrationSubtitle').classList.add('text-green-200');
+
+      await loadClassStatistics();
+      allEmployees = [];
+      clearForm();
+
+    } catch (error) {
+      console.error('Range migration error:', error);
+      const errorStep = addMigrationStep('Range migration failed', 'error');
+      updateMigrationStep(errorStep, 'error', error.message);
+
+      document.getElementById('closeMigration').classList.remove('hidden');
+      showError(`Range migration failed: ${error.message}`);
+    }
+  }
+
+  // Clear Form
+  function clearForm() {
+    searchInput.value = '';
+    hiddenInput.value = '';
+    newClassSelect.value = '';
+    bulkNewClassSelect.value = '';
+    rangeSearchInputStart.value = '';
+    rangeHiddenInputStart.value = '';
+    rangeSearchInputEnd.value = '';
+    rangeHiddenInputEnd.value = '';
+    rangeNewClassSelect.value = '';
+    selectionDisplay.classList.add('hidden');
+    selectionText.textContent = '';
+    dropdownList.classList.add('hidden');
+    rangeDropdownListStart.classList.add('hidden');
+    rangeDropdownListEnd.classList.add('hidden');
+
+    selectedEmployee = null;
+    selectedStartEmployee = null;
+    selectedEndEmployee = null;
+    currentClass = null;
+    newClass = null;
+  }
+
+  document.getElementById('clearButton').addEventListener('click', clearForm);
+
+  document.getElementById('closeMigration').addEventListener('click', () => {
+    document.getElementById('migrationModal').classList.add('hidden');
+    document.getElementById('migrationSubtitle').classList.remove('text-green-200', 'text-red-200');
+  });
+
+  // Initialize
+  async function initialize() {
+    await loadPayrollClasses();
+    await loadClassStatistics();
+  }
+
+  initialize();
+</script>

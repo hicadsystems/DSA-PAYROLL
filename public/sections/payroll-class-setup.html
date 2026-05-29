@@ -1,0 +1,625 @@
+<!-- Payroll Class Setup -->
+ <style>
+  @keyframes grow-up {
+    0% { height: 0; bottom: 0; }
+    100% { height: 100%; bottom: 0; }
+  }
+  @keyframes grow-down {
+    0% { height: 0; top: 0; }
+    100% { height: 100%; top: 0; }
+  }
+  @keyframes expand {
+    0% { width: 0; left: 50%; transform: translate(-50%, -50%); }
+    100% { width: 100%; left: 0; transform: translateY(-50%); }
+  }
+  .animate-grow-up {
+    animation: grow-up 0.6s ease-in-out infinite alternate;
+    position: absolute;
+    bottom: 0;
+  }
+  .animate-grow-down {
+    animation: grow-down 0.6s ease-in-out infinite alternate;
+    position: absolute;
+    top: 0;
+  }
+  .animate-expand {
+    animation: expand 0.6s ease-in-out infinite alternate;
+  }
+</style>
+
+
+<div class="p-6">
+    <h2 class="text-2xl font-bold text-blue-800 mb-6">Add New Record</h2>
+
+    <!-- Form -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <input id="payrollCode" type="text" placeholder="Enter Code"
+            class="border bg-transparent border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500" />
+        <input id="payrollDesc" type="text" placeholder="Enter Description"
+            class="border bg-transparent border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500" />
+        <button id="addPayrollBtn"
+            class="px-6 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition">
+            Add Payroll Class
+        </button>
+    </div>
+
+    <!-- Table -->
+    <div class="overflow-x-auto">
+        <table class="min-w-full border border-gray-300 rounded-lg text-sm">
+            <thead class="bg-blue-100 text-blue-900">
+                <tr>
+                    <th class="py-2 px-4 border">CODE</th>
+                    <th class="py-2 px-4 border">DESCRIPTION</th>
+                    <th class="py-2 px-4 border">YEAR</th>
+                    <th class="py-2 px-4 border">MONTH</th>
+                    <th class="py-2 px-4 border">ACTIONS</th>
+                </tr>
+            </thead>
+            <tbody id="payrollTableBody" class="text-center">
+
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal"
+    class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center hidden">
+    <div class="bg-white rounded-lg shadow-lg p-6 w-96">
+        <h3 class="text-lg font-semibold mb-4 text-gray-800">Confirm Delete</h3>
+        <p class="text-gray-600 mb-6">Are you sure you want to delete this payroll class?</p>
+        <div class="flex justify-end space-x-3">
+            <button id="cancelDeleteBtn" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">Cancel</button>
+            <button id="confirmDeleteBtn"
+                class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Delete</button>
+        </div>
+    </div>
+</div>
+
+<!-- Success Modal -->
+<div id="successModal"
+    class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm hidden">
+    <div class="bg-white rounded-lg shadow-lg p-6 w-80 text-center">
+        <div id="spinner" class="relative w-10 h-10 mx-auto mb-4">
+            <div class="absolute left-1 w-[6px] bg-blue-600 rounded animate-grow-up"></div>
+            <div class="absolute right-1 w-[6px] bg-blue-600 rounded animate-grow-down [animation-delay:0.3s]"></div>
+            <div
+                class="absolute top-1/2 left-1 h-[6px] bg-blue-600 rounded animate-expand [animation-delay:0.6s] -translate-y-1/2">
+            </div>
+        </div>
+        <div id="checkmark" class="hidden mx-auto mb-4 text-green-600 text-4xl">✔</div>
+        <p id="successMessage" class="text-gray-800 font-medium">Processing...</p>
+    </div>
+</div>
+
+<script>
+    const auth = window.authService;
+    (function () {
+        // API functions
+        const API = {
+            // Get auth token from localStorage
+            getToken() {
+                return localStorage.getItem('token');
+            },
+
+            // Generic fetch helper with auth and error handling
+            async fetchWithAuth(url, options = {}) {
+                const token = this.getToken();
+                if (!token) {
+                    throw new Error('Authentication required');
+                }
+
+                const response = await auth.fetchWithAuth(url, {
+                    ...options,
+                    headers: {
+                        ...options.headers,
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'API request failed');
+                }
+
+                return response.json();
+            },
+
+            // GET /payroll-setup
+            async getAllClasses() {
+                return this.fetchWithAuth('/payroll-setup');
+            },
+
+            // POST /payroll-setup/create
+            async createClass(data) {
+                return this.fetchWithAuth('/payroll-setup/create', {
+                    method: 'POST',
+                    body: JSON.stringify(data)
+                });
+            },
+
+            // PUT /payroll-setup/:classcode
+            async updateClass(classcode, data) {
+                return this.fetchWithAuth(`/payroll-setup/${classcode}`, {
+                    method: 'PUT',
+                    body: JSON.stringify(data)
+                });
+            },
+
+            // DELETE /payroll-setup/:classcode
+            async deleteClass(classcode) {
+                return this.fetchWithAuth(`/payroll-setup/${classcode}`, {
+                    method: 'DELETE'
+                });
+            }
+        };
+
+        const addBtn = document.getElementById("addPayrollBtn");
+        const codeInput = document.getElementById("payrollCode");
+        const descInput = document.getElementById("payrollDesc");
+        //const yearInput = document.getElementById("payrollYear");
+        //const monthInput = document.getElementById("payrollMonth");
+        const tableBody = document.getElementById("payrollTableBody");
+
+        const deleteModal = document.getElementById("deleteModal");
+        const cancelDeleteBtn = document.getElementById("cancelDeleteBtn");
+        const confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
+
+        const successModal = document.getElementById("successModal");
+        const spinner = document.getElementById("spinner");
+        const checkmark = document.getElementById("checkmark");
+        const successMessage = document.getElementById("successMessage");
+
+        let rowToDelete = null;
+
+        // Month names array for conversion
+        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+        // Load existing payroll classes
+        async function loadPayrollClasses() {
+            try {
+                const response = await API.getAllClasses();
+                tableBody.innerHTML = ''; // Clear existing rows
+
+                response.data.forEach(item => {
+                    const monthName = monthNames[parseInt(item.month) - 1];
+                    tableBody.appendChild(createRow(item.classcode, item.classname, item.year, monthName, item.status));
+                });
+            } catch (error) {
+                handleError(error, 'loading payroll classes');
+            }
+        }
+
+        // Load data when page loads
+        loadPayrollClasses();
+
+        // Enhanced feedback system
+        function showSuccess(message) {
+            spinner.classList.remove("hidden");
+            checkmark.classList.add("hidden");
+            successMessage.textContent = "Processing...";
+            successMessage.className = "text-gray-800 font-medium";
+            successModal.classList.remove("hidden");
+
+            setTimeout(() => {
+                spinner.classList.add("hidden");
+                checkmark.classList.remove("hidden");
+                successMessage.textContent = message;
+            }, 1000);
+
+            setTimeout(() => {
+                successModal.classList.add("hidden");
+            }, 2500);
+        }
+
+        function showError(message) {
+            spinner.classList.add("hidden");
+            checkmark.classList.add("hidden");
+            successMessage.textContent = `Error: ${message}`;
+            successMessage.className = "text-red-600 font-medium";
+            successModal.classList.remove("hidden");
+
+            setTimeout(() => {
+                successModal.classList.add("hidden");
+            }, 3000);
+        }
+
+        // Replace plain alerts with the modal system
+        function handleError(error, context) {
+            console.error(`Error in ${context}:`, error);
+            showError(error.message || 'An unexpected error occurred');
+        }
+
+        function createRow(code, desc, year, month, status) {
+            const tr = document.createElement("tr");
+            tr.className = "hover:bg-gray-50";
+
+            const isActive = status.toLowerCase() === "active";
+
+            tr.innerHTML = `
+            <td class="border py-2 px-4">${code}</td>
+            <td class="border py-2 px-4">${desc}</td>
+            <td class="border py-2 px-4 text-gray-500">${year}</td>
+            <td class="border py-2 px-4 text-gray-500">${month}</td>
+            <td class="border py-2 px-4 space-x-2 text-center">
+                <button class="text-blue-600 hover:underline editBtn">Edit</button> |
+                <button class="text-red-600 hover:underline deleteBtn">Delete</button>
+                <button 
+                class="${status?.toLowerCase() === 'active'
+                    ? 'bg-green-500 hover:bg-green-600'
+                    : 'bg-red-500 hover:bg-red-600'} text-white px-3 py-1 rounded text-xs toggleBtn" 
+                data-status="${status?.toLowerCase()}">
+                ${status?.toLowerCase() === 'active' ? 'Active' : 'Inactive'}
+                </button>
+            </td>
+        `;
+
+            // =============== EDIT HANDLER (Updated) ==================
+            tr.querySelector(".editBtn").addEventListener("click", async (e) => {
+                const editBtn = e.target;
+                const codeCell = tr.children[0];
+                const descCell = tr.children[1];
+                const yearCell = tr.children[2];
+                const monthCell = tr.children[3];
+
+                if (editBtn.textContent === "Edit") {
+                    const currentCode = codeCell.textContent;
+                    const currentDesc = descCell.textContent;
+                    const currentYear = yearCell.textContent;
+                    const currentMonth = monthCell.textContent;
+
+                    codeCell.innerHTML = `<input type="text" value="${currentCode}" class="border px-2 py-1 rounded w-full" data-original-code="${currentCode}"/>`;
+                    descCell.innerHTML = `<input type="text" value="${currentDesc}" class="border px-2 py-1 rounded w-full"/>`;
+                    // Year and month are disabled (read-only with gray styling)
+                    yearCell.innerHTML = `<span class="text-gray-500">${currentYear}</span>`;
+                    monthCell.innerHTML = `<span class="text-gray-500">${currentMonth}</span>`;
+
+                    const codeInput = codeCell.querySelector("input");
+
+                    // Duplicate check on blur
+                    codeInput.addEventListener("blur", async () => {
+                        const newCode = codeInput.value.trim();
+                        const originalCode = codeInput.dataset.originalCode;
+
+                        if (newCode && newCode !== originalCode) {
+                            try {
+                                const response = await API.getAllClasses();
+                                const codeExists = response.data.some(item => item.classcode === newCode);
+
+                                if (codeExists) {
+                                    showError("Code already exists");
+                                    codeInput.value = originalCode;
+                                    codeInput.focus();
+                                }
+                            } catch (error) {
+                                console.error("Error checking code:", error);
+                            }
+                        }
+                    });
+
+                    // Enable Enter key for save
+                    const inputs = tr.querySelectorAll("input");
+                    inputs.forEach(input =>
+                        input.addEventListener("keydown", (ev) => {
+                            if (ev.key === "Enter") editBtn.click();
+                        })
+                    );
+
+                    editBtn.textContent = "Save";
+                } else {
+                    const codeInput = codeCell.querySelector("input");
+                    const newCode = codeInput.value.trim();
+                    const originalCode = codeInput.dataset.originalCode;
+                    const newDesc = descCell.querySelector("input").value.trim();
+
+                    if (!newCode || !newDesc) {
+                        showError("Code and Description are required");
+                        return;
+                    }
+
+                    // Validate code change
+                    if (newCode !== originalCode) {
+                        try {
+                            const response = await API.getAllClasses();
+                            const codeExists = response.data.some(item => item.classcode === newCode);
+                            if (codeExists) {
+                                showError("Code already exists");
+                                codeInput.focus();
+                                return;
+                            }
+                        } catch (error) {
+                            handleError(error, "validating code");
+                            return;
+                        }
+                    }
+
+                    try {
+                        // Only send code and description (no year/month)
+                        await API.updateClass(originalCode, {
+                            classcode: newCode,
+                            classname: newDesc
+                        });
+
+                        codeCell.textContent = newCode;
+                        descCell.textContent = newDesc;
+                        editBtn.textContent = "Edit";
+                        showSuccess("Updated Successfully");
+                    } catch (error) {
+                        handleError(error, "updating payroll class");
+                    }
+                }
+            });
+
+            // =============== DELETE HANDLER ==================
+            tr.querySelector(".deleteBtn").addEventListener("click", () => {
+                rowToDelete = tr;
+                deleteModal.classList.remove("hidden");
+            });
+
+            // =============== ACTIVE / INACTIVE TOGGLE ==================
+            tr.querySelector(".toggleBtn").addEventListener("click", async (e) => {
+                const btn = e.target;
+                const currentStatus = btn.dataset.status.toLowerCase();
+                const newStatus = currentStatus === "active" ? "inactive" : "active";
+
+                try {
+                    await API.updateClass(code, { status: newStatus }); // update backend
+
+                    // Update UI instantly
+                    btn.dataset.status = newStatus;
+
+                    if (newStatus === "active") {
+                        btn.textContent = "Active";
+                        btn.className = "bg-green-500 text-white px-3 py-1 rounded text-xs hover:bg-green-600 toggleBtn";
+                        showSuccess("Activated Successfully");
+                    } else {
+                        btn.textContent = "Inactive";
+                        btn.className = "bg-red-500 text-white px-3 py-1 rounded text-xs hover:bg-red-600 toggleBtn";
+                        showSuccess("Deactivated Successfully");
+                    }
+                } catch (error) {
+                    handleError(error, "updating status");
+                }
+            });
+
+            return tr;
+        }
+
+        // Add existing sample rows functionality
+        document.querySelectorAll('.editBtn').forEach((btn, index) => {
+            btn.addEventListener('click', async (e) => {
+                const tr = btn.closest('tr');
+                const editBtn = e.target;
+                const codeCell = tr.children[0];
+                const descCell = tr.children[1];
+                const yearCell = tr.children[2];
+                const monthCell = tr.children[3];
+
+                if (editBtn.textContent === "Edit") {
+                    const currentCode = codeCell.textContent;
+                    const currentDesc = descCell.textContent;
+                    const currentYear = yearCell.textContent;
+                    const currentMonthName = monthCell.textContent;
+
+                    // Convert month name back to code for editing
+                    const currentMonth = String(monthNames.indexOf(currentMonthName) + 1).padStart(2, '0');
+
+                    codeCell.innerHTML = `<input type="text" value="${currentCode}" class="border px-2 py-1 rounded w-full" data-original-code="${currentCode}"/>`;
+                    descCell.innerHTML = `<input type="text" value="${currentDesc}" class="border px-2 py-1 rounded w-full"/>`;
+                    yearCell.innerHTML = `<input type="text" value="${currentYear}" class="border px-2 py-1 rounded w-full"/>`;
+                    monthCell.innerHTML = `<select class="border px-2 py-1 rounded w-full">
+                      <option value="01" ${currentMonth === '01' ? 'selected' : ''}>January</option>
+                      <option value="02" ${currentMonth === '02' ? 'selected' : ''}>February</option>
+                      <option value="03" ${currentMonth === '03' ? 'selected' : ''}>March</option>
+                      <option value="04" ${currentMonth === '04' ? 'selected' : ''}>April</option>
+                      <option value="05" ${currentMonth === '05' ? 'selected' : ''}>May</option>
+                      <option value="06" ${currentMonth === '06' ? 'selected' : ''}>June</option>
+                      <option value="07" ${currentMonth === '07' ? 'selected' : ''}>July</option>
+                      <option value="08" ${currentMonth === '08' ? 'selected' : ''}>August</option>
+                      <option value="09" ${currentMonth === '09' ? 'selected' : ''}>September</option>
+                      <option value="10" ${currentMonth === '10' ? 'selected' : ''}>October</option>
+                      <option value="11" ${currentMonth === '11' ? 'selected' : ''}>November</option>
+                      <option value="12" ${currentMonth === '12' ? 'selected' : ''}>December</option>
+                  </select>`;
+
+                    const codeInput = codeCell.querySelector("input");
+
+                    // Add blur validation for code field
+                    codeInput.addEventListener("blur", async () => {
+                        const newCode = codeInput.value.trim();
+                        const originalCode = codeInput.dataset.originalCode;
+
+                        if (newCode && newCode !== originalCode) {
+                            try {
+                                const response = await API.getAllClasses();
+                                const codeExists = response.data.some(item => item.classcode === newCode);
+
+                                if (codeExists) {
+                                    showError("Code already exists");
+                                    codeInput.value = originalCode;
+                                    codeInput.focus();
+                                }
+                            } catch (error) {
+                                console.error('Error checking code:', error);
+                            }
+                        }
+                    });
+
+                    editBtn.textContent = "Save";
+                } else {
+                    const codeInput = codeCell.querySelector("input");
+                    const newCode = codeInput.value.trim();
+                    const originalCode = codeInput.dataset.originalCode;
+                    const newDesc = descCell.querySelector("input").value.trim();
+                    const newYear = yearCell.querySelector("input").value.trim();
+                    const newMonth = monthCell.querySelector("select").value;
+
+                    if (!newCode || !newDesc || !newYear || !newMonth) {
+                        showError("All fields are required");
+                        return;
+                    }
+
+                    // Check if code changed and validate
+                    if (newCode !== originalCode) {
+                        try {
+                            const response = await API.getAllClasses();
+                            const codeExists = response.data.some(item => item.classcode === newCode);
+
+                            if (codeExists) {
+                                showError("Code already exists");
+                                codeInput.focus();
+                                return;
+                            }
+                        } catch (error) {
+                            handleError(error, 'validating code');
+                            return;
+                        }
+                    }
+
+                    try {
+                        await API.updateClass(originalCode, {
+                            classcode: newCode,
+                            classname: newDesc,
+                            year: parseInt(newYear),
+                            month: parseInt(newMonth)
+                        });
+
+                        codeCell.textContent = newCode;
+                        descCell.textContent = newDesc;
+                        yearCell.textContent = newYear;
+                        monthCell.textContent = monthNames[parseInt(newMonth) - 1];
+
+                        editBtn.textContent = "Edit";
+                        showSuccess("Updated Successfully");
+                    } catch (error) {
+                        handleError(error, 'updating payroll class');
+                    }
+                }
+            });
+        });
+
+        // Delete functionality for sample rows
+        document.querySelectorAll('.deleteBtn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                rowToDelete = btn.closest('tr');
+                deleteModal.classList.remove("hidden");
+            });
+        });
+
+        // Toggle functionality for sample rows
+        document.querySelectorAll('.toggleBtn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const toggleBtn = e.target;
+                if (toggleBtn.dataset.status === "active") {
+                    toggleBtn.textContent = "Inactive";
+                    toggleBtn.className = "bg-red-500 text-white px-3 py-1 rounded text-xs hover:bg-red-600 toggleBtn";
+                    toggleBtn.dataset.status = "inactive";
+                    showSuccess("Deactivated Successfully");
+                } else {
+                    toggleBtn.textContent = "Active";
+                    toggleBtn.className = "bg-green-500 text-white px-3 py-1 rounded text-xs hover:bg-green-600 toggleBtn";
+                    toggleBtn.dataset.status = "active";
+                    showSuccess("Activated Successfully");
+                }
+            });
+        });
+
+        // ==================== CODE FIELD BLUR VALIDATION (for NEW record only) ====================
+        codeInput.addEventListener("blur", async () => {
+            const newCode = codeInput.value.trim();
+            if (!newCode) return; // ignore empty
+
+            try {
+                const response = await API.getAllClasses();
+                const codeExists = response.data.some(item => item.classcode === newCode);
+
+                if (codeExists) {
+                    showError("Code already exists");
+                    codeInput.focus();
+                }
+            } catch (error) {
+                console.error("Error checking code:", error);
+            }
+        });
+
+
+        // ==================== ADD NEW RECORD (Updated) ====================
+        addBtn.addEventListener("click", async () => {
+            const code = codeInput.value.trim();
+            const desc = descInput.value.trim();
+
+            // Basic validation (no year/month)
+            if (!code || !desc) {
+                showError("Please fill all fields");
+                return;
+            }
+
+            try {
+                // Check for duplicate
+                const response = await API.getAllClasses();
+                const codeExists = response.data.some(item => item.classcode === code);
+
+                if (codeExists) {
+                    showError("Code already exists");
+                    codeInput.focus();
+                    return;
+                }
+
+                // Create record without year/month (backend will get from py_stdrate)
+                await API.createClass({
+                    classcode: code,
+                    classname: desc
+                });
+
+                // Reload list
+                await loadPayrollClasses();
+                showSuccess("Added Successfully");
+
+                // Clear form
+                codeInput.value = "";
+                descInput.value = "";
+            } catch (error) {
+                handleError(error, 'adding payroll class');
+            }
+        });
+
+        // Cancel delete
+        cancelDeleteBtn.addEventListener("click", () => {
+            rowToDelete = null;
+            deleteModal.classList.add("hidden");
+        });
+
+        // Confirm delete
+        confirmDeleteBtn.addEventListener("click", async () => {
+            if (rowToDelete) {
+                try {
+                    const classcode = rowToDelete.children[0].textContent;
+                    await API.deleteClass(classcode);
+
+                    rowToDelete.remove();
+                    rowToDelete = null;
+                    deleteModal.classList.add("hidden");
+                    showSuccess("Deleted Successfully");
+                } catch (error) {
+                    handleError(error, 'deleting payroll class');
+                    deleteModal.classList.add("hidden");
+                }
+            }
+        });
+
+        // Close modals on outside click
+        deleteModal.addEventListener('click', (e) => {
+            if (e.target === deleteModal) {
+                deleteModal.classList.add("hidden");
+                rowToDelete = null;
+            }
+        });
+
+        successModal.addEventListener('click', (e) => {
+            if (e.target === successModal) {
+                successModal.classList.add("hidden");
+            }
+        });
+    })();
+</script>

@@ -1,0 +1,319 @@
+<style>
+  @keyframes grow-up {
+    0% {
+      height: 0;
+      bottom: 0;
+    }
+
+    100% {
+      height: 100%;
+      bottom: 0;
+    }
+  }
+
+  @keyframes grow-down {
+    0% {
+      height: 0;
+      top: 0;
+    }
+
+    100% {
+      height: 100%;
+      top: 0;
+    }
+  }
+
+  @keyframes expand {
+    0% {
+      width: 0;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    100% {
+      width: 100%;
+      left: 0;
+      transform: translateY(-50%);
+    }
+  }
+
+  .animate-grow-up {
+    animation: grow-up 0.6s ease-in-out infinite alternate;
+    position: absolute;
+    bottom: 0;
+  }
+
+  .animate-grow-down {
+    animation: grow-down 0.6s ease-in-out infinite alternate;
+    position: absolute;
+    top: 0;
+  }
+
+  .animate-expand {
+    animation: expand 0.6s ease-in-out infinite alternate;
+  }
+</style>
+
+<div class="p-6">
+  <div id="topActionBar" class="hidden mb-6 w-full flex justify-between items-center border-b-2 pb-4 no-print">
+    <h2 class="text-blue-600 font-semibold lg:text-lg"><i class="fas fa-info-circle mr-2"></i>First ensure you have
+      printed changes in personnel data</h2>
+    <button
+      onclick="window.navigation && window.navigation.navigateToSection && window.navigation.navigateToSection('changes-personnel-data', 'Changes in Personnel Data')"
+      class="px-6 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 transition"><i
+        class="fas fa-undo mr-2"></i>Personnel Changes</button>
+  </div>
+  <div id="notReadyMessage" class="hidden mb-6">
+    <div class="border-2 border-blue-300 rounded-lg p-8 text-center">
+      <i class="fas fa-lock text-blue-600 text-6xl mb-4"></i>
+      <h2 class="text-2xl font-bold text-blue-900 mb-3">Input Variable Report Not Available Yet</h2>
+      <p class="text-blue-800 text-lg mb-4">This section will become available once the personnel data changes are
+        printed.</p>
+      <p class="text-blue-700">Please complete all prior steps before accessing this report.</p>
+    </div>
+  </div>
+  <section id="mainSection" class="hidden">
+    <div id="sectionHeader" class="p-6">
+      <div class="flex items-center space-x-3 mb-4">
+        <div class="bg-yellow-500 text-white p-3 rounded-full shadow"><i class="fas fa-file-invoice text-2xl"></i></div>
+        <h2 class="text-2xl font-bold text-gray-900">Generate Input Variable Report</h2>
+      </div>
+    </div>
+    <div id="generateBtnContainer" class="flex justify-end space-x-4 pt-4">
+      <button id="generateBtn"
+        class="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white text-lg font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all"><i
+          class="fas fa-file-alt mr-2"></i>Generate</button>
+    </div>
+  </section>
+
+  <!-- Format Modal -->
+  <div id="formatModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-slate-100 rounded-lg shadow-2xl w-full max-w-md p-6">
+      <div class="text-center mb-6"><i class="fas fa-file-export text-blue-600 text-5xl mb-3"></i>
+        <h3 class="text-xl font-bold text-gray-900 mb-2">Select Export Format</h3>
+        <p class="text-gray-600">Choose the format for your report</p>
+      </div>
+      <div class="space-y-3 mb-6">
+        <button id="selectPdfBtn"
+          class="w-full px-6 py-4 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg shadow transition-all flex items-center justify-center"><i
+            class="fas fa-file-pdf mr-3 text-2xl"></i><span class="text-lg">PDF Format</span></button>
+        <button id="selectExcelBtn"
+          class="w-full px-6 py-4 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg shadow transition-all flex items-center justify-center"><i
+            class="fas fa-file-excel mr-3 text-2xl"></i><span class="text-lg">Excel Format</span></button>
+      </div>
+      <button id="cancelFormatBtn"
+        class="w-full px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium rounded-lg transition-colors"><i
+          class="fas fa-times mr-2"></i>Cancel</button>
+    </div>
+  </div>
+
+  <!-- Preview Modal (landscape) -->
+  <div id="inputVarPreviewModal"
+    class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
+    <div class="bg-gray-50 rounded-lg shadow-lg w-full max-w-full max-h-[90vh] overflow-hidden">
+      <div class="sticky top-0 px-6 py-2 flex justify-between items-center bg-navy">
+        <h3 class="text-lg font-semibold text-white">Input Variable Report Preview</h3>
+        <button id="inputVarClosePreviewBtn" class="text-white hover:text-gray-200 text-2xl">&times;</button>
+      </div>
+      <div class="overflow-auto" style="max-height: calc(90vh - 100px); background: #d1d5db;">
+        <iframe id="inputVarPreviewIframe" title="Input Variable Report Preview"
+          style="width: 100%; min-height: 842px; border: none; background: white; display: block;"></iframe>
+      </div>
+      <div class="sticky bottom-0 bg-gray-50 border-t px-6 py-2 flex justify-end space-x-2">
+        <button id="inputVarCancelPreviewBtn"
+          class="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500">Cancel</button>
+        <button id="inputVarDownloadPreviewBtn"
+          class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Download</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Modal -->
+  <div id="loadingModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg shadow-lg p-8 text-center">
+      <div class="relative w-10 h-10 mx-auto mb-4">
+        <div class="absolute left-1 w-[6px] bg-blue-600 rounded animate-grow-up"></div>
+        <div class="absolute right-1 w-[6px] bg-blue-600 rounded animate-grow-down [animation-delay:0.3s]"></div>
+        <div
+          class="absolute top-1/2 left-1 h-[6px] bg-blue-600 rounded animate-expand [animation-delay:0.6s] -translate-y-1/2">
+        </div>
+      </div>
+      <h3 class="text-lg font-semibold mb-2">Generating Report...</h3>
+      <p class="text-gray-600">Please wait while we prepare your variation report.</p>
+    </div>
+  </div>
+
+  <!-- Alert Modal -->
+  <div id="alertModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
+      <div class="flex items-start mb-4">
+        <div id="alertIcon" class="mr-3 text-2xl"></div>
+        <div class="flex-1">
+          <h3 id="alertTitle" class="text-lg font-semibold mb-2"></h3>
+          <p id="alertMessage" class="text-gray-700"></p>
+        </div>
+      </div>
+      <div class="flex justify-end"><button id="alertCloseBtn"
+          class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">OK</button></div>
+    </div>
+  </div>
+
+  <!-- Success Modal -->
+  <div id="inputVarSuccessModal"
+    class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 text-center">
+      <i class="fas fa-check-circle text-green-500 text-4xl mb-3"></i>
+      <h3 class="text-lg font-semibold mb-2">Success</h3>
+      <p id="inputVarSuccessMessage" class="text-gray-700 mb-4">Report downloaded successfully!</p>
+      <button id="inputVarSuccessOkBtn"
+        class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg">OK</button>
+    </div>
+  </div>
+
+  <div id="nextStepBanner" class="hidden mt-6 no-print">
+    <div class="border-2 border-green-200 rounded-lg p-6 bg-green-50">
+      <div class="flex items-start">
+        <i class="fas fa-check-circle text-green-500 text-3xl mr-4"></i>
+        <div class="flex-1">
+          <h4 class="text-green-800 font-bold text-lg mb-2">Variation Input Report Generated Successfully!</h4>
+          <p class="text-green-700 mb-4">Your report has been downloaded. Ready to proceed to the next step?</p>
+          <button
+            onclick="window.navigation && window.navigation.navigateToSection && window.navigation.navigateToSection('master-file-update', 'Master File Update')"
+            class="px-6 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 transition"><i
+              class="fas fa-arrow-right mr-2"></i>Master File Update</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const auth = window.authService;
+  (function () {
+    const API_BASE = '/inputvariable';
+    const STAGE_READY = 775;
+    const STAGE_PRINTED = 777;
+    let currentStage = 0;
+    let hasGenerated = false;
+
+    const topActionBar = document.getElementById('topActionBar');
+    const notReadyMessage = document.getElementById('notReadyMessage');
+    const mainSection = document.getElementById('mainSection');
+    const generateBtnContainer = document.getElementById('generateBtnContainer');
+    const generateBtn = document.getElementById('generateBtn');
+    const nextStepBanner = document.getElementById('nextStepBanner');
+    const sectionHeader = document.getElementById('sectionHeader');
+    const formatModal = document.getElementById('formatModal');
+    const selectPdfBtn = document.getElementById('selectPdfBtn');
+    const selectExcelBtn = document.getElementById('selectExcelBtn');
+    const cancelFormatBtn = document.getElementById('cancelFormatBtn');
+    const loadingModal = document.getElementById('loadingModal');
+    const alertModal = document.getElementById('alertModal');
+    const alertTitle = document.getElementById('alertTitle');
+    const alertMessage = document.getElementById('alertMessage');
+    const alertIcon = document.getElementById('alertIcon');
+    const alertCloseBtn = document.getElementById('alertCloseBtn');
+
+    function showAlert(title, message, isError = false) {
+      alertTitle.textContent = title; alertMessage.textContent = message;
+      alertIcon.innerHTML = isError ? '<i class="fas fa-exclamation-circle text-red-500"></i>' : '<i class="fas fa-check-circle text-green-500"></i>';
+      alertModal.classList.remove('hidden');
+    }
+
+    alertCloseBtn.onclick = () => alertModal.classList.add('hidden');
+    cancelFormatBtn.onclick = () => formatModal.classList.add('hidden');
+    document.getElementById('inputVarSuccessOkBtn').onclick = () => document.getElementById('inputVarSuccessModal').classList.add('hidden');
+
+    function updateUIVisibility() {
+      if (currentStage >= STAGE_READY) {
+        topActionBar.classList.add('hidden'); notReadyMessage.classList.add('hidden'); mainSection.classList.remove('hidden');
+        if (hasGenerated) {
+          generateBtnContainer.classList.remove('justify-center', 'p-8'); generateBtnContainer.classList.add('justify-end', 'mb-4');
+          generateBtn.classList.remove('text-lg', 'px-8', 'py-4'); generateBtn.classList.add('px-4', 'py-2', 'text-sm');
+          generateBtn.innerHTML = '<i class="fas fa-redo mr-2"></i>Print Again';
+          sectionHeader.classList.add('hidden'); nextStepBanner.classList.remove('hidden');
+        } else {
+          generateBtnContainer.classList.add('justify-center', 'p-8'); generateBtnContainer.classList.remove('justify-start', 'mb-4');
+          generateBtn.classList.add('text-lg', 'px-8', 'py-4'); generateBtn.classList.remove('px-4', 'py-2', 'text-sm');
+          generateBtn.innerHTML = '<i class="fas fa-file-alt mr-2"></i>Generate';
+          sectionHeader.classList.remove('hidden'); nextStepBanner.classList.add('hidden');
+        }
+        return;
+      }
+      topActionBar.classList.remove('hidden'); notReadyMessage.classList.remove('hidden'); mainSection.classList.add('hidden'); nextStepBanner.classList.add('hidden');
+    }
+
+    function closePreview() {
+      document.getElementById('inputVarPreviewModal').classList.add('hidden');
+      const iframe = document.getElementById('inputVarPreviewIframe');
+      iframe.src = 'about:blank'; iframe.removeAttribute('srcdoc');
+      if (window.inputVarCurrentBlobUrl) { window.URL.revokeObjectURL(window.inputVarCurrentBlobUrl); window.inputVarCurrentBlobUrl = null; }
+    }
+
+    document.getElementById('inputVarClosePreviewBtn').addEventListener('click', closePreview);
+    document.getElementById('inputVarCancelPreviewBtn').addEventListener('click', closePreview);
+    document.getElementById('inputVarDownloadPreviewBtn').addEventListener('click', () => {
+      if (!window.inputVarCurrentBlob) return;
+      const fmt = window.inputVarCurrentFormat || 'pdf';
+      const url = window.URL.createObjectURL(window.inputVarCurrentBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `variation_input_report.${fmt === 'pdf' ? 'pdf' : 'xlsx'}`;
+      document.body.appendChild(a); a.click(); a.remove();
+      window.URL.revokeObjectURL(url);
+      hasGenerated = true;
+      updateUIVisibility();
+      document.getElementById('inputVarSuccessMessage').textContent = 'Report downloaded successfully!';
+      document.getElementById('inputVarSuccessModal').classList.remove('hidden');
+    });
+
+    async function generateReport(format) {
+      formatModal.classList.add('hidden');
+      loadingModal.classList.remove('hidden');
+      try {
+        const token = localStorage.getItem('token') || '';
+        const response = await auth.fetchWithAuth(`${API_BASE}?format=${format}`, { headers: { 'Authorization': `Bearer ${token}` } });
+        if (!response.ok) { const e = await response.json().catch(() => ({})); throw new Error(e.error || 'Failed to generate report'); }
+        const blob = await response.blob();
+        loadingModal.classList.add('hidden');
+
+        window.inputVarCurrentBlob = blob;
+        window.inputVarCurrentFormat = format;
+
+        const iframe = document.getElementById('inputVarPreviewIframe');
+        const dlBtn = document.getElementById('inputVarDownloadPreviewBtn');
+        if (format === 'pdf') {
+          const blobUrl = window.URL.createObjectURL(blob);
+          window.inputVarCurrentBlobUrl = blobUrl;
+          iframe.src = blobUrl + '#toolbar=0';
+          iframe.style.minHeight = '842px';
+          dlBtn.textContent = 'Download PDF';
+        } else {
+          iframe.srcdoc = `<div style="font-family:Arial,sans-serif;padding:40px;text-align:center;color:#555;"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#1e40af" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto 16px;display:block;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg><p style="font-size:16pt;font-weight:bold;color:#1e40af;margin-bottom:8px;">Excel Report Ready</p><p style="font-size:10pt;">Click <strong>Download Excel</strong> below to save the file.</p></div>`;
+          iframe.style.minHeight = '300px';
+          dlBtn.textContent = 'Download Excel';
+        }
+        document.getElementById('inputVarPreviewModal').classList.remove('hidden');
+      } catch (error) { loadingModal.classList.add('hidden'); showAlert('Error', error.message || 'Failed to generate report', true); }
+    }
+
+    generateBtn.addEventListener('click', () => formatModal.classList.remove('hidden'));
+    selectPdfBtn.addEventListener('click', () => generateReport('pdf'));
+    selectExcelBtn.addEventListener('click', () => generateReport('excel'));
+
+    async function checkPayrollStatus() {
+      try {
+        const token = localStorage.getItem('token');
+        const res = await auth.fetchWithAuth('/status-payroll', { headers: { 'Authorization': `Bearer ${token}` } });
+        const data = await res.json();
+        currentStage = Number(data?.sun || 0);
+        if (currentStage >= STAGE_PRINTED) hasGenerated = true;
+        updateUIVisibility();
+      } catch (err) { console.error('Error checking status:', err); }
+    }
+
+    function initialize() { checkPayrollStatus(); }
+    document.addEventListener('DOMContentLoaded', initialize);
+    if (document.readyState !== 'loading') initialize();
+  })();
+</script>

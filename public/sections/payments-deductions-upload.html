@@ -1,0 +1,1157 @@
+<!-- BATCH UPLOAD SECTION -->
+<style>
+  @keyframes grow-up {
+    0% {
+      height: 0;
+      bottom: 0;
+    }
+
+    100% {
+      height: 100%;
+      bottom: 0;
+    }
+  }
+
+  @keyframes grow-down {
+    0% {
+      height: 0;
+      top: 0;
+    }
+
+    100% {
+      height: 100%;
+      top: 0;
+    }
+  }
+
+  @keyframes expand {
+    0% {
+      width: 0;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    100% {
+      width: 100%;
+      left: 0;
+      transform: translateY(-50%);
+    }
+  }
+
+  .animate-grow-up {
+    animation: grow-up 0.6s ease-in-out infinite alternate;
+    position: absolute;
+    bottom: 0;
+  }
+
+  .animate-grow-down {
+    animation: grow-down 0.6s ease-in-out infinite alternate;
+    position: absolute;
+    top: 0;
+  }
+
+  .animate-expand {
+    animation: expand 0.6s ease-in-out infinite alternate;
+  }
+</style>
+
+
+<div id="section-batch" class="p-6">
+  <div class="flex items-center justify-between mb-4 gap-2">
+    <!-- Left: quick nav (may be hidden) -->
+    <div>
+      <button id="quickNav-payments-deductions"
+        onclick="window.navigation.navigateToSection('payments-deductions', 'Payments/Deductions')"
+        class="bg-blue-600 text-white font-semibold px-4 py-2 rounded hover:bg-blue-700">
+        Payments/Deductions
+      </button>
+
+
+    </div>
+    <div>
+      <!-- fix batch list -->
+      <button id="batch-list"
+        onclick="window.navigation.navigateToSection('payded-batch-list', 'Payments/Deductions Batch List')"
+        class="bg-blue-600 text-white font-semibold px-4 py-2 rounded hover:bg-blue-700">
+        Batch List
+      </button>
+    </div>
+
+    <!-- Right: always at end -->
+    <div class="flex flex-wrap gap-2 justify-end ml-auto">
+      <div class="relative">
+        <input type="text" id="tableSearchInput"
+          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 pl-10"
+          placeholder="Search by Service No, Type, or Pay Indicator..." autocomplete="off">
+        <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+          <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </span>
+        <button id="clearSearchBtn"
+          class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600 hidden">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <button id="addBatch" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">+ New Upload</button>
+      <button id="generateReportBtn" class="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700">
+        <i class="fas fa-file-alt mr-2"></i>Generate Report
+      </button>
+    </div>
+  </div>
+
+  <div class="flex flex-col items-center">
+    <div id="batchUploadDiv" class="hidden w-full max-w-md rounded-2xl">
+      <!-- Notes -->
+      <div class="mb-6">
+        <h4 class="font-semibold text-blue-700 mb-2">Please Note:</h4>
+        <ul class="list-disc list-inside text-gray-700 text-sm space-y-1">
+          <li>Ensure your file is properly formatted before uploading.</li>
+          <li>If you encounter any issues, please contact support.</li>
+          <li>Duplicate Service Number + Payment/Deduction Type will not be uploaded.</li>
+        </ul>
+      </div>
+
+      <!-- Upload Form -->
+      <form id="batchUploadForm" class="space-y-6">
+        <div>
+          <label for="batchFile" class="block text-sm font-medium text-gray-700 mb-2">Upload File</label>
+          <input type="file" id="batchFile" accept=".xlsx,.xls,.csv"
+            class="mt-1 block w-full border border-blue-300 bg-white rounded-lg px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400" />
+          <p class="text-xs text-gray-500 mt-2">
+            Only <span class="font-semibold">.xlsx</span>, <span class="font-semibold">.xls</span> or <span
+              class="font-semibold">.csv</span> files are allowed.
+            <button type="button" id="downloadTemplateBtn"
+              class="text-blue-600 font-medium hover:underline ml-2">Download Template</button>
+          </p>
+        </div>
+        <div>
+          <label for="batchNameInput" class="block text-sm font-medium text-gray-700 mb-2">Batch Name (Optional)</label>
+          <input type="text" id="batchNameInput"
+            class="mt-1 block w-full border border-blue-300 bg-white rounded-lg px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400"
+            placeholder="e.g., January 2024 Payroll" maxlength="100" />
+          <p class="text-xs text-gray-500 mt-2">
+            If not provided, a default name will be generated.
+          </p>
+        </div>
+        <div class="flex justify-end gap-3">
+          <button type="button" id="cancelBatchBtn"
+            class="px-5 py-2 bg-gray-300 hover:bg-gray-400 rounded-lg text-gray-800 font-medium shadow-sm">Cancel</button>
+          <button type="button" id="uploadBatchBtn"
+            class="px-5 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white font-medium shadow-md">Upload</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Success Modal -->
+  <div id="successModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-xl shadow-lg p-6 max-w-md w-full text-center">
+      <div id="successIcon" class="mb-3 flex items-center justify-center">
+        <svg class="h-8 w-8 text-green-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+        </svg>
+      </div>
+      <h2 id="successTitle" class="text-xl font-bold text-green-600 mb-2">Success</h2>
+      <p id="successMessage" class="text-gray-600 mb-4">Action completed successfully.</p>
+      <div id="uploadSummary" class="hidden text-left bg-gray-50 rounded-lg p-4 mb-4 text-sm">
+        <p class="font-semibold mb-2">Upload Summary:</p>
+        <p>Total Records: <span id="total-Records" class="font-medium">0</span></p>
+        <p>Successfully Inserted: <span id="successRecords" class="font-medium text-green-600">0</span></p>
+        <p>Duplicates/Failed: <span id="failedRecords" class="font-medium text-red-600">0</span></p>
+        <p>Batch Name: <span id="batchName" class="font-medium hidden">Unknown</span></p>
+      </div>
+      <button id="closeModalBtn"
+        class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium">OK</button>
+    </div>
+  </div>
+
+  <!-- Error Modal -->
+  <div id="errorModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-xl shadow-lg p-6 max-w-2xl w-full">
+      <h2 class="text-xl font-bold text-red-600 mb-4">Upload Errors</h2>
+      <div id="errorContent" class="text-gray-700 text-sm max-h-96 overflow-y-auto"></div>
+      <div class="flex justify-end mt-4">
+        <button id="closeErrorBtn"
+          class="px-5 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirm Modal -->
+  <div id="confirmModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-xl shadow-lg p-6 max-w-sm w-full text-center">
+      <h2 id="confirmTitle" class="text-xl font-bold text-yellow-600 mb-4">Confirm Action</h2>
+      <p id="confirmMessage" class="text-gray-700 mb-6">Are you sure?</p>
+      <div class="flex justify-center gap-3">
+        <button id="confirmCancel"
+          class="px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded-lg text-gray-800 font-medium">Cancel</button>
+        <button id="confirmYes"
+          class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium">Yes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- View Modal -->
+  <div id="viewModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-xl shadow-lg p-6 max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between mb-4 border-b pb-3">
+        <h2 class="text-xl font-bold text-blue-600">Payment/Deduction Details</h2>
+        <button id="closeViewBtn" class="text-gray-400 hover:text-gray-600">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div id="viewContent" class="text-gray-700 text-sm">
+        <!-- Dynamic content will be inserted here -->
+      </div>
+      <div class="flex justify-end mt-6 pt-4 border-t">
+        <button id="closeViewBtnBottom"
+          class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Table Section -->
+<div class="m-6 overflow-x-auto border rounded-lg shadow-sm">
+  <table class="min-w-full border-collapse">
+    <thead class="bg-blue-100 text-gray-700 text-sm">
+      <tr>
+        <th class="border px-4 py-2 text-center">Service Number</th>
+        <th class="border px-4 py-2 text-center">Type</th>
+        <th class="border px-4 py-2 text-center">Amount Payable</th>
+        <th class="border px-4 py-2 text-center">Amount To Date</th>
+        <th class="border px-4 py-2 text-center">Indicator</th>
+        <th class="border px-4 py-2 text-center">Action</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody" class="text-sm text-center">
+      <!-- Dynamic rows will be inserted here -->
+    </tbody>
+  </table>
+</div>
+
+<!-- Pagination Controls -->
+<div class="m-6 flex items-center justify-between">
+  <div class="text-sm text-gray-600">
+    Showing <span id="startRecord">0</span> to <span id="endRecord">0</span> of <span id="totalRecords">0</span> records
+  </div>
+  <div class="flex items-center space-x-2">
+    <select id="recordsPerPage" class="border border-gray-300 rounded px-2 py-1 text-sm">
+      <option value="10">10 per page</option>
+      <option value="25">25 per page</option>
+      <option value="50">50 per page</option>
+      <option value="100">100 per page</option>
+    </select>
+    <button id="prevPage" class="px-3 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 disabled:opacity-50">
+      Previous
+    </button>
+    <span class="text-sm">
+      Page <span id="currentPage">1</span> of <span id="totalPages">1</span>
+    </span>
+    <button id="nextPage" class="px-3 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 disabled:opacity-50">
+      Next
+    </button>
+  </div>
+</div>
+
+<script>
+  const auth = window.authService;
+  (function () {
+    // Configuration
+    const API_BASE_URL = 'batchpayded';
+    let uploadedData = [];
+    let authToken = localStorage.getItem('token');
+
+    // DOM Elements
+    const uploadBtn = document.getElementById("uploadBatchBtn");
+    const batchFileInput = document.getElementById("batchFile");
+    const batchNameInput = document.getElementById("batchNameInput");
+    const batchForm = document.getElementById("batchUploadForm");
+    const batchDiv = document.getElementById("batchUploadDiv");
+    const addNewBatch = document.getElementById("addBatch");
+    const downloadTemplateBtn = document.getElementById("downloadTemplateBtn");
+    const modal = document.getElementById("successModal");
+    const closeModalBtn = document.getElementById("closeModalBtn");
+    const errorModal = document.getElementById("errorModal");
+    const closeErrorBtn = document.getElementById("closeErrorBtn");
+    const tableSection = document.getElementById("batchTableSection");
+    const tableBody = document.getElementById("tableBody");
+    const confirmModal = document.getElementById("confirmModal");
+    const confirmMessage = document.getElementById("confirmMessage");
+    const confirmYes = document.getElementById("confirmYes");
+    const confirmCancel = document.getElementById("confirmCancel");
+    const successTitle = document.getElementById("successTitle");
+    const successMessage = document.getElementById("successMessage");
+    const successIcon = document.getElementById("successIcon");
+    const uploadSummary = document.getElementById("uploadSummary");
+    const viewModal = document.getElementById("viewModal");
+    const viewContent = document.getElementById("viewContent");
+    const closeViewBtn = document.getElementById("closeViewBtn");
+    const closeViewBtnBottom = document.getElementById("closeViewBtnBottom");
+
+    // Pagination variables
+    let currentPage = 1;
+    let recordsPerPage = 10;
+    let totalRecords = 0;
+    let totalPages = 1;
+    let currentSearchQuery = '';
+
+    // Pagination elements
+    const prevPageBtn = document.getElementById('prevPage');
+    const nextPageBtn = document.getElementById('nextPage');
+    const currentPageSpan = document.getElementById('currentPage');
+    const totalPagesSpan = document.getElementById('totalPages');
+    const recordsPerPageSelect = document.getElementById('recordsPerPage');
+    const startRecordSpan = document.getElementById('startRecord');
+    const endRecordSpan = document.getElementById('endRecord');
+    const totalRecordsSpan = document.getElementById('totalRecords');
+
+    // Table search elements
+    const tableSearchInput = document.getElementById('tableSearchInput');
+    const clearSearchBtn = document.getElementById('clearSearchBtn');
+
+    let pendingAction = null;
+    let targetRow = null;
+    let lookupMaps = {};
+
+    // Field labels mapping for display
+    const fieldLabels = {
+      'Empl_id': 'Service Number',
+      'type': 'Payment/Deduction Type',
+      'delete_maker_annual': 'Maker 1',
+      'amount_payable': 'Amount Payable',
+      'delete_maker_cumulative': 'Maker 2',
+      'amount_to_date': 'Amount To Date',
+      'amt': 'Amount',
+      'indicator': 'Pay Indicator',
+      'months_remaining': 'Ternor',
+      'createdby': 'Created By',
+      'datecreated': 'Created At'
+    };
+
+    //load dropdown
+    async function loadDropdown(endpoint, elementId, valueField, textField, placeholder) {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await auth.fetchWithAuth(`/reference/${endpoint}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          }
+        });
+        const data = await response.json();
+
+        // BUILD THE LOOKUP MAP FIRST
+        lookupMaps[endpoint] = Object.fromEntries(
+          data.map(item => [item[valueField], item[textField]])
+        );
+
+        // THEN POPULATE THE DROPDOWN IF IT EXISTS
+        const dropdown = document.getElementById(elementId);
+        if (dropdown) {
+          dropdown.innerHTML = `<option value="">${placeholder}</option>`;
+          data.forEach(item => {
+            const option = document.createElement("option");
+            option.value = item[valueField];
+            option.textContent = item[textField];
+            dropdown.appendChild(option);
+          });
+        }
+
+        return data;
+      } catch (err) {
+        console.error(`Failed to load ${endpoint}:`, err);
+        return [];
+      }
+    }
+
+    async function loadAllDropdowns() {
+      try {
+        await loadDropdown("elementtype", "type", "PaymentType", "elmDesc", "Select Type");
+        await loadDropdown("payindicator", "payind", "ind", "inddesc", "Select Payment Indicator");
+      } catch (error) {
+        console.error('Error loading dropdowns:', error);
+      }
+    }
+
+    function resolveName(code, endpoint) {
+      if (!code) return 'N/A';
+      return lookupMaps[endpoint]?.[code] || code;
+    }
+
+    // Format currency
+    function formatCurrency(amount) {
+      if (!amount && amount !== 0) return 'N/A';
+      return new Intl.NumberFormat('en-NG', {
+        style: 'currency',
+        currency: 'NGN'
+      }).format(amount);
+    }
+
+    // Format date
+    function formatDate(dateString) {
+      if (!dateString) return 'N/A';
+      const date = new Date(dateString);
+      return date.toLocaleString('en-NG', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+
+    // Show view modal with all fields
+    function showViewModal(item) {
+      let contentHtml = '<dl class="divide-y divide-gray-200">';
+
+      // Define the order and grouping of fields
+      const fieldGroups = [
+        {
+          fields: ['Empl_id', 'type', 'indicator', 'delete_maker_annual', 'amount_payable', 'delete_maker_cumulative', 'amount_to_date', 'amt', 'months_remaining', 'createdby', 'datecreated']
+        }
+      ];
+
+      fieldGroups.forEach((group, groupIndex) => {
+        if (groupIndex > 0) {
+          contentHtml += '<div class="pt-4 mt-4"></div>';
+        }
+
+        group.fields.forEach(key => {
+          if (item.hasOwnProperty(key)) {
+            let value = item[key];
+
+            // Format based on field type
+            if (key.includes('amount') || key === 'amt') {
+              value = formatCurrency(value);
+            } else if (key.includes('date') || key === 'created_at' || key === 'updated_at') {
+              value = formatDate(value);
+            } else if (key === 'indicator') {
+              value = resolveName(value, 'payindicator');
+            } else if (key === 'type') {
+              value = resolveName(value, 'elementtype') || value;
+            } else if (!value && value !== 0) {
+              value = 'N/A';
+            }
+
+            contentHtml += `
+            <div class="grid grid-cols-3 gap-2 py-2 border-b border-gray-200">
+              <dt class="font-medium text-gray-600">${fieldLabels[key] || key}:</dt>
+              <dd class="col-span-2 text-gray-900">${value}</dd>
+            </div>`;
+          }
+        });
+      });
+
+      contentHtml += '</dl>';
+
+      viewContent.innerHTML = contentHtml;
+      viewModal.classList.remove('hidden');
+    }
+
+    //fetch payded
+    async function fetchAllDeductions() {
+      try {
+        const token = localStorage.getItem('token');
+
+        let url = `payded/active/all?page=${currentPage}&limit=${recordsPerPage}`;
+
+        if (currentSearchQuery) {
+          url += `&search=${encodeURIComponent(currentSearchQuery)}`;
+        }
+
+        const response = await auth.fetchWithAuth(url, {
+          method: 'GET',
+          headers: {
+            'content-type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        const result = await response.json();
+
+        if (result.success) {
+          renderTable(result.data);
+          totalRecords = result.pagination.totalRecords;
+          totalPages = result.pagination.totalPages;
+          currentPage = result.pagination.currentPage;
+          updatePaginationUI();
+        } else {
+          showErrors('Failed to load deductions');
+        }
+      } catch (error) {
+        console.error('Error fetching deductions:', error);
+        showErrors('Error loading deductions');
+      }
+    }
+
+    // Download Template
+    downloadTemplateBtn.addEventListener("click", async () => {
+      try {
+        const response = await auth.fetchWithAuth(`${API_BASE_URL}/batch-template`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${authToken}`
+          }
+        });
+
+        if (!response.ok) throw new Error('Failed to download template');
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'payment-deductions_template.xlsx';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+      } catch (error) {
+        console.error('Error downloading template:', error);
+        showErrors('Failed to download template. Please try again.');
+      }
+    });
+
+    // Upload File
+    uploadBtn.addEventListener("click", async () => {
+      const file = batchFileInput.files[0];
+
+      if (!file) {
+        showErrors('Please select a file to upload');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const batchName = batchNameInput.value.trim();
+      formData.append('batchName', batchName)
+
+      // Show loading
+      showLoading();
+
+      try {
+        const response = await auth.fetchWithAuth(`${API_BASE_URL}/batch-upload`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${authToken}`
+          },
+          body: formData
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          // CLOSE LOADING MODAL BEFORE SHOWING ERROR
+          modal.classList.add("hidden");
+
+          if (result.details && Array.isArray(result.details)) {
+            showErrors(result.details);
+          } else {
+            throw new Error(result.error || 'Upload failed');
+          }
+          return;
+        }
+
+        // Store uploaded data
+        uploadedData = result.summary || {};
+
+        // Show success with summary
+        showUploadSuccess(result);
+        await fetchAllDeductions();
+
+        // Populate table (if you want to show the data)
+        if (result.summary && result.summary.successful > 0) {
+          batchDiv.classList.add("hidden");
+        }
+
+        // Clear file input
+        batchFileInput.value = '';
+        batchNameInput.value = ''
+        batchDiv.classList.add("hidden");
+
+      } catch (error) {
+        console.error('Upload error:', error);
+        // CLOSE LOADING MODAL BEFORE SHOWING ERROR
+        modal.classList.add("hidden");
+        showErrors(`Upload failed: ${error.message}`);
+      }
+    });
+
+    // Show Loading
+    function showLoading() {
+      successIcon.innerHTML = `
+      <div class="relative w-10 h-10">
+        <div class="absolute left-1 w-[6px] bg-blue-600 rounded animate-grow-up"></div>
+        <div class="absolute right-1 w-[6px] bg-blue-600 rounded animate-grow-down [animation-delay:0.3s]"></div>
+        <div class="absolute top-1/2 left-1 h-[6px] bg-blue-600 rounded animate-expand [animation-delay:0.6s] -translate-y-1/2"></div>
+      </div>`;
+      successTitle.textContent = "Uploading...";
+      successMessage.textContent = "Please wait while we process your file.";
+      uploadSummary.classList.add("hidden");
+      modal.classList.remove("hidden");
+    }
+
+    // Show Upload Success
+    function showUploadSuccess(result) {
+      const summary = result.summary;
+
+      successIcon.innerHTML = `<svg class="h-8 w-8 text-green-600" fill="none" stroke="currentColor" stroke-width="2"
+      viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>`;
+
+      successTitle.textContent = "Upload Complete";
+      successMessage.textContent = result.message || "Batch upload completed successfully.";
+
+      // Show summary
+      document.getElementById("total-Records").textContent = summary.totalRecords || 0;
+      document.getElementById("successRecords").textContent = summary.successful || 0;
+      document.getElementById("failedRecords").textContent = summary.failed || 0;
+      if (summary.batchName?.trim() && summary.batchName !== "Unknown") {
+        document.getElementById("batchName").classList.remove("hidden");
+        document.getElementById("batchName").textContent = summary.batchName;
+      }
+      uploadSummary.classList.remove("hidden");
+
+      // Show errors if any
+      if (summary.errors && summary.errors.length > 0) {
+        setTimeout(() => {
+          showErrors(summary.errors);
+        }, 500);
+      }
+
+      modal.classList.remove("hidden");
+    }
+
+    // Show Errors
+    function showErrors(errors) {
+      const errorContent = document.getElementById("errorContent");
+
+      let html = '<div class="space-y-2">';
+
+      if (typeof errors === 'string') {
+        html += `
+        <div class="bg-red-50 border border-red-200 rounded p-3">
+          <p class="text-sm text-red-600">${errors}</p>
+        </div>
+      `;
+      } else if (Array.isArray(errors)) {
+        errors.forEach((err, index) => {
+          html += `
+          <div class="bg-red-50 border border-red-200 rounded p-3">
+            <p class="font-semibold text-red-700">Error ${index + 1}:</p>
+            ${err.row ? `<p class="text-sm">Row: ${err.row}</p>` : ''}
+            ${err.serviceNumber ? `<p class="text-sm">Service Number: ${err.serviceNumber}</p>` : ''}
+            ${err.deductionType ? `<p class="text-sm">Deduction Type: ${err.deductionType}</p>` : ''}
+            <p class="text-sm text-red-600">${err.error || err}</p>
+          </div>
+        `;
+        });
+      }
+      html += '</div>';
+
+      errorContent.innerHTML = html;
+      errorModal.classList.remove("hidden");
+    }
+
+    // Close Modals
+    closeModalBtn.addEventListener("click", () => {
+      modal.classList.add("hidden");
+    });
+
+    closeErrorBtn.addEventListener("click", () => {
+      errorModal.classList.add("hidden");
+    });
+
+    closeViewBtn.addEventListener("click", () => {
+      viewModal.classList.add("hidden");
+    });
+
+    closeViewBtnBottom.addEventListener("click", () => {
+      viewModal.classList.add("hidden");
+    });
+
+    confirmCancel.addEventListener("click", () => {
+      confirmModal.classList.add("hidden");
+    });
+
+    confirmYes.addEventListener("click", () => {
+      confirmModal.classList.add("hidden");
+
+      if (pendingAction === "clearAll") {
+        tableBody.innerHTML = "";
+        uploadedData = [];
+        tableSection.classList.add("hidden");
+        showSuccess("Cleared", "All records have been cleared.");
+      }
+
+      if (pendingAction === "delete" && targetRow) {
+        targetRow.remove();
+        showSuccess("Deleted", "Record has been removed from view.");
+      }
+    });
+
+    // Success modal function
+    function showSuccess(title, message) {
+      successIcon.innerHTML = `<svg class="h-8 w-8 text-green-600" fill="none" stroke="currentColor" stroke-width="2"
+      viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>`;
+      successTitle.textContent = title;
+      successMessage.textContent = message;
+      uploadSummary.classList.add("hidden");
+      modal.classList.remove("hidden");
+    }
+
+    // Populate Table
+    function renderTable(data) {
+      tableBody.innerHTML = '';
+
+      if (!data || data.length === 0) {
+        tableBody.innerHTML = `
+        <tr>
+          <td colspan="7" class="py-4 text-gray-500">No records found</td>
+        </tr>
+      `;
+        return;
+      }
+
+      data.forEach(item => {
+        const row = document.createElement('tr');
+        row.className = 'hover:bg-yellow-50';
+        row.innerHTML = `
+        <td class="py-2 px-4 border">${item.Empl_id}</td>
+        <td class="py-2 px-4 border">${item.type}</td>
+        <td class="py-2 px-4 border">₦${Number(item.amount_payable || 0).toLocaleString()}</td>
+        <td class="py-2 px-4 border">₦${Number(item.amount_to_date || 0).toLocaleString()}</td>
+        <td class="py-2 px-4 border">${resolveName(item.indicator, 'payindicator')}</td>
+        <td class="py-2 px-4 border">
+          <button class="view-btn text-blue-600 hover:underline" 
+          data-item='${JSON.stringify(item)}'>
+            View
+          </button>
+        </td>
+      `;
+        tableBody.appendChild(row);
+      });
+
+      // Add event listeners to view buttons
+      document.querySelectorAll('.view-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const itemData = JSON.parse(e.target.getAttribute('data-item'));
+          showViewModal(itemData);
+        });
+      });
+    }
+
+    function updatePaginationUI() {
+      currentPageSpan.textContent = currentPage;
+      totalPagesSpan.textContent = totalPages;
+
+      const start = (currentPage - 1) * recordsPerPage + 1;
+      const end = Math.min(start + recordsPerPage - 1, totalRecords);
+
+      startRecordSpan.textContent = totalRecords === 0 ? 0 : start;
+      endRecordSpan.textContent = end;
+      totalRecordsSpan.textContent = totalRecords;
+
+      prevPageBtn.disabled = currentPage <= 1;
+      nextPageBtn.disabled = currentPage >= totalPages;
+
+      // Show/hide clear button based on search query
+      if (currentSearchQuery) {
+        clearSearchBtn.classList.remove('hidden');
+      } else {
+        clearSearchBtn.classList.add('hidden');
+      }
+    }
+
+    function performSearch() {
+      currentPage = 1; // Reset to first page when searching
+      fetchAllDeductions();
+    }
+
+    function clearSearch() {
+      currentSearchQuery = '';
+      tableSearchInput.value = '';
+      clearSearchBtn.classList.add('hidden');
+      currentPage = 1;
+      fetchAllDeductions();
+    }
+
+    prevPageBtn.addEventListener('click', () => {
+      if (currentPage > 1) {
+        currentPage--;
+        fetchAllDeductions();
+      }
+    });
+
+    nextPageBtn.addEventListener('click', () => {
+      if (currentPage < totalPages) {
+        currentPage++;
+        fetchAllDeductions();
+      }
+    });
+
+    recordsPerPageSelect.addEventListener('change', (e) => {
+      recordsPerPage = parseInt(e.target.value);
+      currentPage = 1;
+      fetchAllDeductions();
+    });
+
+    addNewBatch.addEventListener("click", () => {
+      batchDiv.classList.remove("hidden");
+      batchForm.reset();
+      batchNameInput.value = '';
+    });
+
+    // TABLE SEARCH FUNCTIONALITY
+    let searchTimeout;
+    tableSearchInput.addEventListener('input', (e) => {
+      clearTimeout(searchTimeout);
+      const query = e.target.value.trim();
+
+      // Debounce search by 500ms
+      searchTimeout = setTimeout(() => {
+        currentSearchQuery = query;
+        performSearch();
+      }, 500);
+    });
+
+    // Clear search button
+    clearSearchBtn.addEventListener('click', clearSearch);
+
+    // Allow Enter key to trigger immediate search
+    tableSearchInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        clearTimeout(searchTimeout);
+        currentSearchQuery = e.target.value.trim();
+        performSearch();
+      }
+    });
+
+    // Confirm modal helper
+    function showConfirm(title, message) {
+      document.getElementById("confirmTitle").textContent = title;
+      confirmMessage.textContent = message;
+      confirmModal.classList.remove("hidden");
+    }
+
+    // Cancel Button
+    document.getElementById("cancelBatchBtn").addEventListener("click", () => {
+      batchFileInput.value = '';
+      batchNameInput.value = ''
+      batchForm.reset();
+      uploadedData = [];
+      batchDiv.classList.add("hidden");
+    });
+
+    //generate reports functionality
+    async function generateReport() {
+      const REPORT_API_URL = `payded/report-all`;
+
+      let fullData;
+      try {
+        const token = localStorage.getItem('token');
+        const response = await auth.fetchWithAuth(REPORT_API_URL, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          }
+        });
+        const result = await response.json();
+
+        if (!result.success) {
+          showErrors('Failed to load report data: ' + result.message);
+          return;
+        }
+
+        fullData = result.data;
+
+      } catch (error) {
+        console.error('Error fetching report data:', error);
+        showErrors('An error occurred while fetching report data.');
+        return;
+      }
+
+      if (!fullData || fullData.length === 0) {
+        showErrors('No records found for the report.');
+        return;
+      }
+
+      const data = fullData;
+
+      const now = new Date();
+      const dateStr = now.toLocaleDateString('en-GB', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+      const timeStr = now.toLocaleTimeString('en-GB', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      });
+
+      const printWindow = window.open('', '_blank');
+
+      const formatCurrency = (amount) => {
+        if (!amount) return '-';
+        return new Intl.NumberFormat('en-NG', {
+          style: 'currency',
+          currency: 'NGN'
+        }).format(amount);
+      };
+
+      const printContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>Payments/Deductions Report</title>
+        <style>
+            @page { 
+                size: A4; 
+                margin: 0.5mm; 
+                background-color: #f8fbff;
+            }
+            
+            body { 
+                font-family: Helvetica, Arial, sans-serif; 
+                font-size: 8pt;
+                margin: 0;
+                padding: 0;
+                position: relative;
+                color: #333;
+            }
+
+            /* Faint logo overlay */
+            body::before {
+                content: "";
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-image: url('photos/logo.png');
+                background-size: auto 100%;
+                background-repeat: no-repeat;
+                background-position: center center;
+                opacity: 0.02;
+                z-index: -1;
+                pointer-events: none;
+            }
+
+            .header-wrapper {
+                display: flex;
+                align-items: flex-start;
+                margin-bottom: 8px;
+                border-bottom: 2px solid #1a1a1a;
+                padding-bottom: 5px;
+            }
+
+            .header {
+                flex-grow: 1;
+                text-align: center;
+            }
+            
+            .header h1 {
+                font-size: 13pt;
+                font-weight: bold;
+                margin-bottom: 2px;
+                letter-spacing: 1.5px;
+                color: #1e40af;
+                font-family: 'Libre Baskerville', Georgia, serif;
+            }
+            
+            .header h2 {
+                font-size: 10pt;
+                font-weight: normal;
+                margin-top: 2px;
+                color: #4a4a4a;
+                font-family: 'Libre Baskerville', Georgia, serif;
+            }
+
+            .header-info {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin: 10px 0;
+                font-size: 9pt;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-bottom: 20px;
+                font-size: 7.5px;
+            }
+
+            th {
+                color: #1e40af;
+                padding: 8px 4px;
+                text-align: left;
+                font-weight: bold;
+                font-size: 7.5px;
+                text-transform: uppercase;
+                letter-spacing: 0.3px;
+                border-bottom: 1px solid #0056A0;
+            }
+
+            td {
+                padding: 6px 4px;
+                border: none;
+                vertical-align: middle;
+            }
+
+            .text-right {
+            }
+
+            .text-center {
+                text-align: center;
+            }
+
+            .footer {
+                padding-top: 10px;
+                border-top: 0.5px solid #1a1a1a;
+                text-align: center;
+                font-size: 8pt;
+                color: #64748b;
+                margin-top: 20px;
+            }
+
+            @media print {
+                body {
+                    print-color-adjust: exact;
+                    -webkit-print-color-adjust: exact;
+                }
+                
+                body::before {
+                    position: fixed;
+                    display: block;
+                    content: "";
+                    width: 100%;
+                    height: 100%;
+                    top: 0;
+                    left: 0;
+                    background-image: url('photos/logo.png');
+                    background-size: auto 100%;
+                    background-repeat: no-repeat;
+                    background-position: center center;
+                    opacity: 0.02;
+                    z-index: -1;
+                }
+            }
+        </style>
+      </head>
+      <body>
+        <div class="header-wrapper">
+            <div class="header">
+                <h1>Nigerian Navy (Naval Headquarters)</h1>
+                <h2>CENTRAL PAY OFFICE, 23 POINT ROAD APAPA</h2>
+            </div>
+        </div>
+
+        <div class="header-info">
+            <div class="left">
+                <strong>PAYMENTS/DEDUCTIONS REPORT</strong>
+            </div>
+            <div class="center">
+                <span>PRODUCED ON</span> 
+                <strong>${dateStr}</strong> 
+                <span>AT</span> 
+                <strong>${timeStr}</strong>
+            </div>
+            <div class="right">
+                <strong>${data.length}</strong>
+                <span>RECORDS</span>
+            </div>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Service No</th>
+              <th>Type</th>
+              <th>Maker 1</th>
+              <th>Amount Payable</th>
+              <th>Maker 2</th>
+              <th>Amount To Date</th>
+              <th>Amount</th>
+              <th>Pay Indicator</th>
+              <th>TENOR</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${data.map((item, index) => `
+            <tr>
+              <td class="py-2 px-4 border">${item.Empl_id}</td>
+              <td class="py-2 px-4 border">${item.type}</td>
+              <td class="py-2 px-4 border">${item.delete_maker_annual || 'N/A'}</td>
+              <td class="py-2 px-4 border">₦${Number(item.amount_payable || 0).toLocaleString()}</td>
+              <td class="py-2 px-4 border">${item.delete_maker_annual || 'N/A'}</td>
+              <td class="py-2 px-4 border">₦${Number(item.amount_to_date || 0).toLocaleString()}</td>
+              <td class="py-2 px-4 border">₦${Number(item.amt || 0).toLocaleString()}</td>
+              <td class="py-2 px-4 border">${resolveName(item.indicator, 'payindicator')}</td>
+              <td class="py-2 px-4 border">${item.months_remaining || '-'}</td>
+            </tr>
+          `).join('')}
+          </tbody>
+        </table>
+      
+        <div class="footer">
+          <p>Generated by: ${localStorage.getItem('full_name') || 'System User'}</p>
+          <p>All rights reserved &#xA9; Hicad Systems Limited.</p>
+        </div>
+      </body>
+      </html>
+    `;
+
+      printWindow.document.write(printContent);
+      printWindow.document.close();
+
+      printWindow.onload = function () {
+        printWindow.print();
+      };
+    }
+
+    // Add event listener to generate report button
+    document.getElementById('generateReportBtn').addEventListener('click', generateReport);
+
+    // Hide quick nav buttons user has no access to
+    function applyQuickNavAccess() {
+      const manager = window.quickAccessManager;
+
+      // Wait for manager AND its menus to be populated
+      if (!manager || !manager.userAccessibleMenus?.length) {
+        setTimeout(applyQuickNavAccess, 50);
+        return;
+      }
+
+      document.querySelectorAll('[id^="quickNav-"]').forEach(btn => {
+        const menuKey = btn.id.replace('quickNav-', '');
+        window.checkMenuAccess(menuKey, btn);
+      });
+    }
+
+    applyQuickNavAccess();
+
+    (async function init() {
+      try {
+        // Load dropdowns FIRST and WAIT for them
+        await loadAllDropdowns();
+
+        // Then load deductions
+        await fetchAllDeductions();
+
+      } catch (error) {
+        console.error('Initialization error:', error);
+      }
+    })();
+  })();
+</script>

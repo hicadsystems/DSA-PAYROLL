@@ -1,0 +1,874 @@
+<div class="p-6">
+  <!-- Bank Section Header -->
+  <div class=" flex flex-wrap gap-2 justify-between mb-6">
+    <div class="flex justify-start">
+      <h3 class="text-xl font-semibold text-gray-800">Bank Management</h3>
+    </div>
+      <div class="flex justify-end gap-2">
+        <button id="addNewBankBtn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">+ Add New Bank</button>
+         <button id="generateReportBtn" class="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700">
+        <i class="fas fa-file-alt mr-2"></i>Generate Report</button>
+      </div>
+   </div>
+
+    <!-- Hidden Bank Form -->
+    <form id="bankForm" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Bank Code *</label>
+        <input type="text" id="bankCode" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-white" placeholder="Enter bank code">
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Bank Name *</label>
+        <input type="text" id="bankName" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-white" placeholder="Enter bank name">
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Branch Name *</label>
+        <input type="text" id="branchName" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-white" placeholder="Enter branch name">
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Branch Code *</label>
+        <input type="text" id="branchCode" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-white" placeholder="Enter branch code">
+      </div>
+
+      <div class="lg:col-span-2">
+        <label class="block text-sm font-medium text-gray-700">Address</label>
+        <input type="text" id="address" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-white" placeholder="Enter address">
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Company Account No *</label>
+        <input type="number" maxlength="20" id="companyAccountNo" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-white" placeholder="Enter account number">
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Contact Mgr/Accountant</label>
+        <input type="text" maxlength="25" id="contactMgrAccountant" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-white" placeholder="Enter contact name">
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Telephone</label>
+        <input type="tel" id="telephone" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-white" placeholder="Enter telephone">
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Email</label>
+        <input type="email" id="email" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-white" placeholder="Enter email">
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Contact</label>
+        <input type="text" id="contact" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-white" placeholder="Enter contact">
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700">CBN Code</label>
+        <input type="text" id="cbnCode" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-white" placeholder="Enter CBN code">
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700">CBN Branch</label>
+        <input type="text" id="cbnBranch" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-white" placeholder="Enter CBN branch">
+      </div>
+
+      <div class="lg:col-span-2">
+        <label class="block text-sm font-medium text-gray-700">Remarks</label>
+        <textarea id="remarks" rows="1" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-white" placeholder="Enter remarks"></textarea>
+      </div>
+
+      <div class="col-span-1 md:col-span-2 lg:col-span-3 flex justify-end gap-2">
+        <button type="button" id="saveBankBtn" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Save</button>
+        <button type="button" id="cancelBankBtn" class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500">Cancel</button>
+      </div>
+    </form>
+  
+
+  <!-- Bank Table -->
+    <div class="overflow-x-auto">
+      <table class="min-w-full border border-gray-200 rounded-lg text-sm">
+        <thead class="bg-blue-100 text-blue-900">
+          <tr>
+            <th class="border px-2 py-3 text-left">Bank Code</th>
+            <th class="border px-6 py-3 text-left">Bank Name</th>
+            <th class="border px-6 py-3 text-left">Branch Name</th>
+            <th class="border px-6 py-3 text-left">Branch Code</th>
+            <th class="border px-6 py-3 text-left">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="bankTableBody" >
+          <!-- Data will be populated here -->
+        </tbody>
+      </table>
+    </div>
+
+  <!-- Pagination Controls -->
+  <div class="mt-4 flex items-center justify-between">
+    <div class="text-sm text-gray-600">
+      Showing <span id="startRecord">0</span> to <span id="endRecord">0</span> of <span id="totalRecords">0</span> records
+    </div>
+    <div class="flex items-center space-x-2">
+      <select id="recordsPerPage" class="border border-gray-300 rounded px-2 py-1 text-sm">
+        <option value="10">10 per page</option>
+        <option value="25">25 per page</option>
+        <option value="50">50 per page</option>
+        <option value="100">100 per page</option>
+      </select>
+      <button id="prevPage" class="px-3 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 disabled:opacity-50">
+        Previous
+      </button>
+      <span class="text-sm">
+        Page <span id="currentPage">1</span> of <span id="totalPages">1</span>
+      </span>
+      <button id="nextPage" class="px-3 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 disabled:opacity-50">
+        Next
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Success Modal -->
+<div id="successModal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+  <div class="bg-white p-6 rounded-lg shadow-xl max-w-md w-full mx-4">
+    <div class="flex items-center mb-4">
+      <div class="flex-shrink-0">
+        <svg class="h-8 w-8 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+      </div>
+      <div class="ml-3">
+        <h3 class="text-lg font-semibold text-green-600">Success!</h3>
+      </div>
+    </div>
+    <p id="successMessage" class="mb-4 text-gray-700">Bank record saved successfully!</p>
+    <div class="flex justify-end">
+      <button id="closeSuccessModal" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">OK</button>
+    </div>
+  </div>
+</div>
+
+<!-- Error Modal -->
+<div id="errorModal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+  <div class="bg-white p-6 rounded-lg shadow-xl max-w-md w-full mx-4">
+    <div class="flex items-center mb-4">
+      <div class="flex-shrink-0">
+        <svg class="h-8 w-8 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+        </svg>
+      </div>
+      <div class="ml-3">
+        <h3 class="text-lg font-semibold text-red-600">Error</h3>
+      </div>
+    </div>
+    <p id="errorMessage" class="mb-4 text-gray-700">Please fill in all required fields.</p>
+    <div class="flex justify-end">
+      <button id="closeErrorModal" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">OK</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div id="confirmModal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+  <div class="bg-white p-6 rounded-lg shadow-xl max-w-md w-full mx-4">
+    <div class="flex items-center mb-4">
+      <div class="flex-shrink-0">
+        <svg class="h-8 w-8 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+      </div>
+      <div class="ml-3">
+        <h3 class="text-lg font-semibold text-yellow-600">Confirm Action</h3>
+      </div>
+    </div>
+    <p id="confirmMessage" class="mb-4 text-gray-700">Are you sure you want to delete this bank record?</p>
+    <div class="flex justify-end gap-2">
+      <button id="cancelConfirm" class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500">Cancel</button>
+      <button id="confirmAction" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- View Details Modal -->
+<div id="viewModal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+  <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-2xl mx-4 max-h-screen overflow-y-auto">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-lg font-semibold text-blue-600">Bank Details</h3>
+      <button id="closeViewModal" class="text-gray-400 hover:text-gray-600">
+        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+    <div id="viewContent" class="space-y-3 text-sm"></div>
+  </div>
+</div>
+
+<script>
+  const auth = window.authService;
+  let bankData = [];
+  let editingBankIndex = null;
+  let pendingDeleteIndex = null;
+
+  // Pagination variables
+  let currentPage = 1;
+  let recordsPerPage = 10;
+  let totalRecords = 0;
+  let totalPages = 1;
+
+  const bankForm = document.getElementById("bankForm");
+  const addNewBankBtn = document.getElementById("addNewBankBtn");
+  const saveBankBtn = document.getElementById("saveBankBtn");
+  const cancelBankBtn = document.getElementById("cancelBankBtn");
+  const bankTableBody = document.getElementById("bankTableBody");
+
+  // Pagination elements
+  const prevPageBtn = document.getElementById('prevPage');
+  const nextPageBtn = document.getElementById('nextPage');
+  const currentPageSpan = document.getElementById('currentPage');
+  const totalPagesSpan = document.getElementById('totalPages');
+  const recordsPerPageSelect = document.getElementById('recordsPerPage');
+  const startRecordSpan = document.getElementById('startRecord');
+  const endRecordSpan = document.getElementById('endRecord');
+  const totalRecordsSpan = document.getElementById('totalRecords');
+
+  // Load banks from backend
+  async function loadBanks() {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await auth.fetchWithAuth(`/api/bank?page=${currentPage}&limit=${recordsPerPage}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        }
+      });
+
+      if (!res.ok) throw new Error("Failed to fetch banks");
+
+      const result = await res.json();
+
+      if (result.success) {
+        // Save data for rendering
+        bankData = result.data;
+
+        // Update pagination variables
+        totalRecords = result.pagination.totalRecords;
+        totalPages = result.pagination.totalPages;
+        currentPage = result.pagination.currentPage;
+
+        // Now render table and pagination UI
+        renderBankTable();
+        updatePaginationUI();
+      } else {
+        showErrorModal("No records found.");
+      }
+
+    } catch (err) {
+      showErrorModal("Error loading bank records: " + err.message);
+    }
+  }
+
+  // Show form when Add New is clicked
+  addNewBankBtn.addEventListener("click", () => {
+    bankForm.classList.remove("hidden");
+    editingBankIndex = null;
+    document.getElementById("bankCode").disabled = false;
+    document.getElementById("branchCode").disabled = false;
+    resetBankForm();
+  });
+
+  // Save bank record (Create / Update)
+  saveBankBtn.addEventListener("click", async () => {
+    const requiredFields = ["bankCode", "bankName", "branchName", "branchCode"];
+    let missingFields = [];
+
+    for (let field of requiredFields) {
+      const value = document.getElementById(field).value.trim();
+      if (!value) {
+        missingFields.push(field.replace(/([A-Z])/g, " $1").replace(/^./, str => str.toUpperCase()));
+      }
+    }
+    if (missingFields.length > 0) {
+      showErrorModal(`Please fill in the following required fields: ${missingFields.join(", ")}`);
+      return;
+    }
+
+    const bankRecord = {
+      bankcode: document.getElementById("bankCode").value.trim(),
+      bankname: document.getElementById("bankName").value.trim(),
+      branchname: document.getElementById("branchName").value.trim(),
+      branchcode: document.getElementById("branchCode").value.trim(),
+      address: document.getElementById("address").value.trim(),
+      CompanyAcctNo: document.getElementById("companyAccountNo").value.trim(),
+      ContactMgrAccountant: document.getElementById("contactMgrAccountant").value.trim(),
+      remarks: document.getElementById("remarks").value.trim(),
+      telephone: document.getElementById("telephone").value.trim(),
+      email: document.getElementById("email").value.trim(),
+      contact: document.getElementById("contact").value.trim(),
+      cbn_code: document.getElementById("cbnCode").value.trim(),
+      cbn_branch: document.getElementById("cbnBranch").value.trim(),
+      datecreated: new Date().toISOString().slice(0, 19).replace("T", " ")
+    };
+
+    try {
+      if (editingBankIndex !== null) {
+        //Update via PUT
+        const { bankcode, branchcode } = bankData[editingBankIndex];
+        const token = localStorage.getItem('token');
+
+        const res = await auth.fetchWithAuth(`/api/${bankcode}/${branchcode}`, {
+          method: "PUT",
+          headers: { 
+            "Content-Type": "application/json",
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(bankRecord)
+        });
+        if (!res.ok) throw new Error("Failed to update bank");
+        showSuccessModal("Bank record updated successfully!");
+        editingBankIndex = null;
+      } else {
+        //Create via POST
+        const token = localStorage.getItem('token');
+
+        const res = await auth.fetchWithAuth("/api/bankcreate", {
+          method: "POST",
+          headers: { 
+            "Content-Type": "application/json",
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(bankRecord)
+        });
+        if (!res.ok) throw new Error("Failed to save bank");
+        showSuccessModal("Bank record saved successfully!");
+      }
+
+      await loadBanks();
+      bankForm.classList.add("hidden");
+      resetBankForm();
+    } catch (err) {
+      showErrorModal(err.message);
+    }
+  });
+
+  // Cancel form
+  cancelBankBtn.addEventListener("click", () => {
+    bankForm.classList.add("hidden");
+    resetBankForm();
+    editingBankIndex = null;
+  });
+
+  function resetBankForm() {
+    bankForm.querySelectorAll("input, textarea").forEach(input => input.value = "");
+  }
+
+  function renderBankTable() {
+    bankTableBody.innerHTML = bankData.map((item, index) => `
+      <tr class="hover:bg-gray-50">
+        <td class="border px-2 py-2 text-sm text-gray-900">${item.bankcode}</td>
+        <td class="border px-2 py-2 text-sm text-gray-900">${item.bankname}</td>
+        <td class="border px-2 py-2 text-sm text-gray-900">${item.branchname}</td>
+        <td class="border px-2 py-2 text-sm text-gray-900">${item.branchcode}</td>
+        <td class="border px-2 py-2 text-sm font-medium">
+          <button onclick="viewBankRecord(${index})" class="text-blue-600 hover:text-blue-900 px-2 py-1 rounded hover:bg-blue-50 mr-2">View</button>
+          <button onclick="editBankRecord(${index})" class="text-green-600 hover:text-green-900 px-2 py-1 rounded hover:bg-green-50 mr-2">Edit</button>
+          <button onclick="deleteBankRecord(${index})" class="text-red-600 hover:text-red-900 px-2 py-1 rounded hover:bg-red-50">Delete</button>
+        </td>
+      </tr>
+    `).join("");
+  }
+
+  function updatePaginationUI() {
+    currentPageSpan.textContent = currentPage;
+    totalPagesSpan.textContent = totalPages;
+    
+    const start = (currentPage - 1) * recordsPerPage + 1;
+    const end = Math.min(start + recordsPerPage - 1, totalRecords);
+    
+    startRecordSpan.textContent = totalRecords === 0 ? 0 : start;
+    endRecordSpan.textContent = end;
+    totalRecordsSpan.textContent = totalRecords;
+
+    prevPageBtn.disabled = currentPage <= 1;
+    nextPageBtn.disabled = currentPage >= totalPages;
+  }
+
+  // Global functions for table actions
+  window.viewBankRecord = function(index) {
+    const item = bankData[index];
+
+    // Format date
+    let formattedDate = "";
+    if (item.datecreated) {
+      const dateObj = new Date(item.datecreated);
+      formattedDate = dateObj.toLocaleString('en-US', {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true
+      });
+    }
+
+    let html = "";
+
+    const fieldLabels = {
+      bankcode: "Bank Code",
+      bankname: "Bank Name",
+      branchname: "Branch Name",
+      branchcode: "Branch Code",
+      address: "Address",
+      CompanyAcctNo: "Company Account No",
+      ContactMgrAccountant: "Contact Mgr/Accountant",
+      remarks: "Remarks",
+      telephone: "Telephone",
+      email: "Email",
+      contact: "Contact",
+      cbn_code: "CBN Code",
+      cbn_branch: "CBN Branch",
+      formattedDate: "Date Created"
+    };
+
+    for (let key in fieldLabels) {
+      let value = key === "formattedDate" ? formattedDate : item[key];
+      html += `
+        <div class="grid grid-cols-3 gap-2 py-2 border-b border-gray-200">
+          <dt class="font-medium text-gray-600">${fieldLabels[key]}:</dt>
+          <dd class="col-span-2 text-gray-900">${value || "N/A"}</dd>
+        </div>`;
+    }
+
+    document.getElementById("viewContent").innerHTML = html;
+    showModal("viewModal");
+  };
+
+  window.editBankRecord = function(index) {
+    const item = bankData[index];
+    document.getElementById("bankCode").value = item.bankcode;
+    document.getElementById("bankName").value = item.bankname;
+    document.getElementById("branchName").value = item.branchname;
+    document.getElementById("branchCode").value = item.branchcode;
+    document.getElementById("address").value = item.address;
+    document.getElementById("companyAccountNo").value = item.CompanyAcctNo;
+    document.getElementById("contactMgrAccountant").value = item.ContactMgrAccountant;
+    document.getElementById("remarks").value = item.remarks;
+    document.getElementById("telephone").value = item.telephone;
+    document.getElementById("email").value = item.email;
+    document.getElementById("contact").value = item.contact;
+    document.getElementById("cbnCode").value = item.cbn_code;
+    document.getElementById("cbnBranch").value = item.cbn_branch;
+
+    editingBankIndex = index;
+    document.getElementById("bankCode").disabled = true;
+    document.getElementById("branchCode").disabled = true;
+    bankForm.classList.remove("hidden");
+  };
+
+  window.deleteBankRecord = async function(index) {
+    pendingDeleteIndex = index;
+    showConfirmModal("Are you sure you want to delete this bank record? This action cannot be undone.");
+  };
+
+  document.getElementById("confirmAction").addEventListener("click", async () => {
+    if (pendingDeleteIndex !== null) {
+      try {
+        const { bankcode, branchcode } = bankData[pendingDeleteIndex];
+        const token = localStorage.getItem('token');
+
+        const res = await auth.fetchWithAuth(`/api/${bankcode}/${branchcode}`, { 
+          method: "DELETE",
+          headers: { 
+            "Content-Type": "application/json",
+            'Authorization': `Bearer ${token}`
+          },
+        });
+        if (!res.ok) throw new Error("Failed to delete bank");
+        showSuccessModal("Bank record deleted successfully!");
+        await loadBanks();
+      } catch (err) {
+        showErrorModal(err.message);
+      }
+      pendingDeleteIndex = null;
+    }
+    closeModal("confirmModal");
+  });
+
+ // Modal functions
+  function showModal(modalId) {
+    document.getElementById(modalId).classList.remove("hidden");
+  }
+
+  function closeModal(modalId) {
+    document.getElementById(modalId).classList.add("hidden");
+  }
+
+  function showSuccessModal(message) {
+    document.getElementById("successMessage").textContent = message;
+    showModal("successModal");
+  }
+
+  function showErrorModal(message) {
+    document.getElementById("errorMessage").textContent = message;
+    showModal("errorModal");
+  }
+
+  function showConfirmModal(message) {
+    document.getElementById("confirmMessage").textContent = message;
+    showModal("confirmModal");
+  }
+
+  // Modal event listeners
+  document.getElementById("closeSuccessModal").addEventListener("click", () => closeModal("successModal"));
+  document.getElementById("closeErrorModal").addEventListener("click", () => closeModal("errorModal"));
+  document.getElementById("closeViewModal").addEventListener("click", () => closeModal("viewModal"));
+
+  document.getElementById("cancelConfirm").addEventListener("click", () => {
+    closeModal("confirmModal");
+    pendingDeleteIndex = null;
+  });
+
+  document.getElementById("confirmAction").addEventListener("click", () => {
+    if (pendingDeleteIndex !== null) {
+      bankData.splice(pendingDeleteIndex, 1);
+      renderBankTable();
+      showSuccessModal("Bank record deleted successfully!");
+      pendingDeleteIndex = null;
+    }
+    closeModal("confirmModal");
+  });
+
+  // Close modals when clicking outside
+  const modals = ['successModal', 'errorModal', 'confirmModal', 'viewModal'];
+  modals.forEach(modalId => {
+    document.getElementById(modalId).addEventListener("click", (e) => {
+      if (e.target === e.currentTarget) closeModal(modalId);
+    });
+  });
+
+  //Pagination Listeners
+  prevPageBtn.addEventListener('click', () => {
+    if (currentPage > 1) {
+      currentPage--;
+      loadBanks();
+    }
+  });
+
+  nextPageBtn.addEventListener('click', () => {
+    if (currentPage < totalPages) {
+      currentPage++;
+      loadBanks();
+    }
+  });
+
+  recordsPerPageSelect.addEventListener('change', (e) => {
+    recordsPerPage = parseInt(e.target.value);
+    currentPage = 1;
+    loadBanks();
+  });
+
+  // Capitalize first letter, keep the rest lower
+  function capitalizeWords(str) {
+    return str
+      ? str
+          .toLowerCase()
+          .split(" ")
+          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(" ")
+      : "";
+  }
+
+  ["address", "contactMgrAccountant"].forEach(id => {
+    const el = document.getElementById(id);
+    el.addEventListener("input", () => {
+      el.value = capitalizeWords(el.value);
+    });
+  });
+
+  //capitalize all
+  ["bankCode", "bankName", "branchName", "branchCode", "cbnCode", "cbnBranch"].forEach(id => {
+    const el = document.getElementById(id);
+    el.addEventListener("input", () => {
+      el.value = el.value.toUpperCase();
+    });
+  });
+
+  //generate reports functionality
+  async function generateReport() {
+    const REPORT_API_URL = `/api/bank-report-all`; 
+
+    let fullData;
+    try {
+        const token = localStorage.getItem('token');
+        const response = await auth.fetchWithAuth(REPORT_API_URL, {   
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}` 
+            }
+        });
+        const result = await response.json();
+
+        if (!result.success) {
+            showError('Failed to load report data: ' + result.message);
+            return;
+        }
+        
+        fullData = result.data; 
+
+    } catch (error) {
+        console.error('Error fetching report data:', error);
+        showError('An error occurred while fetching report data.');
+        return;
+    }
+    
+    if (!fullData || fullData.length === 0) {
+        showError('No records found for the report.');
+        return;
+    }
+
+    const data = fullData;
+
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('en-GB', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+    const timeStr = now.toLocaleTimeString('en-GB', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+    
+    const generatedBy = localStorage.getItem('full_name') || 'System User';
+    
+    const printWindow = window.open('', '_blank');
+
+    const printContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>Bank Details Report</title>
+        <style>
+          @page { 
+            size: A4 landscape; 
+            margin: 0.5mm; 
+            background-color: #f8fbff;
+          }
+          
+          body { 
+            font-family: Helvetica, Arial, sans-serif; 
+            font-size: 10pt;
+            margin: 0;
+            padding: 0;
+            position: relative;
+            color: #333;
+          }
+
+          /* Faint logo overlay */
+          body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('photos/logo.png');
+            background-size: auto 100%;
+            background-repeat: no-repeat;
+            background-position: center center;
+            opacity: 0.02;
+            z-index: -1;
+            pointer-events: none;
+          }
+
+          .header-wrapper {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 8px;
+            border-bottom: 2px solid #1a1a1a;
+            padding-bottom: 5px;
+          }
+
+          .header {
+            flex-grow: 1;
+            text-align: center;
+          }
+          
+          .header h1 {
+            font-size: 13pt;
+            font-weight: bold;
+            margin-bottom: 2px;
+            letter-spacing: 1.5px;
+            color: #1e40af;
+            font-family: 'Libre Baskerville', Georgia, serif;
+          }
+          
+          .header h2 {
+            font-size: 10pt;
+            font-weight: normal;
+            margin-top: 2px;
+            color: #4a4a4a;
+            font-family: 'Libre Baskerville', Georgia, serif;
+          }
+
+          .header-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 10px 0;
+            font-size: 9pt;
+          }
+
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            font-size: 9.5px;
+            font-weight: bold;
+          }
+
+          th {
+            color: #1e40af;
+            padding: 8px 4px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 7.5px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            border-bottom: 1px solid #0056A0;
+          }
+
+          td {
+            padding: 6px 4px;
+            border: none;
+            vertical-align: middle;
+          }
+
+          .text-center {
+            text-align: center;
+          }
+
+          .footer {
+            padding-top: 10px;
+            border-top: 0.5px solid #1a1a1a;
+            text-align: center;
+            font-size: 8pt;
+            color: #64748b;
+            margin-top: 20px;
+          }
+
+          @media print {
+            body {
+              print-color-adjust: exact;
+              -webkit-print-color-adjust: exact;
+            }
+            
+            body::before {
+              position: fixed;
+              display: block;
+              content: "";
+              width: 100%;
+              height: 100%;
+              top: 0;
+              left: 0;
+              background-image: url('photos/logo.png');
+              background-size: auto 100%;
+              background-repeat: no-repeat;
+              background-position: center center;
+              opacity: 0.02;
+              z-index: -1;
+            }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="header-wrapper">
+          <div class="header">
+            <h1>Nigerian Navy (Naval Headquarters)</h1>
+            <h2>CENTRAL PAY OFFICE, 23 POINT ROAD APAPA</h2>
+          </div>
+        </div>
+
+        <div class="header-info">
+          <div>
+            <strong>BANK DETAILS REPORT</strong>
+          </div>
+          <div>
+            <span>PRODUCED ON</span> 
+            <strong>${dateStr}</strong> 
+            <span>AT</span> 
+            <strong>${timeStr}</strong>
+          </div>
+          <div>
+            <strong>${data.length}</strong>
+            <span>RECORDS</span>
+          </div>
+        </div>
+
+        <!-- Data Table -->
+        <table>
+          <thead>
+            <tr>
+              <th class="text-center" style="width: 4%;">No.</th>
+              <th style="width: 15%;">Address</th>
+              <th style="width: 6%;">Bank Code</th>
+              <th style="width: 12%;">Bank Name</th>
+              <th style="width: 10%;">Branch Name</th>
+              <th style="width: 6%;">Branch Code</th>
+              <th style="width: 10%;">Company Acct No</th>
+              <th style="width: 10%;">Manager</th>
+              <th style="width: 8%;">Telephone</th>
+              <th style="width: 8%;">Email</th>
+              <th style="width: 6%;">Contact</th>
+              <th style="width: 5%;">CBN Code</th>
+              <th style="width: 5%;">CBN Branch</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${data.map((item, index) => `
+              <tr>
+                <td class="text-center"><strong>${index + 1}</strong></td>
+                <td>${item.address || '-'}</td>
+                <td>${item.bankcode || '-'}</td>
+                <td>${item.bankname || '-'}</td>
+                <td>${item.branchname || '-'}</td>
+                <td>${item.branchcode || '-'}</td>
+                <td>${item.CompanyAcctNo || '-'}</td>
+                <td>${item.ContactMgrAccountant || '-'}</td>
+                <td>${item.telephone || '-'}</td>
+                <td>${item.email || '-'}</td>
+                <td>${item.contact || '-'}</td>
+                <td>${item.cbn_code || '-'}</td>
+                <td>${item.cbn_branch || '-'}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+
+        <div class="footer">
+          <p><strong>Generated by:</strong> ${generatedBy}</p>
+          <p>All rights reserved &#xA9; Hicad Systems Limited.</p>
+        </div>
+      </body>
+      </html>
+    `;
+
+    printWindow.document.write(printContent);
+    printWindow.document.close();
+
+    printWindow.onload = function() {
+      printWindow.print();
+    };
+  }
+    
+  // Add event listener to generate report button
+  document.getElementById('generateReportBtn').addEventListener('click', generateReport);
+
+  // Init load
+  loadBanks();
+</script>

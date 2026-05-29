@@ -1,0 +1,516 @@
+<!-- Save Payroll Files Section -->
+<div class="items rounded-lg m-6 max-w-lg p-6 mt-12 m-auto">
+  <p class="text-gray-600 mb-6 font-semibold lg:text-lg">
+    Securely save payroll files for record keeping and backups.
+  </p>
+
+  <!-- Action Buttons -->
+  <div class="flex justify-center mt-12 space-x-4">
+    <button
+      id="savePayrollBtn"
+      class="px-8 py-3 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition transform hover:scale-105"
+    >
+    <i class="fa-solid fa-floppy-disk text-xl text-white mr-2"></i>  Save Now
+    </button>
+  </div>
+
+  <!-- Confirmation Modal -->
+  <div 
+    id="saveConfirmModal" 
+    class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 transition-opacity"
+  >
+    <div class="bg-white rounded-2xl w-[500px] max-w-[90%] shadow-2xl transform transition-transform scale-95" id="saveModalContent">
+      <!-- Header -->
+      <div class="bg-navy px-6 py-4 rounded-t-2xl">
+        <div class="flex justify-between items-center">
+          <h3 class="text-xl font-semibold text-white flex items-center">
+            <span class="mr-2"></span> Confirm Save
+          </h3>
+          <button id="closeSaveModalBtn" class="text-white hover:text-gray-200 text-2xl leading-none">
+            ×
+          </button>
+        </div>
+      </div>
+
+      <!-- Body -->
+      <div class="p-6">
+        <div class="bg-amber border-l-4 border-blue-200 p-4 mb-4 rounded">
+          <p class="text-gray-700">
+            Proceed to <span class="font-semibold text-yellow-700">Save Payroll Files</span>? 
+            This action will save all file entries for <span id="monthyear" class="font-bold"></span>.
+          </p>
+        </div>
+        
+        <div class="bg-amber border border-blue-200 p-3 rounded-lg">
+          <p class="text-sm text-blue-800">
+            <strong>Note:</strong> After Saving, you can not make changes to the payroll data.
+          </p>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="flex justify-end space-x-3 bg-gray-50 px-6 py-4 rounded-b-2xl">
+        <button 
+          id="cancelSaveConfirmBtn" 
+          class="px-6 py-2 bg-gray-300 hover:bg-gray-400 rounded-lg transition"
+        >
+          Cancel
+        </button>
+        <button 
+          id="confirmSaveBtn" 
+          class="px-6 py-2 bg-navy hover:bg-blue-600 text-white rounded-lg transition transform hover:scale-105"
+        >
+          Yes, Save
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- post completion -->
+  <div id="saveConfirm" class="mt-6 hidden text-center">
+    <div class="flex justify-center mb-3">
+      <div class="bg-green-500 text-white p-3 rounded-full shadow animate-bounce">✔</div>
+    </div>
+    <p class="text-green-700 font-semibold mb-4">
+      Payroll files saved successfully! Proceed to print changes in Personnel Data
+    </p>
+    <button
+      onclick="navigateToNext()"
+      class="px-6 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 transition"
+    >
+      Go to Personnel Data
+    </button>
+  </div>
+</div>
+
+<!-- Alert Modal (for errors and warnings) -->
+<div
+  id="alertModal"
+  class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 transition-opacity"
+>
+  <div class="bg-white rounded-2xl w-96 max-w-[90%] p-6 shadow-2xl transform transition-transform scale-95" id="alertModalContent">
+    <div class="flex flex-col items-center">
+      <div id="alertIcon" class="w-16 h-16 rounded-full flex items-center justify-center mb-4">
+        <span class="text-3xl"><i class="fa-solid fa-triangle-exclamation text-yellow-500"></i></span>
+      </div>
+      <h3 id="alertTitle" class="text-xl font-bold text-gray-800 mb-2">Alert</h3>
+      <p id="alertMessage" class="text-gray-600 text-center mb-6">
+        Something requires your attention.
+      </p>
+      <button
+        id="closeAlertBtn"
+        class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition w-full"
+      >
+        Okay
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Process / Logging Modal -->
+<div
+  id="processModal"
+  class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 transition-opacity"
+>
+  <div class="bg-white rounded-2xl w-[600px] max-w-[90%] shadow-2xl transform transition-transform scale-95" id="processModalContent">
+    <!-- Header -->
+    <div class="bg-navy p-6 rounded-t-2xl">
+      <h3 class="text-xl font-bold text-white flex items-center">
+        <span class="mr-2"><i class="fa-solid fa-floppy-disk text-xl text-white"></i></span> Payroll File Save Progress
+      </h3>
+      <div class="mt-3 bg-white/20 rounded-full h-2 overflow-hidden">
+        <div id="progressBar" class="bg-white h-full transition-all duration-500" style="width: 0%"></div>
+      </div>
+    </div>
+
+    <!-- Log Container -->
+    <div class="p-6">
+      <div id="logContainer" class="h-64 overflow-y-auto bg-gray-900 rounded-lg p-4 font-mono text-sm space-y-2"></div>
+      
+      <!-- Stats -->
+      <div class="grid grid-cols-3 gap-4 mt-4">
+        <div class="text-center p-3 bg-blue-50 rounded-lg">
+          <div class="text-2xl font-bold text-blue-600" id="totalSteps">0</div>
+          <div class="text-xs text-gray-600">Total Steps</div>
+        </div>
+        <div class="text-center p-3 bg-green-50 rounded-lg">
+          <div class="text-2xl font-bold text-green-600" id="successCount">0</div>
+          <div class="text-xs text-gray-600">Completed</div>
+        </div>
+        <div class="text-center p-3 bg-red-50 rounded-lg">
+          <div class="text-2xl font-bold text-red-600" id="errorCount">0</div>
+          <div class="text-xs text-gray-600">Errors</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="p-6 bg-gray-50 rounded-b-2xl flex justify-end">
+      <button
+        id="closeModalBtn"
+        class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition hidden"
+      >
+        Close
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Already Saved Modal -->
+<div
+  id="alreadySavedModal"
+  class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 transition-opacity"
+>
+  <div class="bg-white rounded-2xl w-96 max-w-[90%] p-6 shadow-2xl transform transition-transform scale-95" id="alreadySavedModalContent">
+    <div class="flex flex-col items-center">
+      <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-4 animate-pulse">
+        <span class="text-4xl"><i class="fa-solid fa-thumbs-up"></i></span>
+      </div>
+      <h3 class="text-2xl font-bold text-green-700 mb-3">Congrats!</h3>
+      <p class="text-gray-700 font-bold mb-2 text-center">
+        You have already saved Payroll Files for this period.
+      </p>
+      <p class="text-gray-900 font-semibold mb-6 text-center text-sm">
+        To make new changes, recall Payroll Files. 
+      </p>
+      <p class="text-green-700 font-semibold mb-4">
+        Proceed to print changes in Personnel Data
+      </p>
+      <div class="flex gap-2">
+        <button
+          id="closeCongratsBtn"
+          class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition w-fit"
+        >
+          Close
+        </button>
+        <button
+          onclick="navigateToNext()"
+          class="px-6 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 transition"
+        >
+          <i class="fas fa-arrow-right mr-2"></i>Go to Personnel Data
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+  const auth = window.authService;
+(function () {
+  const btn = document.getElementById("savePayrollBtn");
+  const processModal = document.getElementById("processModal");
+  const processModalContent = document.getElementById("processModalContent");
+  const logBox = document.getElementById("logContainer");
+  const closeBtn = document.getElementById("closeModalBtn");
+  const confirmBox = document.getElementById("saveConfirm");
+  const alreadySavedModal = document.getElementById("alreadySavedModal");
+  const alreadySavedModalContent = document.getElementById("alreadySavedModalContent");
+  const closeCongratsBtn = document.getElementById("closeCongratsBtn");
+  const alertModal = document.getElementById("alertModal");
+  const alertModalContent = document.getElementById("alertModalContent");
+  const closeAlertBtn = document.getElementById("closeAlertBtn");
+  const progressBar = document.getElementById("progressBar");
+  const totalSteps = document.getElementById("totalSteps");
+  const successCount = document.getElementById("successCount");
+  const errorCount = document.getElementById("errorCount");
+  
+  // Confirmation modal elements
+  const saveConfirmModal = document.getElementById("saveConfirmModal");
+  const saveConfirmModalContent = document.getElementById("saveModalContent");
+  const closeSaveModalBtn = document.getElementById("closeSaveModalBtn");
+  const cancelSaveConfirmBtn = document.getElementById("cancelSaveConfirmBtn");
+  const confirmSaveBtn = document.getElementById("confirmSaveBtn");
+  const monthYearSpan = document.getElementById("monthyear");
+
+  let currentPayrollStage = 0;
+  let currentMonth = "";
+  let currentYear = "";
+  let logCount = 0;
+  let successTotal = 0;
+  let errorTotal = 0;
+
+  // Modal animation helpers
+  function showModal(modal, content) {
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
+    setTimeout(() => {
+      content.classList.remove("scale-95");
+      content.classList.add("scale-100");
+    }, 10);
+  }
+
+  function hideModal(modal, content) {
+    content.classList.remove("scale-100");
+    content.classList.add("scale-95");
+    setTimeout(() => {
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+    }, 200);
+  }
+
+  // Show alert modal
+  function showAlert(title, message, type = "warning") {
+    const alertIcon = document.getElementById("alertIcon");
+    const alertTitle = document.getElementById("alertTitle");
+    const alertMessage = document.getElementById("alertMessage");
+    const closeAlertBtn = document.getElementById("closeAlertBtn");
+
+    // Set icon and colors based on type
+    if (type === "error") {
+      alertIcon.innerHTML = '<span class="text-3xl"><i class="fa-solid fa-xmark text-red-500"></i></span>';
+      alertIcon.className = "w-16 h-16 rounded-full flex items-center justify-center mb-4 bg-red-100";
+      alertTitle.className = "text-xl font-bold text-red-700 mb-2";
+      closeAlertBtn.className = "px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition w-full";
+    } else if (type === "warning") {
+      alertIcon.innerHTML = '<span class="text-3xl"><i class="fa-solid fa-triangle-exclamation text-yellow-500"></i></span>';
+      alertIcon.className = "w-16 h-16 rounded-full flex items-center justify-center mb-4 bg-yellow-100";
+      alertTitle.className = "text-xl font-bold text-yellow-700 mb-2";
+      closeAlertBtn.className = "px-6 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition w-full";
+    } else if (type === "info") {
+      alertIcon.innerHTML = '<span class="text-3xl"><i class="fa-solid fa-circle-info text-sky-500"></i></span>';
+      alertIcon.className = "w-16 h-16 rounded-full flex items-center justify-center mb-4 bg-blue-100";
+      alertTitle.className = "text-xl font-bold text-blue-700 mb-2";
+      closeAlertBtn.className = "px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition w-full";
+    }
+
+    alertTitle.textContent = title;
+    alertMessage.textContent = message;
+    showModal(alertModal, alertModalContent);
+  }
+
+  // Enhanced logging with animations
+  const appendLog = (msg, type = "info") => {
+    logCount++;
+    totalSteps.textContent = logCount;
+
+    const colors = {
+      success: "text-green-400",
+      error: "text-red-400",
+      warning: "text-yellow-400",
+      info: "text-gray-300"
+    };
+
+    const icons = {
+      success: '<i class="fas fa-check-circle text-success"></i>',
+      error: '<i class="fa-solid fa-xmark text-red-600"></i>',
+      warning: '<i class="fa-solid fa-triangle-exclamation text-yellow-500"></i>',
+      info: '<i class="fa-solid fa-circle-info text-blue-500"></i>'
+    };
+
+    if (type === "success") successTotal++;
+    if (type === "error") errorTotal++;
+
+    successCount.textContent = successTotal;
+    errorCount.textContent = errorTotal;
+
+    const div = document.createElement("div");
+    div.className = `${colors[type]} opacity-0 transition-opacity duration-300 flex items-start`;
+    div.innerHTML = `<span class="mr-2 font-bold">${icons[type]}</span><span class="flex-1">${msg}</span>`;
+    logBox.appendChild(div);
+    
+    setTimeout(() => div.classList.remove("opacity-0"), 10);
+    logBox.scrollTop = logBox.scrollHeight;
+
+    // Update progress bar
+    const progress = Math.min((successTotal / Math.max(logCount, 1)) * 100, 100);
+    progressBar.style.width = `${progress}%`;
+  };
+
+  async function pollLogs(logId) {
+    appendLog("Monitoring process logs...", "info");
+    let completed = false;
+
+    while (!completed) {
+      try {
+        const token = localStorage.getItem('token');
+        const res = await auth.fetchWithAuth(`/logs/${logId}`, {   
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${token}` 
+          }
+        });
+        
+        if (!res.ok) throw new Error("Failed to fetch logs");
+        const logs = await res.json();
+        
+        if (!logs.length) {
+          await new Promise((r) => setTimeout(r, 2000));
+          continue;
+        }
+
+        const log = logs[0];
+        
+        // Clear previous logs if status changed
+        if (log.status !== "IN_PROGRESS") {
+          logBox.innerHTML = "";
+          logCount = 0;
+          successTotal = 0;
+          errorTotal = 0;
+        }
+
+        appendLog(`Module: ${log.module}`, "info");
+        appendLog(`Action: ${log.action}`, "info");
+        appendLog(`User: ${log.username}`, "info");
+        appendLog(`Status: ${log.status}`, log.status === "FAILED" ? "error" : "success");
+        appendLog(`Message: ${log.message || "Processing..."}`, "info");
+
+        if (["SUCCESS", "FAILED"].includes(log.status)) {
+          completed = true;
+          if (log.status === "SUCCESS") {
+            appendLog("Process completed successfully!", "success");
+            progressBar.style.width = "100%";
+            closeBtn.classList.remove("hidden");
+            confirmBox.classList.remove("hidden");
+            
+            // Update payroll stage and notify system to hide Data Input
+            currentPayrollStage = 666;
+            window.dispatchEvent(new CustomEvent('payrollStatusChanged', { 
+              detail: { stage: 666, action: 'save' } 
+            }));
+          } else {
+            appendLog("Process failed.", "error");
+            closeBtn.classList.remove("hidden");
+          }
+        }
+
+        await new Promise((r) => setTimeout(r, 2000));
+      } catch (err) {
+        appendLog("Error reading logs: " + err.message, "error");
+        showAlert("Connection Error", "Unable to fetch process logs. Please check your connection.", "error");
+        closeBtn.classList.remove("hidden");
+        break;
+      }
+    }
+  }
+
+  async function loadPayrollStatus() {
+    try {
+      const token = localStorage.getItem('token') || 'demo-token';
+      const res = await auth.fetchWithAuth("/status-payroll", {   
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}` 
+        }
+      });
+      
+      if (!res.ok) throw new Error("Unable to fetch payroll status");
+      const data = await res.json();
+      currentPayrollStage = data?.sun || 0;
+      currentMonth = data?.mth || "";
+      currentYear = data?.ord || "";
+      
+      // Update month/year display if available
+      if (currentMonth && currentYear) {
+        const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        const monthName = monthNames[parseInt(currentMonth) - 1] || currentMonth;
+        monthYearSpan.textContent = `${monthName} ${currentYear}`;
+      }
+    } catch (err) {
+      console.error("Error fetching payroll status:", err.message);
+      showAlert("Status Error", "Could not load payroll status. Some features may be limited.", "warning");
+    }
+  }
+
+  btn.addEventListener("click", async () => {
+    if (currentPayrollStage >= 666) {
+      showModal(alreadySavedModal, alreadySavedModalContent);
+      return;
+    }
+
+    // Show confirmation modal first
+    showModal(saveConfirmModal, saveConfirmModalContent);
+  });
+
+  // Handle confirmation modal actions
+  confirmSaveBtn.addEventListener("click", async () => {
+    // Hide confirmation modal
+    hideModal(saveConfirmModal, saveConfirmModalContent);
+
+    // Proceed with save process
+    confirmBox.classList.add("hidden");
+    logBox.innerHTML = "";
+    logCount = 0;
+    successTotal = 0;
+    errorTotal = 0;
+    totalSteps.textContent = "0";
+    successCount.textContent = "0";
+    errorCount.textContent = "0";
+    progressBar.style.width = "0%";
+    closeBtn.classList.add("hidden");
+    
+    showModal(processModal, processModalContent);
+    appendLog("Starting payroll file save...", "info");
+
+    try {
+      const token = localStorage.getItem('token') || 'demo-token';
+      const res = await auth.fetchWithAuth("/savepayroll", {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}` 
+        },
+        body: JSON.stringify({ startedBy: "System UI" }),
+      });
+
+      if (!res.ok) throw new Error(`Server returned ${res.status}`);
+      const data = await res.json();
+      appendLog("Payroll save process started...", "success");
+
+      const logId = data.logId || data.result?.logId;
+      if (logId) {
+        await pollLogs(logId);
+      } else {
+        throw new Error("No log ID received from server");
+      }
+    } catch (err) {
+      appendLog("Error: " + err.message, "error");
+      showAlert("Save Failed", err.message, "error");
+      closeBtn.classList.remove("hidden");
+    }
+  });
+
+  cancelSaveConfirmBtn.addEventListener("click", () => {
+    hideModal(saveConfirmModal, saveConfirmModalContent);
+  });
+
+  closeSaveModalBtn.addEventListener("click", () => {
+    hideModal(saveConfirmModal, saveConfirmModalContent);
+  });
+
+  closeCongratsBtn.addEventListener("click", () => {
+    hideModal(alreadySavedModal, alreadySavedModalContent);
+  });
+
+  closeBtn.addEventListener("click", () => {
+    hideModal(processModal, processModalContent);
+  });
+
+  closeAlertBtn.addEventListener("click", () => {
+    hideModal(alertModal, alertModalContent);
+  });
+
+  // Close modals on backdrop click
+  [processModal, alreadySavedModal, alertModal, saveConfirmModal].forEach(modal => {
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) {
+        const content = modal.querySelector("div > div");
+        hideModal(modal, content);
+      }
+    });
+  });
+
+  // Demo navigation function
+  function navigateToNext() {
+    if (window.navigation && window.navigation.navigateToSection) {
+      window.navigation.navigateToSection('changes-personnel-data', 'Changes in Personnel Data');
+    } else {
+      showAlert("Navigation", "Navigation to Personnel Data section.", "info");
+    }
+  }
+  window.navigateToNext = navigateToNext;
+
+  loadPayrollStatus();
+})();
+</script>

@@ -1,0 +1,335 @@
+<style>
+  @keyframes grow-up {
+    0% {
+      height: 0;
+      bottom: 0;
+    }
+
+    100% {
+      height: 100%;
+      bottom: 0;
+    }
+  }
+
+  @keyframes grow-down {
+    0% {
+      height: 0;
+      top: 0;
+    }
+
+    100% {
+      height: 100%;
+      top: 0;
+    }
+  }
+
+  @keyframes expand {
+    0% {
+      width: 0;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    100% {
+      width: 100%;
+      left: 0;
+      transform: translateY(-50%);
+    }
+  }
+
+  .animate-grow-up {
+    animation: grow-up 0.6s ease-in-out infinite alternate;
+    position: absolute;
+    bottom: 0;
+  }
+
+  .animate-grow-down {
+    animation: grow-down 0.6s ease-in-out infinite alternate;
+    position: absolute;
+    top: 0;
+  }
+
+  .animate-expand {
+    animation: expand 0.6s ease-in-out infinite alternate;
+  }
+</style>
+
+<section class="items border-t m-6 max-w-lg mr-auto mx-auto">
+  <div class="hidden mb-6 text-center">
+    <h2 class="text-2xl font-bold text-blue-700">Employee Change History</h2>
+    <p class="text-sm text-gray-600 mt-1">Track employee data changes over time</p>
+  </div>
+  <div class="mb-2 pb-2 border-b">
+    <span class="text-blue-600 font-semibold text-lg block mb-3">Select Report Scope:</span>
+    <div class="flex gap-6">
+      <label class="flex items-center cursor-pointer"><input type="radio" name="changeScope" value="all"
+          class="text-blue-600 w-4 h-4" checked><span class="ml-2 font-medium">All Personnel</span></label>
+      <label class="flex items-center cursor-pointer"><input type="radio" name="changeScope" value="personnel"
+          class="text-blue-600 w-4 h-4"><span class="ml-2 font-medium">Specific Personnel</span></label>
+    </div>
+  </div>
+  <div id="changeForm" class="space-y-5">
+    <div class="">
+      <h3 class="text-sm font-semibold text-gray-700 mb-3">📅 Period Range (Required)</h3>
+      <div class="mb-3">
+        <label class="block text-sm font-medium text-gray-900 mb-1">From Period</label>
+        <div class="grid grid-cols-2 gap-3">
+          <div><label class="block text-xs text-gray-600 mb-1">Year</label><select id="fromYear"
+              class="w-full border border-slate-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              <option value="">-- Year --</option>
+            </select></div>
+          <div><label class="block text-xs text-gray-600 mb-1">Month</label><select id="fromMonth"
+              class="w-full border border-slate-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              <option value="">-- Month --</option>
+            </select></div>
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-900 mb-1">To Period</label>
+        <div class="grid grid-cols-2 gap-3">
+          <div><label class="block text-xs text-gray-600 mb-1">Year</label><select id="toYear"
+              class="w-full border border-slate-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              <option value="">-- Year --</option>
+            </select></div>
+          <div><label class="block text-xs text-gray-600 mb-1">Month</label><select id="toMonth"
+              class="w-full border border-slate-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              <option value="">-- Month --</option>
+            </select></div>
+        </div>
+      </div>
+    </div>
+    <div id="personnelSelectWrapper" class="hidden bg-green-50 p-2 rounded-lg">
+      <label class="block text-sm font-medium text-gray-900 mb-2"><i class="fas fa-user text-green-600 mr-2"></i>Select
+        Personnel</label>
+      <select id="personnelSelect"
+        class="w-full border border-slate-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500">
+        <option value="">-- Choose Personnel --</option>
+      </select>
+    </div>
+    <div class="mt-2">
+      <label class="block text-sm font-medium text-gray-900 mb-2"><i
+          class="fas fa-file-export text-gray-600 mr-2"></i>Export Format</label>
+      <div class="flex gap-4">
+        <label class="flex items-center cursor-pointer"><input type="radio" name="exportFormat" value="pdf"
+            class="text-blue-600 w-4 h-4" checked><span class="ml-2">PDF</span></label>
+        <label class="flex items-center cursor-pointer"><input type="radio" name="exportFormat" value="excel"
+            class="text-blue-600 w-4 h-4"><span class="ml-2">Excel</span></label>
+      </div>
+    </div>
+    <div class="flex justify-end gap-3 pt-4 border-t">
+      <button id="cancelChange"
+        class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium py-2 px-6 rounded-lg transition-colors"><i
+          class="fas fa-times mr-2"></i>Clear</button>
+      <button id="generateChange"
+        class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition-colors shadow-lg hover:shadow-xl"><i
+          class="fas fa-file-alt mr-2"></i>Generate Report</button>
+    </div>
+  </div>
+</section>
+
+<!-- Preview Modal (landscape) -->
+<div id="changeHistPreviewModal"
+  class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
+  <div class="bg-gray-50 rounded-lg shadow-lg w-full max-w-5xl max-h-[90vh] overflow-hidden">
+    <div class="sticky top-0 px-6 py-2 flex justify-between items-center bg-navy">
+      <h3 class="text-lg font-semibold text-white">Employee Change History Preview</h3>
+      <button id="changeHistClosePreviewBtn" class="text-white hover:text-gray-200 text-2xl">&times;</button>
+    </div>
+    <div class="overflow-auto" style="max-height: calc(90vh - 100px); background: #d1d5db;">
+      <iframe id="changeHistPreviewIframe" title="Employee Change History Preview"
+        style="width: 100%; min-height: 842px; border: none; background: white; display: block;"></iframe>
+    </div>
+    <div class="sticky bottom-0 bg-gray-50 border-t px-6 py-2 flex justify-end space-x-2">
+      <button id="changeHistCancelPreviewBtn"
+        class="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500">Cancel</button>
+      <button id="changeHistDownloadPreviewBtn"
+        class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Download</button>
+    </div>
+  </div>
+</div>
+
+<!-- Loading Modal -->
+<div id="loadingModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg shadow-lg p-8 text-center">
+    <div class="relative w-10 h-10 mx-auto mb-4">
+      <div class="absolute left-1 w-[6px] bg-blue-600 rounded animate-grow-up"></div>
+      <div class="absolute right-1 w-[6px] bg-blue-600 rounded animate-grow-down [animation-delay:0.3s]"></div>
+      <div
+        class="absolute top-1/2 left-1 h-[6px] bg-blue-600 rounded animate-expand [animation-delay:0.6s] -translate-y-1/2">
+      </div>
+    </div>
+    <h3 class="text-lg font-semibold mb-2">Generating Report...</h3>
+    <p class="text-gray-600">Please wait while we analyze employee changes.</p>
+  </div>
+</div>
+
+<!-- Success Modal -->
+<div id="changeHistSuccessModal"
+  class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 text-center">
+    <i class="fas fa-check-circle text-green-500 text-4xl mb-3"></i>
+    <h3 class="text-lg font-semibold mb-2">Success</h3>
+    <p id="changeHistSuccessMessage" class="text-gray-700 mb-4">Report downloaded successfully!</p>
+    <button id="changeHistSuccessOkBtn"
+      class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg">OK</button>
+  </div>
+</div>
+
+<!-- Message Modal -->
+<div id="changeModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
+    <div class="flex items-start mb-4">
+      <div id="changeModalIcon" class="mr-3 text-2xl"></div>
+      <div class="flex-1">
+        <h3 id="changeModalTitle" class="text-lg font-semibold mb-2"></h3>
+        <p id="changeModalMessage" class="text-gray-700"></p>
+      </div>
+    </div>
+    <div class="flex justify-end"><button id="changeModalCloseBtn"
+        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">OK</button></div>
+  </div>
+</div>
+
+<script>
+  const auth = window.authService;
+  const changeRadios = document.querySelectorAll('input[name="changeScope"]');
+  const personnelSelectWrapper = document.getElementById("personnelSelectWrapper");
+  const personnelSelect = document.getElementById("personnelSelect");
+  const generateChangeBtn = document.getElementById("generateChange");
+  const cancelChangeBtn = document.getElementById("cancelChange");
+  const changeModal = document.getElementById("changeModal");
+  const changeModalTitle = document.getElementById("changeModalTitle");
+  const changeModalMessage = document.getElementById("changeModalMessage");
+  const changeModalIcon = document.getElementById("changeModalIcon");
+  const changeModalCloseBtn = document.getElementById("changeModalCloseBtn");
+  const loadingModal = document.getElementById("loadingModal");
+
+  let filterOptions = null;
+
+  async function loadFilterOptions() {
+    try {
+      const token = localStorage.getItem('token') || '';
+      const response = await auth.fetchWithAuth('/personalrecord/filter-options', { headers: { 'Authorization': `Bearer ${token}` } });
+      const result = await response.json();
+      if (result.success) {
+        filterOptions = result.data;
+        const fromYearSelect = document.getElementById('fromYear');
+        const toYearSelect = document.getElementById('toYear');
+        filterOptions.years.forEach(year => {
+          [fromYearSelect, toYearSelect].forEach(sel => { const o = document.createElement('option'); o.value = year.code; o.textContent = year.description; sel.appendChild(o); });
+        });
+        const fromMonthSelect = document.getElementById('fromMonth');
+        const toMonthSelect = document.getElementById('toMonth');
+        filterOptions.months.forEach(month => {
+          [fromMonthSelect, toMonthSelect].forEach(sel => { const o = document.createElement('option'); o.value = month.code; o.textContent = month.description; sel.appendChild(o); });
+        });
+        toYearSelect.value = filterOptions.currentYear.toString();
+        toMonthSelect.value = filterOptions.currentMonth.toString();
+        if (filterOptions.employees && filterOptions.employees.length > 0) {
+          filterOptions.employees.forEach(emp => { const o = document.createElement('option'); o.value = emp.employee_id; o.textContent = `${emp.employee_id} - ${emp.full_name}`; personnelSelect.appendChild(o); });
+        }
+      }
+    } catch (error) { console.error('Error loading filter options:', error); showChangeModal('Error', 'Failed to load filter options. Please refresh the page.', true); }
+  }
+
+  function showChangeModal(title, message, isError = false) {
+    changeModalTitle.textContent = title; changeModalMessage.textContent = message;
+    changeModalIcon.innerHTML = isError ? '<i class="fas fa-exclamation-circle text-red-500"></i>' : '<i class="fas fa-check-circle text-green-500"></i>';
+    changeModal.classList.remove("hidden");
+  }
+
+  changeModalCloseBtn.onclick = () => changeModal.classList.add("hidden");
+  document.getElementById('changeHistSuccessOkBtn').onclick = () => document.getElementById('changeHistSuccessModal').classList.add('hidden');
+
+  function closePreview() {
+    document.getElementById('changeHistPreviewModal').classList.add('hidden');
+    const iframe = document.getElementById('changeHistPreviewIframe');
+    iframe.src = 'about:blank'; iframe.removeAttribute('srcdoc');
+    if (window.changeHistCurrentBlobUrl) { window.URL.revokeObjectURL(window.changeHistCurrentBlobUrl); window.changeHistCurrentBlobUrl = null; }
+  }
+
+  document.getElementById('changeHistClosePreviewBtn').addEventListener('click', closePreview);
+  document.getElementById('changeHistCancelPreviewBtn').addEventListener('click', closePreview);
+  document.getElementById('changeHistDownloadPreviewBtn').addEventListener('click', () => {
+    if (!window.changeHistCurrentBlob) return;
+    const fmt = window.changeHistCurrentFormat || 'pdf';
+    const url = window.URL.createObjectURL(window.changeHistCurrentBlob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `employee_changes_${window.changeHistCurrentFromPeriod}_${window.changeHistCurrentToPeriod}.${fmt === 'pdf' ? 'pdf' : 'xlsx'}`;
+    document.body.appendChild(a); a.click(); a.remove();
+    window.URL.revokeObjectURL(url);
+    document.getElementById('changeHistSuccessMessage').textContent = 'Report downloaded successfully!';
+    document.getElementById('changeHistSuccessModal').classList.remove('hidden');
+  });
+
+  changeRadios.forEach(radio => {
+    radio.addEventListener('change', () => {
+      personnelSelectWrapper.classList.add("hidden");
+      if (radio.value === "personnel") personnelSelectWrapper.classList.remove("hidden");
+    });
+  });
+
+  generateChangeBtn.onclick = async () => {
+    const selectedScope = document.querySelector('input[name="changeScope"]:checked')?.value;
+    const fromYear = document.getElementById("fromYear").value;
+    const fromMonth = document.getElementById("fromMonth").value;
+    const toYear = document.getElementById("toYear").value;
+    const toMonth = document.getElementById("toMonth").value;
+    const exportFormat = document.querySelector('input[name="exportFormat"]:checked')?.value || 'pdf';
+
+    if (!selectedScope) return showChangeModal("Validation Error", "Please select a report scope!", true);
+    if (!fromYear || !fromMonth) return showChangeModal("Validation Error", "Please select From period (year and month)!", true);
+    if (!toYear || !toMonth) return showChangeModal("Validation Error", "Please select To period (year and month)!", true);
+
+    let queryParams = `fromYear=${fromYear}&fromMonth=${fromMonth}&toYear=${toYear}&toMonth=${toMonth}&format=${exportFormat}`;
+    if (selectedScope === "personnel") {
+      const emplId = personnelSelect.value;
+      if (!emplId) return showChangeModal("Validation Error", "Please select a personnel!", true);
+      queryParams += `&emplId=${emplId}`;
+    }
+
+    loadingModal.classList.remove("hidden");
+    try {
+      const token = localStorage.getItem('token') || '';
+      const response = await auth.fetchWithAuth(`/personalrecord?${queryParams}`, { headers: { 'Authorization': `Bearer ${token}` } });
+      if (!response.ok) { const e = await response.json().catch(() => ({})); throw new Error(e.error || 'Failed to generate report'); }
+      const blob = await response.blob();
+      loadingModal.classList.add("hidden");
+
+      window.changeHistCurrentBlob = blob;
+      window.changeHistCurrentFormat = exportFormat;
+      window.changeHistCurrentFromPeriod = `${fromYear}${fromMonth}`;
+      window.changeHistCurrentToPeriod = `${toYear}${toMonth}`;
+
+      const iframe = document.getElementById('changeHistPreviewIframe');
+      const dlBtn = document.getElementById('changeHistDownloadPreviewBtn');
+      if (exportFormat === 'pdf') {
+        const blobUrl = window.URL.createObjectURL(blob);
+        window.changeHistCurrentBlobUrl = blobUrl;
+        iframe.src = blobUrl + '#toolbar=0';
+        iframe.style.minHeight = '842px';
+        dlBtn.textContent = 'Download PDF';
+      } else {
+        iframe.srcdoc = `<div style="font-family:Arial,sans-serif;padding:40px;text-align:center;color:#555;"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#1e40af" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto 16px;display:block;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg><p style="font-size:16pt;font-weight:bold;color:#1e40af;margin-bottom:8px;">Excel Report Ready</p><p style="font-size:10pt;">Click <strong>Download Excel</strong> below to save the file.</p></div>`;
+        iframe.style.minHeight = '300px';
+        dlBtn.textContent = 'Download Excel';
+      }
+      document.getElementById('changeHistPreviewModal').classList.remove('hidden');
+    } catch (error) { loadingModal.classList.add("hidden"); showChangeModal("Error", error.message || 'Failed to generate report', true); }
+  };
+
+  cancelChangeBtn.onclick = () => {
+    personnelSelectWrapper.classList.add("hidden");
+    document.getElementById("fromYear").value = "";
+    document.getElementById("fromMonth").value = "";
+    document.getElementById("toYear").value = "";
+    document.getElementById("toMonth").value = "";
+    document.getElementById("personnelSelect").value = "";
+    document.querySelector('input[name="changeScope"][value="all"]').checked = true;
+    document.querySelector('input[name="exportFormat"][value="pdf"]').checked = true;
+    loadFilterOptions();
+  };
+
+  loadFilterOptions();
+</script>

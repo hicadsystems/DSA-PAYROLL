@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    @page { size: A4 portrait; margin: 0.2mm; background-color: #f8fbff; }
+    body { 
+      font-family: Helvetica, Arial, sans-serif; 
+      font-size: 9pt;
+      line-height: 1.4;
+      color: #1a1a1a;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url('{{{logoDataUrl}}}');
+      background-size: auto 100%;    /* 80% of height */
+      background-repeat: no-repeat;
+      background-position: center center;
+      opacity: 0.02;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .header-wrapper {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 15px;
+        border-bottom: 1px solid #1a1a1a;
+        padding-bottom: 8px;
+    }
+
+    .className {
+        flex-shrink: 0;
+        margin-right: 20px;
+        align-self: center;
+        font-size: 9pt;
+    }
+
+    .header {
+        flex-grow: 1;
+        text-align: center;
+    }
+    
+    .header h1 {
+        font-size: 14pt;
+        font-weight: bold;
+        margin-bottom: 2px;
+        letter-spacing: 1.5px;
+        color: #1e40af;
+        font-family: 'Libre Baskerville', Georgia, serif;
+    }
+    
+    .header h2 {
+        font-size: 11pt;
+        font-weight: normal;
+        margin-top: 2px;
+        color: #4a4a4a;
+        font-family: 'Libre Baskerville', Georgia, serif;
+    }
+
+    .header-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 12px 0;
+      font-size: 8pt;
+      color: #4a4a4a;
+    }
+
+    .employee-section {
+      margin-bottom: 20px;
+      page-break-inside: avoid;
+      border-top: 1px solid #d1d5db;
+      border-bottom: 1px solid #d1d5db;
+    }
+
+    .employee-header {
+      color: #1e40af;
+      padding: 10px 12px;
+      font-weight: bold;
+      font-size: 10pt;
+      border-bottom: 1px solid #d1d5db;
+    }
+
+    .employee-info {
+      font-size: 8pt;
+      margin-top: 3px;
+      font-weight: normal;
+      color: #4a4a4a;
+    }
+
+    .changes-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0;
+    }
+
+    .changes-table th {
+      color: #1e40af;
+      padding: 8px 6px;
+      text-align: center;
+      font-weight: bold;
+      font-size: 8pt;
+      border-top: 1px solid #d1d5db;
+      border-bottom: 1px solid #d1d5db;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .changes-table td {
+      padding: 8px 6px;
+      border-top: 1px solid #d1d5db;
+      border-bottom: 1px solid #d1d5db;
+      vertical-align: middle;
+      font-size: 8pt;
+    }
+
+    .changes-table .row-label {
+      background-color: #f9fafb;
+      font-weight: bold;
+      text-align: left;
+      padding-left: 10px;
+      width: 100px;
+      color: #1e40af;
+    }
+
+    .changes-table td.value-cell {
+      text-align: center;
+      word-wrap: break-word;
+      max-width: 120px;
+    }
+
+    .no-changes {
+      text-align: center;
+      padding: 20px;
+      color: #6b7280;
+      font-style: italic;
+    }
+
+    .footer {
+      padding-top: 10px;
+      border-top: 1px solid #d1d5db;
+      text-align: center;
+      font-size: 8pt;
+      color: #6b7280;
+      margin-top: 30px;
+    }
+
+    .page-break {
+      page-break-after: always;
+    }
+
+    @media print {
+      body {
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url('{{{logoDataUrl}}}');
+        background-size: auto 100%;    /* 80% of height */
+        background-repeat: no-repeat;
+        background-position: center center;
+        opacity: 0.02;
+        z-index: -1;
+        pointer-events: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header-wrapper">
+      <div class="className">
+          {{className}}
+      </div>
+      <div class="header">
+          <h1>Nigerian Navy (Naval Headquarters)</h1>
+          <h2>CENTRAL PAY OFFICE, 23 POINT ROAD APAPA</h2>
+      </div>
+  </div>
+
+  <div class="header-info">
+    <div class="left">
+      <strong>CHANGES IN PERSONNEL DETAILS</strong>
+    </div>
+    <div class="center">
+      <span>PRODUCED ON</span> 
+      <strong>{{formatDate reportDate}}</strong> 
+      <span>AT</span> 
+      <strong>{{formatTime reportDate}}</strong>
+    </div>
+    <div class="right">
+      <strong>{{filters}}</strong>
+    </div>
+  </div>
+
+  <!-- Employee Sections -->
+  {{#each data}}
+    <div class="employee-section">
+      <!-- Employee Header -->
+      <div class="employee-header">
+        {{this.employee_id}} - {{this.full_name}}
+        <div class="employee-info">
+          {{this.title}} | {{this.location}} | {{this.total_changes}} changes detected as of {{this.history_date_formatted}}
+        </div>
+      </div>
+
+      <!-- Changes Table -->
+      {{#if this.changes}}
+        <table class="changes-table">
+          <thead>
+            <tr>
+              <th style="width: 100px;" class="row-label">Field(S)</th>
+              {{#each this.changes}}
+                <th>{{this.field_name}}</th>
+              {{/each}}
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Old Value Row -->
+            <tr>
+              <td class="row-label">Old Value</td>
+              {{#each this.changes}}
+                <td class="value-cell">{{this.old_value}}</td>
+              {{/each}}
+            </tr>
+            <!-- New Value Row -->
+            <tr>
+              <td class="row-label">New Value</td>
+              {{#each this.changes}}
+                <td class="value-cell">{{this.new_value}}</td>
+              {{/each}}
+            </tr>
+          </tbody>
+        </table>
+      {{else}}
+        <div class="no-changes">No changes detected</div>
+      {{/if}}
+    </div>
+  {{/each}}
+
+  {{#unless data}}
+    <div class="no-changes">
+      <p>No employee changes found for the selected period.</p>
+    </div>
+  {{/unless}}
+
+  <div class="footer">
+    <p>All rights reserved &#xA9; Hicad Systems Limited.</p>
+  </div>
+
+  <script>
+  const auth = window.authService;
+    // Helper functions for Handlebars
+    Handlebars.registerHelper('gt', function(a, b) {
+      return parseFloat(a) > parseFloat(b);
+    });
+
+    Handlebars.registerHelper('eq', function(a, b) {
+      return a === b;
+    });
+
+    Handlebars.registerHelper('divide', function(a, b) {
+      return b !== 0 ? a / b : 0;
+    });
+
+    Handlebars.registerHelper('formatTime', function(date) {
+      return new Date(date).toLocaleTimeString('en-GB', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      });
+    });
+  </script>
+</body>
+</html>

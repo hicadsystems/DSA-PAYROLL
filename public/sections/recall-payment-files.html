@@ -1,0 +1,486 @@
+<!-- Recall Payroll Payment Files Section -->
+<div class="p-12">
+  <div class="flex items-center justify-between mb-4">
+    <div class="flex items-center space-x-3">
+      <div class="bg-yellow-500 text-white p-3 rounded-full shadow">
+        <i class="fa-solid fa-floppy-disk text-xl text-white"></i>
+      </div>
+      <h2 class="text-2xl font-bold text-yellow-600">Recall Payroll Payment Files</h2>
+    </div>
+  </div>
+
+  <p class="text-gray-600 font-semibold lg:text-lg mb-6">
+    Restore previously saved payroll payment files for adjustments or review if needed.
+  </p>
+
+  <div class="flex mt-12 space-x-4 justify-center">
+    <button 
+      id="openRecallModalBtn" 
+      class="px-8 py-3 bg-yellow-500 text-white rounded-lg shadow hover:bg-yellow-600 transition transform hover:scale-105"
+    >
+      Recall Payment Files
+    </button>
+  </div>
+
+  <!-- Success Confirmation -->
+  <div id="recallConfirm" class="mt-6 hidden text-center">
+    <div class="flex justify-center mb-3">
+      <div class="bg-green-500 text-white p-3 rounded-full shadow animate-bounce">✔</div>
+    </div>
+    <p class="text-green-700 font-semibold mb-4">
+      Payment files successfully recalled! You can now make adjustments.
+    </p>
+  </div>
+</div>
+
+<!-- Alert Modal (for errors and warnings) -->
+<div
+  id="alertModal"
+  class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 transition-opacity"
+>
+  <div class="bg-white rounded-2xl w-96 max-w-[90%] p-6 shadow-2xl transform transition-transform scale-95" id="alertModalContent">
+    <div class="flex flex-col items-center">
+      <div id="alertIcon" class="w-16 h-16 rounded-full flex items-center justify-center mb-4">
+        <span class="text-3xl"><i class="fa-solid fa-triangle-exclamation text-3xl text-yellow-500"></i></span>
+      </div>
+      <h3 id="alertTitle" class="text-xl font-bold text-gray-800 mb-2">Alert</h3>
+      <p id="alertMessage" class="text-gray-600 text-center mb-6">
+        Something requires your attention.
+      </p>
+      <button
+        id="closeAlertBtn"
+        class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition w-full"
+      >
+        Okay
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div 
+  id="recallModal" 
+  class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 transition-opacity"
+>
+  <div class="bg-white rounded-2xl w-[500px] max-w-[90%] shadow-2xl transform transition-transform scale-95" id="recallModalContent">
+    <!-- Header -->
+    <div class="bg-yellow-600 px-6 py-4 rounded-t-2xl">
+      <div class="flex justify-between items-center">
+        <h3 class="text-xl font-semibold text-white flex items-center">
+          <span class="mr-2"><i class="fa-solid fa-rotate mr-2 text-white"></i></span> Confirm Recall
+        </h3>
+        <button id="closeRecallModalBtn" class="text-white hover:text-gray-200 text-2xl leading-none">
+          <i class="fa-solid fa-xmark text-grey"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div class="p-6">
+      <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 mb-4 rounded">
+        <p class="text-gray-700">
+          Are you sure you want to <span class="font-semibold text-yellow-700">recall payment files</span>? 
+          This action will restore them for review or adjustment.
+        </p>
+      </div>
+      
+      <div class="bg-blue-50 border border-blue-200 p-3 rounded-lg">
+        <p class="text-sm text-blue-800">
+          <strong>Note:</strong> After recall, you'll be able to make changes to the payroll data.
+        </p>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="flex justify-end space-x-3 bg-gray-50 px-6 py-4 rounded-b-2xl">
+      <button 
+        id="cancelRecallBtn" 
+        class="px-6 py-2 bg-gray-300 hover:bg-gray-400 rounded-lg transition"
+      >
+        Cancel
+      </button>
+      <button 
+        id="confirmRecallBtn" 
+        class="px-6 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg transition transform hover:scale-105"
+      >
+        Yes, Recall Files
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Process / Logging Modal -->
+<div
+  id="processModal"
+  class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 transition-opacity"
+>
+  <div class="bg-white rounded-2xl w-[600px] max-w-[90%] shadow-2xl transform transition-transform scale-95" id="processModalContent">
+    <!-- Header -->
+    <div class="bg-yellow-600 p-6 rounded-t-2xl">
+      <h3 class="text-xl font-bold text-white flex items-center">
+        <span class="mr-2"><i class="fa-solid fa-rotate text-gray-600 animate-spin"></i></span> Recall Process Progress
+      </h3>
+      <div class="mt-3 bg-white/20 rounded-full h-2 overflow-hidden">
+        <div id="progressBar" class="bg-white h-full transition-all duration-500" style="width: 0%"></div>
+      </div>
+    </div>
+
+    <!-- Log Container -->
+    <div class="p-6">
+      <div id="logContainer" class="h-64 overflow-y-auto bg-gray-900 rounded-lg p-4 font-mono text-sm space-y-2"></div>
+      
+      <!-- Stats -->
+      <div class="grid grid-cols-3 gap-4 mt-4">
+        <div class="text-center p-3 bg-yellow-50 rounded-lg">
+          <div class="text-2xl font-bold text-yellow-600" id="totalSteps">0</div>
+          <div class="text-xs text-gray-600">Total Steps</div>
+        </div>
+        <div class="text-center p-3 bg-green-50 rounded-lg">
+          <div class="text-2xl font-bold text-green-600" id="successCount">0</div>
+          <div class="text-xs text-gray-600">Completed</div>
+        </div>
+        <div class="text-center p-3 bg-red-50 rounded-lg">
+          <div class="text-2xl font-bold text-red-600" id="errorCount">0</div>
+          <div class="text-xs text-gray-600">Errors</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="p-6 bg-gray-50 rounded-b-2xl flex justify-end">
+      <button
+        id="closeModalBtn"
+        class="px-6 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition hidden"
+      >
+        Close
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Cannot Recall Modal -->
+<div
+  id="cannotRecallModal"
+  class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 transition-opacity"
+>
+  <div class="bg-white rounded-2xl w-96 max-w-[90%] p-6 shadow-2xl transform transition-transform scale-95" id="cannotRecallModalContent">
+    <div class="flex flex-col items-center">
+      <div class="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mb-4">
+        <span class="text-4xl">🚫</span>
+      </div>
+      <h3 class="text-2xl font-bold text-red-700 mb-3">Cannot Recall</h3>
+      <p class="text-gray-700 mb-2 text-center">
+        No payroll files have been saved yet for this period.
+      </p>
+      <p class="text-gray-600 mb-6 text-center text-sm">
+        Please save payroll files first before attempting to recall them.
+      </p>
+      <button
+        id="closeCannotRecallBtn"
+        class="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition w-full"
+      >
+        Close
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const auth = window.authService;
+(function () {
+  const recallModal = document.getElementById("recallModal");
+  const recallModalContent = document.getElementById("recallModalContent");
+  const openBtn = document.getElementById("openRecallModalBtn");
+  const closeBtn = document.getElementById("closeRecallModalBtn");
+  const cancelBtn = document.getElementById("cancelRecallBtn");
+  const confirmBtn = document.getElementById("confirmRecallBtn");
+  const confirmBox = document.getElementById("recallConfirm");
+  
+  const processModal = document.getElementById("processModal");
+  const processModalContent = document.getElementById("processModalContent");
+  const logBox = document.getElementById("logContainer");
+  const closeModalBtn = document.getElementById("closeModalBtn");
+  const progressBar = document.getElementById("progressBar");
+  const totalSteps = document.getElementById("totalSteps");
+  const successCount = document.getElementById("successCount");
+  const errorCount = document.getElementById("errorCount");
+  
+  const alertModal = document.getElementById("alertModal");
+  const alertModalContent = document.getElementById("alertModalContent");
+  const closeAlertBtn = document.getElementById("closeAlertBtn");
+  
+  const cannotRecallModal = document.getElementById("cannotRecallModal");
+  const cannotRecallModalContent = document.getElementById("cannotRecallModalContent");
+  const closeCannotRecallBtn = document.getElementById("closeCannotRecallBtn");
+
+  let currentPayrollStage = 0;
+  let logCount = 0;
+  let successTotal = 0;
+  let errorTotal = 0;
+
+  // Modal animation helpers
+  function showModal(modal, content) {
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
+    setTimeout(() => {
+      content.classList.remove("scale-95");
+      content.classList.add("scale-100");
+    }, 10);
+  }
+
+  function hideModal(modal, content) {
+    content.classList.remove("scale-100");
+    content.classList.add("scale-95");
+    setTimeout(() => {
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+    }, 200);
+  }
+
+  // Show alert modal
+  function showAlert(title, message, type = "warning") {
+    const alertIcon = document.getElementById("alertIcon");
+    const alertTitle = document.getElementById("alertTitle");
+    const alertMessage = document.getElementById("alertMessage");
+    const closeAlertBtn = document.getElementById("closeAlertBtn");
+
+    if (type === "error") {
+      alertIcon.innerHTML = '<span class="text-3xl"><i class="fa-solid fa-xmark text-red-500"></i></span>';
+      alertIcon.className = "w-16 h-16 rounded-full flex items-center justify-center mb-4 bg-red-100";
+      alertTitle.className = "text-xl font-bold text-red-700 mb-2";
+      closeAlertBtn.className = "px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition w-full";
+    } else if (type === "warning") {
+      alertIcon.innerHTML = '<span class="text-3xl"><i class="fa-solid fa-triangle-exclamation text-yellow-500"></i></span>';
+      alertIcon.className = "w-16 h-16 rounded-full flex items-center justify-center mb-4 bg-yellow-100";
+      alertTitle.className = "text-xl font-bold text-yellow-700 mb-2";
+      closeAlertBtn.className = "px-6 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition w-full";
+    } else if (type === "info") {
+      alertIcon.innerHTML = '<span class="text-3xl"><i class="fa-solid fa-circle-info text-sky-500"></i></span>';
+      alertIcon.className = "w-16 h-16 rounded-full flex items-center justify-center mb-4 bg-blue-100";
+      alertTitle.className = "text-xl font-bold text-blue-700 mb-2";
+      closeAlertBtn.className = "px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition w-full";
+    }
+
+    alertTitle.textContent = title;
+    alertMessage.textContent = message;
+    showModal(alertModal, alertModalContent);
+  }
+
+  // Enhanced logging with animations
+  const appendLog = (msg, type = "info") => {
+    logCount++;
+    totalSteps.textContent = logCount;
+
+    const colors = {
+      success: "text-green-400",
+      error: "text-red-400",
+      warning: "text-yellow-400",
+      info: "text-gray-300"
+    };
+
+    const icons = {
+      success: '<i class="fas fa-check-circle text-success"></i>',
+      error: '<i class="fa-solid fa-xmark text-red-600"></i>',
+      warning: '<i class="fa-solid fa-triangle-exclamation text-yellow-500"></i>',
+      info: '<i class="fa-solid fa-circle-info text-blue-500"></i>'
+    };
+
+    if (type === "success") successTotal++;
+    if (type === "error") errorTotal++;
+
+    successCount.textContent = successTotal;
+    errorCount.textContent = errorTotal;
+
+    const div = document.createElement("div");
+    div.className = `${colors[type]} opacity-0 transition-opacity duration-300 flex items-start`;
+    div.innerHTML = `<span class="mr-2 font-bold">${icons[type]}</span><span class="flex-1">${msg}</span>`;
+    logBox.appendChild(div);
+    
+    setTimeout(() => div.classList.remove("opacity-0"), 10);
+    logBox.scrollTop = logBox.scrollHeight;
+
+    const progress = Math.min((successTotal / Math.max(logCount, 1)) * 100, 100);
+    progressBar.style.width = `${progress}%`;
+  };
+
+  async function pollLogs(logId) {
+    appendLog("Monitoring recall process logs...", "info");
+    let completed = false;
+
+    while (!completed) {
+      try {
+        const token = localStorage.getItem('token') || 'demo-token';
+        const res = await auth.fetchWithAuth(`/logs/${logId}`, {   
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${token}` 
+          }
+        });
+        
+        if (!res.ok) throw new Error("Failed to fetch logs");
+        const logs = await res.json();
+        
+        if (!logs.length) {
+          await new Promise((r) => setTimeout(r, 2000));
+          continue;
+        }
+
+        const log = logs[0];
+        
+        if (log.status !== "IN_PROGRESS") {
+          logBox.innerHTML = "";
+          logCount = 0;
+          successTotal = 0;
+          errorTotal = 0;
+        }
+
+        appendLog(`Module: ${log.module}`, "info");
+        appendLog(`Action: ${log.action}`, "info");
+        appendLog(`User: ${log.username}`, "info");
+        appendLog(`Status: ${log.status}`, log.status === "FAILED" ? "error" : "success");
+        appendLog(`Message: ${log.message || "Processing..."}`, "info");
+
+        if (["SUCCESS", "FAILED"].includes(log.status)) {
+          completed = true;
+          if (log.status === "SUCCESS") {
+            appendLog("Recall process completed successfully!", "success");
+            progressBar.style.width = "100%";
+            closeModalBtn.classList.remove("hidden");
+            confirmBox.classList.remove("hidden");
+            
+            // Update payroll stage and notify system to show Data Input
+            currentPayrollStage = 0;
+            window.dispatchEvent(new CustomEvent('payrollStatusChanged', { 
+              detail: { stage: 0, action: 'recall' } 
+            }));
+            
+            // Reload status to update stage
+            await loadPayrollStatus();
+          } else {
+            appendLog("Recall process failed.", "error");
+            closeModalBtn.classList.remove("hidden");
+          }
+        }
+
+        await new Promise((r) => setTimeout(r, 2000));
+      } catch (err) {
+        appendLog("Error reading logs: " + err.message, "error");
+        showAlert("Connection Error", "Unable to fetch process logs. Please check your connection.", "error");
+        closeModalBtn.classList.remove("hidden");
+        break;
+      }
+    }
+  }
+
+  async function loadPayrollStatus() {
+    try {
+      const token = localStorage.getItem('token') || 'demo-token';
+      const res = await auth.fetchWithAuth("/status-payroll", {   
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}` 
+        }
+      });
+      
+      if (!res.ok) throw new Error("Unable to fetch payroll status");
+      const data = await res.json();
+      currentPayrollStage = data?.sun || 0;
+    } catch (err) {
+      console.error("Error fetching payroll status:", err.message);
+      showAlert("Status Error", "Could not load payroll status. Some features may be limited.", "warning");
+    }
+  }
+
+  // Open confirmation modal
+  openBtn.addEventListener("click", async () => {
+    // Check if files can be recalled (must be saved first)
+    if (currentPayrollStage < 666) {
+      showModal(cannotRecallModal, cannotRecallModalContent);
+      return;
+    }
+    
+    confirmBox.classList.add("hidden");
+    showModal(recallModal, recallModalContent);
+  });
+
+  // Close confirmation modal
+  function closeRecallModal() {
+    hideModal(recallModal, recallModalContent);
+  }
+  closeBtn.addEventListener("click", closeRecallModal);
+  cancelBtn.addEventListener("click", closeRecallModal);
+
+  // Confirm recall
+  confirmBtn.addEventListener("click", async () => {
+    hideModal(recallModal, recallModalContent);
+    
+    logBox.innerHTML = "";
+    logCount = 0;
+    successTotal = 0;
+    errorTotal = 0;
+    totalSteps.textContent = "0";
+    successCount.textContent = "0";
+    errorCount.textContent = "0";
+    progressBar.style.width = "0%";
+    closeModalBtn.classList.add("hidden");
+    
+    showModal(processModal, processModalContent);
+    appendLog("Starting recall process...", "info");
+
+    try {
+      const token = localStorage.getItem('token') || 'demo-token';
+      const res = await auth.fetchWithAuth("/recallpayment", {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}` 
+        },
+        body: JSON.stringify({ startedBy: "System UI" }),
+      });
+
+      if (!res.ok) throw new Error(`Server returned ${res.status}`);
+      const data = await res.json();
+      appendLog("Recall process initiated...", "success");
+
+      const logId = data.logId || data.result?.logId;
+      if (logId) {
+        await pollLogs(logId);
+      } else {
+        throw new Error("No log ID received from server");
+      }
+    } catch (err) {
+      appendLog("Error: " + err.message, "error");
+      showAlert("Recall Failed", err.message, "error");
+      closeModalBtn.classList.remove("hidden");
+    }
+  });
+
+  // Close process modal
+  closeModalBtn.addEventListener("click", () => {
+    hideModal(processModal, processModalContent);
+  });
+
+  // Close alert modal
+  closeAlertBtn.addEventListener("click", () => {
+    hideModal(alertModal, alertModalContent);
+  });
+
+  // Close cannot recall modal
+  closeCannotRecallBtn.addEventListener("click", () => {
+    hideModal(cannotRecallModal, cannotRecallModalContent);
+  });
+
+  // Close modals on backdrop click
+  [processModal, recallModal, alertModal, cannotRecallModal].forEach(modal => {
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) {
+        const content = modal.querySelector("div > div") || modal.children[0];
+        hideModal(modal, content);
+      }
+    });
+  });
+
+  loadPayrollStatus();
+})();
+</script>

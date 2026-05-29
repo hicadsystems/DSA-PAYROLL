@@ -1,0 +1,962 @@
+<style>
+  @keyframes grow-up {
+    0% { height: 0; bottom: 0; }
+    100% { height: 100%; bottom: 0; }
+  }
+  @keyframes grow-down {
+    0% { height: 0; top: 0; }
+    100% { height: 100%; top: 0; }
+  }
+  @keyframes expand {
+    0% { width: 0; left: 50%; transform: translate(-50%, -50%); }
+    100% { width: 100%; left: 0; transform: translateY(-50%); }
+  }
+  .animate-grow-up {
+    animation: grow-up 0.6s ease-in-out infinite alternate;
+    position: absolute;
+    bottom: 0;
+  }
+  .animate-grow-down {
+    animation: grow-down 0.6s ease-in-out infinite alternate;
+    position: absolute;
+    top: 0;
+  }
+  .animate-expand {
+    animation: expand 0.6s ease-in-out infinite alternate;
+  }
+</style>
+
+
+<div class="p-6">
+  <div class="flex justify-end mb-4 gap-2">
+    <button id="showFormBtn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">+ Add New</button>
+    <button id="generateReportBtn" class="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700">
+      <i class="fas fa-file-alt mr-2"></i>Generate Report</button>
+  </div>
+
+  <!-- Hidden Form -->
+  <form id="payElementsForm" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6 p-4 rounded border">
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Description</label>
+      <div class="relative">
+        <input 
+          type="text" 
+          id="descriptionSearch"
+          class="w-full border border-blue-500 focus:border-yellow-500 bg-transparent rounded-md px-3 py-2"
+          placeholder="Search Payment Type..."
+          autocomplete="off">
+        <input type="hidden" id="description">
+        <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+          <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </span>
+        
+        <div id="descriptionDropdown" class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto hidden top-full left-0">
+          <div class="py-1">
+            <div class="px-3 py-2 text-center text-gray-500 text-sm">Type to search...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Code</label>
+      <input type="text" id="codeInput" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-gray-100" readonly>
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Function Type</label>
+      <select id="function" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent">
+        <option value="">Select Function Type</option>
+      </select>
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-gray-700">% or Standard Amount</label>
+      <input type="number" id="standardAmount" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent" placeholder="Enter amount or %">
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Dependence</label>
+      <select id="dependence" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent">
+      </select>
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Maximum Value</label>
+      <input id="maximumValue" type="number" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent" placeholder="Enter maximum value">
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Required For All</label>
+      <select id="requiredForAll" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent">
+        <option value="">Select Option</option>
+        <option value="Yes">YES</option>4
+        <option value="No">NO</option>
+      </select>
+    </div>
+
+    <div class="md:col-span-2 flex justify-end space-x-3 mt-4">
+      <button type="button" id="cancelBtn" class="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400">Cancel</button>
+      <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Save</button>
+    </div>
+  </form>
+
+  <!-- Table -->
+  <div class="overflow-x-auto rounded-lg">
+    <table class="min-w-full border border-gray-200 rounded-lg text-sm">
+      <thead class="bg-blue-100 text-blue-900">
+        <tr>
+          <th class="border px-2 py-3 text-left">One-Off Type</th>
+          <th class="border px-2 py-3 text-left">One-Off Description</th>
+          <th class="border px-2 py-3 text-left">Function Type</th>
+          <th class="border px-2 py-3 text-center">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="payElementsTable" class="text-center">
+        <!-- Dynamic content will be inserted here -->
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Success Modal -->
+<div id="successModal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+  <div class="bg-white p-6 rounded-lg shadow-xl max-w-md w-full mx-4">
+    <h3 class="text-lg font-semibold mb-2 text-green-600">Success!</h3>
+    <p id="successMessage" class="mb-4 text-gray-700">Your changes have been saved successfully!</p>
+    <button id="closeSuccessModal" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">OK</button>
+  </div>
+</div>
+
+<!-- Error Modal -->
+<div id="errorModal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+  <div class="bg-white p-6 rounded-lg shadow-xl max-w-md w-full mx-4">
+    <h3 class="text-lg font-semibold mb-2 text-red-600">Error!</h3>
+    <p id="errorMessage" class="mb-4 text-gray-700">An error occurred.</p>
+    <button id="closeErrorModal" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">OK</button>
+  </div>
+</div>
+
+<!-- View Modal -->
+<div id="viewModal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+  <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-2xl mx-4 max-h-screen overflow-y-auto">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-lg font-semibold text-blue-600">One-Off Payment Details</h3>
+      <button id="closeViewModal" class="text-gray-400 hover:text-gray-600">
+        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+    <div id="viewContent" class="space-y-3 text-sm"></div>
+  </div>
+</div>
+
+<!-- Confirm Delete Modal -->
+<div id="sectionConfirmModal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+  <div class="bg-white p-6 rounded-lg shadow-xl max-w-md w-full mx-4">
+    <h3 class="text-lg font-semibold text-yellow-600 mb-2">Confirm Delete</h3>
+    <p id="confirmMessage" class="mb-4 text-gray-700">Are you sure you want to delete this record?</p>
+    <div class="flex justify-end gap-2">
+      <button id="cancelSectionDelete" class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500">Cancel</button>
+      <button id="sectionConfirmAction" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const auth = window.authService;
+  let data = [];
+  let editingIndex = null;
+  let dropdownData = [];
+  let isLoading = false;
+  let lookupMaps = {};
+
+  const form = document.getElementById("payElementsForm");
+  const showFormBtn = document.getElementById("showFormBtn");
+  const cancelBtn = document.getElementById("cancelBtn");
+  const tableBody = document.getElementById("payElementsTable");
+  const descriptionHidden = document.getElementById("description");
+  const codeInput = document.getElementById("codeInput");
+
+  async function loadDropdown(endpoint, elementId, valueField, textField, placeholder) {
+  try {
+    const token = localStorage.getItem('token');
+    const response = await auth.fetchWithAuth(`/reference/${endpoint}`, {   
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}` 
+      }
+    });
+    const data = await response.json();
+    const dropdown = document.getElementById(elementId);
+    if (!dropdown) return;
+    dropdown.innerHTML = `<option value="">${placeholder}</option>`;
+    data.forEach(item => {
+      const option = document.createElement("option");
+      option.value = item[valueField];
+      option.textContent = item[textField];
+      dropdown.appendChild(option);
+
+      const map = Object.fromEntries(
+        data.map(item => [item[valueField], item[textField]])
+      );
+      lookupMaps[endpoint] = map;
+    });
+    return data;
+  } catch (err) {
+    console.error(`Failed to load ${endpoint}:`, err);
+    return [];
+  }
+}
+
+  async function loadAllDropdowns() {
+    const promises = [
+      loadDropdown('functiontype', 'function', 'funct', 'functdesc', 'Select Function Type'),
+      loadDropdown("elementtype","dependence", "PaymentType", "elmDesc", "Select Dependence"),
+    ];
+    await Promise.all(promises);
+  }
+
+  function getValueField(endpoint) {
+    const fieldMap = {
+      'elementtype': 'PaymentType',
+      'functiontype': 'funct'
+    };
+    return fieldMap[endpoint] || 'code';
+  }
+
+  function getTextField(endpoint) {
+    const fieldMap = {
+      'elementtype': 'elmDesc',
+      'functiontype': 'functdesc'
+    }
+    return fieldMap[endpoint] || 'name';
+  }
+
+  function resolveName(code, endpoint) {
+    if (!code) return 'N/A';
+    return lookupMaps[endpoint]?.[code] || code;
+  }
+
+  const descriptionSearch = document.getElementById("descriptionSearch");
+  const descriptionDropdown = document.getElementById("descriptionDropdown");
+
+  async function loadElementTypes() {
+    if (isLoading) return;
+    if (dropdownData.length > 0) return;
+    
+    isLoading = true;
+    
+    descriptionDropdown.innerHTML = `
+      <div class="py-1">
+        <div class="px-3 py-4 text-center text-gray-500">
+            <div class="relative w-10 h-10 mx-auto mb-4">
+              <div class="absolute left-1 w-[6px] bg-blue-600 rounded animate-grow-up"></div>
+              <div class="absolute right-1 w-[6px] bg-blue-600 rounded animate-grow-down [animation-delay:0.3s]"></div>
+              <div class="absolute top-1/2 left-1 h-[6px] bg-blue-600 rounded animate-expand [animation-delay:0.6s] -translate-y-1/2"></div>
+            </div>
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          Loading Payment types...
+        </div>
+      </div>
+    `;
+    descriptionDropdown.classList.remove('hidden');
+    
+    try {
+      const token = localStorage.getItem('token');
+      const response = await auth.fetchWithAuth(`/reference/elementtype`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        }
+      });
+      const result = await response.json();
+      dropdownData = Array.isArray(result) ? result : [];
+      
+      if (dropdownData.length === 0) {
+        descriptionDropdown.innerHTML = `
+          <div class="py-1">
+            <div class="px-3 py-4 text-center text-gray-500">No one-off types found</div>
+          </div>
+        `;
+      } else {
+        renderDropdown(dropdownData);
+      }
+      
+    } catch (error) {
+      console.error('Error fetching one-off types:', error);
+      descriptionDropdown.innerHTML = `
+        <div class="py-1">
+          <div class="px-3 py-4 text-center text-red-500">
+            Failed to load one-off types<br>
+            <span class="text-xs">${error.message}</span>
+          </div>
+        </div>
+      `;
+    } finally {
+      isLoading = false;
+    }
+  }
+
+  function renderDropdown(items) {
+    if (!items || items.length === 0) {
+      descriptionDropdown.innerHTML = `
+        <div class="py-1">
+          <div class="px-3 py-4 text-center text-gray-500">No payment types found</div>
+        </div>
+      `;
+      return;
+    }
+
+    const html = items.map(item => {
+      const type = item.PaymentType || 'N/A';
+      const desc = item.elmDesc || '';
+      
+      return `
+        <div class="dropdown-item px-3 py-2 hover:bg-blue-50 cursor-pointer border-b border-gray-100" 
+            data-value="${type}"
+            data-desc="${desc}">
+          <span class="font-semibold text-blue-600">${desc}</span>
+          ${type ? `<span class="text-gray-500 text-sm ml-1">(${type})</span>` : ''}
+        </div>
+      `;
+    }).join('');
+
+    descriptionDropdown.innerHTML = `<div class="py-1">${html}</div>`;
+    attachDropdownHandlers();
+  }
+
+  function attachDropdownHandlers() {
+    const items = descriptionDropdown.querySelectorAll('.dropdown-item');
+    items.forEach(item => {
+      item.addEventListener('click', () => {
+        const value = item.getAttribute('data-value');
+        descriptionSearch.value = item.getAttribute('data-desc');
+        descriptionHidden.value = value;
+        codeInput.value = value;
+        descriptionDropdown.classList.add('hidden');
+      });
+    });
+  }
+
+  descriptionSearch.addEventListener('focus', () => {
+    loadElementTypes();
+    // Show dropdown if we have data loaded
+    if (dropdownData.length > 0) {
+      renderDropdown(dropdownData);
+      descriptionDropdown.classList.remove('hidden');
+    }
+  });
+
+  descriptionSearch.addEventListener('input', (e) => {
+    const searchTerm = e.target.value.toLowerCase();
+    
+    if (!searchTerm) {
+      renderDropdown(dropdownData);
+      descriptionDropdown.classList.remove('hidden');
+      return;
+    }
+
+    const filtered = dropdownData.filter(item => 
+      item.elmDesc.toLowerCase().includes(searchTerm)
+      || item.PaymentType.toLowerCase().includes(searchTerm)
+    );
+
+    renderDropdown(filtered);
+    descriptionDropdown.classList.remove('hidden');
+  });
+
+  descriptionSearch.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' || e.key === 'Backspace' || e.key === 'Delete') {
+      // Only hide on Escape, let Backspace/Delete work normally for editing
+      if (e.key === 'Escape') {
+        descriptionDropdown.classList.add('hidden');
+      }
+      
+      // Clear the hidden values
+      if (e.key === 'Escape' || (e.key === 'Backspace' && descriptionSearch.value.length === 1) || e.key === 'Delete') {
+        codeInput.value = "";
+        descriptionHidden.value = "";
+      }
+    }
+  });
+
+  document.addEventListener('click', (e) => {
+    if (e.target !== descriptionSearch) {
+      descriptionDropdown.classList.add('hidden');
+    }
+  });
+
+  // Auto-fill code when selecting description
+  descriptionHidden.addEventListener("change", () => {
+    codeInput.value = descriptionHidden.value;
+  });
+
+  // --- API Functions ---
+  async function fetchOneOff() {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await auth.fetchWithAuth('/off/oneofftypes', {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) throw new Error('Failed to fetch data');
+      data = await response.json();
+      renderTable();
+    } catch (error) {
+      console.error('Error fetching pay elements:', error);
+      showError('Failed to load one-off payment types');
+    }
+  }
+
+  async function createPayElement(elementData) {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await auth.fetchWithAuth('/off/oneofftypes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify(elementData)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to create element');
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Error creating pay element:', error);
+      throw error;
+    }
+  }
+
+  async function updatePayElement(oneType, elementData) {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await auth.fetchWithAuth(`/off/oneofftypes/${oneType}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify(elementData)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to update element');
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Error updating pay element:', error);
+      throw error;
+    }
+  }
+
+  async function deletePayElement(oneType) {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await auth.fetchWithAuth(`/off/oneofftypes/${oneType}`, {
+        method: 'DELETE',
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to delete element');
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Error deleting pay element:', error);
+      throw error;
+    }
+  }
+
+  // --- UI Functions ---
+  function renderTable(dataToRender = data) {
+    tableBody.innerHTML = dataToRender.map((item) => `
+      <tr class="hover:bg-gray-50">
+        <td class="border px-2 py-2 text-left">${item.one_type}</td>
+        <td class="border px-2 py-2 text-left">${item.description || 'N/A'}</td>
+        <td class="border px-2 py-2 text-left">${resolveName(item.one_perc, "functiontype")} (${item.one_perc})</td>
+        <td class="border px-2 py-2 text-center">
+          <button onclick="viewRow('${item.one_type}')" class="text-blue-600 hover:text-blue-800 mr-2 px-2 py-1 rounded hover:bg-blue-50">View</button>
+          <button onclick="editRow('${item.one_type}')" class="text-green-600 hover:text-green-800 mr-2 px-2 py-1 rounded hover:bg-green-50">Edit</button>
+          <button onclick="deleteRow('${item.one_type}')" class="text-red-600 hover:text-red-800 px-2 py-1 rounded hover:bg-red-50">Delete</button>
+        </td>
+      </tr>
+    `).join("");
+  }
+
+  function clearForm() {
+    form.reset();
+    codeInput.value = "";
+    editingIndex = null;
+  }
+
+  // --- Modal Functions ---
+  function openModal(id) {
+    document.getElementById(id).classList.remove("hidden");
+  }
+
+  function closeModal(id) {
+    document.getElementById(id).classList.add("hidden");
+  }
+
+  function showSuccess(message) {
+    document.getElementById("successMessage").textContent = message;
+    openModal("successModal");
+  }
+
+  function showError(message) {
+    document.getElementById("errorMessage").textContent = message;
+    openModal("errorModal");
+  }
+
+  function showConfirmModal(message = "Are you sure?") {
+    return new Promise((resolve) => {
+      const modal = document.getElementById("sectionConfirmModal");
+      const msg = document.getElementById("confirmMessage");
+      const cancelBtn = document.getElementById("cancelSectionDelete");
+      const confirmBtn = document.getElementById("sectionConfirmAction");
+
+      msg.textContent = message;
+      modal.classList.remove("hidden");
+
+      cancelBtn.onclick = () => {
+        modal.classList.add("hidden");
+        resolve(false);
+      };
+
+      confirmBtn.onclick = () => {
+        modal.classList.add("hidden");
+        resolve(true);
+      };
+
+      modal.onclick = (e) => {
+        if (e.target.id === "sectionConfirmModal") {
+          modal.classList.add("hidden");
+          resolve(false);
+        }
+      };
+    });
+  }
+
+  // --- Global Action Functions ---
+  window.viewRow = function (oneType) {
+    const item = data.find(d => d.one_type === oneType);
+    if (!item) return;
+
+    let html = "";
+    const fieldLabels = {
+      one_type: "One-Off Type",
+      description: "One-Off Description",
+      one_perc: "Function Type",
+      one_std: "Standard Amount or (%)",
+      one_maxi: "Maximum Amount",
+      one_bpay: "Required For All",
+      one_depend: "Dependence",
+      createdby: "Created By",
+      datecreated: "Date Created"
+    };
+
+    for (let key in item) {
+      if (fieldLabels[key]) {
+        let value = item[key];
+
+        // 🧠 Apply formatting and name resolution
+        if (key === "datecreated" && value) {
+          value = new Date(value).toLocaleString();
+        } else if (key === "one_perc") {
+          value = `${resolveName(value, "functiontype")} (${value || "N/A"})`;
+        } else if (key === "one_depend") {
+          value = `${resolveName(value, "elementtype")} (${value || "N/A"})`;
+        }
+
+        html += `
+          <div class="grid grid-cols-3 gap-2 py-2 border-b border-gray-200">
+            <dt class="font-medium text-gray-600"><strong>${fieldLabels[key]}:</strong></dt>
+            <dd class="col-span-2 text-gray-900">${value || "N/A"}</dd>
+          </div>
+        `;
+      }
+    }
+
+    document.getElementById("viewContent").innerHTML = html;
+    openModal("viewModal");
+  };
+
+  window.editRow = async function(oneType) {
+    const item = data.find(d => d.one_type === oneType);
+    if (!item) return;
+
+    // Ensure dropdown data is loaded first
+    if (dropdownData.length === 0) {
+      await loadElementTypes();
+    }
+
+    editingIndex = oneType;
+    
+    // Find the matching dropdown item to get elmDesc
+    const matchingDropdownItem = dropdownData.find(d => d.PaymentType === item.one_type);
+    
+    // Set the visible description field with elmDesc or fallback to one_type
+    descriptionSearch.value = matchingDropdownItem?.elmDesc || item.one_type;
+    
+    // Set the hidden field and code input
+    descriptionHidden.value = item.one_type;
+    codeInput.value = item.one_type;
+    
+    // Fill other form fields
+    document.getElementById("function").value = item.one_perc || "";
+    document.getElementById("standardAmount").value = item.one_std || "";
+    document.getElementById("maximumValue").value = item.one_maxi || "";
+    document.getElementById("requiredForAll").value = item.one_bpay || "";
+    document.getElementById("dependence").value = item.one_depend || "";
+    
+    // Show form and make fields readonly (not disabled, so values show)
+    form.classList.remove("hidden");
+    descriptionSearch.readOnly = true;
+    codeInput.readOnly = true;
+  };
+  
+  window.deleteRow = async function(oneType) {
+    const confirmed = await showConfirmModal("Are you sure you want to delete this record?");
+
+    if (confirmed) {
+      deletePayElement(oneType)
+        .then(() => {
+          showSuccess("One-off payment type deleted successfully!");
+          fetchOneOff();
+        })
+        .catch(error => {
+          showError(error.message);
+        });
+    }
+  };
+
+  // --- Event Listeners ---
+  showFormBtn.addEventListener("click", () => {
+    clearForm();
+    descriptionHidden.disabled = false;
+    form.classList.remove("hidden");
+  });
+
+  cancelBtn.addEventListener("click", () => {
+    form.classList.add("hidden");
+    clearForm();
+  });
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    
+    if (!descriptionHidden.value) {
+      showError("Please select a description");
+      return;
+    }
+
+    const formData = {
+      one_type: descriptionHidden.value,
+      one_perc: document.getElementById("function").value.trim() || null,
+      one_std: document.getElementById("standardAmount").value.trim() || null,
+      one_maxi: document.getElementById("maximumValue").value.trim() || null,
+      one_bpay: document.getElementById("requiredForAll").value || null,
+      one_depend: document.getElementById("dependence").value || null
+    };
+
+    try {
+      if (editingIndex) {
+        await updatePayElement(editingIndex, formData);
+        showSuccess("One-off payment type updated successfully!");
+      } else {
+        await createPayElement(formData);
+        showSuccess("One-off payment type created successfully!");
+      }
+
+      form.classList.add("hidden");
+      clearForm();
+      await fetchOneOff();
+    } catch (error) {
+      showError(error.message);
+    }
+  });
+
+  document.getElementById('closeSuccessModal').addEventListener('click', () => closeModal('successModal'));
+  document.getElementById('closeErrorModal').addEventListener('click', () => closeModal('errorModal'));
+  document.getElementById('closeViewModal').addEventListener('click', () => closeModal('viewModal'));
+
+  document.getElementById('successModal').addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) closeModal('successModal');
+  });
+
+  document.getElementById('errorModal').addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) closeModal('errorModal');
+  });
+
+  document.getElementById('viewModal').addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) closeModal('viewModal');
+  });
+
+  //generate reports functionality
+  function generateReport() {
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('en-GB', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+    const timeStr = now.toLocaleTimeString('en-GB', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+    });
+    
+    const printWindow = window.open('', '_blank');
+    
+    const formatCurrency = (amount) => {
+      if (!amount) return '-';
+      return new Intl.NumberFormat('en-NG', {
+        style: 'currency',
+        currency: 'NGN'
+      }).format(amount);
+    };
+
+    const printContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+      <meta charset="utf-8">
+        <title>Payments/Deductions Report</title>
+        <style>
+          @page { 
+            size: A4 landscape;
+            margin: 0.5mm; 
+            background-color: #f8fbff;
+          }
+
+          body { 
+            font-family: Helvetica, Arial, sans-serif; 
+            font-size: 10pt;
+            margin: 0;
+            padding: 0;
+            position: relative;
+            color: #333;
+          }
+
+          /* Faint logo overlay */
+          body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('photos/logo.png');
+            background-size: auto 100%;
+            background-repeat: no-repeat;
+            background-position: center center;
+            opacity: 0.02;
+            z-index: -1;
+            pointer-events: none;
+          }
+
+          .header-wrapper {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 8px;
+            border-bottom: 2px solid #1a1a1a;
+            padding-bottom: 5px;
+          }
+
+          .header {
+            flex-grow: 1;
+            text-align: center;
+          }
+
+          .header h1 {
+            font-size: 13pt;
+            font-weight: bold;
+            margin-bottom: 2px;
+            letter-spacing: 1.5px;
+            color: #1e40af;
+            font-family: 'Libre Baskerville', Georgia, serif;
+          }
+
+          .header h2 {
+            font-size: 10pt;
+            font-weight: normal;
+            margin-top: 2px;
+            color: #4a4a4a;
+            font-family: 'Libre Baskerville', Georgia, serif;
+          }
+
+          .header-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 10px 0;
+            font-size: 9pt;
+          }
+
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            font-size: 10px;
+          }
+
+          th {
+            color: #1e40af;
+            padding: 8px 4px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            border-bottom: 1px solid #0056A0;
+          }
+
+          td {
+            padding: 6px 4px;
+            border: none;
+            vertical-align: middle;
+          }
+
+          .text-right {
+          }
+
+          .text-center {
+            text-align: center;
+          }
+
+          .footer {
+            padding-top: 10px;
+            border-top: 0.5px solid #1a1a1a;
+            text-align: center;
+            font-size: 8pt;
+            color: #64748b;
+            margin-top: 20px;
+          }
+
+          @media print {
+            body {
+              print-color-adjust: exact;
+              -webkit-print-color-adjust: exact;
+            }
+            
+            body::before {
+              position: fixed;
+              display: block;
+              content: "";
+              width: 100%;
+              height: 100%;
+              top: 0;
+              left: 0;
+              background-image: url('photos/logo.png');
+              background-size: auto 100%;
+              background-repeat: no-repeat;
+              background-position: center center;
+              opacity: 0.02;
+              z-index: -1;
+            }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="header-wrapper">
+            <div class="header">
+                <h1>Nigerian Navy (Naval Headquarters)</h1>
+                <h2>CENTRAL PAY OFFICE, 23 POINT ROAD APAPA</h2>
+            </div>
+        </div>
+
+        <div class="header-info">
+            <div class="left">
+                <strong>ONE-OFF REQUIREMENTS REPORT</strong>
+            </div>
+            <div class="center">
+                <span>PRODUCED ON</span> 
+                <strong>${dateStr}</strong> 
+                <span>AT</span> 
+                <strong>${timeStr}</strong>
+            </div>
+            <div class="right">
+                <strong>${data.length}</strong>
+                <span>RECORDS</span>
+            </div>
+        </div>
+
+        <table class="print-table" style="width: 100%;">
+          <thead>
+            <tr>
+              <th>S/N</th>
+              <th>One-Off Type</th>
+              <th>One-Off Description</th>
+              <th>Function Type</th>
+              <th>Standard Amt or(%)</th>
+              <th>Maximum Amount</th>
+              <th>Dependance</th>
+              <th>ReqFor All?</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${data.map((item, index) => `
+            <tr>
+              <td>${index + 1}</td>
+                <td>${item.one_type}</td>
+                <td>${item.description || 'N/A'}</td>
+                <td>${resolveName(item.one_perc, "functiontype")} (${item.one_perc})</td>
+                <td class="amount">${formatCurrency(item.one_std)}</td>
+                <td class="amount">${formatCurrency(item.one_maxi)}</td>
+                <td>${resolveName(item.one_depend, "elementtype")} (${item.one_depend || 'N/A'})</td>                     
+                <td>${item.one_bpay}</td>
+            </tr>
+          `).join('')}
+          </tbody>
+        </table>
+      
+        <div class="footer">
+          <p>Total Records: ${data.length}</p>
+          <p>Generated by: ${localStorage.getItem('full_name') || 'System User'}</p>
+        </div>
+      </body>
+      </html>
+    `;
+
+    printWindow.document.write(printContent);
+    printWindow.document.close();
+
+    printWindow.onload = function() {
+      printWindow.print();
+    };
+  }
+
+  // Add event listener to generate report button
+  document.getElementById('generateReportBtn').addEventListener('click', generateReport);
+
+  // Initialize
+  (async function () {
+  await loadAllDropdowns();
+  await fetchOneOff();       
+  })();
+</script>

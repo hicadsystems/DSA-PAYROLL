@@ -1,0 +1,156 @@
+#section-batch {
+  @apply p-3 sm:p-4 md:p-6;
+}
+
+/* Header - Stack vertically on mobile */
+#section-batch > div:first-child {
+  @apply flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between;
+}
+
+#section-batch h2 {
+  @apply text-xl sm:text-2xl font-bold text-gray-800 min-w-fit;
+}
+
+/* Search container - Full width on mobile */
+.relative {
+  @apply w-full sm:w-80 md:w-96;
+}
+
+#tableSearchInput {
+  @apply text-sm sm:text-base;
+}
+
+/* Modal responsive - Full screen on mobile */
+#batchList > div {
+  @apply max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-4xl p-4 sm:p-6 rounded-lg sm:rounded-xl;
+  max-height: 85vh;
+}
+
+#batchList h2 {
+  @apply text-lg sm:text-xl font-bold;
+}
+
+/* Table responsive - Horizontal scroll on mobile */
+.overflow-x-auto {
+  @apply -mx-3 sm:mx-0 sm:rounded-lg;
+}
+
+@media (max-width: 640px) {
+  .overflow-x-auto {
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  table {
+    font-size: 0.75rem;
+  }
+
+  table th,
+  table td {
+    @apply px-2 py-2 border;
+  }
+
+  /* Hide button text on mobile, show only icon/abbreviation */
+  button {
+    @apply text-xs sm:text-sm;
+  }
+}
+
+/* Pagination controls - Stack vertically on mobile */
+#section-batch > div:last-child {
+  @apply mt-4 sm:mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between;
+}
+
+#section-batch > div:last-child > div:first-child {
+  @apply text-xs sm:text-sm text-gray-600 order-2 sm:order-1;
+}
+
+#section-batch > div:last-child > div:last-child {
+  @apply flex flex-col gap-2 sm:flex-row sm:items-center sm:space-x-2 order-1 sm:order-2;
+}
+
+/* Modal pagination controls - Also responsive */
+.mt-4.flex.items-center.justify-between.border-t {
+  @apply flex-col gap-4 sm:flex-row sm:items-center sm:justify-between;
+}
+
+.mt-4.flex.items-center.justify-between.border-t > div:first-child {
+  @apply text-xs sm:text-sm text-gray-600 order-2 sm:order-1 w-full sm:w-auto text-center sm:text-left;
+}
+
+.mt-4.flex.items-center.justify-between.border-t > div:last-child {
+  @apply flex flex-col gap-2 sm:flex-row sm:items-center sm:space-x-2 order-1 sm:order-2 w-full sm:w-auto;
+}
+
+/* Buttons responsive sizing */
+button {
+  @apply px-2 sm:px-3 py-1 text-xs sm:text-sm;
+}
+
+button[id$="Page"] {
+  @apply flex-1 sm:flex-none;
+}
+
+/* Select dropdown responsive */
+select {
+  @apply text-xs sm:text-sm px-2 sm:px-2 py-1;
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  select {
+    width: auto;
+  }
+}
+
+/* Loading and Error modals - Full screen on mobile */
+#loadingModal > div,
+#errorModal > div {
+  @apply max-w-sm sm:max-w-md w-11/12 sm:w-full mx-4 sm:mx-0;
+}
+
+/* Modal table responsive */
+#batchContent table {
+  @apply text-xs sm:text-sm;
+}
+
+@media (max-width: 768px) {
+  #batchContent table th,
+  #batchContent table td {
+    @apply px-2 sm:px-3 py-2;
+  }
+}
+
+/* Improved touch targets for mobile */
+@media (max-width: 640px) {
+  button,
+  select,
+  input {
+    min-height: 44px;
+  }
+
+  button {
+    padding: 0.5rem;
+  }
+}
+
+/* Text truncation for better mobile display */
+.text-sm {
+  @apply truncate;
+}
+
+/* Modal content overflow handling */
+#batchContent {
+  @apply overflow-x-auto;
+}
+
+@media (max-width: 640px) {
+  #batchContent {
+    max-width: 100%;
+  }
+
+  #batchContent table {
+    min-width: 100%;
+  }
+}

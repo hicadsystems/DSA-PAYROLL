@@ -1,0 +1,1838 @@
+<div class="p-6">
+
+  <div class="flex flex-wrap gap-2 justify-between mb-4 pb-2 border-b">
+    <!-- Toggle Navigation -->
+    <div class="w-fit flex gap-4 p-2 bg-white/50 rounded-xl border border-amber-50 shadow-sm">
+      <button id="btnGroups" class="px-4 py-2 rounded-md text-gray-900 hover:bg-blue-600">Salary Groups</button>
+      <button id="btnScales" class="px-4 py-2 rounded-md bg-yellow-400 text-gray-900 hover:bg-blue-600">Salary Scale</button>
+    </div>
+
+    <div class="flex gap-4 p-2">
+      <button id="generateReportBtn" class="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700">
+        <i class="fas fa-file-alt mr-2"></i>Generate Report
+      </button>
+    </div>
+  </div>
+
+  <!-- Salary Groups -->
+  <div id="groupSection">
+    <div class="flex flex-wrap justify-between mb-4">
+      <h2 class="text-xl lg:text-2xl text-blue-600 font-bold">Salary Groups</h2>
+      <div class="flex flex-wrap gap-2">
+        <input type="text" id="groupSearchInput" placeholder="Search code or desc ..." class="border rounded px-3 py-2">
+        <button id="addNewGroupBtn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">+ Add New Group</button>
+      </div>
+    </div>
+
+    <form id="groupForm" class="hidden grid grid-cols-2 gap-4">
+      <label>Group Code</label>
+      <input type="text" maxlength="12" id="groupCode" class="border p-2 rounded">
+      <label>Description</label>
+      <input type="text" id="groupDesc" class="border p-2 rounded">
+      <label>Effective Date</label>
+      <input type="date" id="groupEff" class="border p-2 rounded">
+      <label>Last Date</label>
+      <input type="date" id="groupLast" class="border p-2 rounded">
+      <div class="col-span-2 flex justify-end gap-2">
+        <button type="button" id="saveGroupBtn" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Save</button>
+        <button type="button" id="cancelGroupBtn" class="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500">Cancel</button>
+      </div>
+    </form>
+
+    <div class="mt-6 overflow-x-auto">
+      <table class="min-w-full border border-gray-200 rounded-lg text-sm">
+        <thead class="bg-blue-100 text-blue-900">
+          <tr>
+            <th class="border px-2 py-3 text-left">Code</th>
+            <th class="border px-2 py-3 text-left">Description</th>
+            <th class="border px-2 py-3 text-left">Effective Date</th>
+            <th class="border px-2 py-3 text-left">Last Date</th>
+            <th class="border px-2 py-3 text-left">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="groupTable">
+           <!-- Data will be populated here -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination Controls -->
+    <div class="mt-4 flex items-center justify-between">
+      <div class="text-sm text-gray-600">
+        Showing <span id="groupStartRecord">0</span> to <span id="groupEndRecord">0</span> of <span id="groupTotalRecords">0</span> records
+      </div>
+      <div class="flex items-center space-x-2">
+        <select id="groupRecordsPerPage" class="border border-gray-300 rounded px-2 py-1 text-sm">
+          <option value="10">10 per page</option>
+          <option value="25">25 per page</option>
+          <option value="50">50 per page</option>
+          <option value="100">100 per page</option>
+        </select>
+        <button id="groupPrevPage" class="px-3 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 disabled:opacity-50">
+          Previous
+        </button>
+        <span class="text-sm">
+          Page <span id="groupCurrentPage">1</span> of <span id="groupTotalPages">1</span>
+        </span>
+        <button id="groupNextPage" class="px-3 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 disabled:opacity-50">
+          Next
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Salary Scales -->
+  <div id="scaleSection" class="hidden">
+    <div class="flex flex-wrap justify-between mb-4">
+        <h2 class="text-xl lg:text-2xl text-blue-600 font-bold">Salary Scale</h2>
+      <div class="flex gap-2">
+         <input type="text" id="scaleSearchInput" placeholder="Search code or desc ..." class="border rounded px-3 py-2">
+        <button id="addNewScaleBtn" type="button"
+          class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+          + Add New Scale
+        </button>
+        <button id="tabBatchBtn" type="button"
+          class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+          Batch Upload
+        </button>
+      </div>
+    </div>
+
+    <!-- Add New Scale Form -->
+    <form id="scaleForm"
+          class="hidden grid grid-cols-2 gap-4">
+      <label>Salary Group</label>
+      <select id="scaleGroup" class="border p-2 rounded">
+        <option value="">Select Group</option>
+      </select>
+      <label>Element Type</label>
+      <select id="scaleElement" class="border p-2 rounded">
+        <option value="">Select Element</option>
+      </select>
+      <label>Grade Level</label>
+      <select id="scaleGrade" class="border p-2 rounded">
+        <option value="">Select Grade</option>
+      </select>
+
+      <div id="stepFields"
+          class="col-span-2 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 mt-4 hidden"></div>
+
+      <div class="col-span-2 flex justify-end mt-6 gap-2">
+        <button type="submit"
+          class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+          Save
+        </button>
+        <button type="button" id="cancelScaleBtn"
+          class="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500">
+          Cancel
+        </button>
+      </div>
+    </form>
+
+    <!-- Batch Upload Form -->
+    <div class="flex justify-end">
+      <form id="batchUploadForm"
+            class="hidden w-full max-w-lg rounded-2xl pt-6">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Upload File</label>
+          <input type="file" id="batchFile"
+            class="mt-1 block w-full border border-blue-500 bg-white rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"/>
+          <p class="text-xs text-gray-500 mt-2">
+            Only .xlsx or .csv files allowed.
+            <button type="button" id="downloadSampleBtn" class="text-blue-600 hover:underline ml-2 bg-none border-none cursor-pointer">
+              Download Sample Template
+            </button>
+          </p>
+        </div>
+
+        <div class="flex justify-end space-x-4 mt-4">
+          <button type="button" id="uploadBatchBtn"
+            class="px-6 py-2 bg-green-600 hover:bg-green-700 rounded text-white">
+            Upload
+          </button>
+
+          <button type="button" id="cancelBatchBtn"
+            class="px-6 py-2 bg-gray-400 hover:bg-gray-500 rounded text-white">
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Table -->
+    <div class="mt-2 overflow-x-auto">
+      <table class="min-w-full border border-gray-200 rounded-lg text-sm">
+        <thead class="bg-blue-100 text-blue-900">
+          <tr>
+            <th class="border px-2 py-3 text-left">Salary Code</th>
+            <th class="border px-2 py-3 text-left">Paycode</th>
+            <th class="border px-2 py-3 text-left">Grade</th>
+            <th class="border px-2 py-3 text-left">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="scaleTable"></tbody>
+      </table>
+    </div>
+
+    <!-- Pagination Controls -->
+    <div class="mt-4 flex items-center justify-between">
+      <div class="text-sm text-gray-600">
+        Showing <span id="scaleStartRecord">0</span> to <span id="scaleEndRecord">0</span> of <span id="scaleTotalRecords">0</span> records
+      </div>
+      <div class="flex items-center space-x-2">
+        <select id="scaleRecordsPerPage" class="border border-gray-300 rounded px-2 py-1 text-sm">
+          <option value="10">10 per page</option>
+          <option value="25">25 per page</option>
+          <option value="50">50 per page</option>
+          <option value="100">100 per page</option>
+        </select>
+        <button id="scalePrevPage" class="px-3 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 disabled:opacity-50">
+          Previous
+        </button>
+        <span class="text-sm">
+          Page <span id="scaleCurrentPage">1</span> of <span id="scaleTotalPages">1</span>
+        </span>
+        <button id="scaleNextPage" class="px-3 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 disabled:opacity-50">
+          Next
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- View Modal -->
+<div id="scaleViewModal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+  <div class="bg-white p-6 rounded-2xl shadow-2xl w-full max-w-3xl mx-4 max-h-[90vh] overflow-y-auto border border-blue-100">
+
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-6 border-b border-gray-200 pb-3">
+      <h3 class="text-xl font-bold text-blue-700 flex items-center gap-2">
+        Salary Scale Details
+      </h3>
+      <button id="closeScaleView" class="text-red-500 hover:text-red-600 transition transform hover:scale-110">
+        ✖
+      </button>
+    </div>
+
+    <!-- Content -->
+    <div id="scaleViewContent" class="space-y-6"></div>
+  </div>
+</div>
+
+<!-- Alert Modal -->
+<div id="alertModal" 
+     class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
+  <div class="bg-white rounded-lg shadow-xl max-w-sm w-full p-6 text-center">
+    <h3 id="alertTitle" class="text-lg font-semibold text-gray-800 mb-2">Alert!</h3>
+    <p id="alertMessage" class="text-gray-600 mb-4"></p>
+    <button id="alertOkBtn" 
+      class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+      OK
+    </button>
+  </div>
+</div>
+
+<!-- Success Modal -->
+<div id="successModal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+  <div class="bg-white p-6 rounded-lg shadow-xl max-w-md w-full mx-4">
+    <h3 class="text-lg font-semibold mb-2 text-green-600">Success!</h3>
+    <p class="mb-4 text-gray-700">Configuration saved successfully!</p>
+    <button id="closeModal" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">OK</button>
+  </div>
+</div>
+
+<!-- Confirm Delete Modal -->
+<div id="sectionConfirmModal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+  <div class="bg-white p-6 rounded-lg shadow-xl max-w-md w-full mx-4">
+    <h3 class="text-lg font-semibold text-yellow-600 mb-2">Confirm Delete</h3>
+    <p id="confirmMessage" class="mb-4 text-gray-700">Are you sure you want to delete this section command?</p>
+    <div class="flex justify-end gap-2">
+      <button id="cancelSectionDelete" class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500">Cancel</button>
+      <button id="sectionConfirmAction" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Delete</button>
+    </div>
+  </div>
+</div>
+
+
+<script>
+  const auth = window.authService;
+// API Configuration
+const isLocal = window.location.hostname === "localhost";
+const API_BASE_URL = "api/v1";
+
+// Global variables
+let groups = [];
+let elementTypes = [];
+let gradeLevels = [];
+let scales = [];
+let editingScaleIndex = null;
+let editingGroupIndex = null;
+
+// Pagination state for groups
+let groupCurrentPage = 1;
+let groupRecordsPerPage = 10;
+let groupFilteredData = [];
+let groupCurrentSearchTerm = "";
+
+// Pagination state for scales
+let scaleCurrentPage = 1;
+let scaleRecordsPerPage = 10;
+let scaleFilteredData = [];
+let scaleCurrentSearchTerm = "";
+
+// Get pagination elements for groups
+const groupPrevBtn = document.getElementById('groupPrevPage');
+const groupNextBtn = document.getElementById('groupNextPage');
+const groupCurrentPageSpan = document.getElementById('groupCurrentPage');
+const groupTotalPagesSpan = document.getElementById('groupTotalPages');
+const groupRecordsSelect = document.getElementById('groupRecordsPerPage');
+const groupStartRecordSpan = document.getElementById('groupStartRecord');
+const groupEndRecordSpan = document.getElementById('groupEndRecord');
+const groupTotalRecordsSpan = document.getElementById('groupTotalRecords');
+
+// Get pagination elements for scales
+const scalePrevBtn = document.getElementById('scalePrevPage');
+const scaleNextBtn = document.getElementById('scaleNextPage');
+const scaleCurrentPageSpan = document.getElementById('scaleCurrentPage');
+const scaleTotalPagesSpan = document.getElementById('scaleTotalPages');
+const scaleRecordsSelect = document.getElementById('scaleRecordsPerPage');
+const scaleStartRecordSpan = document.getElementById('scaleStartRecord');
+const scaleEndRecordSpan = document.getElementById('scaleEndRecord');
+const scaleTotalRecordsSpan = document.getElementById('scaleTotalRecords');
+
+function showAlert(message, title = "Alert") {
+  const modal = document.getElementById("alertModal");
+  const msg = document.getElementById("alertMessage");
+  const ttl = document.getElementById("alertTitle");
+  const okBtn = document.getElementById("alertOkBtn");
+
+  ttl.textContent = title;
+  msg.textContent = message;
+  modal.classList.remove("hidden");
+
+  okBtn.onclick = () => {
+    modal.classList.add("hidden");
+  };
+}
+
+function showSuccess(message = "Configuration saved successfully!") {
+  const modal = document.getElementById("successModal");
+  const msg = modal.querySelector("p");
+  msg.textContent = message;
+  modal.classList.remove("hidden");
+}
+
+document.getElementById("closeModal").addEventListener("click", () => {
+  document.getElementById("successModal").classList.add("hidden");
+});
+
+document.getElementById("successModal").addEventListener("click", (e) => {
+  if (e.target.id === "successModal") {
+    e.target.classList.add("hidden");
+  }
+});
+
+function showConfirmModal(message = "Are you sure?") {
+  return new Promise((resolve) => {
+    const modal = document.getElementById("sectionConfirmModal");
+    const msg = document.getElementById("confirmMessage");
+    const cancelBtn = document.getElementById("cancelSectionDelete");
+    const confirmBtn = document.getElementById("sectionConfirmAction");
+
+    msg.textContent = message;
+    modal.classList.remove("hidden");
+
+    cancelBtn.onclick = () => {
+      modal.classList.add("hidden");
+      resolve(false);
+    };
+
+    confirmBtn.onclick = () => {
+      modal.classList.add("hidden");
+      resolve(true);
+    };
+
+    modal.onclick = (e) => {
+      if (e.target.id === "sectionConfirmModal") {
+        modal.classList.add("hidden");
+        resolve(false);
+      }
+    };
+  });
+}
+
+// API Helper Functions
+class ApiService {
+  static async request(endpoint, options = {}) {
+    const url = `${API_BASE_URL}${endpoint}`;
+    const config = {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token') || ''}`,
+        ...options.headers,
+      },
+      ...options,
+    };
+
+    try {
+      const response = await auth.fetchWithAuth(url, config);
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'API request failed');
+      }
+      
+      return data;
+    } catch (error) {
+      console.error('API Error:', error);
+      showAlert(`Error: ${error.message}`);
+      throw error;
+    }
+  }
+
+  static async getAllScales(page = 1, limit = 100) {
+    return await this.request(`/salary-scales?page=${page}&limit=${limit}`);
+  }
+
+  static async getScale(salcode, saltype, grade) {
+    return await this.request(`/salary-scales/${salcode}/${saltype}/${grade}`);
+  }
+
+  static async createScale(scaleData) {
+    return await this.request('/salary-scales', {
+      method: 'POST',
+      body: JSON.stringify(scaleData),
+    });
+  }
+
+  static async updateScale(salcode, saltype, grade, scaleData) {
+    return await this.request(`/salary-scales/${salcode}/${saltype}/${grade}`, {
+      method: 'PUT',
+      body: JSON.stringify(scaleData),
+    });
+  }
+
+  static async deleteScale(salcode, saltype, grade) {
+    return await this.request(`/salary-scales/${salcode}/${saltype}/${grade}`, {
+      method: 'DELETE',
+    });
+  }
+
+  static async searchScales(filters) {
+    const params = new URLSearchParams(filters);
+    return await this.request(`/salary-scales/search?${params}`);
+  }
+
+  static async getProgressionSteps(salcode, saltype, grade) {
+    return await this.request(`/salary-scales/${salcode}/${saltype}/${grade}/progression-steps`);
+  }
+
+  static async getAllGroups(page = 1, limit = 100) {
+    return await this.request(`/salary-groups?page=${page}&limit=${limit}`);
+  }
+
+  static async getGroup(groupcode) {
+    return await this.request(`/salary-groups/${groupcode}`);
+  }
+
+  static async createGroup(groupData) {
+    return await this.request('/salary-groups', {
+      method: 'POST',
+      body: JSON.stringify(groupData),
+    });
+  }
+
+  static async updateGroup(groupcode, groupData) {
+    return await this.request(`/salary-groups/${groupcode}`, {
+      method: 'PUT',
+      body: JSON.stringify(groupData),
+    });
+  }
+
+  static async deleteGroup(groupcode) {
+    return await this.request(`/salary-groups/${groupcode}`, {
+      method: 'DELETE',
+    });
+  }
+
+  static async searchGroups(filters) {
+    const params = new URLSearchParams(filters);
+    return await this.request(`/salary-groups/search?${params}`);
+  }
+
+  static async getElementTypes() {
+    return await this.request('/elementtypes');
+  }
+
+  static async getGradeLevels() {
+    return await this.request('/gradelevels');
+  }
+
+  static async batchUpload(formData) {
+    const url = `${API_BASE_URL}/salary-scales/batch-upload`;
+    
+    try {
+      const response = await auth.fetchWithAuth(url, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token') || ''}`,
+        },
+        body: formData,
+      });
+      
+      const contentType = response.headers.get('content-type') || '';
+      
+      if (!response.ok) {
+        let errorMessage = `Upload failed: ${response.status} ${response.statusText}`;
+        
+        try {
+          if (contentType.includes('application/json')) {
+            const errorData = await response.json();
+            errorMessage = errorData.error || errorMessage;
+          } else {
+            const errorText = await response.text();
+            if (!errorText.startsWith('------') && errorText.length < 500) {
+              errorMessage = errorText;
+            }
+          }
+        } catch (parseError) {
+          console.log('Could not parse error response');
+        }
+        
+        throw new Error(errorMessage);
+      }
+      
+      if (contentType.includes('application/json')) {
+        const data = await response.json();
+        return data;
+      } else {
+        return { 
+          success: true, 
+          message: 'Upload completed',
+          summary: {
+            totalRecords: 'Unknown',
+            successful: 'Processing',
+            failed: 0,
+            errors: []
+          }
+        };
+      }
+      
+    } catch (error) {
+      console.error('Batch upload error:', error);
+      throw error;
+    }
+  }
+
+  static async downloadSampleTemplate() {
+    const url = `${API_BASE_URL}/salary-scales/sample-template`;
+    const token = localStorage.getItem('token');
+    
+    if (!token) {
+      throw new Error('Authentication token not found. Please login again.');
+    }
+    
+    try {
+      const response = await auth.fetchWithAuth(url, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/octet-stream, text/csv, */*',
+        },
+      });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Download error response:', errorText);
+        throw new Error(`Failed to download sample template: ${response.status} ${response.statusText}`);
+      }
+      
+      const blob = await response.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = 'salary_scale_sample.csv';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(downloadUrl);
+      
+      return { success: true };
+    } catch (error) {
+      console.error('Download failed:', error);
+      throw error;
+    }
+  }
+}
+
+// GROUP PAGINATION FUNCTIONS
+function getGroupPaginationData() {
+  const totalRecords = groupFilteredData.length;
+  const totalPages = Math.ceil(totalRecords / groupRecordsPerPage) || 1;
+  const startIndex = (groupCurrentPage - 1) * groupRecordsPerPage;
+  const endIndex = startIndex + groupRecordsPerPage;
+  const currentData = groupFilteredData.slice(startIndex, endIndex);
+  const startRecord = totalRecords === 0 ? 0 : startIndex + 1;
+  const endRecord = Math.min(endIndex, totalRecords);
+
+  return { totalRecords, totalPages, currentData, startRecord, endRecord };
+}
+
+function updateGroupPaginationUI() {
+  const { totalRecords, totalPages, startRecord, endRecord } = getGroupPaginationData();
+  
+  if (groupCurrentPageSpan) groupCurrentPageSpan.textContent = groupCurrentPage;
+  if (groupTotalPagesSpan) groupTotalPagesSpan.textContent = totalPages;
+  if (groupStartRecordSpan) groupStartRecordSpan.textContent = startRecord;
+  if (groupEndRecordSpan) groupEndRecordSpan.textContent = endRecord;
+  if (groupTotalRecordsSpan) groupTotalRecordsSpan.textContent = totalRecords;
+
+  if (groupPrevBtn) groupPrevBtn.disabled = groupCurrentPage <= 1;
+  if (groupNextBtn) groupNextBtn.disabled = groupCurrentPage >= totalPages;
+}
+
+function renderGroupWithPagination() {
+  renderGroupTable();
+  updateGroupPaginationUI();
+}
+
+// SCALE PAGINATION FUNCTIONS
+function getScalePaginationData() {
+  const totalRecords = scaleFilteredData.length;
+  const totalPages = Math.ceil(totalRecords / scaleRecordsPerPage) || 1;
+  const startIndex = (scaleCurrentPage - 1) * scaleRecordsPerPage;
+  const endIndex = startIndex + scaleRecordsPerPage;
+  const currentData = scaleFilteredData.slice(startIndex, endIndex);
+  const startRecord = totalRecords === 0 ? 0 : startIndex + 1;
+  const endRecord = Math.min(endIndex, totalRecords);
+
+  return { totalRecords, totalPages, currentData, startRecord, endRecord };
+}
+
+function updateScalePaginationUI() {
+  const { totalRecords, totalPages, startRecord, endRecord } = getScalePaginationData();
+  
+  if (scaleCurrentPageSpan) scaleCurrentPageSpan.textContent = scaleCurrentPage;
+  if (scaleTotalPagesSpan) scaleTotalPagesSpan.textContent = totalPages;
+  if (scaleStartRecordSpan) scaleStartRecordSpan.textContent = startRecord;
+  if (scaleEndRecordSpan) scaleEndRecordSpan.textContent = endRecord;
+  if (scaleTotalRecordsSpan) scaleTotalRecordsSpan.textContent = totalRecords;
+
+  if (scalePrevBtn) scalePrevBtn.disabled = scaleCurrentPage <= 1;
+  if (scaleNextBtn) scaleNextBtn.disabled = scaleCurrentPage >= totalPages;
+}
+
+function renderScaleWithPagination() {
+  renderScaleTable();
+  updateScalePaginationUI();
+}
+
+// Load groups from backend with pagination support
+async function loadGroups(preserveState = false) {
+  try {
+    const response = await ApiService.getAllGroups();
+    groups = response.data || [];
+    
+    if (preserveState) {
+      applyGroupSearch(groupCurrentSearchTerm);
+      const totalPages = Math.ceil(groupFilteredData.length / groupRecordsPerPage) || 1;
+      if (groupCurrentPage > totalPages) {
+        groupCurrentPage = totalPages;
+      }
+    } else {
+      groupFilteredData = [...groups];
+      groupCurrentPage = 1;
+      groupCurrentSearchTerm = "";
+    }
+    
+    renderGroupWithPagination();
+  } catch (error) {
+    console.error('Failed to load groups:', error);
+    groups = [];
+    groupFilteredData = [];
+  }
+}
+
+function applyGroupSearch(term) {
+  groupCurrentSearchTerm = term;
+  if (term) {
+    groupFilteredData = groups.filter(g =>
+      g.groupcode.toLowerCase().includes(term) || 
+      g.grpdesc.toLowerCase().includes(term)
+    );
+  } else {
+    groupFilteredData = [...groups];
+  }
+}
+
+async function loadElementTypes() {
+  try {
+    const response = await ApiService.getElementTypes();
+    elementTypes = response || [];
+  } catch (error) {
+    console.error('Failed to load element types:', error);
+    elementTypes = [];
+  }
+}
+
+async function loadGradeLevels() {
+  try {
+    const response = await ApiService.getGradeLevels();
+    gradeLevels = response || [];
+  } catch (error) {
+    console.error('Failed to load grade levels:', error);
+    gradeLevels = [];
+  }
+}
+
+function generateStepFields() {
+  const stepFieldsContainer = document.getElementById("stepFields");
+  let stepHTML = '';
+  for(let i = 1; i <= 20; i++) {
+    const label = i === 20 ? 'Max Step' : `Step ${i}`;
+    const placeholder = i === 20 ? 'Max progression step (1-19)' : 'Enter salary amount';
+    stepHTML += `
+      <div>
+        <label class="block text-sm font-medium">${label}</label>
+        <input type="text" id="step${i}" class="border p-2 rounded w-full" placeholder="${placeholder}">
+      </div>`;
+  }
+  stepFieldsContainer.innerHTML = stepHTML;
+}
+
+async function loadScales(preserveState = false) {
+  try {
+    const response = await ApiService.getAllScales();
+    scales = response.data.map(scale => ({
+      salcode: scale.salcode,
+      saltype: scale.saltype,
+      grade: scale.grade,
+      group: scale.salcode,
+      element: scale.saltype,
+      steps: [
+        scale.step1, scale.step2, scale.step3, scale.step4, scale.step5,
+        scale.step6, scale.step7, scale.step8, scale.step9, scale.step10,
+        scale.step11, scale.step12, scale.step13, scale.step14, scale.step15,
+        scale.step16, scale.step17, scale.step18, scale.step19, scale.step20
+      ].map(step => step || ''),
+      user: scale.user
+    }));
+    
+    if (preserveState) {
+      applyScaleSearch(scaleCurrentSearchTerm);
+      const totalPages = Math.ceil(scaleFilteredData.length / scaleRecordsPerPage) || 1;
+      if (scaleCurrentPage > totalPages) {
+        scaleCurrentPage = totalPages;
+      }
+    } else {
+      scaleFilteredData = [...scales];
+      scaleCurrentPage = 1;
+      scaleCurrentSearchTerm = "";
+    }
+    
+    renderScaleWithPagination();
+  } catch (error) {
+    console.error('Failed to load scales:', error);
+    scales = [];
+    scaleFilteredData = [];
+  }
+}
+
+function applyScaleSearch(term) {
+  scaleCurrentSearchTerm = term;
+  if (term) {
+    scaleFilteredData = scales.filter(s =>
+      s.salcode.toLowerCase().includes(term) || 
+      s.saltype.toLowerCase().includes(term) ||
+      s.grade.toString().toLowerCase().includes(term)
+    );
+  } else {
+    scaleFilteredData = [...scales];
+  }
+}
+
+window.viewScale = async function(index) {
+  const s = scales[index];
+  
+  try {
+    const progressionData = await ApiService.getProgressionSteps(s.salcode, s.saltype, s.grade);
+    const maxStep = progressionData.data.maxProgressionStep;
+
+    function formatToNGN(amount) {
+      if (amount == null || amount === "-") return "-";
+      return new Intl.NumberFormat('en-NG', {
+        style: 'currency',
+        currency: 'NGN',
+        minimumFractionDigits: 2,
+      }).format(amount);
+    }
+
+    let html = `
+      <div class="mb-4">
+        <h4 class="text-lg font-semibold text-gray-800 mb-2">
+          <span class="italic font-semibold text-blue-500">SALARY GROUP</span> : ${s.salcode} — 
+          <span class="italic font-semibold text-blue-500">PAYMENT TYPE</span> : ${s.saltype} — 
+          <span class="italic font-semibold text-blue-500">GRADE LEVEL</span> : ${s.grade}
+        </h4>
+      </div>
+      <div class="border-2 border-gray-300 rounded-lg p-4 bg-gray-50">
+        <h5 class="font-semibold text-gray-700 mb-3 flex items-center justify-between">
+          <span>Salary Steps:</span>
+          <span class="text-yellow-500 font-semibold">Max Progression: Step ${maxStep}</span>
+        </h5>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 text-sm">
+    `;
+
+    for (let i = 0; i < 19; i++) {
+      const isAvailable = (i + 1) <= maxStep;
+      html += `
+        <div class="flex justify-between bg-white p-2 rounded border ${!isAvailable ? 'opacity-50' : ''}">
+          <span class="font-medium">Step ${i + 1}:</span>
+          <span class="${isAvailable ? 'text-blue-600' : 'text-gray-400'} font-semibold">
+            ${s.steps[i] ? formatToNGN(s.steps[i]) : '-'}
+          </span>
+        </div>
+      `;
+    }
+
+    html += `</div></div>`;
+
+    document.getElementById("scaleViewContent").innerHTML = html;
+    document.getElementById("scaleViewModal").classList.remove("hidden");
+  } catch (error) {
+    console.error('Failed to get progression steps:', error);
+  }
+};
+
+window.editScale = function(index) {
+  const s = scales[index];
+  document.getElementById("scaleGroup").value = s.salcode;
+  document.getElementById("scaleElement").value = s.saltype;
+  document.getElementById("scaleGrade").value = s.grade;
+  
+  for(let i = 0; i < 20; i++) {
+    document.getElementById("step" + (i+1)).value = s.steps[i] || "";
+  }
+
+  document.getElementById("scaleGroup").disabled = true;
+  document.getElementById("scaleElement").disabled = true;
+  document.getElementById("scaleGrade").disabled = true;
+
+  editingScaleIndex = index;
+  document.getElementById("stepFields").classList.remove("hidden");
+  document.getElementById("scaleForm").classList.remove("hidden");
+  showSection("scaleSection","btnScales");
+};
+
+window.deleteScale = async function(index) {
+  const confirmed = await showConfirmModal("Are you sure you want to delete this configuration?");
+
+  if(confirmed) {
+    const s = scales[index];
+    try {
+      await ApiService.deleteScale(s.salcode, s.saltype, s.grade);
+      await loadScales(true);
+      showSuccess('Scale deleted successfully!');
+    } catch (error) {
+      console.error('Failed to delete scale:', error);
+      showAlert("Error deleting record.");
+    }
+  }
+};
+
+window.editGroup = function(index) {
+  const g = groups[index];
+  document.getElementById("groupCode").value = g.groupcode;
+  document.getElementById("groupDesc").value = g.grpdesc;
+  document.getElementById("groupEff").value = g.effdate;
+  document.getElementById("groupLast").value = g.lastdate;
+  
+  editingGroupIndex = index;
+  document.getElementById("groupCode").disabled = true;
+  document.getElementById("groupForm").classList.remove("hidden");
+};
+
+window.deleteGroup = async function(index) {
+  const confirmed = await showConfirmModal("Are you sure you want to delete this group?");
+
+  if(confirmed) {
+    const g = groups[index];
+    try {
+      await ApiService.deleteGroup(g.groupcode);
+      await loadGroups(true);
+      loadDropdowns();
+      showSuccess('Group deleted successfully!');
+    } catch (error) {
+      console.error('Failed to delete group:', error);
+      showAlert("Error deleting record.");
+    }
+  }
+};
+
+generateStepFields();
+
+document.getElementById("addNewGroupBtn").addEventListener("click", () => {
+  document.getElementById("groupForm").classList.remove("hidden");
+  editingGroupIndex = null;
+  document.getElementById("groupCode").disabled = false;
+  document.getElementById("groupForm").reset();
+});
+
+document.getElementById("cancelGroupBtn").addEventListener("click", () => {
+  document.getElementById("groupForm").classList.add("hidden");
+  document.getElementById("groupForm").reset();
+  editingGroupIndex = null;
+});
+
+const scaleForm = document.getElementById("scaleForm");
+const batchForm = document.getElementById("batchUploadForm");
+
+document.getElementById("addNewScaleBtn").addEventListener("click", () => {
+  editingScaleIndex = null;
+  document.getElementById("scaleForm").reset();
+  batchForm.classList.add("hidden");
+  scaleForm.classList.toggle("hidden");
+  document.getElementById("scaleGroup").disabled = false;
+  document.getElementById("scaleElement").disabled = false;
+  document.getElementById("scaleGrade").disabled = false;
+  document.getElementById("stepFields").classList.add("hidden");
+});
+
+document.getElementById("tabBatchBtn").addEventListener("click", () => {
+  scaleForm.classList.add("hidden");
+  batchForm.classList.toggle("hidden");
+});
+
+document.getElementById("cancelScaleBtn").addEventListener("click", () => {
+  scaleForm.classList.add("hidden");
+  document.getElementById("stepFields").classList.add("hidden");
+  document.getElementById("scaleForm").reset();
+  editingScaleIndex = null;
+});
+
+document.getElementById("cancelBatchBtn").addEventListener("click", () => {
+  batchForm.classList.add("hidden");
+});
+
+function showSection(sectionId, btnId) {
+  ["groupSection","scaleSection"].forEach(id => {
+    document.getElementById(id).classList.add("hidden");
+  });
+  ["btnGroups","btnScales"].forEach(id => {
+    document.getElementById(id).classList.remove("bg-blue-600","text-white");
+    document.getElementById(id).classList.add("bg-yellow-400","text-gray-900");
+  });
+  document.getElementById(sectionId).classList.remove("hidden");
+  const btn = document.getElementById(btnId);
+  btn.classList.remove("bg-yellow-400","text-gray-900");
+  btn.classList.add("bg-blue-600","text-white");
+
+  // Change generate button text based on active section
+  const generateBtn = document.getElementById("generateReportBtn");
+  if (sectionId === "scaleSection") {
+    generateBtn.innerHTML = `<i class="fas fa-file-alt mr-2"></i>Generate Scale Report`;
+  } else {
+    generateBtn.innerHTML = `<i class="fas fa-file-alt mr-2"></i>Generate Group Report`;
+  }
+}
+
+document.getElementById("btnGroups").addEventListener("click", () => showSection("groupSection","btnGroups"));
+document.getElementById("btnScales").addEventListener("click", () => {
+  showSection("scaleSection","btnScales");
+  loadScales();
+});
+
+showSection("groupSection","btnGroups");
+
+function loadDropdowns() {
+  const gSel = document.getElementById("scaleGroup");
+  const eSel = document.getElementById("scaleElement");
+  const grSel = document.getElementById("scaleGrade");
+  
+  gSel.innerHTML = '<option value="">Select Salary Group</option>' + 
+    groups.map(g => `<option value="${g.groupcode}">${g.grpdesc}</option>`).join("");
+  
+  eSel.innerHTML = '<option value="">Select Element Type</option>' + 
+    elementTypes.map(e => `<option value="${e.PaymentType}">${e.elmDesc}</option>`).join("");
+  
+  grSel.innerHTML = '<option value="">Select Grade</option>' + 
+    gradeLevels.map(gr => `<option value="${gr.grade_no}">${gr.grade_desc}</option>`).join("");
+}
+
+function checkDropdownSelections() {
+  const g = document.getElementById("scaleGroup").value;
+  const e = document.getElementById("scaleElement").value;
+  const gr = document.getElementById("scaleGrade").value;
+  
+  if(g && e && gr) {
+    document.getElementById("stepFields").classList.remove("hidden");
+  } else {
+    document.getElementById("stepFields").classList.add("hidden");
+  }
+}
+
+["scaleGroup","scaleElement","scaleGrade"].forEach(id => {
+  document.getElementById(id).addEventListener("change", checkDropdownSelections);
+});
+
+document.getElementById("saveGroupBtn").addEventListener("click", async () => {
+  const groupData = {
+    groupcode: document.getElementById("groupCode").value,
+    grpdesc: document.getElementById("groupDesc").value,
+    effdate: document.getElementById("groupEff").value,
+    lastdate: document.getElementById("groupLast").value
+  };
+
+  const requiredFields = ['groupcode', 'grpdesc'];
+  let missingFields = requiredFields.filter(field => !groupData[field]);
+
+  if (missingFields.length > 0) {
+    showAlert(`Please fill in all required fields: ${missingFields.join(', ')}`);
+    return;
+  }
+
+  if(groupData.groupcode && groupData.grpdesc) {
+    try {
+      if(editingGroupIndex !== null) {
+        await ApiService.updateGroup(groupData.groupcode, groupData);
+        showSuccess('Group updated successfully!');
+      } else {
+        await ApiService.createGroup(groupData);
+        showSuccess('Group created successfully!');
+      }
+      
+      document.getElementById("groupForm").reset();
+      document.getElementById("groupForm").classList.add("hidden");
+      editingGroupIndex = null;
+      
+      await loadGroups(true);
+      loadDropdowns();
+    } catch (error) {
+      console.error('Failed to save group:', error);
+    }
+  } else {
+    showAlert("Please fill in all required fields");
+  }
+});
+
+document.getElementById("scaleForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  
+  const salcode = document.getElementById("scaleGroup").value;
+  const saltype = document.getElementById("scaleElement").value;
+  const grade = document.getElementById("scaleGrade").value;
+  
+  const scaleData = {
+    salcode: salcode,
+    saltype: saltype,
+    grade: grade
+  };
+  
+  for(let i = 1; i <= 20; i++) {
+    const stepValue = document.getElementById("step" + i).value;
+    scaleData["step" + i] = stepValue || null;
+  }
+  
+  const maxStep = parseInt(scaleData.step20);
+  if (maxStep && (maxStep < 1 || maxStep > 19)) {
+    showAlert('Max progression step must be between 1 and 19');
+    return;
+  }
+  
+  try {
+    const requiredFields = ['salcode', 'saltype', 'grade'];
+    let missingFields = requiredFields.filter(field => !scaleData[field]);
+
+    if (missingFields.length > 0) {
+      showAlert(`Please fill in all required fields: ${missingFields.join(', ')}`);
+      return;
+    }
+
+    if(editingScaleIndex !== null) {
+      await ApiService.updateScale(salcode, saltype, grade, scaleData);
+      showSuccess('Scale updated successfully!');
+    } else {
+      await ApiService.createScale(scaleData);
+      showSuccess('Scale created successfully!');
+    }
+    
+    document.getElementById("scaleForm").reset();
+    document.getElementById("stepFields").classList.add("hidden");
+    document.getElementById("scaleForm").classList.add("hidden");
+    editingScaleIndex = null;
+    
+    await loadScales(true);
+  } catch (error) {
+    console.error('Failed to save scale:', error);
+  }
+});
+
+function renderScaleTable() {
+  const { currentData } = getScalePaginationData();
+  const table = document.getElementById("scaleTable");
+  
+  table.innerHTML = currentData.map((s) => {
+    const realIndex = scales.findIndex(scale => 
+      scale.salcode === s.salcode && 
+      scale.saltype === s.saltype && 
+      scale.grade === s.grade
+    );
+    
+    return `
+    <tr>
+      <td class="border px-2 py-3 text-left">${s.salcode}</td>
+      <td class="border px-2 py-3 text-left">${s.saltype}</td>
+      <td class="border px-2 py-3 text-left">${s.grade}</td>
+      <td class="border px-2 py-3 text-left">
+        <button class="text-blue-600 hover:underline mr-2" onclick="viewScale(${realIndex})">View</button>
+        <button class="text-green-600 hover:underline mr-2" onclick="editScale(${realIndex})">Edit</button>
+        <button class="text-red-600 hover:underline" onclick="deleteScale(${realIndex})">Delete</button>
+      </td>
+    </tr>
+  `;
+  }).join("");
+  
+  if (currentData.length === 0) {
+    table.innerHTML = `
+      <tr>
+        <td colspan="4" class="border px-2 py-8 text-center text-gray-500">No records found</td>
+      </tr>
+    `;
+  }
+}
+
+document.getElementById("closeScaleView").addEventListener("click", () => {
+  document.getElementById("scaleViewModal").classList.add("hidden");
+});
+
+if (document.getElementById("closeGroupView")) {
+  document.getElementById("closeGroupView").addEventListener("click", () => {
+    document.getElementById("groupViewModal").classList.add("hidden");
+  });
+}
+
+function renderGroupTable() {
+  const { currentData } = getGroupPaginationData();
+  const table = document.getElementById("groupTable");
+  
+  table.innerHTML = currentData.map((g) => {
+    const realIndex = groups.findIndex(group => group.groupcode === g.groupcode);
+    
+    return `
+    <tr>
+      <td class="border px-2 py-3 text-left">${g.groupcode}</td>
+      <td class="border px-2 py-3 text-left">${g.grpdesc}</td>
+      <td class="border px-2 py-3 text-left">${g.effdate || 'N/A'}</td>
+      <td class="border px-2 py-3 text-left">${g.lastdate || 'N/A'}</td>
+      <td class="border px-2 py-3 text-left">
+        <button class="text-green-600 hover:underline mr-2" onclick="editGroup(${realIndex})">Edit</button>
+        <button class="text-red-600 hover:underline" onclick="deleteGroup(${realIndex})">Delete</button>
+      </td>
+    </tr>`;
+  }).join("");
+  
+  if (currentData.length === 0) {
+    table.innerHTML = `
+      <tr>
+        <td colspan="5" class="border px-2 py-8 text-center text-gray-500">No records found</td>
+      </tr>
+    `;
+  }
+}
+
+async function searchScales() {
+  const searchTerm = document.getElementById('scaleSearchInput').value.toLowerCase();
+  const searchType = document.getElementById('scaleSearchType').value;
+  
+  if (!searchTerm.trim()) {
+    await loadScales();
+    return;
+  }
+  
+  try {
+    const filters = {};
+    filters[searchType] = searchTerm;
+    
+    const response = await ApiService.searchScales(filters);
+    scales = response.data.map(scale => ({
+      salcode: scale.salcode,
+      saltype: scale.saltype,
+      grade: scale.grade,
+      group: scale.salcode,
+      element: scale.saltype,
+      steps: [
+        scale.step1, scale.step2, scale.step3, scale.step4, scale.step5,
+        scale.step6, scale.step7, scale.step8, scale.step9, scale.step10,
+        scale.step11, scale.step12, scale.step13, scale.step14, scale.step15,
+        scale.step16, scale.step17, scale.step18, scale.step19, scale.step20
+      ].map(step => step || ''),
+      user: scale.user
+    }));
+    
+    applyScaleSearch(searchTerm);
+    scaleCurrentPage = 1;
+    renderScaleWithPagination();
+  } catch (error) {
+    console.error('Search failed:', error);
+  }
+}
+
+async function searchGroups() {
+  const searchTerm = document.getElementById('groupSearchInput').value.toLowerCase();
+  const searchType = document.getElementById('groupSearchType').value;
+  
+  if (!searchTerm.trim()) {
+    await loadGroups();
+    return;
+  }
+  
+  try {
+    const filters = {};
+    filters[searchType] = searchTerm;
+    
+    const response = await ApiService.searchGroups(filters);
+    groups = response.data || [];
+    
+    applyGroupSearch(searchTerm);
+    groupCurrentPage = 1;
+    renderGroupWithPagination();
+  } catch (error) {
+    console.error('Group search failed:', error);
+  }
+}
+
+if (document.getElementById('scaleSearchBtn')) {
+  document.getElementById('scaleSearchBtn').addEventListener('click', searchScales);
+}
+
+if (document.getElementById('scaleSearchInput')) {
+  document.getElementById('scaleSearchInput').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      searchScales();
+    }
+  });
+
+  document.getElementById('scaleSearchInput').addEventListener('input', (e) => {
+    const term = e.target.value.toLowerCase();
+    applyScaleSearch(term);
+    scaleCurrentPage = 1;
+    renderScaleWithPagination();
+  });
+}
+
+if (document.getElementById('groupSearchBtn')) {
+  document.getElementById('groupSearchBtn').addEventListener('click', searchGroups);
+}
+
+if (document.getElementById('groupSearchInput')) {
+  document.getElementById('groupSearchInput').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      searchGroups();
+    }
+  });
+  
+  document.getElementById('groupSearchInput').addEventListener('input', (e) => {
+    const term = e.target.value.toLowerCase();
+    applyGroupSearch(term);
+    groupCurrentPage = 1;
+    renderGroupWithPagination();
+  });
+}
+
+// GROUP PAGINATION EVENT LISTENERS
+if (groupPrevBtn) {
+  groupPrevBtn.addEventListener('click', () => {
+    if (groupCurrentPage > 1) {
+      groupCurrentPage--;
+      renderGroupWithPagination();
+    }
+  });
+}
+
+if (groupNextBtn) {
+  groupNextBtn.addEventListener('click', () => {
+    const { totalPages } = getGroupPaginationData();
+    if (groupCurrentPage < totalPages) {
+      groupCurrentPage++;
+      renderGroupWithPagination();
+    }
+  });
+}
+
+if (groupRecordsSelect) {
+  groupRecordsSelect.addEventListener('change', (e) => {
+    groupRecordsPerPage = parseInt(e.target.value);
+    groupCurrentPage = 1;
+    renderGroupWithPagination();
+  });
+}
+
+// SCALE PAGINATION EVENT LISTENERS
+if (scalePrevBtn) {
+  scalePrevBtn.addEventListener('click', () => {
+    if (scaleCurrentPage > 1) {
+      scaleCurrentPage--;
+      renderScaleWithPagination();
+    }
+  });
+}
+
+if (scaleNextBtn) {
+  scaleNextBtn.addEventListener('click', () => {
+    const { totalPages } = getScalePaginationData();
+    if (scaleCurrentPage < totalPages) {
+      scaleCurrentPage++;
+      renderScaleWithPagination();
+    }
+  });
+}
+
+if (scaleRecordsSelect) {
+  scaleRecordsSelect.addEventListener('change', (e) => {
+    scaleRecordsPerPage = parseInt(e.target.value);
+    scaleCurrentPage = 1;
+    renderScaleWithPagination();
+  });
+}
+
+document.getElementById("uploadBatchBtn").addEventListener("click", async () => {
+  const fileInput = document.getElementById("batchFile");
+  const file = fileInput.files[0];
+  
+  if (!file) {
+    showAlert('Please select a file to upload');
+    return;
+  }
+  
+  const allowedTypes = ['text/csv', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel'];
+  const fileExtension = file.name.toLowerCase();
+  
+  if (!allowedTypes.includes(file.type) && 
+      !fileExtension.endsWith('.csv') && 
+      !fileExtension.endsWith('.xlsx') && 
+      !fileExtension.endsWith('.xls')) {
+    showAlert('Please upload only CSV or Excel files');
+    return;
+  }
+  
+  if (file.size > 5 * 1024 * 1024) {
+    showAlert('File size must be less than 5MB');
+    return;
+  }
+  
+  try {
+    console.log('Starting upload for file:', file.name);
+    
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    const result = await ApiService.batchUpload(formData);
+    
+    console.log('Upload result:', result);
+    
+    if (result.summary) {
+      const summary = result.summary;
+      let message = `Batch upload completed!\n\n`;
+      message += `Total records: ${summary.totalRecords}\n`;
+      message += `Successful: ${summary.successful}\n`;
+      message += `Failed: ${summary.failed}\n`;
+      
+      if (summary.failed > 0 && summary.errors) {
+        message += `\nErrors:\n`;
+        summary.errors.slice(0, 5).forEach(error => {
+          message += `Row ${error.row}: ${error.error}\n`;
+        });
+        
+        if (summary.errors.length > 5) {
+          message += `... and ${summary.errors.length - 5} more errors`;
+        }
+      }
+      
+      showAlert(message);
+      
+      if (summary.successful > 0 || summary.successful === 'Processing') {
+        document.getElementById("batchUploadForm").reset();
+        document.getElementById("batchUploadForm").classList.add("hidden");
+        await loadScales(true);
+      }
+    } else {
+      showSuccess('Upload completed successfully!');
+      document.getElementById("batchUploadForm").reset();
+      document.getElementById("batchUploadForm").classList.add("hidden");
+      await loadScales(true);
+    }
+    
+  } catch (error) {
+    console.error('Batch upload failed:', error);
+    showAlert(`Upload failed: ${error.message}`);
+  }
+});
+
+document.getElementById("downloadSampleBtn").addEventListener("click", (e) => {
+  e.preventDefault();
+  downloadSampleTemplate();
+});
+
+async function downloadSampleTemplate() {
+  try {
+    await ApiService.downloadSampleTemplate();
+  } catch (error) {
+    console.error('Failed to download sample:', error);
+    showAlert('Failed to download sample template');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const batchFileInput = document.getElementById("batchFile");
+  if (batchFileInput) {
+    batchFileInput.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const fileInfo = document.createElement('div');
+        fileInfo.className = 'mt-2 text-sm text-gray-600';
+        fileInfo.textContent = `Selected: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+        
+        const existingInfo = e.target.parentNode.querySelector('.file-info');
+        if (existingInfo) {
+          existingInfo.remove();
+        }
+        
+        fileInfo.className += ' file-info';
+        e.target.parentNode.appendChild(fileInfo);
+      }
+    });
+  }
+});
+
+document.getElementById("batchFile").addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  if (file) {
+    const fileInfo = document.createElement('div');
+    fileInfo.className = 'mt-2 text-sm text-gray-600';
+    fileInfo.textContent = `Selected: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+    
+    const existingInfo = e.target.parentNode.querySelector('.file-info');
+    if (existingInfo) {
+      existingInfo.remove();
+    }
+    
+    fileInfo.className += ' file-info';
+    e.target.parentNode.appendChild(fileInfo);
+  }
+});
+
+function capitalizeWords(str) {
+  return str
+    ? str
+        .toLowerCase()
+        .split(" ")
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ")
+    : "";
+}
+
+["groupDesc"].forEach(id => {
+  const el = document.getElementById(id);
+  el.addEventListener("input", () => {
+    el.value = capitalizeWords(el.value);
+  });
+});
+
+["groupCode"].forEach(id => {
+  const el = document.getElementById(id);
+  el.addEventListener("input", () => {
+    el.value = el.value.toUpperCase();
+  });
+});
+
+function generateReport() {
+  const activeSection = document.getElementById('groupSection').classList.contains('hidden') ? 'scale' : 'group';
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-GB', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+  const timeStr = now.toLocaleTimeString('en-GB', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true
+  });
+  
+  const generatedBy = localStorage.getItem('full_name') || 'System User';
+  
+  const printWindow = window.open('', '_blank');
+  
+  const printContent = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <title>${activeSection === 'scale' ? 'Salary Scale' : 'Salary Group'} Report</title>
+      <style>
+        @page { 
+          size: A4; 
+          margin: 10mm; 
+          background-color: #f8fbff;
+        }
+        
+        body { 
+          font-family: Helvetica, Arial, sans-serif; 
+          font-size: 7pt;
+          margin: 0;
+          padding: 0;
+          position: relative;
+          color: #333;
+          opacity: 1;
+        }
+
+        /* Faint logo overlay */
+        body::before {
+          content: "";
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background-image: url('photos/logo.png');
+          background-size: auto 100%;
+          background-repeat: no-repeat;
+          background-position: center center;
+          opacity: 0.02;
+          z-index: -1;
+          pointer-events: none;
+        }
+
+        .header-wrapper {
+          display: flex;
+          align-items: flex-start;
+          margin-bottom: 5px;
+          border-bottom: 2px solid #1a1a1a;
+          padding-bottom: 3px;
+        }
+
+        .header {
+          flex-grow: 1;
+          text-align: center;
+        }
+        
+        .header h1 {
+          font-size: 12pt;
+          font-weight: bold;
+          margin: 0 0 2px 0;
+          letter-spacing: 1.5px;
+          color: #1e40af;
+          font-family: 'Libre Baskerville', Georgia, serif;
+        }
+        
+        .header h2 {
+          font-size: 9pt;
+          font-weight: normal;
+          margin: 0;
+          color: #4a4a4a;
+          font-family: 'Libre Baskerville', Georgia, serif;
+        }
+
+        .header-info {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin: 5px 0 10px 0;
+          font-size: 8pt;
+        }
+
+        .section-title {
+          font-size: 8pt;
+          color: #1e40af;
+          margin: 8px 0 5px 0;
+          padding: 3px 8px;
+          background-color: #f0f4ff;
+          border-left: 3px solid #1e40af;
+          font-weight: bold;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+
+        .group-info {
+          margin: 8px 0 5px 0;
+          padding: 5px 10px;
+          background-color: #f9fafb;
+          border-left: 3px solid #0070C0;
+          border-radius: 2px;
+          page-break-inside: avoid;
+        }
+
+        .group-info h3 {
+          margin: 0 0 3px 0;
+          color: #1e40af;
+          font-size: 8pt;
+        }
+
+        .group-info p {
+          margin: 0;
+          font-size: 7pt;
+          color: #666;
+        }
+
+        .scale-header {
+          font-size: 7.5pt;
+          color: #1F4E78;
+          margin: 8px 0 3px 0;
+          font-weight: bold;
+          padding: 3px 8px;
+          background: linear-gradient(to right, #f0f4ff, transparent);
+          border-left: 2px solid #1e40af;
+        }
+
+        table.report-table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-bottom: 3px;
+          font-size: 6.5pt;
+        }
+
+        .report-table th {
+          color: #1e40af;
+          padding: 4px 2px;
+          text-align: left;
+          font-weight: bold;
+          font-size: 6.5pt;
+          text-transform: uppercase;
+          letter-spacing: 0.3px;
+          border-bottom: 1px solid #0056A0;
+          background-color: transparent;
+        }
+
+        .report-table td {
+          padding: 3px 2px;
+          border: none;
+          vertical-align: middle;
+          border-bottom: 0.5px solid #e5e7eb;
+        }
+
+        .step-value {
+          text-align: center;
+          font-family: 'Courier New', monospace;
+          font-weight: 600;
+          font-size: 6pt;
+        }
+
+        .text-center {
+          text-align: center;
+        }
+
+        .print-footer {
+          padding-top: 8px;
+          border-top: 0.5px solid #1a1a1a;
+          text-align: center;
+          font-size: 7pt;
+          color: #64748b;
+          margin-top: 15px;
+        }
+
+        .print-footer p {
+          margin: 2px 0;
+        }
+
+        .scale-group {
+          page-break-inside: avoid;
+          margin-bottom: 12px;
+        }
+        
+        .group-section {
+          page-break-after: auto;
+          page-break-inside: avoid;
+        }
+
+        @media print {
+          body {
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact;
+            background-image: url('photos/logo.png');
+            background-size: auto 100%;
+            background-repeat: no-repeat;
+            background-position: center center;
+          }
+          
+          body::before {
+            position: fixed;
+            display: block;
+            content: "";
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            background-image: url('photos/logo.png');
+            background-size: auto 100%;
+            background-repeat: no-repeat;
+            background-position: center center;
+            opacity: 0.03;
+            z-index: -1;
+          }
+
+          .scale-group {
+            page-break-inside: avoid;
+          }
+          
+          .group-section {
+            page-break-after: auto;
+          }
+        }
+      </style>
+    </head>
+    <body>
+      <div class="header-wrapper">
+        <div class="header">
+          <h1>Nigerian Navy (Naval Headquarters)</h1>
+          <h2>CENTRAL PAY OFFICE, 23 POINT ROAD APAPA</h2>
+        </div>
+      </div>
+
+      <div class="header-info">
+        <div class="left">
+          <strong>${activeSection === 'scale' ? 'SALARY SCALE CONFIGURATION' : 'SALARY GROUP CONFIGURATION'} REPORT</strong>
+        </div>
+        <div class="center">
+          <span>PRODUCED ON</span> 
+          <strong>${dateStr}</strong> 
+          <span>AT</span> 
+          <strong>${timeStr}</strong>
+        </div>
+        <div class="right">
+          <strong>${activeSection === 'scale' ? scales.length : groups.length}</strong>
+          <span>${activeSection === 'scale' ? 'SCALES' : 'GROUPS'}</span>
+        </div>
+      </div>
+      
+      ${activeSection === 'scale' ? generateScaleReport() : generateGroupReport()}
+      
+      <div class="print-footer">
+        <p><strong>Total Records: ${activeSection === 'scale' ? scales.length : groups.length}</strong></p>
+        <p>Generated by: ${generatedBy}</p>
+        <p>All rights reserved &#xA9; Hicad Systems Limited.</p>
+      </div>
+    </body>
+    </html>
+  `;
+  
+  printWindow.document.write(printContent);
+  printWindow.document.close();
+  
+  printWindow.onload = function() {
+    printWindow.print();
+  };
+}
+
+function generateScaleReport() {
+  const formatCurrency = (amount) => {
+    if (!amount) return '-';
+    return new Intl.NumberFormat('en-NG', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(amount);
+  };
+
+  let html = '';
+  const groupedScales = {};
+  scales.forEach(scale => {
+    if (!groupedScales[scale.salcode]) {
+      groupedScales[scale.salcode] = [];
+    }
+    groupedScales[scale.salcode].push(scale);
+  });
+
+  Object.keys(groupedScales).sort().forEach(salcode => {
+    const groupScales = groupedScales[salcode];
+    const group = groups.find(g => g.groupcode === salcode);
+    
+    html += `
+      <div class="group-section">
+        <div class="group-info">
+          <h3>Salary Group: ${salcode} - ${group?.grpdesc || 'N/A'}</h3>
+          <p><strong>Effective Date:</strong> ${group?.effdate || 'N/A'} | <strong>Last Date:</strong> ${group?.lastdate || 'N/A'}</p>
+        </div>
+
+        ${groupScales.map(scale => `
+          <div class="scale-group">
+            <div class="scale-header">Grade: ${scale.grade} | Element: ${scale.saltype}</div>
+            
+            <table class="report-table">
+              <tr>
+                <!-- <th style="width: 7%;">Step</th> -->
+                ${Array.from({length: 10}, (_, i) => `<th style="width: 9.3%;" class="step-value">Step ${i + 1}</th>`).join('')}
+              </tr>
+              <tr>
+                <!-- <td><strong>Amount (₦)</strong></td> -->
+                ${scale.steps.slice(0, 10).map(step => `
+                  <td class="step-value">₦${formatCurrency(step)}</td>
+                `).join('')}
+              </tr>
+            </table>
+
+            <table class="report-table">
+              <tr>
+                <!-- <th style="width: 7%;">Step</th> -->
+                ${Array.from({length: 9}, (_, i) => `<th style="width: 9.3%;" class="step-value">Step ${i + 11}</th>`).join('')}
+                <th style="width: 9.3%;" class="step-value">Max</th>
+              </tr>
+              <tr>
+                <!-- <td><strong>Amount (₦)</strong></td> -->
+                ${scale.steps.slice(10).map(step => `
+                  <td class="step-value">₦${formatCurrency(step)}</td>
+                `).join('')}
+              </tr>
+            </table>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  });
+
+  return html;
+}
+
+function generateGroupReport() {
+  return `
+    <table class="report-table">
+      <thead>
+        <tr>
+          <th style="width: 10%;" class="text-center">S/N</th>
+          <th style="width: 20%;">Group Code</th>
+          <th style="width: 40%;">Description</th>
+          <th style="width: 15%;">Effective Date</th>
+          <th style="width: 15%;">Last Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${groups.map((group, index) => `
+          <tr>
+            <td class="text-center"><strong>${index + 1}</strong></td>
+            <td><strong>${group.groupcode}</strong></td>
+            <td>${group.grpdesc}</td>
+            <td class="text-center">${group.effdate || 'N/A'}</td>
+            <td class="text-center">${group.lastdate || 'N/A'}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+}
+
+document.getElementById('generateReportBtn').addEventListener('click', generateReport);
+
+async function initializeData() {
+  try {
+    await loadGroups();
+    await loadElementTypes();
+    await loadGradeLevels();
+    loadDropdowns();
+  } catch (error) {
+    console.error('Failed to initialize data:', error);
+  }
+}
+
+initializeData();
+loadScales();
+renderGroupTable();
+</script>  

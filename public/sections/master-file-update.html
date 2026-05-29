@@ -1,0 +1,516 @@
+<style>
+  @keyframes grow-up {
+    0% {
+      height: 0;
+      bottom: 0;
+    }
+
+    100% {
+      height: 100%;
+      bottom: 0;
+    }
+  }
+
+  @keyframes grow-down {
+    0% {
+      height: 0;
+      top: 0;
+    }
+
+    100% {
+      height: 100%;
+      top: 0;
+    }
+  }
+
+  @keyframes expand {
+    0% {
+      width: 0;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    100% {
+      width: 100%;
+      left: 0;
+      transform: translateY(-50%);
+    }
+  }
+
+  .animate-grow-up {
+    animation: grow-up 0.6s ease-in-out infinite alternate;
+    position: absolute;
+    bottom: 0;
+  }
+
+  .animate-grow-down {
+    animation: grow-down 0.6s ease-in-out infinite alternate;
+    position: absolute;
+    top: 0;
+  }
+
+  .animate-expand {
+    animation: expand 0.6s ease-in-out infinite alternate;
+  }
+</style>
+
+<!-- Master File Update Section -->
+<div class="p-6">
+  <!-- Top Action Bar (Hidden after first update, shown only when stage < 888) -->
+  <div id="topActionBarUpdate" class="hidden mb-6 w-full flex justify-between items-center border-b-2 pb-4 no-print">
+    <h2 class="text-blue-600 font-semibold lg:text-lg">
+      <i class="fas fa-info-circle mr-2"></i>First ensure you have printed Input Variable Reports
+    </h2>
+    <button
+      onclick="window.navigation && window.navigation.navigateToSection && window.navigation.navigateToSection('input-variable-report', 'Input Variable Report')"
+      class="px-6 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 transition">
+      <i class="fas fa-file-alt mr-2"></i>Input Variable Report
+    </button>
+  </div>
+
+  <!-- Main Content Section -->
+  <div id="updateMainContent">
+    <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center space-x-3">
+        <div class="bg-yellow-500 text-white p-3 rounded-full shadow">
+          <i class="fas fa-folder text-2xl"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-blue-800">Update Master File</h2>
+      </div>
+    </div>
+
+    <p class="text-gray-600 font-semibold lg:text-lg mb-6">
+      Update master file records with the latest payroll data for all employees.
+    </p>
+
+    <!-- Action Button (Hidden after successful update) -->
+    <div id="updateActionContainer" class="flex justify-center">
+      <button id="openUpdateModalBtn"
+        class="px-8 py-3 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition">
+        <i class="fas fa-sync-alt mr-2"></i>Update Master File
+      </button>
+    </div>
+  </div>
+
+  <!-- Success Confirmation (Hidden initially, shown after successful update) -->
+  <div id="saveConfirm" class="my-6 hidden text-center">
+    <div class="flex justify-center mb-3">
+      <div class="bg-green-500 text-white p-3 rounded-full shadow">
+        <i class="fas fa-check-circle text-3xl"></i>
+      </div>
+    </div>
+    <h3 class="text-green-700 font-bold text-xl mb-2">Master File Updated Successfully!</h3>
+    <p class="text-green-600 font-semibold mb-4">All payroll master files have been updated. You can now proceed to
+      Payroll Calculations.</p>
+
+    <!-- Summary Stats -->
+    <!--<div id="updateSummary" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 max-w-3xl mx-auto">
+      <div class="p-4 bg-blue-50 rounded-lg border border-blue-200">
+        <div class="text-blue-600 text-sm font-medium">Employees Processed</div>
+        <div id="summaryEmployees" class="text-3xl font-bold text-blue-900">0</div>
+      </div>
+      <div class="p-4 bg-green-50 rounded-lg border border-green-200">
+        <div class="text-green-600 text-sm font-medium">Total Records</div>
+        <div id="summaryRecords" class="text-3xl font-bold text-green-900">0</div>
+      </div>
+      <div class="p-4 bg-purple-50 rounded-lg border border-purple-200">
+        <div class="text-purple-600 text-sm font-medium">Total Amount</div>
+        <div id="summaryAmount" class="text-3xl font-bold text-purple-900">₦0.00</div>
+      </div>
+    </div>-->
+
+    <button
+      onclick="window.navigation && window.navigation.navigateToSection && window.navigation.navigateToSection('payroll-calculations', 'Payroll Calculations')"
+      class="px-6 py-3 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 transition">
+      <i class="fas fa-calculator mr-2"></i>Proceed to Payroll calculations
+    </button>
+  </div>
+
+  <!-- Performance Log (Hidden until update is run) -->
+  <!--<div id="performanceLog" class="hidden mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+    <h4 class="font-bold text-gray-800 mb-3 flex items-center">
+      <i class="fas fa-chart-line mr-2 text-blue-600"></i>Performance Details
+    </h4>
+    <div id="performanceLogContent" class="space-y-2 text-sm text-gray-700"></div>
+  </div>-->
+</div>
+
+<!-- Confirmation Modal -->
+<div id="updateModal" class="fixed inset-0 bg-black bg-opacity-40 hidden flex items-center justify-center z-50">
+  <div class="bg-white w-11/12 md:w-2/5 rounded-xl shadow-lg overflow-hidden">
+    <!-- Header -->
+    <div class="flex justify-between items-center bg-blue-600 text-white px-4 py-3">
+      <h3 class="text-lg font-semibold">
+        <i class="fas fa-database mr-2"></i>Confirm Master File Update
+      </h3>
+      <button id="closeUpdateModalBtn" class="text-white hover:text-gray-200 text-xl">✖</button>
+    </div>
+
+    <!-- Body -->
+    <div class="p-4">
+      <div class="mb-4 p-2 bg-yellow-50 ">
+        <p class="text-yellow-800 font-semibold flex items-center">
+          <i class="fas fa-exclamation-triangle mr-2"></i>Important: This action will update all master payroll files
+        </p>
+      </div>
+
+      <p class="text-gray-700 font-semibold mb-4">
+        Are you sure you want to update the <span class="font-bold text-blue-600">Master File</span> with the latest
+        payroll changes?
+      </p>
+
+      <ul class="text-sm text-gray-600 space-y-2 mb-4 ml-4">
+        <li class="flex items-start">
+          <i class="fas fa-check-circle text-green-500 mr-2 mt-1"></i>
+          <span>All employee master records will be updated</span>
+        </li>
+        <li class="flex items-start">
+          <i class="fas fa-check-circle text-green-500 mr-2 mt-1"></i>
+          <span>Cumulative data will be transferred</span>
+        </li>
+      </ul>
+
+      <div id="updateStatus" class="hidden mt-4 p-3 rounded-lg"></div>
+    </div>
+
+    <!-- Footer -->
+    <div class="flex justify-end space-x-3 bg-gray-100 px-4 py-3">
+      <button id="cancelUpdateBtn" class="px-6 py-2 bg-gray-300 hover:bg-gray-400 rounded-lg transition">
+        Cancel
+      </button>
+      <button id="confirmUpdateBtn" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition">
+        Yes, Update Master File
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Progress Modal -->
+<div id="updateProgressModal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+  <div class="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 p-6">
+    <div class="text-center">
+      <div class="flex justify-center mb-4">
+        <div class="relative w-10 h-10">
+          <div class="absolute left-1 w-[6px] bg-blue-600 rounded animate-grow-up"></div>
+          <div class="absolute right-1 w-[6px] bg-blue-600 rounded animate-grow-down [animation-delay:0.3s]"></div>
+          <div class="absolute top-1/2 left-1 h-[6px] bg-blue-600 rounded animate-expand [animation-delay:0.6s] -translate-y-1/2"></div>
+        </div>
+      </div>
+    </div>
+    <h3 class="text-xl text-center font-semibold text-gray-900 mb-2">Updating Master Files...</h3>
+    <p id="updateProgressMessage" class="text-gray-600 text-center mb-6">Please wait while we process your request...</p>
+  </div>
+</div>
+</div>
+
+<!-- Alert Modal -->
+<div id="updateAlertModal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+  <div class="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 p-6">
+    <div class="text-center">
+      <div id="updateAlertIcon" class="flex justify-center mb-4">
+        <i class="fas fa-exclamation-circle text-red-500 text-6xl"></i>
+      </div>
+      <h3 id="updateAlertTitle" class="text-xl font-semibold text-gray-900 mb-2">Error</h3>
+      <p id="updateAlertMessage" class="text-gray-600 mb-6">An error occurred</p>
+      <button id="updateAlertCloseBtn"
+        class="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition">
+        <i class="fas fa-times mr-2"></i>Close
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const auth = window.authService;
+  (function () {
+    // API Configuration
+    const API_BASE = '/masterfile';
+    const STATUS_API = '/status-payroll';
+
+    // BT05 Stages
+    const STAGE_DATA_ENTRY_OPEN = 0;
+    const STAGE_CLOSED = 666;
+    const STAGE_CHANGES_READY = 775;
+    const STAGE_INPUT_VAR_READY = 777;
+    const STAGE_UPDATE_COMPLETED = 888;
+    const STAGE_CALC_COMPLETED = 999;
+
+    // State
+    let currentPayrollStage = STAGE_DATA_ENTRY_OPEN;
+    let hasUpdatedOnce = false;
+
+    // DOM Elements
+    const topActionBarUpdate = document.getElementById('topActionBarUpdate');
+    const updateMainContent = document.getElementById('updateMainContent');
+    const updateActionContainer = document.getElementById('updateActionContainer');
+    const saveConfirm = document.getElementById('saveConfirm');
+    //const performanceLog = document.getElementById('performanceLog');
+    //const performanceLogContent = document.getElementById('performanceLogContent');
+    //const updateSummary = document.getElementById('updateSummary');
+    //const summaryEmployees = document.getElementById('summaryEmployees');
+    //const summaryRecords = document.getElementById('summaryRecords');
+    //const summaryAmount = document.getElementById('summaryAmount');
+
+    // Modal Elements
+    const modal = document.getElementById('updateModal');
+    const openBtn = document.getElementById('openUpdateModalBtn');
+    const closeBtn = document.getElementById('closeUpdateModalBtn');
+    const cancelBtn = document.getElementById('cancelUpdateBtn');
+    const confirmBtn = document.getElementById('confirmUpdateBtn');
+    const statusEl = document.getElementById('updateStatus');
+
+    // Progress Modal Elements
+    const progressModal = document.getElementById('updateProgressModal');
+    const progressMessage = document.getElementById('updateProgressMessage');
+    const progressSteps = document.getElementById('progressSteps');
+    const logContainer = document.getElementById('updateLogContainer');
+
+    // Alert Modal Elements
+    const alertModal = document.getElementById('updateAlertModal');
+    const alertTitle = document.getElementById('updateAlertTitle');
+    const alertMessage = document.getElementById('updateAlertMessage');
+    const alertIcon = document.getElementById('updateAlertIcon');
+    const alertCloseBtn = document.getElementById('updateAlertCloseBtn');
+
+    // Helper Functions
+    function addLog(message, type = 'info') {
+      const log = document.createElement('div');
+      log.className = `py-1 ${type === 'success' ? 'text-green-600' : type === 'error' ? 'text-red-600' : 'text-gray-600'}`;
+      log.innerHTML = `<i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'times' : 'circle'} mr-2"></i>${message}`;
+      logContainer.appendChild(log);
+      logContainer.scrollTop = logContainer.scrollHeight;
+    }
+
+    function updateProgressStep(stepNumber, status = 'processing') {
+      const step = document.getElementById(`step${stepNumber}`);
+      if (!step) return;
+
+      const icon = step.querySelector('i');
+      const text = step.querySelector('span');
+
+      if (status === 'processing') {
+        step.className = 'flex items-center text-blue-600 font-semibold';
+        icon.className = 'fas fa-circle-notch fa-spin mr-2';
+      } else if (status === 'completed') {
+        step.className = 'flex items-center text-green-600';
+        icon.className = 'fas fa-check-circle mr-2';
+      } else if (status === 'error') {
+        step.className = 'flex items-center text-red-600';
+        icon.className = 'fas fa-times-circle mr-2';
+      }
+    }
+
+    function showAlert(title, message, type = 'error') {
+      alertTitle.textContent = title;
+      alertMessage.textContent = message;
+      const iconClass = type === 'success'
+        ? 'fa-check-circle text-green-500'
+        : type === 'warning'
+          ? 'fa-exclamation-triangle text-yellow-500'
+          : 'fa-exclamation-circle text-red-500';
+      alertIcon.innerHTML = `<i class="fas ${iconClass} text-6xl"></i>`;
+      alertModal.classList.remove('hidden');
+    }
+
+    function formatCurrency(amount) {
+      return new Intl.NumberFormat('en-NG', {
+        style: 'currency',
+        currency: 'NGN',
+        minimumFractionDigits: 2
+      }).format(amount);
+    }
+
+    function updateUIVisibility() {
+      // Determine what to show based on stage and update status
+      if (hasUpdatedOnce || currentPayrollStage >= STAGE_UPDATE_COMPLETED) {
+        // Update completed: hide top bar and button, show success
+        topActionBarUpdate.classList.add('hidden');
+        updateActionContainer.classList.add('hidden');
+        saveConfirm.classList.remove('hidden');
+        //performanceLog.classList.remove('hidden');
+      } else if (currentPayrollStage >= STAGE_INPUT_VAR_READY) {
+        // Ready to update: hide top bar, show button enabled
+        topActionBarUpdate.classList.add('hidden');
+        updateMainContent.classList.remove('hidden');
+        updateActionContainer.classList.remove('hidden');
+        saveConfirm.classList.add('hidden');
+        //performanceLog.classList.add('hidden');
+        openBtn.disabled = false;
+        openBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        openBtn.innerHTML = '<i class="fas fa-sync-alt mr-2"></i>Update Master File';
+      } else {
+        // Not ready yet: show top bar, disable button
+        topActionBarUpdate.classList.remove('hidden');
+        updateMainContent.classList.remove('hidden');
+        updateActionContainer.classList.remove('hidden');
+        saveConfirm.classList.add('hidden');
+        //performanceLog.classList.add('hidden');
+        openBtn.disabled = true;
+        openBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        openBtn.innerHTML = '<i class="fas fa-lock mr-2"></i>Waiting for Input Variable Report';
+      }
+    }
+
+    // Modal Handlers
+    openBtn.addEventListener('click', () => {
+      if (currentPayrollStage < STAGE_INPUT_VAR_READY) {
+        showAlert('Not Ready', 'Please complete Input Variable Report first', 'warning');
+        return;
+      }
+      modal.classList.remove('hidden');
+      statusEl.classList.add('hidden');
+      statusEl.textContent = '';
+    });
+
+    function closeModal() {
+      modal.classList.add('hidden');
+    }
+
+    closeBtn.addEventListener('click', closeModal);
+    cancelBtn.addEventListener('click', closeModal);
+    alertCloseBtn.addEventListener('click', () => alertModal.classList.add('hidden'));
+
+    // Main Update Function
+    confirmBtn.addEventListener('click', async () => {
+      saveConfirm.classList.add('hidden');
+      statusEl.classList.add('hidden');
+      confirmBtn.disabled = true;
+      closeModal();
+
+      // Show progress modal
+      progressModal.classList.remove('hidden');
+      progressMessage.textContent = 'Please wait while we process your request...';
+
+      // Safely hide the steps container and log container if they exist
+      if (progressSteps) progressSteps.style.display = 'none';
+      if (logContainer) logContainer.style.display = 'none';
+
+      try {
+        const token = localStorage.getItem('token');
+
+        const response = await auth.fetchWithAuth(`${API_BASE}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.error || `Server error: HTTP ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data.status === 'FAILED' || data.error) {
+          throw new Error(data.error || data.message || 'Master file update failed');
+        }
+
+        progressMessage.textContent = 'Master file update completed successfully!';
+
+        hasUpdatedOnce = true;
+        currentPayrollStage = STAGE_UPDATE_COMPLETED;
+
+        setTimeout(() => {
+          progressModal.classList.add('hidden');
+          if (progressSteps) progressSteps.style.display = 'block';
+          if (logContainer) logContainer.style.display = 'block';
+          updateUIVisibility();
+          showAlert('Success!', data.message || 'Master file updated successfully. You can now proceed to Payroll Calculations.', 'success');
+
+          window.dispatchEvent(new CustomEvent('payrollStatusChanged', {
+            detail: { stage: STAGE_UPDATE_COMPLETED }
+          }));
+        }, 1500);
+
+      } catch (error) {
+        console.error('Update error:', error);
+
+        let errorMessage = error.message || 'An error occurred during the master file update.';
+
+        progressMessage.textContent = errorMessage;
+        progressMessage.className = 'text-red-600 mb-4 font-semibold';
+
+        const iconDiv = progressModal.querySelector('.relative.w-10.h-10');
+        if (iconDiv) {
+          iconDiv.outerHTML = '<div class="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center"><i class="fas fa-exclamation-circle text-white text-3xl"></i></div>';
+        }
+
+        let cancelBtnError = document.getElementById('progressCancelBtn');
+        if (!cancelBtnError) {
+          cancelBtnError = document.createElement('button');
+          cancelBtnError.id = 'progressCancelBtn';
+          cancelBtnError.className = 'mt-4 px-6 py-3 bg-gray-600 text-white font-medium rounded-lg hover:bg-gray-700 transition';
+          cancelBtnError.innerHTML = '<i class="fas fa-times mr-2"></i>Close';
+          cancelBtnError.onclick = () => {
+            progressModal.classList.add('hidden');
+            if (progressSteps) progressSteps.style.display = 'block';
+            if (logContainer) logContainer.style.display = 'block';
+            progressMessage.textContent = 'Please wait while we process your request...';
+            progressMessage.className = 'text-gray-600 mb-6';
+            cancelBtnError.remove();
+            confirmBtn.disabled = false;
+          };
+          progressModal.querySelector('.text-center').appendChild(cancelBtnError);
+        }
+      }
+    });
+
+    // Check Payroll Status
+    async function checkPayrollStatus() {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await auth.fetchWithAuth(STATUS_API, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!response.ok) return;
+
+        const data = await response.json();
+        currentPayrollStage = Number(data?.sun || STAGE_DATA_ENTRY_OPEN);
+
+        if (currentPayrollStage >= STAGE_UPDATE_COMPLETED) {
+          hasUpdatedOnce = true;
+        }
+
+        updateUIVisibility();
+      } catch (error) {
+        console.error('Error checking payroll status:', error);
+      }
+    }
+
+    // Listen for payroll status changes
+    window.addEventListener('payrollStatusChanged', function (event) {
+      if (event.detail && typeof event.detail.stage === 'number') {
+        currentPayrollStage = event.detail.stage;
+
+        // Reset if new payroll period
+        if (currentPayrollStage === STAGE_DATA_ENTRY_OPEN) {
+          hasUpdatedOnce = false;
+          //summaryEmployees.textContent = '0';
+          //summaryRecords.textContent = '0';
+          //summaryAmount.textContent = '₦0.00';
+          //performanceLogContent.innerHTML = '';
+        }
+
+        updateUIVisibility();
+      } else {
+        checkPayrollStatus();
+      }
+    });
+
+    // Refresh function for external calls
+    window.refreshMasterFileUpdateUI = function () {
+      checkPayrollStatus();
+    };
+
+    // Initialize
+    function initialize() {
+      checkPayrollStatus();
+    }
+
+    document.addEventListener('DOMContentLoaded', initialize);
+    if (document.readyState !== 'loading') initialize();
+  })();
+</script>

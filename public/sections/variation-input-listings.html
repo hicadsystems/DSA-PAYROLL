@@ -1,0 +1,448 @@
+<style>
+  @keyframes grow-up {
+    0% {
+      height: 0;
+      bottom: 0;
+    }
+
+    100% {
+      height: 100%;
+      bottom: 0;
+    }
+  }
+
+  @keyframes grow-down {
+    0% {
+      height: 0;
+      top: 0;
+    }
+
+    100% {
+      height: 100%;
+      top: 0;
+    }
+  }
+
+  @keyframes expand {
+    0% {
+      width: 0;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    100% {
+      width: 100%;
+      left: 0;
+      transform: translateY(-50%);
+    }
+  }
+
+  .animate-grow-up {
+    animation: grow-up 0.6s ease-in-out infinite alternate;
+    position: absolute;
+    bottom: 0;
+  }
+
+  .animate-grow-down {
+    animation: grow-down 0.6s ease-in-out infinite alternate;
+    position: absolute;
+    top: 0;
+  }
+
+  .animate-expand {
+    animation: expand 0.6s ease-in-out infinite alternate;
+  }
+</style>
+
+<section class="items border rounded-lg m-6 max-w-4xl mr-auto p-4 mx-auto">
+  <div class="hidden mb-6 text-center">
+    <h2 class="text-2xl font-bold text-blue-700">Variation Input Listings</h2>
+    <p class="text-sm text-gray-600 mt-1">Generate pay period variation reports with customizable filters</p>
+  </div>
+  <div class="mb-2 pb-2 border-b border-gray-500">
+    <span class="text-blue-600 font-semibold text-lg block mb-3">Select Report Scope:</span>
+    <div class="flex flex-wrap gap-6">
+      <label class="flex items-center cursor-pointer"><input type="radio" name="variationScope" value="all"
+          class="text-blue-600 w-4 h-4" checked><span class="ml-2 font-medium">All Records</span></label>
+      <label class="flex items-center cursor-pointer"><input type="radio" name="variationScope" value="payelements"
+          class="text-blue-600 w-4 h-4"><span class="ml-2 font-medium">By Pay Elements</span></label>
+      <label class="flex items-center cursor-pointer"><input type="radio" name="variationScope" value="payee"
+          class="text-blue-600 w-4 h-4"><span class="ml-2 font-medium">By Employee</span></label>
+      <label class="flex items-center cursor-pointer"><input type="radio" name="variationScope" value="username"
+          class="text-blue-600 w-4 h-4"><span class="ml-2 font-medium">By Operator</span></label>
+    </div>
+  </div>
+  <div id="variationForm" class="space-y-5">
+    <div>
+      <h3 class="text-sm font-semibold text-gray-700 mb-3">📅 Report Period Range</h3>
+      <div class="grid md:grid-cols-2 gap-4 mb-3">
+        <div><label class="block text-sm font-medium text-gray-900 mb-1">Start Year</label><input type="number"
+            id="startYear" placeholder="YYYY" min="2020" max="2099"
+            class="w-full bg-transparent border border-blue-500 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        </div>
+        <div><label class="block text-sm font-medium text-gray-900 mb-1">Start Month</label>
+          <select id="startMonth"
+            class="w-full bg-transparent border border-blue-500 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <option value="">-- Select Month --</option>
+            <option value="01">January</option>
+            <option value="02">February</option>
+            <option value="03">March</option>
+            <option value="04">April</option>
+            <option value="05">May</option>
+            <option value="06">June</option>
+            <option value="07">July</option>
+            <option value="08">August</option>
+            <option value="09">September</option>
+            <option value="10">October</option>
+            <option value="11">November</option>
+            <option value="12">December</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid md:grid-cols-2 gap-4">
+        <div><label class="block text-sm font-medium text-gray-900 mb-1">End Year</label><input type="number"
+            id="endYear" placeholder="YYYY" min="2020" max="2099"
+            class="w-full bg-transparent border border-blue-500 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        </div>
+        <div><label class="block text-sm font-medium text-gray-900 mb-1">End Month</label>
+          <select id="endMonth"
+            class="w-full bg-transparent border border-blue-500 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <option value="">-- Select Month --</option>
+            <option value="01">January</option>
+            <option value="02">February</option>
+            <option value="03">March</option>
+            <option value="04">April</option>
+            <option value="05">May</option>
+            <option value="06">June</option>
+            <option value="07">July</option>
+            <option value="08">August</option>
+            <option value="09">September</option>
+            <option value="10">October</option>
+            <option value="11">November</option>
+            <option value="12">December</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div id="payelementsWrapper" class="hidden bg-blue-50 p-4 rounded-lg">
+      <label class="block text-sm font-medium text-gray-900 mb-2"><i
+          class="fas fa-money-bill-wave text-blue-600 mr-2"></i>Select Pay Element</label>
+      <select id="payelementSelect"
+        class="w-full border border-blue-500 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        <option value="">-- Choose Pay Element --</option>
+      </select>
+    </div>
+    <div id="payeeWrapper" class="hidden bg-green-50 p-4 rounded-lg">
+      <label class="block text-sm font-medium text-gray-900 mb-2"><i class="fas fa-user text-green-600 mr-2"></i>Select
+        Employee</label>
+      <select id="payeeSelect"
+        class="w-full border border-slate-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500">
+        <option value="">-- Choose Employee --</option>
+      </select>
+      <div id="payeeLoading" class="hidden mt-2 text-sm text-gray-600"><i
+          class="fas fa-spinner fa-spin mr-2"></i>Loading employees...</div>
+    </div>
+    <div id="usernameWrapper" class="hidden bg-purple-50 p-4 rounded-lg">
+      <label class="block text-sm font-medium text-gray-900 mb-2"><i
+          class="fas fa-user-circle text-purple-600 mr-2"></i>Select Operator/Username</label>
+      <select id="usernameSelect"
+        class="w-full border border-slate-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+        <option value="">-- Choose Operator --</option>
+      </select>
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-gray-900 mb-2"><i
+          class="fas fa-file-export text-gray-600 mr-2"></i>Export Format</label>
+      <div class="flex gap-4">
+        <label class="flex items-center cursor-pointer"><input type="radio" name="exportFormat" value="pdf"
+            class="text-blue-600 w-4 h-4" checked><span class="ml-2">PDF</span></label>
+        <label class="flex items-center cursor-pointer"><input type="radio" name="exportFormat" value="excel"
+            class="text-blue-600 w-4 h-4"><span class="ml-2">Excel</span></label>
+      </div>
+    </div>
+    <div class="flex justify-end gap-3 pt-4 border-t">
+      <button id="cancelVariation"
+        class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium py-2 px-6 rounded-lg transition-colors"><i
+          class="fas fa-times mr-2"></i>Clear</button>
+      <button id="generateVariation"
+        class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition-colors shadow-lg hover:shadow-xl"><i
+          class="fas fa-file-alt mr-2"></i>Generate Report</button>
+    </div>
+  </div>
+</section>
+
+<!-- Preview Modal (landscape) -->
+<div id="variationPreviewModal"
+  class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
+  <div class="bg-gray-50 rounded-lg shadow-lg w-full max-w-full max-h-[90vh] overflow-hidden">
+    <div class="sticky top-0 bg-navy px-6 py-2 flex justify-between items-center bg-navy">
+      <h3 class="text-lg font-semibold text-white">Variation Input Listings Preview</h3>
+      <button id="variationClosePreviewBtn" class="text-white hover:text-gray-200 text-2xl">&times;</button>
+    </div>
+    <div class="overflow-auto" style="max-height: calc(90vh - 100px); background: #d1d5db;">
+      <iframe id="variationPreviewIframe" title="Variation Input Listings Preview"
+        style="width: 100%; min-height: 842px; border: none; background: white; display: block;"></iframe>
+    </div>
+    <div class="sticky bottom-0 bg-gray-50 border-t px-6 py-2 flex justify-end space-x-2">
+      <button id="variationCancelPreviewBtn"
+        class="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500">Cancel</button>
+      <button id="variationDownloadPreviewBtn"
+        class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Download</button>
+    </div>
+  </div>
+</div>
+
+<!-- Loading Modal -->
+<div id="loadingModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg shadow-lg p-8 text-center">
+    <div class="relative w-10 h-10 mx-auto mb-4">
+      <div class="absolute left-1 w-[6px] bg-blue-600 rounded animate-grow-up"></div>
+      <div class="absolute right-1 w-[6px] bg-blue-600 rounded animate-grow-down [animation-delay:0.3s]"></div>
+      <div
+        class="absolute top-1/2 left-1 h-[6px] bg-blue-600 rounded animate-expand [animation-delay:0.6s] -translate-y-1/2">
+      </div>
+    </div>
+    <h3 class="text-lg font-semibold mb-2">Generating Report...</h3>
+    <p class="text-gray-600">Please wait while we prepare your variation report.</p>
+  </div>
+</div>
+
+<!-- Success Modal -->
+<div id="variationSuccessModal"
+  class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 text-center">
+    <i class="fas fa-check-circle text-green-500 text-4xl mb-3"></i>
+    <h3 class="text-lg font-semibold mb-2">Success</h3>
+    <p id="variationSuccessMessage" class="text-gray-700 mb-4">Report downloaded successfully!</p>
+    <button id="variationSuccessOkBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg">OK</button>
+  </div>
+</div>
+
+<!-- Error/Message Modal -->
+<div id="variationModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
+    <div class="flex items-start mb-4">
+      <div id="variationModalIcon" class="mr-3 text-2xl"></div>
+      <div class="flex-1">
+        <h3 id="variationModalTitle" class="text-lg font-semibold mb-2"></h3>
+        <p id="variationModalMessage" class="text-gray-700"></p>
+      </div>
+    </div>
+    <div class="flex justify-end">
+      <button id="variationModalCloseBtn"
+        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">OK</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const auth = window.authService;
+  const variationRadios = document.querySelectorAll('input[name="variationScope"]');
+  const payelementsWrapper = document.getElementById("payelementsWrapper");
+  const payeeWrapper = document.getElementById("payeeWrapper");
+  const usernameWrapper = document.getElementById("usernameWrapper");
+  const payelementSelect = document.getElementById("payelementSelect");
+  const payeeSelect = document.getElementById("payeeSelect");
+  const usernameSelect = document.getElementById("usernameSelect");
+  const payeeLoading = document.getElementById("payeeLoading");
+  const generateVariationBtn = document.getElementById("generateVariation");
+  const cancelVariationBtn = document.getElementById("cancelVariation");
+  const variationModal = document.getElementById("variationModal");
+  const variationModalTitle = document.getElementById("variationModalTitle");
+  const variationModalMessage = document.getElementById("variationModalMessage");
+  const variationModalIcon = document.getElementById("variationModalIcon");
+  const variationModalCloseBtn = document.getElementById("variationModalCloseBtn");
+  const loadingModal = document.getElementById("loadingModal");
+
+  let filterOptions = null;
+
+  async function loadFilterOptions() {
+    try {
+      const token = localStorage.getItem('token') || '';
+      const response = await auth.fetchWithAuth('/variationinput/filter-options', { headers: { 'Authorization': `Bearer ${token}` } });
+      const result = await response.json();
+      if (result.success) {
+        filterOptions = result.data;
+        if (filterOptions.payTypes && filterOptions.payTypes.length > 0) {
+          filterOptions.payTypes.forEach(type => {
+            const option = document.createElement('option');
+            option.value = type.code;
+            option.textContent = `${type.code} - ${type.description}`;
+            payelementSelect.appendChild(option);
+          });
+        }
+        if (filterOptions.operators && filterOptions.operators.length > 0) {
+          filterOptions.operators.forEach(op => {
+            const option = document.createElement('option');
+            option.value = op.operator_name;
+            option.textContent = op.operator_name;
+            usernameSelect.appendChild(option);
+          });
+        }
+        if (filterOptions.currentPeriod) {
+          const period = filterOptions.currentPeriod;
+          document.getElementById('endYear').value = period.substring(0, 4);
+          document.getElementById('endMonth').value = period.substring(4, 6);
+        }
+      }
+    } catch (error) { console.error('Error loading filter options:', error); }
+  }
+
+  async function loadEmployees() {
+    if (!filterOptions || !filterOptions.employees) {
+      payeeLoading.classList.remove('hidden');
+      try {
+        const token = localStorage.getItem('token') || '';
+        const response = await auth.fetchWithAuth('/variationinput/filter-options', { headers: { 'Authorization': `Bearer ${token}` } });
+        const result = await response.json();
+        if (result.success && result.data.employees) { filterOptions = result.data; populateEmployees(); }
+      } catch (error) { console.error('Error loading employees:', error); }
+      finally { payeeLoading.classList.add('hidden'); }
+    } else { populateEmployees(); }
+  }
+
+  function populateEmployees() {
+    payeeSelect.innerHTML = '<option value="">-- Choose Employee --</option>';
+    if (filterOptions.employees && filterOptions.employees.length > 0) {
+      filterOptions.employees.forEach(emp => {
+        const option = document.createElement('option');
+        option.value = emp.employee_id;
+        option.textContent = `${emp.employee_id} - ${emp.full_name}`;
+        payeeSelect.appendChild(option);
+      });
+    }
+  }
+
+  function showVariationModal(title, message, isError = false) {
+    variationModalTitle.textContent = title;
+    variationModalMessage.textContent = message;
+    variationModalIcon.innerHTML = isError ? '<i class="fas fa-exclamation-circle text-red-500"></i>' : '<i class="fas fa-check-circle text-green-500"></i>';
+    variationModal.classList.remove("hidden");
+  }
+
+  variationModalCloseBtn.onclick = () => variationModal.classList.add("hidden");
+  document.getElementById('variationSuccessOkBtn').onclick = () => document.getElementById('variationSuccessModal').classList.add('hidden');
+
+  function closePreview() {
+    document.getElementById('variationPreviewModal').classList.add('hidden');
+    const iframe = document.getElementById('variationPreviewIframe');
+    iframe.src = 'about:blank';
+    iframe.removeAttribute('srcdoc');
+    if (window.variationCurrentBlobUrl) { window.URL.revokeObjectURL(window.variationCurrentBlobUrl); window.variationCurrentBlobUrl = null; }
+  }
+
+  document.getElementById('variationClosePreviewBtn').addEventListener('click', closePreview);
+  document.getElementById('variationCancelPreviewBtn').addEventListener('click', closePreview);
+
+  document.getElementById('variationDownloadPreviewBtn').addEventListener('click', () => {
+    if (!window.variationCurrentBlob) return;
+    const fmt = window.variationCurrentFormat || 'pdf';
+    const url = window.URL.createObjectURL(window.variationCurrentBlob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `variation_report_${window.variationCurrentFromPeriod}_${window.variationCurrentToPeriod}.${fmt === 'pdf' ? 'pdf' : 'xlsx'}`;
+    document.body.appendChild(a); a.click(); a.remove();
+    window.URL.revokeObjectURL(url);
+    document.getElementById('variationSuccessMessage').textContent = 'Report downloaded successfully!';
+    document.getElementById('variationSuccessModal').classList.remove('hidden');
+  });
+
+  variationRadios.forEach(radio => {
+    radio.addEventListener('change', () => {
+      payelementsWrapper.classList.add("hidden");
+      payeeWrapper.classList.add("hidden");
+      usernameWrapper.classList.add("hidden");
+      if (radio.value === "payelements") payelementsWrapper.classList.remove("hidden");
+      else if (radio.value === "payee") { payeeWrapper.classList.remove("hidden"); loadEmployees(); }
+      else if (radio.value === "username") usernameWrapper.classList.remove("hidden");
+    });
+  });
+
+  generateVariationBtn.onclick = async () => {
+    const selectedScope = document.querySelector('input[name="variationScope"]:checked')?.value;
+    const startYear = document.getElementById("startYear").value;
+    const endYear = document.getElementById("endYear").value;
+    const startMonth = document.getElementById("startMonth").value;
+    const endMonth = document.getElementById("endMonth").value;
+    const exportFormat = document.querySelector('input[name="exportFormat"]:checked')?.value || 'pdf';
+
+    if (!selectedScope) return showVariationModal("Validation Error", "Please select a report scope!", true);
+    if (!startYear || !endYear || !startMonth || !endMonth) return showVariationModal("Validation Error", "Please fill in all period fields!", true);
+
+    const fromPeriod = `${startYear}${startMonth}`;
+    const toPeriod = `${endYear}${endMonth}`;
+    let queryParams = `fromPeriod=${fromPeriod}&toPeriod=${toPeriod}&format=${exportFormat}`;
+
+    if (selectedScope === "payelements") {
+      const payType = payelementSelect.value;
+      if (!payType) return showVariationModal("Validation Error", "Please select a pay element!", true);
+      queryParams += `&payType=${payType}`;
+    } else if (selectedScope === "payee") {
+      const emplId = payeeSelect.value;
+      if (!emplId) return showVariationModal("Validation Error", "Please select an employee!", true);
+      queryParams += `&emplId=${emplId}`;
+    } else if (selectedScope === "username") {
+      const operator = usernameSelect.value;
+      if (!operator) return showVariationModal("Validation Error", "Please select an operator!", true);
+      queryParams += `&createdBy=${operator}`;
+    }
+
+    loadingModal.classList.remove("hidden");
+    try {
+      const token = localStorage.getItem('token') || '';
+      const response = await auth.fetchWithAuth(`/variationinput?${queryParams}`, { headers: { 'Authorization': `Bearer ${token}` } });
+      if (!response.ok) { const e = await response.json().catch(() => ({})); throw new Error(e.error || 'Failed to generate report'); }
+
+      const blob = await response.blob();
+      loadingModal.classList.add("hidden");
+
+      window.variationCurrentBlob = blob;
+      window.variationCurrentFormat = exportFormat;
+      window.variationCurrentFromPeriod = fromPeriod;
+      window.variationCurrentToPeriod = toPeriod;
+
+      const iframe = document.getElementById('variationPreviewIframe');
+      const dlBtn = document.getElementById('variationDownloadPreviewBtn');
+
+      if (exportFormat === 'pdf') {
+        const blobUrl = window.URL.createObjectURL(blob);
+        window.variationCurrentBlobUrl = blobUrl;
+        iframe.src = blobUrl + '#toolbar=0';
+        iframe.style.minHeight = '842px';
+        dlBtn.textContent = 'Download PDF';
+      } else {
+        iframe.srcdoc = `<div style="font-family:Arial,sans-serif;padding:40px;text-align:center;color:#555;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#1e40af" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto 16px;display:block;">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+            <line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/>
+          </svg>
+          <p style="font-size:16pt;font-weight:bold;color:#1e40af;margin-bottom:8px;">Excel Report Ready</p>
+          <p style="font-size:10pt;">Click <strong>Download Excel</strong> below to save the file.</p>
+        </div>`;
+        iframe.style.minHeight = '300px';
+        dlBtn.textContent = 'Download Excel';
+      }
+      document.getElementById('variationPreviewModal').classList.remove('hidden');
+    } catch (error) {
+      loadingModal.classList.add("hidden");
+      showVariationModal("Error", `Failed to generate report: ${error.message}`, true);
+    }
+  };
+
+  cancelVariationBtn.onclick = () => {
+    payelementsWrapper.classList.add("hidden");
+    payeeWrapper.classList.add("hidden");
+    usernameWrapper.classList.add("hidden");
+    document.getElementById("startYear").value = "";
+    document.getElementById("endYear").value = "";
+    document.getElementById("startMonth").value = "";
+    document.getElementById("endMonth").value = "";
+    document.getElementById("payelementSelect").value = "";
+    document.getElementById("payeeSelect").value = "";
+    document.getElementById("usernameSelect").value = "";
+    document.querySelector('input[name="variationScope"][value="all"]').checked = true;
+    document.querySelector('input[name="exportFormat"][value="pdf"]').checked = true;
+  };
+
+  loadFilterOptions();
+</script>

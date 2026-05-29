@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    @page { size: A4; margin: 0.8mm; background-color: #fef8f8;}
+    body { 
+      font-family: Helvetica, Arial, sans-serif; 
+      font-size: 8pt;
+      line-height: 1.3;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url('{{{logoDataUrl}}}');
+      background-size: auto 100%;    /* 80% of height */
+      background-repeat: no-repeat;
+      background-position: center center;
+      opacity: 0.02;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .header-wrapper {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 8px;
+        border-bottom: 2px solid #1a1a1a;
+        padding-bottom: 5px;
+    }
+
+    .className {
+        flex-shrink: 0;
+        margin-right: 20px;
+        align-self: center;
+        font-size: 9pt;
+    }
+
+    .header {
+        flex-grow: 1;
+        text-align: center;
+    }
+    
+    .header h1 {
+        font-size: 14pt;
+        font-weight: bold;
+        margin-bottom: 2px;
+        letter-spacing: 1.5px;
+        color: #DC2626;
+        font-family: 'Libre Baskerville', Georgia, serif;
+    }
+    
+    .header h2 {
+        font-size: 11pt;
+        font-weight: normal;
+        margin-top: 2px;
+        color: #4a4a4a;
+        font-family: 'Libre Baskerville', Georgia, serif;
+    }
+
+    .header-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 10px 0;
+      font-size: 9pt;
+    }
+
+    .alert-box {
+      background: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+      color: white;
+      padding: 12px;
+      margin-bottom: 15px;
+      border-radius: 4px;
+      text-align: center;
+      font-weight: bold;
+      font-size: 11pt;
+    }
+
+    .summary-box {
+      border: 2px solid #DC2626;
+      padding: 8px 0;
+      margin-bottom: 15px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      background-color: #FEE2E2;
+    }
+
+    .summary-item {
+      text-align: center;
+      padding: 0 15px;
+      border-right: 1px solid #DC2626;
+      flex-grow: 1;
+    }
+
+    .summary-item:last-child {
+      border-right: none;
+    }
+
+    .summary-item .label {
+      font-size: 8px;
+      color: #7F1D1D;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 2px;
+    }
+
+    .summary-item .value {
+      font-size: 13px;
+      font-weight: bold;
+      color: #DC2626;
+    }
+
+    .duplicate-section {
+      margin-bottom: 20px;
+      page-break-inside: avoid;
+      border-top: 2px solid #f6e5e5;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .duplicate-header {
+      padding: 10px 15px;
+      font-weight: bold;
+      font-size: 10pt;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .duplicate-header.severity-low {
+      color: #fbb607;
+    }
+
+    .duplicate-header.severity-medium {
+      color: #f53636;
+    }
+
+    .duplicate-header.severity-high {
+      color: #dc1717;
+    }
+
+    .duplicate-info {
+      font-size: 8pt;
+      margin-top: 3px;
+      opacity: 0.95;
+    }
+
+    .severity-badge {
+      background-color: rgba(255, 255, 255, 0.3);
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 8pt;
+      font-weight: bold;
+    }
+
+    .employees-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0;
+    }
+
+    .employees-table th {
+      background-color: #F3F4F6;
+      color: #1F2937;
+      padding: 8px 6px;
+      text-align: left;
+      font-weight: bold;
+      font-size: 8pt;
+      border-top: 1px solid #D1D5DB;
+      border-bottom: 1px solid #D1D5DB;
+      text-transform: uppercase;
+    }
+
+    .employees-table td {
+      padding: 8px 6px;
+      border-bottom: 1px solid #D1D5DB;
+      vertical-align: middle;
+      font-size: 8pt;
+    }
+
+    .employees-table tr:nth-child(even) {
+      background-color: #fdfeff;
+    }
+
+    .employees-table tr.inactive {
+      background-color: #FEF3C7;
+    }
+
+    .employees-table tr.inactive td {
+      color: #78716C;
+      font-style: italic;
+    }
+
+    .status-active {
+      color: #059669;
+      font-weight: bold;
+    }
+
+    .status-inactive {
+      color: #DC2626;
+      font-weight: bold;
+    }
+
+    .no-duplicates {
+      text-align: center;
+      padding: 40px;
+      background-color: #D1FAE5;
+      border: 2px solid #059669;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+
+    .no-duplicates-icon {
+      font-size: 48px;
+      color: #059669;
+      margin-bottom: 10px;
+    }
+
+    .no-duplicates h3 {
+      font-size: 18pt;
+      color: #047857;
+      margin-bottom: 10px;
+    }
+
+    .no-duplicates p {
+      font-size: 11pt;
+      color: #065F46;
+    }
+
+    .footer {
+      padding-top: 10px;
+      border-top: 0.5px solid #1a1a1a;
+      text-align: center;
+      font-size: 8pt;
+      color: #64748b;
+      margin-top: 30px;
+    }
+
+    .page-break {
+      page-break-after: always;
+    }
+
+    @media print {
+      body {
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url('{{{logoDataUrl}}}');
+        background-size: auto 100%;    /* 80% of height */
+        background-repeat: no-repeat;
+        background-position: center center;
+        opacity: 0.02;
+        z-index: -1;
+        pointer-events: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header-wrapper">
+      <div class="className">
+          {{className}}
+      </div>
+      <div class="header">
+          <h1>Nigerian Navy (Naval Headquarters)</h1>
+          <h2>CENTRAL PAY OFFICE, 23 POINT ROAD APAPA</h2>
+      </div>
+  </div>
+
+  <div class="header-info">
+    <div class="left">
+      <strong>ACCOUNT VERIFICATION</strong>
+    </div>
+    <div class="center">
+      <span>GENERATED ON</span> 
+      <strong>{{formatDate reportDate}}</strong> 
+      <span>AT</span> 
+      <strong>{{formatTime reportDate}}</strong>
+    </div>
+    <div class="right">
+      <strong>{{filters}}</strong>
+    </div>
+  </div>
+
+  {{#if data}}
+  {{#if (gt data.length 0)}}
+    <!-- Alert Box 
+    <div class="alert-box">
+      WARNING: {{statistics.total_duplicate_accounts}} DUPLICATE ACCOUNT NUMBER(S) DETECTED
+    </div>-->
+
+    <!-- Statistics Summary Box 
+    <div class="summary-box">
+      <div class="summary-item">
+        <div class="label">Duplicate Accounts</div>
+        <div class="value">{{statistics.total_duplicate_accounts}}</div>
+      </div>
+      <div class="summary-item">
+        <div class="label">Affected Employees</div>
+        <div class="value">{{statistics.total_affected_employees}}</div>
+      </div>
+      <div class="summary-item">
+        <div class="label">Active Affected</div>
+        <div class="value">{{statistics.total_active_affected}}</div>
+      </div>
+      <div class="summary-item">
+        <div class="label">Inactive Affected</div>
+        <div class="value">{{statistics.total_inactive_affected}}</div>
+      </div>
+      <div class="summary-item">
+        <div class="label">Highest Duplicate</div>
+        <div class="value">{{statistics.highest_duplicate_count}} employees</div>
+      </div>
+    </div>-->
+
+    <!-- Severity Breakdown 
+    <div style="margin-bottom: 15px; font-size: 9pt; display: flex; justify-content: center; gap: 20px;">
+      <div><span style="background-color: #F59E0B; color: white; padding: 2px 8px; border-radius: 3px;">LOW (2)</span>: {{statistics.severity_breakdown.low}}</div>
+      <div><span style="background-color: #EF4444; color: white; padding: 2px 8px; border-radius: 3px;">MEDIUM (3-4)</span>: {{statistics.severity_breakdown.medium}}</div>
+      <div><span style="background-color: #DC2626; color: white; padding: 2px 8px; border-radius: 3px;">HIGH (5+)</span>: {{statistics.severity_breakdown.high}}</div>
+    </div>-->
+
+    <!-- Duplicate Sections -->
+    {{#each data}}
+      <div class="duplicate-section">
+        <!-- Duplicate Header -->
+        <div class="duplicate-header {{getSeverityClass this.duplicate_count}}">
+          <div>
+            <div style="font-size: 11pt;">Account Number: {{this.account_number}}</div>
+            <div class="duplicate-info">
+              Bank: {{this.bank_name}} ({{this.bank_code}}) | 
+              {{this.duplicate_count}} Employees Using This Account |
+              Active: {{this.active_count}} | Inactive: {{this.inactive_count}}
+            </div>
+          </div>
+          <div class="severity-badge">
+            {{getSeverity this.duplicate_count}} RISK
+          </div>
+        </div>
+
+        <!-- Employees Table -->
+        <table class="employees-table">
+          <thead>
+            <tr>
+              <th style="width: 10%;">Svc No.</th>
+              <th style="width: 22%;">Full Name</th>
+              <th style="width: 8%;">Title</th>
+              <th style="width: 8%;">G/Level</th>
+              <th style="width: 12%;">Location</th>
+              <th style="width: 18%;">Bank Branch</th>
+              <th style="width: 10%;">Date Employed</th>
+              <th style="width: 12%;">Status/DateLeft</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each this.employees}}
+              <tr {{#if this.date_left}}class="inactive"{{/if}}>
+                <td>{{this.employee_id}}</td>
+                <td>{{this.full_name}}</td>
+                <td>{{this.title_code}}</td>
+                <td style="text-align: center;">{{this.gradelevel}}</td>
+                <td>{{this.location_code}}</td>
+                <td>{{this.bank_branch}}</td>
+                <td style="text-align: center;">{{this.date_employed}}</td>
+                <td class="{{#if this.date_left}}status-inactive{{else}}status-active{{/if}}">
+                  {{this.status_display}}
+                </td>
+              </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+    {{/each}}
+
+  {{else}}
+    <!-- No Duplicates Found -->
+    <div class="no-duplicates">
+      <div class="no-duplicates-icon">✅</div>
+      <h3>No Duplicate Account Numbers Found</h3>
+      <p>All bank account numbers are unique. No action required.</p>
+    </div>
+  {{/if}}
+  {{else}}
+    <!-- No Data -->
+    <div class="no-duplicates">
+      <div class="no-duplicates-icon">✅</div>
+      <h3>No Duplicate Account Numbers Found</h3>
+      <p>All bank account numbers are unique. No action required.</p>
+    </div>
+  {{/if}}
+
+  <div class="footer">
+    <p>⚠️ URGENT: Please investigate and resolve duplicate account numbers immediately | All rights reserved &#xA9; Hicad Systems Limited.</p>
+  </div>
+
+  <script>
+  const auth = window.authService;
+    // Helper functions for Handlebars
+    Handlebars.registerHelper('gt', function(a, b) {
+      return parseFloat(a) > parseFloat(b);
+    });
+
+    Handlebars.registerHelper('eq', function(a, b) {
+      return a === b;
+    });
+
+    Handlebars.registerHelper('getSeverity', function(count) {
+      if (count === 2) return 'LOW';
+      if (count <= 4) return 'MEDIUM';
+      return 'HIGH';
+    });
+
+    Handlebars.registerHelper('getSeverityClass', function(count) {
+      if (count === 2) return 'severity-low';
+      if (count <= 4) return 'severity-medium';
+      return 'severity-high';
+    });
+
+    Handlebars.registerHelper('formatTime', function(date) {
+      return new Date(date).toLocaleTimeString('en-GB', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      });
+    });
+  </script>
+</body>
+</html>

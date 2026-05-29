@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <style>
+    @page {
+      size: A4 landscape;
+      margin: 0.8mm;
+      background-color: #f8fbff;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Helvetica, Arial, sans-serif;
+      font-size: 7.5pt;
+      color: #1a1a1a;
+      background-color: #f8fbff;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url('{{{logoDataUrl}}}');
+      background-size: auto 80%;
+      background-repeat: no-repeat;
+      background-position: center center;
+      opacity: 0.02;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .page {
+      page-break-after: always;
+    }
+
+    .page:last-child {
+      page-break-after: auto;
+    }
+
+    .header-wrapper {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 6px;
+      border-bottom: 2px solid #1a1a1a;
+      padding-bottom: 4px;
+    }
+
+    .className {
+      flex-shrink: 0;
+      margin-right: 16px;
+      align-self: center;
+      font-size: 8pt;
+      font-weight: bold;
+    }
+
+    .header {
+      flex-grow: 1;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 13pt;
+      font-weight: bold;
+      letter-spacing: 1.5px;
+      color: #1e40af;
+      font-family: 'Libre Baskerville', Georgia, serif;
+    }
+
+    .header h2 {
+      font-size: 9pt;
+      font-weight: normal;
+      color: #4a4a4a;
+      margin-top: 2px;
+      font-family: 'Libre Baskerville', Georgia, serif;
+    }
+
+    .meta-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 5px 0 18px;
+      font-size: 8pt;
+    }
+
+    .meta-left {
+      font-weight: bold;
+      color: #1a1a1a;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .meta-center {
+      color: #4a4a4a;
+    }
+
+    .meta-right {
+      color: #4a4a4a;
+    }
+
+    .meta-row strong {
+      color: #1a1a1a;
+    }
+
+    .emp-banner {
+      border-top: 1px solid #c7d7f5;
+      border-bottom: 1px solid #c7d7f5;
+      padding: 4px 0;
+      margin-bottom: 30px;
+      display: flex;
+      gap: 24px;
+      font-size: 7.5pt;
+    }
+
+    .emp-banner .ef {
+      display: flex;
+      gap: 4px;
+    }
+
+    .emp-banner .el {
+      font-weight: 600;
+      color: #1a1a1a;
+    }
+
+    .emp-banner .ev {
+      color: #4a4a4a;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 7pt;
+    }
+
+    /* Vertical column borders only */
+    thead th,
+    tbody td {
+      padding: 2.5px 4px;
+      vertical-align: middle;
+      border-left: 0.5px solid #c8d4e8;
+      border-right: 0.5px solid #c8d4e8;
+      border-bottom: 0.5px solid #c8d4e8;
+    }
+
+    thead th:first-child,
+    tbody td:first-child {
+      border-left: none;
+    }
+
+    thead th:last-child,
+    tbody td:last-child {
+      border-right: none;
+    }
+
+    thead th {
+      color: #1e40af;
+      text-align: left;
+      font-weight: bold;
+      font-size: 7pt;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      white-space: nowrap;
+      background: #e8f0fe;
+      border-bottom: 1.5px solid #0056A0;
+    }
+
+    thead th.amt {
+      text-align: right;
+    }
+
+    tbody td.desc {
+      color: #4a4a4a;
+    }
+
+    tbody td.amt {
+      text-align: right;
+      font-family: 'Courier New', monospace;
+      font-weight: 600;
+      white-space: nowrap;
+      color: #1a1a1a;
+    }
+
+    tbody td.ded-amt {
+      text-align: right;
+      font-family: 'Courier New', monospace;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    /* EARNINGS / DEDUCTIONS — light blue bg, dark blue bold text */
+    tr.section-label td {
+      background: #cfe2ff;
+      color: #1e3a8a;
+      font-weight: bold;
+      font-size: 7pt;
+      padding: 3px 4px;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    /* Source label rows (IPPIS / NAVY) — white bg, dark text, blue underline */
+    tr.source-label td {
+      color: #1a1a1a;
+      font-weight: bold;
+      font-size: 8pt;
+      padding: 5px 4px 3px 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1.5px solid #1e40af;
+    }
+
+    /* Data rows — plain white
+    tbody td {
+      background: #ffffff;
+    }*/
+
+    /* Total Emolument / Total Deduction — #f5f5f5 bg, dark blue bold text */
+    tbody tr.total-row td {
+      background-color: #f5f5f5;
+      font-weight: 700;
+      font-size: 7.5pt;
+      padding: 3px 4px;
+      color: #1e3a8a;
+    }
+
+    tbody tr.total-row td.amt {
+      font-family: 'Courier New', monospace;
+      text-align: right;
+      color: #1e3a8a;
+    }
+
+    /* NET row — dark navy bg, white bold text */
+    tbody tr.net-row td {
+      background-color: #f0f0f0;
+      font-weight: 800;
+      font-size: 8pt;
+      padding: 4px;
+    }
+
+    tbody tr.net-row td.amt {
+      font-family: 'Courier New', monospace;
+      text-align: right;
+    }
+
+    .footer {
+      margin-top: 10px;
+      padding-top: 6px;
+      border-top: 1px solid #d0d0d0;
+      text-align: center;
+      font-size: 6.5pt;
+      color: #6a6a6a;
+    }
+
+    @media print {
+      body {
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+        background-color: #f8fbff;
+      }
+
+      body::before {
+        position: fixed;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  {{#each employees}}
+  <div class="page">
+
+    <!-- HEADER -->
+    <div class="header-wrapper">
+      <div class="className">{{this.payclass_name}}</div>
+      <div class="header">
+        <h1>Nigerian Navy (Naval Headquarters)</h1>
+        <h2>CENTRAL PAY OFFICE, 23 POINT ROAD APAPA</h2>
+      </div>
+    </div>
+
+    <!-- META -->
+    <div class="meta-row">
+      <div class="meta-left">Salary History</div>
+      <div class="meta-center">Produced <strong>{{formatDate ../reportDate}}</strong> at <strong>{{formatTime
+          ../reportDate}}</strong></div>
+      <div class="meta-right">Period: <strong>{{periodLabel this.fromPeriod}}</strong> &mdash; <strong>{{periodLabel
+          this.toPeriod}}</strong></div>
+    </div>
+
+    <!-- BANNER -->
+    <div class="emp-banner">
+      <div class="ef"><span class="el">Service No:</span><span class="ev">{{this.numb}}</span></div>
+      <div class="ef"><span class="el">Name:</span><span class="ev">{{this.surname}} {{this.othername}}</span></div>
+      <div class="ef"><span class="el">Class:</span><span class="ev">{{this.payclass_name}}</span></div>
+    </div>
+
+    <!-- TABLE -->
+    <table>
+      <thead>
+        <tr>
+          <th style="min-width:140px;">Description</th>
+          {{#each this.periods}}<th class="amt">{{periodLabel this}}</th>{{/each}}
+        </tr>
+      </thead>
+      <tbody>
+
+        {{#if this.useIppis}}
+        {{!-- ══ IPPIS LAYOUT ══
+        Key insight: iterate this.rows directly using {{#if}} checks
+        to avoid context path issues. For totals, use colSum/netAt
+        helpers passing this.rows and period index via @index.
+        Total rows iterate this.periods (same level as emp).
+        --}}
+
+        {{!-- IPPIS source label --}}
+        <tr class="source-label">
+          <td colspan="{{add this.periods.length 1}}">IPPIS</td>
+        </tr>
+
+        {{!-- IPPIS Taxable rows --}}
+        <tr class="section-label">
+          <td colspan="{{add this.periods.length 1}}">Taxable Payment</td>
+        </tr>
+        {{#each this.rows}}{{#if (eq this.source "IPPIS")}}{{#if (eq this.bpc "BP")}}
+        <tr>
+          <td class="desc" style="white-space: nowrap;">{{this.description}}</td>
+          {{#each this.amounts}}<td class="amt">{{#if this}}&#x20A6;{{formatCurrency this}}{{/if}}</td>{{/each}}
+        </tr>
+        {{/if}}{{/if}}{{/each}}
+
+        {{!-- IPPIS Taxable total --}}
+        <tr class="total-row">
+          <td><strong>Total Taxable Payment</strong></td>
+          {{#each this.periods}}
+          <td class="amt">{{#with (colSum (filterByBpc ../rows (array "BP") "IPPIS") @index)}}{{#if
+            this}}&#x20A6;{{formatCurrency this}}{{/if}}{{/with}}</td>
+          {{/each}}
+        </tr>
+
+        {{!-- IPPIS Deduction rows --}}
+        <tr class="section-label">
+          <td colspan="{{add this.periods.length 1}}">Deductions</td>
+        </tr>
+        {{#each this.rows}}{{#if (eq this.source "IPPIS")}}{{#if (eq this.bpc "PR")}}
+        <tr>
+          <td class="desc">{{this.description}}</td>
+          {{#each this.amounts}}<td class="ded-amt">{{#if this}}(&#x20A6;{{formatCurrency this}}){{/if}}</td>{{/each}}
+        </tr>
+        {{/if}}{{/if}}{{/each}}
+
+        {{!-- IPPIS Total --}}
+        <tr class="total-row">
+          <td><strong>IPPIS Total</strong></td>
+          {{#each this.periods}}
+          <td class="amt">{{#with (netAt (filterByBpc ../rows (array "BP") "IPPIS") (filterByBpc ../rows (array "PR"
+            "OT") "IPPIS") @index)}}{{#if this}}&#x20A6;{{formatCurrency this}}{{/if}}{{/with}}</td>
+          {{/each}}
+        </tr>
+
+        {{!-- NAVY source label --}}
+        <tr class="source-label">
+          <td colspan="{{add this.periods.length 1}}">NAVY</td>
+        </tr>
+
+        {{!-- NAVY Non-Taxable rows --}}
+        <tr class="section-label">
+          <td colspan="{{add this.periods.length 1}}">Non-Taxable Payment</td>
+        </tr>
+        {{#each this.rows}}{{#if (eq this.source "NAVY")}}{{#if (eq this.bpc "PT")}}
+        <tr>
+          <td class="desc">{{this.description}}</td>
+          {{#each this.amounts}}<td class="amt">{{#if this}}&#x20A6;{{formatCurrency this}}{{/if}}</td>{{/each}}
+        </tr>
+        {{/if}}{{/if}}{{/each}}
+
+        {{!-- NAVY Deductions (if any) --}}
+        {{#if (filterByBpc this.rows (array "PR" "OT") "NAVY")}}
+        <tr class="section-label">
+          <td colspan="{{add this.periods.length 1}}">Deductions</td>
+        </tr>
+        {{#each this.rows}}{{#if (eq this.source "NAVY")}}{{#if (eq this.bpc "PR")}}
+        <tr>
+          <td class="desc">{{this.description}}</td>
+          {{#each this.amounts}}<td class="ded-amt">{{#if this}}(&#x20A6;{{formatCurrency this}}){{/if}}</td>{{/each}}
+        </tr>
+        {{/if}}{{/if}}{{/each}}
+        {{/if}}
+
+        {{!-- NAVY Total --}}
+        <tr class="total-row">
+          <td><strong>NAVY Total</strong></td>
+          {{#each this.periods}}
+          <td class="amt">{{#with (netAt (filterByBpc ../rows (array "PT") "NAVY") (filterByBpc ../rows (array "PR"
+            "OT") "NAVY") @index)}}{{#if this}}&#x20A6;{{formatCurrency this}}{{/if}}{{/with}}</td>
+          {{/each}}
+        </tr>
+
+        {{!-- Grand NET --}}
+        <tr class="net-row">
+          <td><strong>NET(IPPIS + NAVY)</strong></td>
+          {{#each this.periods}}
+          <td class="amt">{{#with (netAt (filterByBpc ../rows (array "BP" "PT") "") (filterByBpc ../rows (array "PR"
+            "OT") "") @index)}}{{#if this}}&#x20A6;{{formatCurrency this}}{{/if}}{{/with}}</td>
+          {{/each}}
+        </tr>
+
+        {{else}}
+        {{!-- ══ NAVY ONLY LAYOUT ══ --}}
+
+        {{!-- Earnings --}}
+        <tr class="section-label">
+          <td colspan="{{add this.periods.length 1}}">Earnings</td>
+        </tr>
+        {{#each this.rows}}{{#if (eq this.bpc "BP")}}
+        <tr>
+          <td class="desc">{{this.description}}</td>
+          {{#each this.amounts}}<td class="amt">{{#if this}}&#x20A6;{{formatCurrency this}}{{/if}}</td>{{/each}}
+        </tr>
+        {{/if}}{{/each}}
+        {{#each this.rows}}{{#if (eq this.bpc "PT")}}
+        <tr>
+          <td class="desc">{{this.description}}</td>
+          {{#each this.amounts}}<td class="amt">{{#if this}}&#x20A6;{{formatCurrency this}}{{/if}}</td>{{/each}}
+        </tr>
+        {{/if}}{{/each}}
+
+        <tr class="total-row">
+          <td><strong>Total Emolument</strong></td>
+          {{#each this.periods}}
+          <td class="amt">{{#with (colSum (filterByBpc ../rows (array "BP" "PT") "") @index)}}{{#if
+            this}}&#x20A6;{{formatCurrency this}}{{/if}}{{/with}}</td>
+          {{/each}}
+        </tr>
+
+        {{!-- Deductions --}}
+        <tr class="section-label">
+          <td colspan="{{add this.periods.length 1}}">Deductions</td>
+        </tr>
+        {{#each this.rows}}{{#if (eq this.bpc "PR")}}
+        <tr>
+          <td class="desc">{{this.description}}</td>
+          {{#each this.amounts}}<td class="amt">{{#if this}}&#x20A6;{{formatCurrency this}}{{/if}}</td>{{/each}}
+        </tr>
+        {{/if}}{{/each}}
+
+        <tr class="total-row">
+          <td><strong>Total Deduction</strong></td>
+          {{#each this.periods}}
+          <td class="amt">{{#with (colSum (filterByBpc ../rows (array "PR" "OT") "") @index)}}{{#if
+            this}}&#x20A6;{{formatCurrency this}}{{/if}}{{/with}}</td>
+          {{/each}}
+        </tr>
+
+        {{!-- NET --}}
+        <tr class="net-row">
+          <td><strong>NET</strong></td>
+          {{#each this.periods}}
+          <td class="amt">{{#with (netAt (filterByBpc ../rows (array "BP" "PT") "") (filterByBpc ../rows (array "PR"
+            "OT") "") @index)}}{{#if this}}&#x20A6;{{formatCurrency this}}{{/if}}{{/with}}</td>
+          {{/each}}
+        </tr>
+
+        {{/if}}
+
+      </tbody>
+    </table>
+
+    <div class="footer">
+      <p>All rights reserved &copy; Hicad Systems Limited.</p>
+    </div>
+
+  </div>
+  {{/each}}
+
+</body>
+
+</html>

@@ -1,0 +1,469 @@
+<style>
+  @keyframes grow-up {
+    0% { height: 0; bottom: 0; }
+    100% { height: 100%; bottom: 0; }
+  }
+  @keyframes grow-down {
+    0% { height: 0; top: 0; }
+    100% { height: 100%; top: 0; }
+  }
+  @keyframes expand {
+    0% { width: 0; left: 50%; transform: translate(-50%, -50%); }
+    100% { width: 100%; left: 0; transform: translateY(-50%); }
+  }
+  .animate-grow-up {
+    animation: grow-up 0.6s ease-in-out infinite alternate;
+    position: absolute;
+    bottom: 0;
+  }
+  .animate-grow-down {
+    animation: grow-down 0.6s ease-in-out infinite alternate;
+    position: absolute;
+    top: 0;
+  }
+  .animate-expand {
+    animation: expand 0.6s ease-in-out infinite alternate;
+  }
+</style>
+
+<!-- Year-End Form -->
+<div class="items border rounded-lg m-6 max-w-lg mx-auto p-6">
+    <h2 class="text-xl font-semibold text-gray-800 mb-4">Process Year-End</h2>
+    
+    <!-- Status Banner -->
+    <div id="statusBanner" class="mb-4 p-4 rounded-lg border hidden">
+        <div class="flex items-center gap-3">
+            <div id="statusIcon"></div>
+            <div class="flex-1">
+                <p id="statusText" class="font-medium text-sm"></p>
+            </div>
+        </div>
+    </div>
+    
+    <form id="yearendForm" class="space-y-4">
+        <div>
+            <label for="yearly-year" class="block text-sm font-medium text-gray-700 mb-2">Year</label>
+            <input id="yearly-year" type="number" min="2020" max="2030" placeholder="Loading..." 
+            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50" 
+            readonly required />
+            <p class="hidden text-xs text-gray-500 mt-1">Year is automatically set from current payroll period</p>
+        </div>
+
+        <div class="hidden bg-yellow-50 border border-yellow-200 rounded-md p-4">
+            <div class="flex">
+                <svg class="w-5 h-5 text-yellow-400 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"/>
+                </svg>
+                <div>
+                    <p class="text-sm text-yellow-800 font-medium">Important</p>
+                    <p class="text-sm text-yellow-700 mt-1">Year-end processing can only be done in January (Month 1) with previous period December (12). This will reset employee emolument forms.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Block Message -->
+        <div id="blockMessage" class="hidden bg-red-50 border border-red-200 rounded-md p-4">
+            <div class="flex">
+                <svg class="w-5 h-5 text-red-400 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"/>
+                </svg>
+                <div>
+                    <p class="text-sm text-red-800 font-medium">Processing Blocked</p>
+                    <p id="blockReason" class="text-sm text-red-700 mt-1"></p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="flex justify-center">
+            <button 
+                type="submit" 
+                id="processButton"
+                class="px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+            >
+                Process Year-End
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Processing Modal -->
+<div id="processingModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden">
+      <div class="bg-green-600 text-white px-6 py-4">
+          <h2 class="text-xl font-bold">Processing Year-End</h2>
+          <p class="text-sm text-green-100 mt-1" id="processingSubtitle">Please wait while we process annual data...</p>
+      </div>
+
+      <div class="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
+          <!-- Overall Progress -->
+          <div class="mb-6">
+              <div class="flex justify-between text-sm text-gray-600 mb-2">
+                  <span>Overall Progress</span>
+                  <span id="overallProgress">0%</span>
+              </div>
+              <div class="w-full bg-gray-200 rounded-full h-3">
+                  <div id="overallProgressBar" class="bg-green-600 h-3 rounded-full transition-all duration-300" style="width: 0%"></div>
+              </div>
+          </div>
+
+          <!-- Processing Steps -->
+          <div class="space-y-3" id="processingSteps"></div>
+
+          <!-- Summary -->
+          <div id="processingSummary" class="hidden mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+              <h3 class="font-semibold text-gray-800 mb-3">Processing Summary</h3>
+              <div class="space-y-2 text-sm">
+                  <div class="flex justify-between">
+                      <span class="text-gray-600">Year:</span>
+                      <span class="font-medium" id="summaryYear">-</span>
+                  </div>
+                  <div class="flex justify-between">
+                      <span class="text-gray-600">Employees Updated:</span>
+                      <span class="font-medium" id="summaryEmployees">-</span>
+                  </div>
+                  <div class="flex justify-between">
+                      <span class="text-gray-600">Processed By:</span>
+                      <span class="font-medium" id="summaryProcessedBy">-</span>
+                  </div>
+              </div>
+          </div>
+      </div>
+
+      <div class="border-t border-gray-200 px-6 py-4 bg-gray-50 flex justify-center">
+          <button id="closeProcessing" class="hidden px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+              Close
+          </button>
+      </div>
+  </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div id="confirmModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg shadow-2xl w-full max-w-md overflow-hidden">
+    <div class="bg-green-600 px-6 py-4">
+      <h2 class="text-xl font-bold text-white">Confirm Year-End</h2>
+    </div>
+    <div class="p-6">
+      <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <svg class="w-10 h-10 text-green-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+      </div>
+      <p id="confirmMessage" class="text-gray-700 text-center font-medium mb-4"></p>
+      <div id="confirmDetails" class="text-sm text-gray-600 bg-gray-50 rounded-lg p-3 mb-4"></div>
+    </div>
+    <div class="flex gap-3 justify-center px-6 py-4 bg-gray-50 border-t">
+      <button onclick="closeConfirmModal(false)" class="px-6 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition font-medium">
+        Cancel
+      </button>
+      <button onclick="closeConfirmModal(true)" class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium">
+        Confirm
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const auth = window.authService;
+  const API_BASE = '/monthend';
+  const token = localStorage.getItem('token');
+  let processingStartTime = null;
+  let confirmCallback = null;
+  let yearEndStatus = null;
+
+  // API Helper
+  async function apiRequest(url, options = {}) {
+      try {
+          const response = await auth.fetchWithAuth(url, {
+              ...options,
+              headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${token}`,
+                  ...options.headers
+              }
+          });
+
+          const data = await response.json();
+          if (!response.ok) throw new Error(data.error || data.message || `HTTP ${response.status}`);
+          return data;
+      } catch (error) {
+          throw error;
+      }
+  }
+
+  // Helper function to get month name
+  function getMonthName(month) {
+    const months = ['', 'January', 'February', 'March', 'April', 'May', 'June',
+                    'July', 'August', 'September', 'October', 'November', 'December'];
+    return months[parseInt(month)] || `Month ${month}`;
+  }
+
+  // Load Year-End Status
+  async function loadYearEndStatus() {
+    try {
+        console.log('🔍 Loading year-end status...');
+        const result = await apiRequest(`${API_BASE}/yearend-status`);
+
+        if (result.success) {
+            yearEndStatus = result;
+            
+            document.getElementById('yearly-year').value = result.year;
+            
+            const banner = document.getElementById('statusBanner');
+            const statusText = document.getElementById('statusText');
+            const statusIcon = document.getElementById('statusIcon');
+            const processButton = document.getElementById('processButton');
+            const blockMessage = document.getElementById('blockMessage');
+            const blockReason = document.getElementById('blockReason');
+            
+            banner.classList.remove('hidden');
+            
+            if (result.canProcessYearEnd) {
+                // Format previous month display
+                let prevMonthDisplay = '';
+                if (result.prevMonth === 0) {
+                    prevMonthDisplay = `December ${result.year - 1}`;
+                } else {
+                    prevMonthDisplay = `${getMonthName(result.prevMonth)} ${result.year}`;
+                }
+                
+                const currentMonthDisplay = `${getMonthName(result.month)} ${result.year}`;
+                
+                banner.className = 'mb-4 p-4 rounded-lg border bg-green-100 text-green-700 border-green-200';
+                statusIcon.innerHTML = '<svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>';
+                statusText.innerHTML = `Ready to process year-end for ${result.year}<br><span class="text-xs text-green-600">Current: ${currentMonthDisplay} | Previous: ${prevMonthDisplay}</span>`;
+                processButton.disabled = false;
+                blockMessage.classList.add('hidden');
+                console.log('✅ Year-end processing is allowed');
+            } else {
+                // Format previous month display for blocked state
+                let prevMonthDisplay = '';
+                if (result.prevMonth === 0) {
+                    prevMonthDisplay = `December ${result.year - 1}`;
+                } else {
+                    prevMonthDisplay = `${getMonthName(result.prevMonth)} ${result.year}`;
+                }
+                
+                const currentMonthDisplay = `${getMonthName(result.month)} ${result.year}`;
+                
+                banner.className = 'mb-4 p-4 rounded-lg border bg-orange-100 text-orange-700 border-orange-200';
+                statusIcon.innerHTML = '<svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>';
+                statusText.innerHTML = `Current Period: ${currentMonthDisplay}<br><span class="text-xs text-orange-600">Previous Period: ${prevMonthDisplay}</span>`;
+                processButton.disabled = true;
+                //blockMessage.classList.remove('hidden');
+                blockReason.textContent = result.blockReason;
+                console.log('🚫 Year-end processing is blocked:', result.blockReason);
+            }
+
+            console.log('✅ Year-end status loaded:', result);
+        }
+    } catch (error) {
+        console.error('❌ Error loading year-end status:', error);
+        alert('Failed to load year-end status: ' + error.message);
+    }
+  }
+
+  function showConfirm(message, details = null) {
+      return new Promise((resolve) => {
+          document.getElementById('confirmMessage').textContent = message;
+          const detailsEl = document.getElementById('confirmDetails');
+          if (details) {
+              detailsEl.innerHTML = details;
+              detailsEl.classList.remove('hidden');
+          } else {
+              detailsEl.innerHTML = '';
+              detailsEl.classList.add('hidden');
+          }
+          confirmCallback = resolve;
+          document.getElementById('confirmModal').classList.remove('hidden');
+      });
+  }
+
+  window.closeConfirmModal = function(confirmed) {
+      document.getElementById('confirmModal').classList.add('hidden');
+      if (confirmCallback) {
+          confirmCallback(confirmed);
+          confirmCallback = null;
+      }
+  }
+
+  // Year-End Form Submit
+  document.getElementById('yearendForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      if (!yearEndStatus || !yearEndStatus.canProcessYearEnd) {
+          alert('Year-end processing is not allowed at this time.');
+          return;
+      }
+
+      const year = document.getElementById('yearly-year').value;
+
+      const confirmDetails = `
+          <div class="text-left space-y-2">
+              <p><strong>Year:</strong> ${year}</p>
+              <p><strong>Current Period:</strong> Month ${yearEndStatus.month}, Previous Period ${yearEndStatus.prevMonth}</p>
+              <p class="text-yellow-700 mt-3">⚠️ This will:</p>
+              <ul class="list-disc list-inside text-sm space-y-1 ml-2">
+                  <!--<li>Reset all employee emolument forms to "No"</li>-->
+                  <li>Complete the annual cycle</li>
+              </ul>
+              <p class="text-red-600 font-medium mt-3">⛔ This action cannot be undone!</p>
+          </div>
+      `;
+
+      const confirmed = await showConfirm('Are you sure you want to process year-end?', confirmDetails);
+
+      if (!confirmed) {
+          return;
+      }
+
+      showProcessingModal();
+      processingStartTime = Date.now();
+
+      try {
+          addProcessingStep('Validating year-end requirements...', 'processing');
+          updateOverallProgress(10);
+          await new Promise(resolve => setTimeout(resolve, 500));
+          updateProcessingStep(0, 'success', 'Period validation passed');
+
+          addProcessingStep('Resetting employee emolument forms...', 'processing');
+          updateOverallProgress(30);
+
+          const result = await apiRequest(`${API_BASE}/process-yearend`, {
+              method: 'POST',
+              body: JSON.stringify({ year: parseInt(year) })
+          });
+
+          updateOverallProgress(70);
+          updateProcessingStep(1, 'success', `${result.data.employeesUpdated} employees updated`);
+
+          addProcessingStep('Finalizing year-end processing...', 'processing');
+          await new Promise(resolve => setTimeout(resolve, 300));
+          updateOverallProgress(100);
+          updateProcessingStep(2, 'success', 'Year-end completed successfully');
+
+          showProcessingSummary({
+              year: result.data.year,
+              employees: result.data.employeesUpdated,
+              processedBy: result.data.processedBy
+          });
+
+          document.getElementById('processingSubtitle').textContent = '✅ Year-end processing completed!';
+          document.getElementById('processingSubtitle').classList.add('text-green-200');
+          document.getElementById('closeProcessing').classList.remove('hidden');
+
+      } catch (error) {
+          console.error('Year-end error:', error);
+          addProcessingStep('Processing failed', 'error');
+          if (document.getElementById('processingSteps').children.length > 1) {
+              updateProcessingStep(1, 'error', error.message);
+          }
+          document.getElementById('processingSubtitle').textContent = '❌ Processing failed';
+          document.getElementById('processingSubtitle').classList.add('text-red-200');
+          document.getElementById('closeProcessing').classList.remove('hidden');
+          document.getElementById('closeProcessing').classList.remove('bg-green-600', 'hover:bg-green-700');
+          document.getElementById('closeProcessing').classList.add('bg-red-600', 'hover:bg-red-700');
+      }
+  });
+
+  // Processing Modal Functions
+  function showProcessingModal() {
+      document.getElementById('processingModal').classList.remove('hidden');
+      document.getElementById('processingSteps').innerHTML = '';
+      document.getElementById('overallProgressBar').style.width = '0%';
+      document.getElementById('overallProgress').textContent = '0%';
+      document.getElementById('processingSummary').classList.add('hidden');
+      document.getElementById('closeProcessing').classList.add('hidden');
+      document.getElementById('processingSubtitle').textContent = 'Please wait while we process annual data...';
+      document.getElementById('processingSubtitle').classList.remove('text-green-200', 'text-red-200');
+  }
+
+  function addProcessingStep(title, status = 'pending') {
+      const step = document.createElement('div');
+      step.className = 'flex items-start gap-3 p-3 rounded-lg border transition-all';
+      
+      const icons = {
+          pending: '<div class="w-6 h-6 border-2 border-gray-300 rounded-full"></div>',
+          processing: `
+          <div class="relative w-10 h-10 mx-auto mb-4">
+            <div class="absolute left-1 w-[6px] bg-blue-600 rounded animate-grow-up"></div>
+            <div class="absolute right-1 w-[6px] bg-blue-600 rounded animate-grow-down [animation-delay:0.3s]"></div>
+            <div class="absolute top-1/2 left-1 h-[6px] bg-blue-600 rounded animate-expand [animation-delay:0.6s] -translate-y-1/2"></div>
+          </div>
+          `,
+          success: '<div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center"><svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div>',
+          error: '<div class="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center"><svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></div>'
+      };
+      
+      const colors = {
+          pending: 'border-gray-200 bg-white',
+          processing: 'border-green-200 bg-green-50',
+          success: 'border-green-200 bg-green-50',
+          error: 'border-red-200 bg-red-50'
+      };
+      
+      step.className += ` ${colors[status]}`;
+      step.innerHTML = `
+          <div class="flex-shrink-0 mt-0.5">${icons[status]}</div>
+          <div class="flex-1">
+              <p class="font-medium text-gray-800">${title}</p>
+              <p class="text-sm text-gray-500 mt-1 step-detail hidden"></p>
+          </div>
+      `;
+      
+      document.getElementById('processingSteps').appendChild(step);
+  }
+
+  function updateProcessingStep(stepIndex, status, detail = '') {
+      const steps = document.getElementById('processingSteps').children;
+      if (stepIndex >= steps.length) return;
+      
+      const step = steps[stepIndex];
+      
+      const icons = {
+          success: '<div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center"><svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div>',
+          error: '<div class="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center"><svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></div>'
+      };
+      
+      const colors = {
+          success: 'border-green-200 bg-green-50',
+          error: 'border-red-200 bg-red-50'
+      };
+      
+      step.className = `flex items-start gap-3 p-3 rounded-lg border transition-all ${colors[status]}`;
+      step.querySelector('.flex-shrink-0').innerHTML = icons[status];
+      
+      if (detail) {
+          const detailEl = step.querySelector('.step-detail');
+          detailEl.textContent = detail;
+          detailEl.classList.remove('hidden');
+      }
+  }
+
+  function updateOverallProgress(percent) {
+      document.getElementById('overallProgressBar').style.width = `${percent}%`;
+      document.getElementById('overallProgress').textContent = `${Math.round(percent)}%`;
+  }
+
+  function showProcessingSummary(data) {
+      document.getElementById('summaryYear').textContent = data.year;
+      document.getElementById('summaryEmployees').textContent = data.employees;
+      document.getElementById('summaryProcessedBy').textContent = data.processedBy;
+      
+      document.getElementById('processingSummary').classList.remove('hidden');
+  }
+
+  document.getElementById('closeProcessing').addEventListener('click', () => {
+      document.getElementById('processingModal').classList.add('hidden');
+      document.getElementById('closeProcessing').classList.remove('bg-red-600', 'hover:bg-red-700');
+      document.getElementById('closeProcessing').classList.add('bg-green-600', 'hover:bg-green-700');
+      loadYearEndStatus(); // Reload status after processing
+  });
+
+  // Initialize
+  if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', loadYearEndStatus);
+  } else {
+      loadYearEndStatus();
+  }
+</script>

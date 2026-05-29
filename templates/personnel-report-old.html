@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    @page { size: A4 landscape; margin: 0.5mm; background-color: #f8fbff; }
+    body { font-family: Helvetica, Arial, sans-serif; font-size: 8pt; }
+
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url('{{{logoDataUrl}}}');
+      background-size: auto 100%;
+      background-repeat: no-repeat;
+      background-position: center center;
+      opacity: 0.02;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .header-wrapper {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 8px;
+        border-bottom: 2px solid #1a1a1a;
+        padding-bottom: 5px;
+    }
+
+    .className {
+        flex-shrink: 0;
+        margin-right: 20px;
+        align-self: center;
+        font-size: 9pt;
+    }
+
+    .header {
+        flex-grow: 1;
+        text-align: center;
+    }
+    
+    .header h1 {
+        font-size: 13pt;
+        font-weight: bold;
+        margin-bottom: 2px;
+        letter-spacing: 1.5px;
+        color: #1e40af;
+        font-family: 'Libre Baskerville', Georgia, serif;
+    }
+    
+    .header h2 {
+        font-size: 10pt;
+        font-weight: normal;
+        margin-top: 2px;
+        color: #4a4a4a;
+        font-family: 'Libre Baskerville', Georgia, serif;
+    }
+
+    .header-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 10px 0;
+      font-size: 9pt;
+    }
+
+    .summary-box {
+      border-top: 1.5px solid #0070C0;
+      border-bottom: 1.5px solid #0070C0;
+      padding: 8px 0;
+      margin-bottom: 15px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+    }
+
+    .summary-item {
+      text-align: center;
+      padding: 0 15px;
+      background: none;
+      border: none;
+      border-right: 1px solid #ddd;
+      flex-grow: 1;
+    }
+
+    .summary-item:last-child {
+      border-right: none;
+    }
+
+    .summary-item .label {
+      font-size: 8px;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 2px;
+    }
+
+    .summary-item .value {
+      font-size: 12px;
+      font-weight: bold;
+      color: #1F4E78;
+    }
+
+    .summary-item.highlight .value {
+      color: #006100;
+      font-size: 13px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+      font-size: 7.5px;
+    }
+
+    th {
+      color: #1e40af;
+      padding: 8px 4px;
+      text-align: left;
+      font-weight: bold;
+      font-size: 7.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      border-bottom: 1px solid #0056A0;
+    }
+
+    td {
+      padding: 6px 4px;
+      border: none;
+      vertical-align: middle;
+    }
+
+    .text-right {
+      text-align: right;
+    }
+
+    .text-center {
+      text-align: center;
+    }
+
+    .footer {
+      padding-top: 10px;
+      border-top: 0.5px solid #1a1a1a;
+      text-align: center;
+      font-size: 8pt;
+      color: #64748b;
+      margin-top: 20px;
+    }
+
+    .highlight-age {
+      color: #DC2626;
+      font-weight: bold;
+    }
+
+    .highlight-service {
+      color: #006100;
+      font-weight: bold;
+    }
+
+    .highlight-exit {
+      color: #FF8C00;
+      font-weight: bold;
+    }
+
+    .page-break {
+      page-break-after: always;
+    }
+
+    @media print {
+      body {
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url('{{{logoDataUrl}}}');
+        background-size: auto 100%;
+        background-repeat: no-repeat;
+        background-position: center center;
+        opacity: 0.02;
+        z-index: -1;
+        pointer-events: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header-wrapper">
+      <div class="className">
+          {{className}}
+      </div>
+      <div class="header">
+          <h1>Nigerian Navy (Naval Headquarters)</h1>
+          <h2>CENTRAL PAY OFFICE, 23 POINT ROAD APAPA</h2>
+      </div>
+  </div>
+
+  <div class="header-info">
+    <div class="left">
+      <strong>LIST OF EXITED PERSONNEL</strong>
+    </div>
+    <div class="center">
+      <span>PRODUCED ON</span> 
+      <strong>{{formatDate reportDate}}</strong> 
+      <span>AT</span> 
+      <strong>{{formatTime reportDate}}</strong>
+    </div>
+    <div class="right">
+      <strong>{{statistics.total_employees}}</strong>
+      <span>PERSONNEL</span>
+    </div>
+  </div>
+
+  <!-- Filter Information -->
+  {{#if filters}}
+  <div style="margin-bottom: 10px; font-size: 8pt; color: #4a4a4a; font-style: italic;">
+    <strong></strong> {{filters}}
+  </div>
+  {{/if}}
+
+  <!-- Data Table -->
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 7%;">Svc No.</th>
+        <th style="width: 4%;">Rank</th>
+        <th>Full Name</th>
+        <th>Location</th>
+        <th style="width: 5%;">G/Level</th>
+        <th>Grade Type</th>
+        <th style="width: 8%;">PFA</th>
+        <th style="width: 8%;">RSA(PEN) Code</th>
+        <th style="width: 4%;" class="text-center">Age</th>
+        <th style="width: 5%;" class="text-center">Yrs Served</th>
+        <th style="width: 8%;">Date Of 1st Appointment</th>
+        <th style="width: 8%;">Date Left</th>
+        <th style="width: 6%;" class="text-center">Exit Reason</th>
+        <th style="width: 5%;" class="text-center">Yrs Since Exit</th>
+        <th style="width: 8%;">State</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each data}}
+        <tr>
+          <td>{{this.employee_id}}</td>
+          <td>{{this.title_code}}</td>
+          <td style="white-space: nowrap;"><strong>{{this.full_name}}</strong></td>
+          <td style="white-space: nowrap;">{{this.location}}</td>
+          <td class="text-center">{{this.gradelevel}}</td>
+          <td style="white-space: nowrap;">{{this.gradetype_code}}</td>
+          <td>{{this.pfa}}</td>
+          <td>{{this.nsitf_code}}</td>
+          <td class="text-center {{#if (gt this.age 55)}}highlight-age{{/if}}">
+            {{this.age}}yrs
+          </td>
+          <td class="text-center {{#if (gte this.years_of_service 30)}}highlight-service{{/if}}">
+            {{this.years_served_formatted}}
+          </td>
+          <td style="font-size: 7px;">{{this.date_employed_formatted}}</td>
+          <td style="font-size: 7px; white-space: nowrap;">{{this.date_left_formatted}}</td>
+          <td class="text-center">{{this.exittype}}</td>
+          <td class="text-center {{#if (lt this.years_since_exit 2)}}highlight-exit{{/if}}">
+            {{this.years_since_exit}}yrs
+          </td>
+          <td>{{this.state_of_origin}}</td>
+        </tr>
+      {{/each}}
+    </tbody>
+  </table>
+
+  <div class="footer">
+    <p>All rights reserved &#xA9; Hicad Systems Limited.</p>
+  </div>
+
+  <script>
+  const auth = window.authService;
+    // Helper functions for Handlebars
+    Handlebars.registerHelper('gt', function(a, b) {
+      return parseFloat(a) > parseFloat(b);
+    });
+
+    Handlebars.registerHelper('gte', function(a, b) {
+      return parseFloat(a) >= parseFloat(b);
+    });
+
+    Handlebars.registerHelper('lt', function(a, b) {
+      return parseFloat(a) < parseFloat(b);
+    });
+
+    Handlebars.registerHelper('eq', function(a, b) {
+      return a === b;
+    });
+
+    Handlebars.registerHelper('formatTime', function(date) {
+      return new Date(date).toLocaleTimeString('en-GB', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      });
+    });
+  </script>
+</body>
+</html>

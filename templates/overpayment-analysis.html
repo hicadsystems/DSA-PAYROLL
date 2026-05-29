@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    @page { size: A4; margin: 0.5mm; background-color: #fdf2f2; }
+    body { font-family: Helvetica, Arial, sans-serif; font-size: 9pt; }
+
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url('{{{logoDataUrl}}}');
+      background-size: auto 100%;    /* 80% of height */
+      background-repeat: no-repeat;
+      background-position: center center;
+      opacity: 0.02;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .header-wrapper {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 8px;
+        border-bottom: 2px solid #1a1a1a;
+        padding-bottom: 5px;
+    }
+
+    .className {
+        flex-shrink: 0;
+        margin-right: 20px;
+        align-self: center;
+        font-size: 9pt;
+    }
+
+    .header {
+        flex-grow: 1;
+        text-align: center;
+    }
+    
+    .header h1 {
+        font-size: 14pt;
+        font-weight: bold;
+        margin-bottom: 2px;
+        letter-spacing: 1.5px;
+        color: #DC143C;
+        font-family: 'Libre Baskerville', Georgia, serif;
+    }
+    
+    .header h2 {
+        font-size: 10pt;
+        font-weight: normal;
+        margin-top: 2px;
+        color: #4a4a4a;
+        font-family: 'Libre Baskerville', Georgia, serif;
+    }
+
+    .header-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 10px 0;
+      font-size: 9pt;
+    }
+
+    .alert-box {
+      background-color: #fee;
+      padding: 10px 12px;
+      margin-bottom: 15px;
+      font-size: 9pt;
+    }
+
+    .alert-box strong {
+      color: #DC143C;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+      font-size: 8px;
+    }
+
+    th {
+      color: #DC143C;
+      padding: 8px 4px;
+      border-bottom: #DC143C .5px solid;
+      text-align: left;
+      font-weight: bold;
+      font-size: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    td {
+      padding: 6px 4px;
+      border-bottom: 1px solid #fee;
+      vertical-align: middle;
+    }
+
+    tr:hover {
+      background-color: #fff9f9;
+    }
+
+    .text-right {
+      text-align: right;
+    }
+
+    .text-center {
+      text-align: center;
+    }
+
+    .currency {
+      font-family: 'Courier New', monospace;
+      text-align: right;
+      white-space: nowrap;
+      font-weight: 600;
+    }
+
+    .high-variance {
+      color: #DC143C;
+      font-weight: bold;
+      font-size: 9px;
+    }
+
+    .footer {
+      padding-top: 10px;
+      border-top: 0.5px solid #1a1a1a;
+      text-align: center;
+      font-size: 8pt;
+      color: #64748b;
+      margin-top: 20px;
+    }
+
+    @media print {
+      body {
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url('{{{logoDataUrl}}}');
+        background-size: auto 100%;    /* 80% of height */
+        background-repeat: no-repeat;
+        background-position: center center;
+        opacity: 0.02;
+        z-index: -1;
+        pointer-events: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header-wrapper">
+      <div class="className">
+          {{className}}
+      </div>
+      <div class="header">
+          <h1>Nigerian Navy (Naval Headquarters)</h1>
+          <h2>CENTRAL PAY OFFICE, 23 POINT ROAD APAPA</h2>
+      </div>
+  </div>
+
+  <div class="header-info">
+    <div class="left">
+      <strong>OVERPAYMENT ANALYSIS REPORT</strong>
+    </div>
+    <div class="center">
+      <span>PRODUCED ON</span> 
+      <strong>{{formatDate reportDate}}</strong> 
+      <span>AT</span> 
+      <strong>{{formatTime reportDate}}</strong>
+    </div>
+    <div class="right">
+      <span>PERIOD</span> 
+      <strong>{{period}}</strong>
+    </div>
+  </div>
+
+  <!--<div class="alert-box">
+    Threshold: {{threshold}}% | Pay Element: {{this.pay_element_description}} | Personnel Flagged: {{data.length}}
+  </div>-->
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 8%;">Svc No.</th>
+        <th style="width: 5%;">Title</th>
+        <th style="width: 20%;">Full Name</th>
+        <!-- <th style="width: 15%;">Pay Element</th> -->
+        <th style="width: 12%;" class="text-right">Previous Net</th>
+        <th style="width: 12%;" class="text-right">Current Net</th>
+        <th style="width: 13%;" class="text-right">Variance Amount</th>
+        <th style="width: 10%;" class="text-right">Variance %</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each data}}
+        <tr>
+          <td>{{this.employee_id}}</td>
+          <td>{{this.Title}} {{this.title}}</td>
+          <td style="white-space: nowrap;">{{this.full_name}}</td>
+          <!--<td style="white-space: nowrap;">{{this.pay_element_description}}</td>-->
+          <td class="currency">₦{{formatCurrency this.previous_net}}</td>
+          <td class="currency">₦{{formatCurrency this.current_net}}</td>
+          <td class="currency high-variance">₦{{formatCurrency this.variance_amount}}</td>
+          <td class="currency high-variance">{{this.variance_percentage}}%</td>
+        </tr>
+      {{/each}}
+    </tbody>
+  </table>
+
+  <div class="footer">
+    <p>All rights reserved &#xA9; Hicad Systems Limited.</p>
+  </div>
+</body>
+</html>

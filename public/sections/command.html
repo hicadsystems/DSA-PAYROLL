@@ -1,0 +1,649 @@
+<div class="p-6">
+  <!-- Section Command Header -->
+  <div class="flex flex-wrap justify-between mb-6">
+    <h3 class="text-xl font-semibold text-gray-800">Command Management</h3>
+    <div class="flex flex-wrap gap-2">
+      <input type="text" id="searchSection" placeholder="Name or UnitCode..." class="border rounded px-3 py-2">
+      <button id="addNewSectionBtn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">+ Add Command</button>
+      <button id="generateReportBtn" class="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700">
+        <i class="fas fa-file-alt mr-2"></i>Generate Report</button>
+    </div>
+  </div>
+
+  <!-- Hidden Section Command Form -->
+  <form id="sectionForm" class="hidden grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Naval Command*</label>
+      <input type="text" id="navalcmd" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-white" placeholder="Enter command">
+    </div>
+    <div class="">
+      <label class="block text-sm font-medium text-gray-700">Name</label>
+      <textarea id="name" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-white" placeholder="Enter name"></textarea>
+    </div>
+    <div class="col-span-1 md:col-span-2 flex justify-end gap-2">
+      <button type="button" id="saveSectionBtn" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Save</button>
+      <button type="button" id="cancelSectionBtn" class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500">Cancel</button>
+    </div>
+  </form>
+
+  <!-- Section Command Table -->
+  <div class="overflow-x-auto">
+    <table class="min-w-full border border-gray-200 rounded-lg text-sm">
+      <thead class="bg-blue-100 text-blue-900">
+        <tr>
+          <th class="border px-2 py-3 text-left">Command</th>
+          <th class="border px-2 py-3 text-left">Name</th>
+          <th class="border px-2 py-3 text-left">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="sectionTableBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Success Modal -->
+<div id="sectionSuccessModal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+  <div class="bg-white p-6 rounded-lg shadow-xl max-w-md w-full mx-4">
+    <h3 class="text-lg font-semibold text-green-600 mb-2">Success!</h3>
+    <p id="sectionSuccessMessage" class="mb-4 text-gray-700"></p>
+    <div class="flex justify-end">
+      <button id="closeSectionSuccess" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">OK</button>
+    </div>
+  </div>
+</div>
+
+<!-- Error Modal -->
+<div id="sectionErrorModal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+  <div class="bg-white p-6 rounded-lg shadow-xl max-w-md w-full mx-4">
+    <h3 class="text-lg font-semibold text-red-600 mb-2">Error</h3>
+    <p id="sectionErrorMessage" class="mb-4 text-gray-700"></p>
+    <div class="flex justify-end">
+      <button id="closeSectionError" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">OK</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Delete Modal -->
+<div id="sectionConfirmModal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+  <div class="bg-white p-6 rounded-lg shadow-xl max-w-md w-full mx-4">
+    <h3 class="text-lg font-semibold text-yellow-600 mb-2">Confirm Delete</h3>
+    <p id="confirmMessage" class="mb-4 text-gray-700">Are you sure you want to delete this section command?</p>
+    <div class="flex justify-end gap-2">
+      <button id="cancelSectionDelete" class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500">Cancel</button>
+      <button id="sectionConfirmAction" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const auth = window.authService;
+  let commandData = [];
+  let originalCommandData = null;
+  let editingSectionIndex = null;
+  let pendingSectionDelete = null;
+
+  function getAuthHeaders() {
+    const token = localStorage.getItem("token");
+    return {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`
+    };
+  }
+
+  const sectionForm = document.getElementById("sectionForm");
+  const addNewSectionBtn = document.getElementById("addNewSectionBtn");
+  const saveSectionBtn = document.getElementById("saveSectionBtn");
+  const cancelSectionBtn = document.getElementById("cancelSectionBtn");
+  const sectionTableBody = document.getElementById("sectionTableBody");
+  const searchSection = document.getElementById("searchSection");
+
+  // Show form
+  addNewSectionBtn.addEventListener("click", () => {
+    sectionForm.classList.remove("hidden");
+    editingSectionIndex = null;
+    document.getElementById("navalcmd").disabled = false;
+    resetSectionForm();
+  });
+
+  async function loadCommand () {
+    try{
+      const res = await auth.fetchWithAuth('/cmd/command', {
+      method : "GET",  
+      headers: getAuthHeaders() });
+
+      commandData = await res.json();
+
+      renderSectionTable(commandData);
+
+    } catch (err) {
+      showSectionError("Error loading sections:", err);
+    }
+  }
+
+  function renderSectionTable(data = commandData, isFiltered = false) {
+    const tbody = document.getElementById("sectionTableBody");
+    tbody.innerHTML = data.map((item, index) => {
+      // If filtered, use _originalIndex; otherwise, fall back to index
+      const realIndex = isFiltered ? item._originalIndex : index;
+
+      return `
+        <tr class="hover:bg-gray-50">
+          <td class="border px-2 py-3">${item.navalcmd}</td>
+          <td class="border px-2 py-3">${item.name}</td>
+          <td class="border px-2 py-3">
+            <button onclick="editSection(${realIndex})" class="text-green-600 hover:text-green-900 mr-2">Edit</button>
+            <button onclick="deleteSection(${realIndex})" class="text-red-600 hover:text-red-900">Delete</button>
+          </td>
+        </tr>
+      `;
+    }).join("");
+  }
+
+  // Save record
+  saveSectionBtn.addEventListener("click", async (e) => {
+    // Prevent multiple clicks during processing
+    if (saveSectionBtn.disabled) return;
+    
+    saveSectionBtn.disabled = true;
+    
+    try {
+      const item = {
+        navalcmd: document.getElementById('navalcmd').value.trim(),
+        name: document.getElementById('name').value.trim(),
+      };
+
+      const requiredFields = ['navalcmd', 'name'];
+      let missingFields = requiredFields.filter(field => !item[field]);
+
+      if (missingFields.length > 0) {
+        showSectionError(`Please fill in all required fields: ${missingFields.join(", ")}`);
+        return;
+      }
+
+      // Check for duplicates before saving
+      const navalcmdInput = document.getElementById("navalcmd");
+      const nameInput = document.getElementById("name");
+
+      // Get the current navalcmd for editing
+      const currentNavalcmd = editingSectionIndex !== null ? commandData[editingSectionIndex].navalcmd : null;
+
+      // Perform duplicate checks only for changed fields
+      await checkDuplicate(navalcmdInput, 'navalcmd', currentNavalcmd);
+      await checkDuplicate(nameInput, 'name', currentNavalcmd);
+
+      // Check if any validation errors exist
+      if (!navalcmdInput.checkValidity() || !nameInput.checkValidity()) {
+        showSectionError("Please fix the validation errors before saving.");
+        return;
+      }
+
+      if(editingSectionIndex !== null){
+        await auth.fetchWithAuth(`/cmd/${commandData[editingSectionIndex].navalcmd}`, {
+          method: "PUT",
+          headers: getAuthHeaders(),
+          body: JSON.stringify(item)        
+        });
+        showSectionSuccess("Command updated successfully!");
+      } else{
+        await auth.fetchWithAuth('/cmd/post-command', {
+          method: "POST",
+          headers: getAuthHeaders(),
+          body: JSON.stringify(item)        
+        });        
+        showSectionSuccess("Command created successfully!");
+      }
+
+      await loadCommand();
+      sectionForm.classList.add("hidden");
+      sectionForm.reset();
+      editingSectionIndex = null;
+      originalCommandData = null; // Clear original data
+
+    } catch (err){
+      showSectionError("Error saving command:", err);
+    } finally {
+      saveSectionBtn.disabled = false; // Re-enable button
+    }
+  });
+
+  //validation
+  async function checkDuplicate(input, field, excludeNavalcmd = null) {
+    const value = input.value.trim();
+    if (!value) {
+      input.setCustomValidity("");
+      input.reportValidity();
+      return;
+    }
+
+    // If editing, check if this field value has actually changed
+    if (originalCommandData && originalCommandData[field] === value) {
+      input.setCustomValidity(""); // Clear any existing validation message
+      input.reportValidity();
+      return; // Skip duplicate check if value hasn't changed
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+      
+      // Build URL with optional excludeNavalcmd parameter
+      let url = `/cmd/post-command/check/${field}/${encodeURIComponent(value)}`;
+      if (excludeNavalcmd) {
+        url += `?exclude=${excludeNavalcmd}`;
+      }
+      
+      const res = await auth.fetchWithAuth(url, {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+
+      const data = await res.json();
+      if (data.exists) {
+        input.setCustomValidity(`⚠️ This ${field} already exists.`);
+      } else {
+        input.setCustomValidity("");
+      }
+      input.reportValidity();
+    } catch (err) {
+      console.error(`Error checking ${field}:`, err);
+    }
+  }
+
+  // Updated blur event listeners to pass exclude parameter
+  document.getElementById("navalcmd")?.addEventListener("blur", function () {
+    const currentNavalcmd = editingSectionIndex !== null ? commandData[editingSectionIndex].navalcmd : null;
+    checkDuplicate(this, "navalcmd", currentNavalcmd);
+  });
+
+  document.getElementById("name")?.addEventListener("blur", function () {
+    const currentNavalcmd = editingSectionIndex !== null ? commandData[editingSectionIndex].navalcmd : null;
+    checkDuplicate(this, "name", currentNavalcmd);
+  });
+
+
+  cancelSectionBtn.addEventListener("click", () => {
+    sectionForm.classList.add("hidden");
+    resetSectionForm();
+    editingSectionIndex = null;
+  });
+
+  function resetSectionForm() {
+    sectionForm.querySelectorAll("input, textarea").forEach(el => el.value = "");
+  }
+
+
+  window.editSection = function(index) {
+    const item = commandData[index];
+    
+    // Store original values for comparison
+    originalCommandData = {
+      navalcmd: item.navalcmd,
+      name: item.name
+    };
+    
+    // Populate form fields
+    document.getElementById("navalcmd").value = item.navalcmd;
+    document.getElementById("name").value = item.name;
+    
+    // Clear any existing validation messages
+    document.getElementById("navalcmd").setCustomValidity("");
+    document.getElementById("name").setCustomValidity("");
+    
+    editingSectionIndex = index;
+    document.getElementById("navalcmd").disabled = true;
+    sectionForm.classList.remove("hidden");
+  };
+  
+  window.deleteSection = function(index) {
+    pendingSectionDelete = index;
+     showConfirmModal("Are you sure you want to delete this command?");
+  }
+
+  document.getElementById("sectionConfirmAction").addEventListener("click", async () => {
+    if (pendingSectionDelete !== null) {
+      try {
+        await auth.fetchWithAuth(`/cmd/${commandData[pendingSectionDelete].navalcmd}`, {
+          method: "DELETE",
+          headers: getAuthHeaders()        
+        });
+        showSectionSuccess("Command deleted successfully!");
+        await loadCommand();
+      } catch (err) {
+        showSectionError("Error deleting command:", err);
+      }
+      pendingSectionDelete = null;
+    }
+    closeModal("sectionConfirmModal");
+  });
+
+  document.getElementById("cancelSectionDelete").addEventListener("click", () => {
+    closeModal("sectionConfirmModal");
+    pendingSectionDelete = null;
+  });
+
+  function showModal(modalId) {
+    document.getElementById(modalId).classList.remove("hidden");
+  }
+  function closeModal(modalId) {
+    document.getElementById(modalId).classList.add("hidden");
+  }
+  function showConfirmModal(message) {
+    document.getElementById("confirmMessage").textContent = message;
+    showModal("sectionConfirmModal");
+  }
+  function showSectionSuccess(msg) {
+    document.getElementById("sectionSuccessMessage").textContent = msg;
+    showModal("sectionSuccessModal");
+  }
+  function showSectionError(msg) {
+    document.getElementById("sectionErrorMessage").textContent = msg;
+    showModal("sectionErrorModal");
+  }
+
+  // close modal buttons
+  document.getElementById("closeSectionSuccess").addEventListener("click", () => closeModal("sectionSuccessModal"));
+  document.getElementById("closeSectionError").addEventListener("click", () => closeModal("sectionErrorModal"));
+
+  // search
+  searchSection.addEventListener("input", () => {
+    const query = searchSection.value.toLowerCase();
+    
+    const filtered = commandData
+      .map((item, index) => ({ ...item, _originalIndex: index })) // attach original index
+      .filter(item =>
+        item.name.toLowerCase().includes(query) || item.navalcmd.toLowerCase().includes(query)
+      );
+
+    renderSectionTable(filtered, true); // pass flag to tell table we're using filtered data
+  });
+
+  // Force uppercase as user types 
+  ["navalcmd", "name"].forEach(id => {
+    const el = document.getElementById(id);
+    el.addEventListener("input", () => {
+      el.value = el.value.toUpperCase();
+    });
+  });
+
+  //generate reports
+  function generateReport() {
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('en-GB', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+    const timeStr = now.toLocaleTimeString('en-GB', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+    
+    const generatedBy = localStorage.getItem('full_name') || 'System User';
+    
+    // Create a new window for printing
+    const printWindow = window.open('', '_blank');
+    
+    // Generate HTML content with enhanced styling
+    const printContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>Commands Report</title>
+        <style>
+          @page { 
+            size: A4 portrait; 
+            margin: 0.5mm; 
+            background-color: #f8fbff; 
+          }
+          
+          body { 
+            font-family: Helvetica, Arial, sans-serif; 
+            font-size: 12pt;
+            margin: 40px;
+            position: relative;
+          }
+
+          /* Faint logo overlay */
+          body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('photos/logo.png');
+            background-size: auto 100%;
+            background-repeat: no-repeat;
+            background-position: center center;
+            opacity: 0.02;
+            z-index: -1;
+            pointer-events: none;
+          }
+
+          .header-wrapper {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 8px;
+            border-bottom: 2px solid #1a1a1a;
+            padding-bottom: 5px;
+          }
+
+          .header {
+            flex-grow: 1;
+            text-align: center;
+          }
+          
+          .header h1 {
+            font-size: 13pt;
+            font-weight: bold;
+            margin-bottom: 2px;
+            letter-spacing: 1.5px;
+            color: #1e40af;
+            font-family: 'Libre Baskerville', Georgia, serif;
+          }
+          
+          .header h2 {
+            font-size: 10pt;
+            font-weight: normal;
+            margin-top: 2px;
+            color: #4a4a4a;
+            font-family: 'Libre Baskerville', Georgia, serif;
+          }
+
+          .header-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 10px 0;
+            font-size: 9pt;
+          }
+
+          .summary-box {
+            border-top: 1.5px solid #0070C0;
+            border-bottom: 1.5px solid #0070C0;
+            padding: 8px 0;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+          }
+
+          .summary-item {
+            text-align: center;
+            padding: 0 15px;
+            background: none;
+            border: none;
+            border-right: 1px solid #ddd;
+            flex-grow: 1;
+          }
+
+          .summary-item:last-child {
+            border-right: none;
+          }
+
+          .summary-item .label {
+            font-size: 8px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 2px;
+          }
+
+          .summary-item .value {
+            font-size: 12px;
+            font-weight: bold;
+            color: #1F4E78;
+          }
+
+          table.print-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            font-size: 9pt;
+          }
+
+          .print-table th {
+            color: #1e40af;
+            padding: 12px 8px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 9pt;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            border-bottom: 1px solid #0056A0;
+            background-color: transparent;
+          }
+
+          .print-table td {
+            padding: 10px 8px;
+            border: none;
+            vertical-align: middle;
+            border-bottom: 0.5px solid #e5e7eb;
+          }
+
+          .text-center {
+            text-align: center;
+          }
+
+          .print-footer {
+            padding-top: 10px;
+            border-top: 0.5px solid #1a1a1a;
+            text-align: center;
+            font-size: 8pt;
+            color: #64748b;
+            margin-top: 20px;
+          }
+
+          .print-footer p {
+            margin: 3px 0;
+          }
+
+          @media print {
+            body {
+              print-color-adjust: exact;
+              -webkit-print-color-adjust: exact;
+            }
+            
+            body::before {
+              position: fixed;
+              display: block;
+              content: "";
+              width: 100%;
+              height: 100%;
+              top: 0;
+              left: 0;
+              background-image: url('photos/logo.png');
+              background-size: auto 100%;
+              background-repeat: no-repeat;
+              background-position: center center;
+              opacity: 0.02;
+              z-index: -1;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="header-wrapper">
+          <div class="header">
+            <h1>Nigerian Navy (Naval Headquarters)</h1>
+            <h2>CENTRAL PAY OFFICE, 23 POINT ROAD APAPA</h2>
+          </div>
+        </div>
+
+        <div class="header-info">
+          <div class="left">
+            <strong>COMMANDS REPORT</strong>
+          </div>
+          <div class="center">
+            <span>PRODUCED ON</span> 
+            <strong>${dateStr}</strong> 
+            <span>AT</span> 
+            <strong>${timeStr}</strong>
+          </div>
+          <div class="right">
+            <strong>${commandData.length}</strong>
+            <span>COMMANDS</span>
+          </div>
+        </div>
+
+        <!-- Statistics Summary Box 
+        <div class="summary-box">
+          <div class="summary-item">
+            <div class="label">Total Commands</div>
+            <div class="value">${commandData.length}</div>
+          </div>
+          <div class="summary-item">
+            <div class="label">Report Type</div>
+            <div class="value">FULL LISTING</div>
+          </div>
+          <div class="summary-item">
+            <div class="label">Generated By</div>
+            <div class="value">${generatedBy}</div>
+          </div>
+        </div>-->
+        
+        <table class="print-table">
+          <thead>
+            <tr>
+              <th style="width: 10%;" class="text-center">No.</th>
+              <th style="width: 30%;">Command Code</th>
+              <th style="width: 60%;">Command Name</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${commandData.map((item, index) => `
+              <tr>
+                <td class="text-center"><strong>${index + 1}</strong></td>
+                <td><strong>${item.navalcmd}</strong></td>
+                <td>${item.name}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+        
+        <div class="print-footer">
+          <p><strong>Total Records: ${commandData.length}</strong></p>
+          <p>Generated by: ${generatedBy}</p>
+          <p>All rights reserved &#xA9; Hicad Systems Limited.</p>
+        </div>
+      </body>
+      </html>
+    `;
+    
+    // Write content to new window
+    printWindow.document.write(printContent);
+    printWindow.document.close();
+    
+    // Wait for content to load then print
+    printWindow.onload = function() {
+      printWindow.print();
+    };
+  }
+
+  // Add event listener to generate report button
+  document.getElementById('generateReportBtn').addEventListener('click', generateReport);
+
+  // init
+  renderSectionTable();
+  loadCommand();
+</script>

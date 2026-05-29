@@ -1,0 +1,3501 @@
+<style>
+  @keyframes grow-up {
+    0% { height: 0; bottom: 0; }
+    100% { height: 100%; bottom: 0; }
+  }
+  @keyframes grow-down {
+    0% { height: 0; top: 0; }
+    100% { height: 100%; top: 0; }
+  }
+  @keyframes expand {
+    0% { width: 0; left: 50%; transform: translate(-50%, -50%); }
+    100% { width: 100%; left: 0; transform: translateY(-50%); }
+  }
+  .animate-grow-up {
+    animation: grow-up 0.6s ease-in-out infinite alternate;
+    position: absolute;
+    bottom: 0;
+  }
+  .animate-grow-down {
+    animation: grow-down 0.6s ease-in-out infinite alternate;
+    position: absolute;
+    top: 0;
+  }
+  .animate-expand {
+    animation: expand 0.6s ease-in-out infinite alternate;
+  }
+</style>
+
+
+<div>
+  <!-- TABS -->
+  <div class="p-6">
+    <div class="flex flex-wrap justify-between bg-white/50 rounded-xl border border-amber-50 shadow-sm p-2 gap-2">
+      <div class="flex flex-wrap justify-start gap-2">
+        <button type="button" id="tab-batch" class="px-4 py-2 rounded-md bg-yellow-400 text-grey hover:bg-blue-600">
+          Batch Upload
+        </button>
+      </div>
+      <div class="flex flex-wrap justify-end gap-2">
+        <button id="tab-personnel" class="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-600">Personnel</button>
+        <button id="tab-nok" class="px-4 py-2 rounded-md bg-yellow-400 text-gray-900 hover:bg-blue-600">NOK</button>
+        <button id="tab-spouse" class="px-4 py-2 rounded-md bg-yellow-400 text-gray-900 hover:bg-blue-600">Spouse</button>
+        <button id="tab-children" class="px-4 py-2 rounded-md bg-yellow-400 text-gray-900 hover:bg-blue-600">Children</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BATCH UPLOAD SECTION -->
+  <div id="section-batch" class="px-6 py-4 flex justify-center">
+    <div class="w-full max-w-lg rounded-2xl">
+      <h3 class="text-2xl font-bold text-blue-800 mb-4">Batch Upload</h3>
+
+      <!-- Notes -->
+      <div class="mb-6">
+        <h4 class="font-semibold text-blue-700 mb-2">Please Note:</h4>
+        <ul class="list-disc list-inside text-gray-700 text-sm space-y-1">
+          <li>Ensure your file is properly formatted before uploading.</li>
+          <li>If you encounter any issues, please contact support.</li>
+          <li>Duplicate Service Number will not be uploaded.</li>
+        </ul>
+      </div>
+      
+      <form id="batchUploadForm" class="space-y-6">
+        <!-- File Upload -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Upload File</label>
+          <input type="file" id="batchFile" 
+                class="mt-1 block w-full border border-blue-500 bg-white rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500" />
+          <p class="text-xs text-gray-500 mt-2">
+            Only .xlsx or .csv files allowed. 
+            <button type="button" id="downloadSampleBtn" class="text-blue-600 hover:underline ml-2 bg-none border-none cursor-pointer">
+              Download Sample Template
+            </button>
+          </p>
+        </div>
+
+        <!-- Buttons -->
+        <div class="flex justify-end space-x-4">
+          <button type="button" id="cancelBatchBtn"
+            class="px-6 py-2 bg-gray-400 hover:bg-gray-500 rounded-lg text-white">Cancel</button>
+          <button type="button" id="uploadBatchBtn"
+            class="px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white">Upload</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- PERSONNEL SECTION -->
+  <div id="section-personnel" class="px-6 mb-4">
+    <!-- Title -->
+    <h3 id="formTitle" class="hidden text-2xl font-bold text-blue-800 mb-4"></h3>
+
+    <!-- Step Buttons + Current Personnel -->
+    <div class="flex flex-wrap items-center gap-2 justify-between mb-4">
+      <div class=" flex flex-wrap gap-2 items-center">
+        <button id="btnStep1" class="relative px-4 text-sm lg:text-lg py-2 rounded-md bg-blue-600 hover:bg-blue-600 text-white transition-all overflow-hidden group">
+          <span class="relative z-10">Step 1: Basic Details</span>
+        </button>
+        <button id="btnStep2" class="relative px-4 text-sm lg:text-lg py-2 rounded-md bg-yellow-400 text-gray-900 hover:bg-blue-600 transition-all overflow-hidden group">
+          <span class="relative z-10">Step 2: Official Info</span>
+        </button>
+        <button id="btnStep3" class="relative px-4 text-sm lg:text-lg py-2 rounded-md bg-yellow-400 text-gray-900 hover:bg-blue-600 transition-all overflow-hidden group">
+          <span class="relative z-10">Step 3: Additional Info</span>
+        </button>
+      </div>
+
+      <button onclick="window.navigation?.navigateToSection ? window.navigation.navigateToSection('current-personnel','Current Personnel') : showAlert('Hook your navigation here.')" id="currentPersonnelBtn"
+        class="px-4 text-sm lg:text-lg py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
+        Current Personnel
+      </button>
+    </div>
+
+    <!-- Form -->
+    <form id="personnelForm" class="space-y-6">
+      <!-- Step 1 (dynamic, with labels) -->
+      <div id="step1" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+
+      <!-- Step 2 (static, with labels) -->
+      <div id="step2" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Date Joined</label>
+          <input type="date" name="DateEmpl" id="DateEmpl" class="w-full border border-blue-500 bg-transparent rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Date Commissioned</label>
+          <input type="date" name="dateconfirmed" id="dateconfirmed" class="w-full border border-blue-500 bg-transparent rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Entry Mode</label>
+          <select name="entry_mode" id="entry_mode" placeholder="Entry Mode" class="w-full border border-blue-500 bg-transparent rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500">
+            <option value=""></option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Date Left</label>
+          <input type="date" name="DateLeft" id="DateLeft" class="w-full border border-blue-500 bg-transparent rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Exit Mode</label>
+          <select id="exittype" name="exittype" class="w-full border border-blue-500 bg-transparent rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500">
+            <option>Select Exit Mode</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Taxed ?</label>
+          <select name="taxed" id="taxed" class="w-full border border-blue-500 bg-transparent rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500">
+            <option>Select</option>
+            <option value="Yes">YES</option>
+            <option value="No">NO</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">TaxID No(TIN)</label>
+          <input type="text" name="TaxCode" id="TaxCode" placeholder="TaxID N0" class="w-full border border-blue-500 bg-transparent rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Tax State</label>
+          <select id="state" name="state" class="w-full border border-blue-500 bg-transparent rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500">
+            <option>Select Tax State</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">RSA(Pension) Code</label>
+          <input type="text" name="NSITFcode" id="NSITFcode" placeholder="RSA(Pension) Code" class="w-full border border-blue-500 bg-transparent rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Pension Fund Administrator</label>
+          <select id="pfa" name="pfacode" class="w-full border border-blue-500 bg-transparent rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500">
+            <option>Select Administrator</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Salary Group</label>
+          <select id="salarygroup" name="gradetype" class="w-full border border-blue-500 bg-transparent rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500">
+            <option>Select Salary Group</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Salary Grade</label>
+          <input type="text" id="salarygrade" name="gradelevel" maxlength="4" class="w-full border border-blue-500 bg-transparent rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"/>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Bank Code</label>
+          <select id="bankcode" name="Bankcode" class="w-full border border-blue-500 bg-transparent rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500">
+            <option>Select Bank Code</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Bank Branch</label>
+          <select id="bankbranch" name="bankbranch" class="w-full border border-blue-500 bg-transparent rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500">
+            <option>Select Bank Branch</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Account Number</label>
+          <input type="text" name="BankACNumber" id="BankACNumber" placeholder="Account Number" maxlength="10" class="w-full border border-blue-500 bg-transparent rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"/>
+        </div>
+      </div>
+
+      <!-- Step 3 (static, with labels) -->
+      <div id="step3" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Seniority Date</label>
+          <input type="date" name="datepmted" id="datepmted" class="w-full border border-blue-500 bg-transparent rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Ship/Establishment</label>
+          <select name="Location" id="step3-ship" class="w-full border border-blue-500 bg-transparent rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500">
+            <option>select</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Branch</label>
+          <select id="branch" name="Factory" class="w-full border border-blue-500 bg-transparent rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500">
+            <option>Select Branch</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Command</label>
+          <select id="command" name="command" class="w-full border border-blue-500 bg-transparent rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500">
+            <option>Select Command</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Specialisation</label>
+          <select id="specialisation" name="specialisation" class="w-full border border-blue-500 bg-transparent rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500">
+            <option>Select Specialisation</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Present Appointment</label>
+          <input type="text" name="Jobtitle" id="Jobtitle" placeholder="Present Appointment" class="w-full border border-blue-500 bg-transparent rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Award/Decoration</label>
+          <input type="text" name="award" id="award" placeholder="Award/Decoration" class="w-full border border-blue-500 bg-transparent rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Emolument Form Received?</label>
+          <select name="emolumentform" id="emolumentform" class="w-full border border-blue-500 bg-transparent rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500">
+            <option>Select</option>
+            <option value="Yes">YES</option>
+            <option value="No">NO</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">NHF Code</label>
+          <input type="text" name="NHFcode" id="NHFcode" placeholder="NHF Code" class="w-full border border-blue-500 bg-transparent rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500" />
+        </div>
+        <!--<div>
+          <label class="block text-sm font-medium text-gray-700">Payroll Process Category</label>
+          <select id="payrollProcess" name="payrollclass" class="w-full border border-blue-500 bg-transparent rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500">
+            <option>Select Payroll Process</option>
+          </select>
+        </div>-->
+        <div>
+          <label class="block text-sm font-medium text-gray-700">IPPIS NO</label>
+          <input type="text" name="InternalACNo" id="InternalACNo" placeholder="IPPIS NO" class="w-full border border-blue-500 bg-transparent rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Country</label>
+          <select id="country" name="Country" class="w-full border border-blue-500 bg-transparent rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500">
+            <option>Select Country</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Accommodation Type</label>
+          <input name="accomm_type" id="accomm_type" placeholder="Accommodation Type" class="w-full border border-blue-500 bg-transparent rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Rent Subsidy</label>
+          <select name="rent_subsidy" id="rent_subsidy" class="w-full border border-blue-500 bg-transparent rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500">
+            <option>Select</option>
+            <option value="Yes">YES</option>
+            <option value="No">NO</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="col-span-full flex justify-end space-x-4 pt-4">
+        <button type="button" id="cancelBtn" class="px-6 py-2 bg-gray-400 hover:bg-gray-500 rounded-lg text-white">Cancel</button>
+        <button type="button" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white">Submit</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- NOK SECTION -->
+  <div id="section-nok" class="hidden p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-2xl font-bold text-blue-800">Next of Kin</h3>
+      <button id="nokToggleBtn" class="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700">+ Add</button>
+    </div>
+
+    <!-- Form -->
+    <div id="nokFormWrap" class="hidden">
+      <form id="nokForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700">First Name <span class="text-red-500">*</span></label>
+          <input id="nokFirst" required type="text" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent focus:outline-none focus:ring-2 focus:ring-yellow-500" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Last Name <span class="text-red-500">*</span></label>
+          <input id="nokLast" required type="text" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent focus:outline-none focus:ring-2 focus:ring-yellow-500" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Date of Birth</label>
+          <input id="nokDob" type="date" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent focus:outline-none focus:ring-2 focus:ring-yellow-500" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Full Address <span class="text-red-500">*</span></label>
+          <input id="nokAddress" required type="text" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent focus:outline-none focus:ring-2 focus:ring-yellow-500" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Relationship <span class="text-red-500">*</span></label>
+          <select id="nokRelationship" required class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent focus:outline-none focus:ring-2 focus:ring-yellow-500">
+            <option value="">Select</option>
+
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Mobile Number <span class="text-red-500">*</span></label>
+          <input id="nokMobile" required type="tel" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent focus:outline-none focus:ring-2 focus:ring-yellow-500" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Home Number</label>
+          <input id="nokHome" type="tel" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent focus:outline-none focus:ring-2 focus:ring-yellow-500" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Email Address <span class="text-red-500">*</span></label>
+          <input id="nokEmail" required type="email" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent focus:outline-none focus:ring-2 focus:ring-yellow-500" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Place Of Work</label>
+          <input id="nokWork" type="text" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent focus:outline-none focus:ring-2 focus:ring-yellow-500" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Next Of Kin Type</label>
+          <select id="nokType" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent focus:outline-none focus:ring-2 focus:ring-yellow-500">
+            <option>Main</option><option>Alternate</option>
+          </select>
+        </div>
+      </form>
+      <div class="flex justify-end gap-3 mb-6">
+        <button id="nokCancel" class="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400">Cancel</button>
+        <button id="nokSave" class="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700">Save</button>
+      </div>
+    </div>
+
+    <!-- List -->
+    <div class="overflow-x-auto">
+      <table class="min-w-full border border-gray-200 rounded-lg text-sm">
+        <thead class="bg-blue-100 text-blue-900">
+          <tr>
+            <th class="py-2 px-3 border">Name</th>
+            <th class="py-2 px-3 border">Relationship</th>
+            <th class="py-2 px-3 border">Mobile</th>
+            <th class="py-2 px-3 border">Email</th>
+            <th class="py-2 px-3 border">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="nokList" class="text-center">
+          <tr id="nokEmpty"><td colspan="4" class="py-4 text-gray-500">No NOKs yet.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SPOUSE SECTION -->
+  <div id="section-spouse" class="hidden p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-2xl font-bold text-blue-800">Spouse</h3>
+      <button id="spouseToggleBtn" class="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700">+ Add</button>
+    </div>
+
+    <div id="spouseFormWrap" class="hidden">
+      <form id="spouseForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Full Name <span class="text-red-500">*</span></label>
+          <input id="spouseName" required type="text" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent focus:ring-2 focus:ring-yellow-500 focus:outline-none" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Date Of Birth</label>
+          <input id="spouseDob" type="date" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent focus:ring-2 focus:ring-yellow-500 focus:outline-none" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Date of Married</label>
+          <input id="spouseDom" type="date" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent focus:ring-2 focus:ring-yellow-500 focus:outline-none" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Street</label>
+          <input id="spouseStreet" type="text" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent focus:ring-2 focus:ring-yellow-500 focus:outline-none" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Town</label>
+          <input id="spouseTown" type="text" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent focus:ring-2 focus:ring-yellow-500 focus:outline-none" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">State</label>
+          <select id="spouseState" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent focus:ring-2 focus:ring-yellow-500 focus:outline-none">
+            <option value="">Select State</option>
+            <!--options would be populated dynamically-->
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Local Government</label>
+          <select id="spouseLga" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent focus:ring-2 focus:ring-yellow-500 focus:outline-none">
+            <option value="">Select LGA</option>
+            <!--options would be populated dynamically-->
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Phone</label>
+          <input id="spousePhone" type="tel" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent focus:ring-2 focus:ring-yellow-500 focus:outline-none" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Email</label>
+          <input id="spouseEmail" type="email" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent focus:ring-2 focus:ring-yellow-500 focus:outline-none" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">P.O Box</label>
+          <input id="spousePoBox" type="text" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent focus:ring-2 focus:ring-yellow-500 focus:outline-none" />
+        </div>
+      </form>
+      <div class="flex justify-end gap-3 mb-6">
+        <button id="spouseCancel" class="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400">Cancel</button>
+        <button id="spouseSave" class="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700">Save</button>
+      </div>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="min-w-full border border-gray-200 rounded-lg text-sm">
+        <thead class="bg-blue-100 text-blue-900">
+          <tr>
+            <th class="py-2 px-3 border">Full Name</th>
+            <th class="py-2 px-3 border">Phone</th>
+            <th class="py-2 px-3 border">Email</th>
+            <th class="py-2 px-3 border">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="spouseList" class="text-center">
+          <tr id="spouseEmpty"><td colspan="3" class="py-4 text-gray-500">No spouse records yet.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- CHILDREN SECTION -->
+  <div id="section-children" class="hidden p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-2xl font-bold text-blue-800">Children</h3>
+      <button id="childToggleBtn" class="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700">+ Add</button>
+    </div>
+
+    <div id="childFormWrap" class="hidden">
+      <form id="childForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Full Name <span class="text-red-500">*</span></label>
+          <input id="childName" required type="text" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent focus:ring-2 focus:ring-yellow-500 focus:outline-none" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Street</label>
+          <input id="childStreet" type="text" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent focus:ring-2 focus:ring-yellow-500 focus:outline-none" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Town</label>
+          <input id="childTown" type="text" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent focus:ring-2 focus:ring-yellow-500 focus:outline-none" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">State</label>
+          <select id="childState" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent focus:ring-2 focus:ring-yellow-500 focus:outline-none">
+            <option value="">Select State</option>
+            <!--options would be populated dynamically-->
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Local Government</label>
+          <select id="childLga" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent focus:ring-2 focus:ring-yellow-500 focus:outline-none">
+            <option value="">Select LGA</option>
+            <!--options would be populated dynamically-->
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Phone</label>
+          <input id="childPhone" type="tel" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent focus:ring-2 focus:ring-yellow-500 focus:outline-none" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Email</label>
+          <input id="childEmail" type="email" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent focus:ring-2 focus:ring-yellow-500 focus:outline-none" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">P.O Box</label>
+          <input id="childPoBox" type="text" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent focus:ring-2 focus:ring-yellow-500 focus:outline-none" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Sex</label>
+          <select id="childSex" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent focus:ring-2 focus:ring-yellow-500 focus:outline-none">
+            <option value="">Select</option><option>Male</option><option>Female</option><option>Other</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Date of Birth</label>
+          <input id="childDob" type="date" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent focus:ring-2 focus:ring-yellow-500 focus:outline-none" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">School</label>
+          <input id="childSchool" type="text" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent focus:ring-2 focus:ring-yellow-500 focus:outline-none" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Office Address</label>
+          <input id="childOffice" type="text" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent focus:ring-2 focus:ring-yellow-500 focus:outline-none" />
+        </div>
+        <div >
+          <label class="block text-sm font-medium text-gray-700">Occupation</label>
+          <input id="childOccupation" type="text" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent focus:ring-2 focus:ring-yellow-500 focus:outline-none" />
+        </div>
+      </form>
+      <div class="flex justify-end gap-3 mb-6">
+        <button id="childCancel" class="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400">Cancel</button>
+        <button id="childSave" class="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700">Save</button>
+      </div>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="min-w-full border border-gray-200 rounded-lg text-sm">
+        <thead class="bg-blue-100 text-blue-900">
+          <tr>
+            <th class="py-2 px-3 border">Full Name</th>
+            <th class="py-2 px-3 border">Sex</th>
+            <th class="py-2 px-3 border">DOB</th>
+            <th class="py-2 px-3 border">Phone</th>
+            <th class="py-2 px-3 border">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="childList" class="text-center">
+          <tr id="childEmpty"><td colspan="4" class="py-4 text-gray-500">No children yet.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- SUCCESS POPUP -->
+<div id="uploadSuccessPopup" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
+  <div class="bg-white rounded-2xl shadow-lg p-6 w-96 text-center">
+    <h4 class="text-xl font-semibold text-green-600 mb-2">Upload Successful!</h4>
+    <p class="text-gray-600 mb-4">Your batch file has been uploaded successfully.</p>
+    <button id="closePopupBtn" 
+      class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg">Close</button>
+  </div>
+</div>
+
+<!-- Action Popup -->
+<div id="actionPopup" class="fixed inset-0 bg-black/50 flex items-center justify-center hidden z-50">
+  <div class="bg-white p-6 rounded-2xl shadow-xl text-center w-64">
+    <div id="popupIcon" class="relative w-10 h-10 mx-auto mb-4">
+      <div class="absolute left-1 w-[6px] bg-blue-600 rounded animate-grow-up"></div>
+      <div class="absolute right-1 w-[6px] bg-blue-600 rounded animate-grow-down [animation-delay:0.3s]"></div>
+      <div
+        class="absolute top-1/2 left-1 h-[6px] bg-blue-600 rounded animate-expand [animation-delay:0.6s] -translate-y-1/2">
+      </div>
+    </div>
+
+    <p id="popupText" class="mt-4 text-lg font-semibold text-gray-700">Processing...</p>
+  </div>
+</div>
+
+<!-- Alert Modal -->
+<div id="alertModal" 
+     class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
+  <div class="bg-white rounded-lg shadow-xl max-w-sm w-full p-6 text-center">
+    <h3 id="alertTitle" class="text-lg font-semibold text-gray-800 mb-2">Alert!</h3>
+    <p id="alertMessage" class="text-gray-600 mb-4"></p>
+    <button id="alertOkBtn" 
+      class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+      OK
+    </button>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="fixed inset-0 bg-black/50 flex items-center justify-center hidden z-50">
+  <div class="bg-white rounded-2xl shadow-xl w-96 p-6">
+    <h3 class="text-xl font-semibold text-red-600 mb-4">Confirm Delete</h3>
+    <p class="text-gray-700 mb-6">Are you sure you want to delete this record?</p>
+    <div class="flex justify-end gap-3">
+      <button id="deleteCancelBtn" class="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400">Cancel</button>
+      <button id="deleteConfirmBtn" class="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- Cancel Edit Modal -->
+<div id="cancelEditModal" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm hidden flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+    
+    <h2 class="text-lg font-semibold text-gray-800 mb-4">Cancel Editing</h2>
+    
+    <p class="text-gray-600 mb-6">
+      Are you sure you want to cancel editing? Any unsaved changes will be lost.
+    </p>
+
+    <div class="flex justify-end space-x-4">
+      <button id="cancelEditNo"
+        class="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400">
+        No
+      </button>
+
+      <button id="cancelEditYes"
+        class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
+        Yes, Cancel
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const auth = window.authService;
+// Complete Personnel Management Script
+const API_BASE = '/personnel';
+const API_BATCH = '/batchpersonnel';
+const API_HEADERS = {
+  'Content-Type': 'application/json',
+  'Authorization': `Bearer ${localStorage.getItem('token')}`
+};
+
+// Database Field Mapping - ALL STEPS
+const DB_FIELD_MAP = {
+  // Step 1
+  'Service Number': 'Empl_ID',
+  'Rank': 'Title',
+  'Surname': 'Surname',
+  'OtherName': 'OtherName',
+  'Date of Birth': 'Birthdate',
+  'State Of Origin': 'StateofOrigin',
+  'Local Government': 'LocalGovt',
+  'Town': 'town',
+  'Residential Address': 'HOMEADDR',
+  'Email Address': 'email',
+  'GSM Number': 'gsm_number',
+  'Sex': 'Sex',
+  'Marital Status': 'MaritalStatus',
+  'Religion': 'religion',
+  'Passport Photograph': 'passport',
+
+  // Step 2
+  'DateEmpl': 'DateEmpl',
+  'dateconfirmed': 'dateconfirmed',
+  'entry_mode': 'entry_mode',
+  'DateLeft': 'DateLeft',
+  'exittype': 'exittype',
+  'taxed': 'taxed',
+  'TaxCode': 'TaxCode',
+  'state': 'state',
+  'NSITFcode': 'NSITFcode',
+  'pfacode': 'pfacode',
+  'payrollclass': 'payrollclass',
+  'gradelevel': 'gradelevel',
+  'gradetype': 'gradetype',
+  'bankbranch': 'bankbranch',
+  'BankACNumber': 'BankACNumber',
+
+  // Step 3
+  'datepmted': 'datepmted',
+  'Location': 'Location',
+  'Factory': 'Factory',
+  'command': 'command',
+  'specialisation': 'specialisation',
+  'Jobtitle': 'Jobtitle',
+  'award': 'award',
+  'emolumentform': 'emolumentform',
+  'NHFcode': 'NHFcode',
+  'Bankcode': 'Bankcode',
+  'InternalACNo': 'InternalACNo',
+  'Country': 'Country',
+  'accomm_type': 'accomm_type',
+  'rent_subsidy': 'rent_subsidy'
+};
+
+// Dropdown Configuration
+const dropdownConfig = {
+  "Sex": { endpoint: "sex", value: "sex_code", text: "sex_desc" },
+  "Marital Status": { endpoint: "marital", value: "MaritalCode", text: "MaritalStatus" },
+  "State Of Origin": { endpoint: "state", value: "Statecode", text: "Statename" },
+  "Local Government": { endpoint: "lga", value: "Lgcode", text: "Lgname" },
+  "Rank": { endpoint: "title", value: "Description", text: "Description" },
+  "Religion": { endpoint: "religion", value: "ReligionCode", text: "ReligionName" }
+};
+
+async function loadDropdown(endpoint, elementId, valueField, textField, placeholder) {
+  try {
+    const token = localStorage.getItem('token');
+    const response = await auth.fetchWithAuth(`/reference/${endpoint}`, {   
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}` 
+      }
+    });
+    const data = await response.json();
+    const dropdown = document.getElementById(elementId);
+    if (!dropdown) return;
+    dropdown.innerHTML = `<option value="">${placeholder}</option>`;
+    data.forEach(item => {
+      const option = document.createElement("option");
+      option.value = item[valueField];
+      option.textContent = item[textField];
+      dropdown.appendChild(option);
+    });
+    return data;
+  } catch (err) {
+    console.error(`Failed to load ${endpoint}:`, err);
+    return [];
+  }
+}
+
+async function initializeDropdowns() {
+  const promises = Object.keys(dropdownConfig).map(field => {
+    const cfg = dropdownConfig[field];
+    const elementId = `field-${field.replace(/\s+/g, '-').toLowerCase()}`;
+    return loadDropdown(cfg.endpoint, elementId, cfg.value, cfg.text, `Select ${field}`);
+  });
+  await Promise.all(promises);
+
+  const rankDropdown = document.getElementById('field-rank');
+  if (rankDropdown) {
+    rankDropdown.addEventListener('change', async function(e) {
+      const titleCode = e.target.value;
+      if (!titleCode) return;
+      
+      try {
+        const token = localStorage.getItem('token');
+        const response = await auth.fetchWithAuth(`/reference/title`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          }
+        });
+        const data = await response.json();
+        
+        // Find the selected title's description
+        const selectedTitle = data.find(item => item.Titlecode === titleCode);
+        if (selectedTitle) {
+          // Set the TitleDesc field (assuming you have a hidden or visible field for it)
+          const titleDescField = document.querySelector('[name="Title"]');
+          if (titleDescField) {
+            titleDescField.setAttribute('data-titledesc', selectedTitle.Description);
+            console.log('TitleDesc set to:', selectedTitle.Description);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to get title description:', err);
+      }
+    });
+  }
+}
+
+function handleSpouseTabVisibility() {
+  const maritalStatusDropdown = document.getElementById('field-marital-status');
+  const spouseTab = document.getElementById('tab-spouse');
+
+  if (!maritalStatusDropdown || !spouseTab) return;
+
+  const updateSpouseTab = () => {
+    const selectedText = maritalStatusDropdown.options[maritalStatusDropdown.selectedIndex]?.text?.trim().toLowerCase();
+
+    // Show tab only if Married OR placeholder
+    if (!selectedText || selectedText === 'married') {
+      spouseTab.style.display = 'inline-flex';
+    } else {
+      spouseTab.style.display = 'none';
+    }
+  };
+
+  // Run once on page load
+  updateSpouseTab();
+
+  // Watch for dropdown changes
+  maritalStatusDropdown.addEventListener('change', updateSpouseTab);
+}
+
+async function loadAllDropdowns() {
+  const promises = [
+    loadDropdown("bankbranch", "bankbranch", "branchcode", "branchname", "Select Bank Branch"),
+    loadDropdown("bankcode", "bankcode", "bankcode", "bankname", "Select Bank Code"),
+    loadDropdown("state", "state", "Statecode", "Statename", "Select State"),
+    loadDropdown("country", "country", "countrycode", "Countryname", "Select Country"),
+    loadDropdown("command", "command", "navalcmd", "name", "Select Command"),
+    loadDropdown("pfa", "pfa", "pfacode", "pfadesc", "Select PFA"),
+    loadDropdown("salarygroup", "salarygroup", "groupcode", "grpdesc", "Select Salary Group"),
+    //loadDropdown("salarygrade", "salarygrade", "grade_no", "grade_desc", "Select Salary Grade"),
+    loadDropdown("exittype", "exittype", "Name", "Description", "Select Exit Type"),
+    loadDropdown("specialisation", "specialisation", "sp_desc", "sp_desc", "Select Specialisation"),
+    loadDropdown("branch", "branch", "busline", "busdesc", "Select Branch"),
+    loadDropdown("location", "step3-ship", "unitcode", "unitdesc", "Select location"),
+    loadDropdown("payrollclass", "payrollProcess", "classcode", "classname", "Select Payroll Process"),
+    loadDropdown("entrymode", "entry_mode", "entrymode", "entryname", "Select entrymode"),
+
+    //spouse and child state/lga dropdowns would be populated dynamically based on selection
+    loadDropdown("state", "spouseState", "Statecode", "Statename", "Select State"),
+    loadDropdown("state", "childState", "Statecode", "Statename", "Select State"),
+    loadDropdown("lga", "spouseLga", "Lgcode", "Lgname", "Select State First"),
+    loadDropdown("lga", "childLga", "Lgcode", "Lgname", "Select State First"),
+
+    //Nok relationship
+    loadDropdown("relationship", "nokRelationship", "RShipcode", "Relationship", "Select Relationship")
+  ];
+  await Promise.all(promises);
+}
+
+//cascade state/lga
+function setupStateLGACascade(stateFieldId, lgaFieldId) {
+  const stateDropdown = document.getElementById(stateFieldId);
+  const lgaDropdown = document.getElementById(lgaFieldId);
+  
+  if (!stateDropdown || !lgaDropdown) {
+    console.error(`Dropdowns not found: state=${stateFieldId}, lga=${lgaFieldId}`);
+    return;
+  }
+  
+  // Initially disable LGA dropdown
+  lgaDropdown.disabled = true;
+  lgaDropdown.innerHTML = '<option value="">Select State First</option>';
+  
+  stateDropdown.addEventListener('change', async function(e) {
+    const stateCode = e.target.value;
+    
+    if (!stateCode) {
+      lgaDropdown.disabled = true;
+      lgaDropdown.innerHTML = '<option value="">Select State First</option>';
+      lgaDropdown.value = '';
+      return;
+    }
+    
+    lgaDropdown.disabled = false;
+    lgaDropdown.innerHTML = '<option value="">Loading LGAs...</option>';
+    
+    try {
+      const token = localStorage.getItem('token');
+      const res = await auth.fetchWithAuth(`/reference/lga/${stateCode}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (!res.ok) throw new Error('Failed to load LGAs');
+      
+      const lgas = await res.json();
+      lgaDropdown.innerHTML = '<option value="">Select LGA</option>';
+      
+      lgas.forEach(lga => {
+        const option = document.createElement('option');
+        option.value = lga.Lgcode;
+        option.textContent = lga.Lgname;
+        lgaDropdown.appendChild(option);
+      });
+    } catch (err) {
+      console.error('Error loading LGAs:', err);
+      lgaDropdown.innerHTML = '<option value="">Error loading LGAs</option>';
+      lgaDropdown.disabled = true;
+    }
+  });
+}
+
+// Format date from ddmmyyyy to yyyy-mm-dd (for displaying in date inputs)
+function formatDateForDisplay(yyyymmddDate) {
+  if (!yyyymmddDate || yyyymmddDate.length !== 8) {
+    return '';
+  }
+  
+  const year = yyyymmddDate.substring(0, 4);
+  const month = yyyymmddDate.substring(4, 6);
+  const day = yyyymmddDate.substring(6, 8);
+  
+  return `${year}-${month}-${day}`;
+}
+
+// Format date from ddmmyyyy to readable format (e.g., "15 Mar 2024")
+function formatDateReadable(yyyymmddDate) {
+  if (!yyyymmddDate || yyyymmddDate.length !== 8) {
+    return '';
+  }
+  
+  const year = yyyymmddDate.substring(0, 4);
+  const month = yyyymmddDate.substring(4, 6);
+  const day = yyyymmddDate.substring(6, 8);
+  
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  
+  return `${day} ${monthNames[parseInt(month) - 1]} ${year}`;
+}
+
+// Format ISO datetime (2010-10-02T00:00:00.000Z) to yyyy-mm-dd (for date inputs)
+function formatISODateForDisplay(isoDate) {
+  if (!isoDate) {
+    return '';
+  }
+  
+  try {
+    const date = new Date(isoDate);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    
+    return `${year}-${month}-${day}`;
+  } catch (error) {
+    console.error('Invalid ISO date:', isoDate);
+    return '';
+  }
+}
+
+// Format ISO datetime (2010-10-02T00:00:00.000Z) to readable format (e.g., "02 Oct 2010")
+function formatISODateReadable(isoDate) {
+  if (!isoDate) {
+    return '';
+  }
+  
+  try {
+    const date = new Date(isoDate);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = date.getMonth();
+    const year = date.getFullYear();
+    
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    
+    return `${day} ${monthNames[month]} ${year}`;
+  } catch (error) {
+    console.error('Invalid ISO date:', isoDate);
+    return '';
+  }
+}
+
+// Format ISO datetime with time (2010-10-02T00:00:00.000Z) to readable format with time
+function formatISODateTimeReadable(isoDate) {
+  if (!isoDate) {
+    return '';
+  }
+  
+  try {
+    const date = new Date(isoDate);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = date.getMonth();
+    const year = date.getFullYear();
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    
+    return `${day} ${monthNames[month]} ${year} ${hours}:${minutes}`;
+  } catch (error) {
+    console.error('Invalid ISO date:', isoDate);
+    return '';
+  }
+}
+
+function showAlert(message, title = "Alert!") {
+  const modal = document.getElementById("alertModal");
+  const msg = document.getElementById("alertMessage");
+  const ttl = document.getElementById("alertTitle");
+  const okBtn = document.getElementById("alertOkBtn");
+
+  ttl.textContent = title;
+  msg.textContent = message;
+
+  modal.classList.remove("hidden");
+
+  okBtn.onclick = () => {
+    modal.classList.add("hidden");
+  };
+}
+
+// Global state
+let formMode = 'create';
+let editingEmployeeData = null;
+let pendingFamilyData = { nok: [], spouse: [], children: [] };
+let nokCounter = 0;
+let spouseCounter = 0;
+let childCounter = 0;
+const editState = { type: null, id: null, row: null };
+const EDIT_KEY = 'editing_employee_id';
+let currentEmployeeId = localStorage.getItem(EDIT_KEY);
+let originalData = [];
+//console.log('Initial currentEmployeeId:', currentEmployeeId);
+
+
+// Navigation guard to warn about unsaved changes
+function setupNavigationGuard() {
+  // Navigation guard is now handled in setupSubmenuNavigation
+}
+
+// Modify window load event handler
+(async function checkAndLoadEditMode() {
+  const editingId = localStorage.getItem(EDIT_KEY);
+  
+  if (editingId && editingId !== 'null' && editingId !== 'undefined') {
+    try {
+      // Wait a tiny bit for DOM to be ready
+      await new Promise(resolve => setTimeout(resolve, 100));
+      await loadEmployeeDataForEdit(editingId);
+      
+      // Setup navigation guard after loading edit data
+      setupNavigationGuard();
+    } catch (error) {
+      console.error('Failed to load employee data:', error);
+      localStorage.removeItem(EDIT_KEY);
+      localStorage.removeItem('isEditMode');
+    }
+  } else {
+    // Setup navigation guard even when not in edit mode
+    setupNavigationGuard();
+  }
+})();
+
+// Helper functions
+function val(id) { 
+  return (document.getElementById(id)?.value || '').trim(); 
+}
+
+function escapeHtml(s) { 
+  return String(s).replace(/[&<>"']/g, m => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
+  }[m])); 
+}
+
+function toggleBlock(el, btn) {
+  const isHidden = el.classList.contains('hidden');
+  el.classList.toggle('hidden');
+  btn.textContent = isHidden ? '−' : '+ Add';
+}
+
+function showPopup(message, callback) {
+  const popup = document.getElementById('actionPopup');
+  const icon = document.getElementById('popupIcon');
+  const text = document.getElementById('popupText');
+
+  // Reset icon to spinner state
+  icon.className = "relative w-10 h-10 mx-auto mb-4";
+  icon.innerHTML = `
+    <div class="absolute left-1 w-[6px] bg-blue-600 rounded animate-grow-up"></div>
+    <div class="absolute right-1 w-[6px] bg-blue-600 rounded animate-grow-down [animation-delay:0.3s]"></div>
+    <div class="absolute top-1/2 left-1 h-[6px] bg-blue-600 rounded animate-expand [animation-delay:0.6s] -translate-y-1/2"></div>
+  `;
+  text.textContent = 'Processing...';
+  popup.classList.remove('hidden');
+
+  setTimeout(() => {
+    icon.className = "mx-auto h-12 w-12 flex items-center justify-center rounded-full bg-green-500 text-white";
+    icon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+                      </svg>`;
+    text.textContent = message + "!";
+    setTimeout(() => {
+      popup.classList.add('hidden');
+      if (callback) callback();
+    }, 1000);
+  }, 1500);
+}
+
+function showError(message) {
+  showAlert(`Error: ${message}`);
+}
+
+// API Helper
+async function apiRequest(url, options = {}) {
+  try {
+    const response = await auth.fetchWithAuth(url, {
+      ...options,
+      headers: { ...API_HEADERS, ...options.headers }
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.error || `HTTP ${response.status}`);
+    }
+    return data;
+  } catch (error) {
+    console.error('API Request failed:', error);
+    showError(error.message);
+    throw error;
+  }
+}
+
+function validatePersonnelForm() {
+  const requiredFields = [
+    { id: 'field-service-number', label: 'Service Number' },
+    { id: 'field-surname', label: 'Surname' },
+    { id: 'field-othername', label: 'Other Name' }
+  ];
+  
+  const missingFields = [];
+  
+  requiredFields.forEach(({ id, label }) => {
+    const element = document.getElementById(id);
+    if (element && !element.value.trim()) {
+      missingFields.push(label);
+    }
+  });
+  
+  if (missingFields.length > 0) {
+    showAlert(`Please fill in the following required fields:\n${missingFields.join('\n')}`);
+    return false;
+  }
+  
+  return true;
+}
+
+async function submitPersonnelFormWithValidation() {
+  if (!validatePersonnelForm()) return;
+  await submitPersonnelForm();
+}
+
+function cancelPersonnelForm() {
+  // 1. Check if in edit mode and show confirmation
+  if (formMode === 'edit') {
+    const modal = document.getElementById('cancelEditModal');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+
+    const yesBtn = document.getElementById('cancelEditYes');
+    const noBtn = document.getElementById('cancelEditNo');
+
+    const closeModal = () => {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    };
+
+    noBtn.onclick = closeModal;
+
+    yesBtn.onclick = () => {
+      closeModal();
+
+      // Enable Service Number field
+      document.getElementById("field-service-number").disabled = false;
+
+      // Clear editing state
+      localStorage.removeItem('editing_employee_id');
+
+      setCreateMode();
+
+      // run the rest of the cancel logic
+      completeCancelPersonnelForm();
+    };
+  }
+  return;
+}
+
+function completeCancelPersonnelForm() {
+  try {
+
+    // 2. Reset all form data
+    document.getElementById("personnelForm")?.reset();
+
+    // 3. Clear all family data
+    pendingFamilyData = { nok: [], spouse: [], children: [] };
+    clearAllFamilyTables();
+
+    // 4. Reset form UI
+    toggleStep(1);
+    handleSpouseTabVisibility();
+    Promise.all([
+      initializeDropdowns(),
+      loadAllDropdowns(),
+      setupStateLGACascade('spouseState', 'spouseLga'),
+      setupStateLGACascade('childState', 'childLga')
+    ]).then(() => {
+      setupStateLGACascade('field-state-of-origin', 'field-local-government', 'Local Government');
+    });
+    
+    
+    // 5. Reset form title
+    const formTitle = document.getElementById('formTitle');
+    if (formTitle) {
+      formTitle.textContent = 'Add New Personnel';
+      formTitle.classList.add('hidden');
+    }
+
+    // 6. Reset any file inputs and avatar previews
+    const passportInput = document.querySelector('input[name="Passport Photograph"]');
+    if (passportInput) {
+      passportInput.value = '';
+      passportInput.style.display = '';
+      const avatarContainer = document.querySelector('.passport-avatar-container');
+      if (avatarContainer) {
+        avatarContainer.remove();
+      }
+    }
+
+    // 7. Reset edit state
+    editState.type = null;
+    editState.row = null;
+    editState.id = null;
+
+    // 8. restore batch upload/current personnel button if it was disabled
+    if (localStorage.getItem('isEditMode') === 'true') {
+      const batchButton = document.getElementById('tab-batch');
+      const currentPersonnelButton = document.getElementById('currentPersonnelBtn');
+      localStorage.removeItem('isEditMode');
+    }
+
+    // 9. Navigate back if came from current personnel
+    const navigatedFromCurrent = localStorage.getItem('navigatedFromCurrentPersonnel') === 'true';
+    const navigatedFromOld = localStorage.getItem('navigatedFromOldPersonnel') === 'true';
+    if (navigatedFromOld) {
+      if (window.navigation?.navigateToSection) {
+        window.navigation.navigateToSection('old-personnel', 'Old Personnel');
+      }
+    } else if (navigatedFromCurrent) {
+      if (window.navigation?.navigateToSection) {
+        window.navigation.navigateToSection('current-personnel', 'Current Personnel');
+      }
+    }
+
+  } catch (error) {
+    console.error('Error in cancelPersonnelForm:', error);
+    showError('Failed to cancel form properly');
+  }
+}
+
+function clearAllFamilyTables() {
+  const tables = [
+    { listId: 'nokList', emptyId: 'nokEmpty', colspan: '5', message: 'No NOKs yet.' },
+    { listId: 'spouseList', emptyId: 'spouseEmpty', colspan: '4', message: 'No spouse records yet.' },
+    { listId: 'childList', emptyId: 'childEmpty', colspan: '5', message: 'No children yet.' }
+  ];
+  
+  tables.forEach(({ listId, emptyId, colspan, message }) => {
+    const list = document.getElementById(listId);
+    if (list) {
+      list.innerHTML = `<tr id="${emptyId}"><td colspan="${colspan}" class="py-4 text-gray-500">${message}</td></tr>`;
+    }
+  });
+}
+
+// Tab functionality
+const tabs = ['personnel', 'nok', 'spouse', 'children', 'batch'];
+
+function showTab(name) {
+  tabs.forEach(t => {
+    const tabBtn = document.getElementById('tab-' + t);
+    const section = document.getElementById('section-' + t);
+    
+    if (tabBtn && section) {
+      tabBtn.classList.remove('bg-blue-600', 'text-white');
+      tabBtn.classList.add('bg-yellow-400', 'text-gray-900');
+      section.classList.add('hidden');
+    }
+  });
+  
+  const activeTab = document.getElementById('tab-' + name);
+  const activeSection = document.getElementById('section-' + name);
+  
+  if (activeTab && activeSection) {
+    activeTab.classList.add('bg-blue-600', 'text-white');
+    activeTab.classList.remove('bg-yellow-400', 'text-gray-900');
+    activeSection.classList.remove('hidden');
+  }
+}
+
+document.getElementById('tab-personnel')?.addEventListener('click', () => showTab('personnel'));
+document.getElementById('tab-nok')?.addEventListener('click', () => showTab('nok'));
+document.getElementById('tab-spouse')?.addEventListener('click', () => showTab('spouse'));
+document.getElementById('tab-children')?.addEventListener('click', () => showTab('children'));
+document.getElementById('tab-batch')?.addEventListener('click', () => showTab('batch'));
+
+// Check if we're in edit mode from localStorage
+if (localStorage.getItem('isEditMode') === 'true') {
+  const batchButton = document.getElementById('tab-batch');
+  const currentPersonnelButton = document.getElementById('currentPersonnelBtn');
+
+  if (batchButton) {
+    batchButton.disabled = true;
+    batchButton.classList.add('opacity-50', 'cursor-none');
+    batchButton.classList.remove('hover:bg-blue-600', 'cursor-not-allowed');
+  }
+
+  if (currentPersonnelButton) {
+    currentPersonnelButton.disabled = true;
+    currentPersonnelButton.classList.add('opacity-50', 'cursor-none');
+    currentPersonnelButton.classList.remove('hover:bg-green-700', 'cursor-not-allowed');
+  }
+}
+
+showTab('personnel');
+
+// Personnel form
+const fieldsStep1 = [
+  "Service Number", "Rank", "Surname", "OtherName", "Date of Birth", "State Of Origin", "Local Government", "Town", "Residential Address", "Email Address", "GSM Number", "Sex", "Passport Photograph", "Religion", "Marital Status"
+];
+
+const step1Container = document.getElementById("step1");
+const step2Container = document.getElementById("step2");
+const step3Container = document.getElementById("step3");
+const btnStep1 = document.getElementById("btnStep1");
+const btnStep2 = document.getElementById("btnStep2");
+const btnStep3 = document.getElementById("btnStep3");
+const formTitleEl = document.getElementById("formTitle");
+const personnelCancelBtn = document.getElementById("cancelBtn");
+
+function controlWrap(label, control) {
+  return `<div><label class="block text-sm font-medium text-gray-700">${label}</label>${control}</div>`;
+}
+
+function renderStep1() {
+  if (!step1Container) return;
+  
+  step1Container.innerHTML = fieldsStep1.map(field => {
+    const fieldId = `field-${field.replace(/\s+/g, '-').toLowerCase()}`;
+    
+    if (["Rank", "Religion", "State Of Origin", "Local Government", "Sex", "Marital Status"].includes(field)) {
+      return controlWrap(field,
+        `<select id="${fieldId}" name="${field}" class="w-full border border-blue-500 bg-transparent rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500">
+           <option value="">Select ${field}</option>
+         </select>`);
+    }
+    if (field === "Passport Photograph") {
+      return controlWrap(field,
+        `<input id="${fieldId}" name="${field}" type="file" class="w-full border border-blue-500 bg-transparent rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"/>`);
+    }
+    if (field === "Date of Birth") {
+      return controlWrap(field,
+        `<input id="${fieldId}" name="${field}" type="date" class="w-full border border-blue-500 bg-transparent rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"/>`);
+    }
+    return controlWrap(field,
+      `<input id="${fieldId}" name="${field}" type="text" placeholder="${field}" class="w-full border border-blue-500 bg-transparent rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"/>`);
+  }).join("");
+}
+
+function toggleStep(step) {
+  const containers = [step1Container, step2Container, step3Container];
+  const buttons = [btnStep1, btnStep2, btnStep3];
+  
+  containers.forEach((container, i) => {
+    if (container) {
+      container.classList.toggle('hidden', i !== step - 1);
+    }
+  });
+  
+  buttons.forEach((button, i) => {
+    if (button) {
+      if (i === step - 1) {
+        button.classList.add("bg-blue-600", "text-white");
+        button.classList.remove("bg-yellow-400", "text-gray-900");
+      } else {
+        button.classList.add("bg-yellow-400", "text-gray-900");
+        button.classList.remove("bg-blue-600", "text-white");
+      }
+    }
+  });
+}
+
+// Initialize
+if (formTitleEl) formTitleEl.textContent = 'Add New Personnel';
+renderStep1();
+toggleStep(1);
+handleSpouseTabVisibility(),
+
+Promise.all([
+  initializeDropdowns(),
+  loadAllDropdowns(),
+  setupStateLGACascade('spouseState', 'spouseLga'),
+  setupStateLGACascade('childState', 'childLga')
+]).then(() => {
+  setupStateLGACascade('field-state-of-origin', 'field-local-government', 'Local Government');
+});
+
+
+btnStep1?.addEventListener("click", () => toggleStep(1));
+btnStep2?.addEventListener("click", () => toggleStep(2));
+btnStep3?.addEventListener("click", () => toggleStep(3));
+personnelCancelBtn?.addEventListener("click", cancelPersonnelForm);
+
+const submitBtn = document.querySelector('#personnelForm button[type="button"]:last-child');
+submitBtn?.addEventListener('click', submitPersonnelFormWithValidation);
+
+function actionBtns(type, id) {
+  // Add quotes around the id to handle string IDs like 'fallback-nok-1'
+  return `
+    <button onclick="viewFamilyRecord('${type}', '${id}')" class="px-2 text-blue-600 hover:underline">View</button>
+    <button onclick="editRow('${type}', '${id}')" class="px-2 text-green-600 hover:underline">Edit</button>
+    <button onclick="deleteRow(this, '${type}', '${id}')" class="px-2 text-red-600 hover:underline">Delete</button>
+  `;
+}
+
+// View Family Record Modal - FULL DATA
+window.viewFamilyRecord = async function(type, id) {
+  let data;
+  
+  if (formMode === 'create') {
+    // In create mode, get from pendingFamilyData (no API call needed)
+    if (type === 'NOK') data = pendingFamilyData.nok.find(n => n._tempId === id);
+    if (type === 'Spouse') data = pendingFamilyData.spouse.find(s => s._tempId === id);
+    if (type === 'Child') data = pendingFamilyData.children.find(c => c._tempId === id);
+  } else {
+    // In edit mode, search in pendingFamilyData (which now includes fallback)
+    if (type === 'NOK') data = pendingFamilyData.nok.find(n => (n._tempId && n._tempId == id) || (n.nok_id && n.nok_id == id));
+    if (type === 'Spouse') data = pendingFamilyData.spouse.find(s => (s._tempId && s._tempId == id) || (s.spouse_id && s.spouse_id == id));
+    if (type === 'Child') data = pendingFamilyData.children.find(c => (c._tempId && c._tempId == id) || (c.child_id && c.child_id == id));
+  }
+  
+  if (!data) {
+    showError('Record not found');
+    return;
+  }
+  
+  let content = '<div class="space-y-2 max-h-96 overflow-y-auto">';
+
+  Object.entries(data).forEach(([key, value]) => {
+    if (!key.startsWith('_') && !key.includes('id') && value) {
+      const displayKey = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+      let displayValue = String(value);
+
+      // Format dates (detects yyyy-mm-dd or ISO strings)
+      const datePattern = /^\d{4}-\d{2}-\d{2}(T.*)?$/;
+      if (datePattern.test(displayValue)) {
+        const date = new Date(displayValue);
+        if (!isNaN(date)) {
+          displayValue = date.toLocaleDateString('en-GB', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric'
+          });
+        }
+      }
+
+      // Append styled block
+      content += `
+        <div class="grid grid-cols-3 gap-2 py-2 border-b border-gray-200">
+          <dt class="font-medium text-gray-600">${displayKey}:</dt>
+          <dd class="col-span-2 text-gray-900">${escapeHtml(displayValue) || "N/A"}</dd>
+        </div>`;
+    }
+  });
+
+  content += '</div>';
+
+  const modal = document.createElement('div');
+  modal.className = 'fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50';
+  modal.innerHTML = `
+    <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-2xl mx-4 max-h-screen overflow-y-auto">
+      <h3 class="text-lg font-semibold text-blue-600">${type} Details</h3>
+      ${content}
+      <button onclick="this.closest('.fixed').remove()" 
+              class="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 w-full">
+        Close
+      </button>
+    </div>
+  `;
+  document.body.appendChild(modal);
+};
+
+// Delete functionality
+let deleteTargetRow = null;
+let deleteTargetType = null;
+let deleteTargetId = null;
+
+window.deleteRow = function(btn, type, id) {
+  deleteTargetRow = btn.closest('tr');
+  deleteTargetType = type;
+  deleteTargetId = id;
+  document.getElementById('deleteModal').classList.remove('hidden');
+};
+
+document.getElementById('deleteCancelBtn').onclick = () => {
+  deleteTargetRow = null;
+  deleteTargetType = null;
+  deleteTargetId = null;
+  document.getElementById('deleteModal').classList.add('hidden');
+};
+
+document.getElementById('deleteConfirmBtn').onclick = async () => {
+  if (!deleteTargetRow || !deleteTargetType || !deleteTargetId) {
+    document.getElementById('deleteModal').classList.add('hidden');
+    return;
+  }
+
+  try {
+    console.log('Delete clicked:', { type: deleteTargetType, id: deleteTargetId, formMode });
+    
+    // Check if this is a fallback record (string ID starting with 'fallback-')
+    const isFallbackRecord = String(deleteTargetId).startsWith('fallback-');
+    
+    if (formMode === 'create') {
+      // In create mode, just remove from pendingFamilyData
+      if (deleteTargetType === 'NOK') {
+        pendingFamilyData.nok = pendingFamilyData.nok.filter(n => n._tempId !== deleteTargetId);
+      } else if (deleteTargetType === 'Spouse') {
+        pendingFamilyData.spouse = pendingFamilyData.spouse.filter(s => s._tempId !== deleteTargetId);
+      } else if (deleteTargetType === 'Child') {
+        pendingFamilyData.children = pendingFamilyData.children.filter(c => c._tempId !== deleteTargetId);
+      }
+      
+      console.log('Removed from pendingFamilyData (create mode)');
+    } else if (isFallbackRecord) {
+      // In edit mode, if it's a fallback record, just remove from pendingFamilyData
+      // (Don't make API call because it doesn't exist in the database yet)
+      if (deleteTargetType === 'NOK') {
+        pendingFamilyData.nok = pendingFamilyData.nok.filter(n => n._tempId !== deleteTargetId);
+      } else if (deleteTargetType === 'Spouse') {
+        pendingFamilyData.spouse = pendingFamilyData.spouse.filter(s => s._tempId !== deleteTargetId);
+      } else if (deleteTargetType === 'Child') {
+        pendingFamilyData.children = pendingFamilyData.children.filter(c => c._tempId !== deleteTargetId);
+      }
+      
+      console.log('Removed fallback record from pendingFamilyData (edit mode)');
+      
+      // Show info message that this was fallback data
+      showPopup("Record deleted successfully");
+    } else {
+      // In edit mode with a real database record, call the API to delete
+      console.log('Calling API to delete real record');
+      await deleteRecord(deleteTargetType, deleteTargetId);
+      
+      // Also remove from pendingFamilyData
+      if (deleteTargetType === 'NOK') {
+        pendingFamilyData.nok = pendingFamilyData.nok.filter(n => n.nok_id != deleteTargetId && n._tempId !== deleteTargetId);
+      } else if (deleteTargetType === 'Spouse') {
+        pendingFamilyData.spouse = pendingFamilyData.spouse.filter(s => s.spouse_id != deleteTargetId && s._tempId !== deleteTargetId);
+      } else if (deleteTargetType === 'Child') {
+        pendingFamilyData.children = pendingFamilyData.children.filter(c => c.child_id != deleteTargetId && c._tempId !== deleteTargetId);
+      }
+      
+      showPopup("Record deleted successfully");
+    }
+    
+    // Remove the row from the table
+    deleteTargetRow.remove();
+    
+    // Check if table is now empty and add empty row
+    const tableBody = deleteTargetRow.closest('tbody');
+    if (tableBody && tableBody.children.length === 0) {
+      tableBody.appendChild(getEmptyRow(deleteTargetType));
+    }
+    
+  } catch (error) {
+    console.error('Delete failed:', error);
+    showError('Failed to delete record: ' + error.message);
+  }
+  
+  // Clear delete state
+  deleteTargetRow = null;
+  deleteTargetType = null;
+  deleteTargetId = null;
+  document.getElementById('deleteModal').classList.add('hidden');
+};
+
+function getEmptyRow(type) {
+  const row = document.createElement('tr');
+  const configs = {
+    'NOK': { colspan: '5', message: 'No NOKs yet.', id: 'nokEmpty' },
+    'Spouse': { colspan: '4', message: 'No spouse records yet.', id: 'spouseEmpty' },
+    'Child': { colspan: '5', message: 'No children yet.', id: 'childEmpty' }
+  };
+  const cfg = configs[type];
+  row.id = cfg.id;
+  row.innerHTML = `<td colspan="${cfg.colspan}" class="py-4 text-gray-500">${cfg.message}</td>`;
+  return row;
+}
+
+async function deleteRecord(type, id) {
+  const urls = {
+    'NOK': `${API_BASE}/nextofkin/${id}`,
+    'Spouse': `${API_BASE}/spouse/${id}`,
+    'Child': `${API_BASE}/children/${id}`
+  };
+  return await apiRequest(urls[type], { method: 'DELETE' });
+}
+
+// Separate edit states for each form type
+const editStates = {
+  NOK: { id: null, row: null },
+  Spouse: { id: null, row: null },
+  Child: { id: null, row: null }
+};
+
+window.editRow = async function(type, id) {
+  let data;
+  
+  if (formMode === 'create') {
+    // In create mode, get from pendingFamilyData (no API call needed)
+    if (type === 'NOK') data = pendingFamilyData.nok.find(n => n._tempId === id);
+    if (type === 'Spouse') data = pendingFamilyData.spouse.find(s => s._tempId === id);
+    if (type === 'Child') data = pendingFamilyData.children.find(c => c._tempId === id);
+  } else {
+    // In edit mode, get from pendingFamilyData first (includes fallback data)
+    if (type === 'NOK') data = pendingFamilyData.nok.find(n => n._tempId === id || n.nok_id == id);
+    if (type === 'Spouse') data = pendingFamilyData.spouse.find(s => s._tempId === id || s.spouse_id == id);
+    if (type === 'Child') data = pendingFamilyData.children.find(c => c._tempId === id || c.child_id == id);
+  }
+  
+  if (!data) {
+    showError('Record not found');
+    return;
+  }
+  
+  // Set edit state for THIS specific type only
+  editStates[type].id = id;
+  editStates[type].row = document.querySelector(`tr[data-type="${type}"][data-id="${id}"]`);
+
+  // Helper function to format dates
+  const formatDate = (value) => {
+    if (!value) return '';
+    if (typeof value === 'string') {
+      // Handle YYYYMMDD format (8 digits)
+      if (value.match(/^\d{8}$/)) {
+        const year = value.substring(0, 4);
+        const month = value.substring(4, 6);
+        const day = value.substring(6, 8);
+        return `${year}-${month}-${day}`;
+      }
+      // Handle DD-MM-YYYY format
+      if (value.match(/^\d{2}-\d{2}-\d{4}$/)) {
+        const [day, month, year] = value.split('-');
+        return `${year}-${month}-${day}`;
+      }
+      // Handle ISO format (2010-10-02T00:00:00.000Z)
+      if (value.includes('T')) {
+        return value.split('T')[0];
+      }
+      // Already in yyyy-mm-dd format
+      if (value.match(/^\d{4}-\d{2}-\d{2}$/)) {
+        return value;
+      }
+    }
+    return value;
+  };
+
+  // Helper to set select value and add option if missing
+  const setSelectValue = (elementId, value) => {
+    const element = document.getElementById(elementId);
+    if (element && element.tagName === 'SELECT') {
+      addMissingOptionIfNeeded(element, value);
+    }
+    if (element) element.value = value || '';
+  };
+
+  if (type === "NOK") {
+    document.getElementById('nokFirst').value = data.FirstName || '';
+    document.getElementById('nokLast').value = data.LastName || '';
+    setSelectValue('nokRelationship', data.RShipcode);
+    document.getElementById('nokMobile').value = data.MobileNumber || '';
+    document.getElementById('nokEmail').value = data.EmailAddress || '';
+    document.getElementById('nokDob').value = formatDate(data.dateofbirth || data.DateOfBirth || '');
+    document.getElementById('nokAddress').value = data.FullAddress || '';
+    document.getElementById('nokHome').value = data.HomeNumber || '';
+    document.getElementById('nokWork').value = data.PlaceOfWork || '';
+    setSelectValue('nokType', data.NextofkinType || 'Main');
+
+    const wrap = document.getElementById('nokFormWrap');
+    const btn = document.getElementById('nokToggleBtn');
+    if (wrap.classList.contains('hidden')) {
+      wrap.classList.remove('hidden');
+      btn.textContent = "−";
+    }
+  } else if (type === "Spouse") {
+    document.getElementById('spouseName').value = data.spname || '';
+    document.getElementById('spousePhone').value = data.spphone || '';
+    document.getElementById('spouseEmail').value = data.spemail || '';
+    document.getElementById('spouseDob').value = formatDate(data.dateofbirth || '');
+    document.getElementById('spouseDom').value = formatDate(data.marrieddate || '');
+    document.getElementById('spouseStreet').value = data.spstreet || '';
+    document.getElementById('spouseTown').value = data.sptown || '';
+    setSelectValue('spouseState', data.Statecode);
+    setSelectValue('spouseLga', data.Lgcode);
+    document.getElementById('spousePoBox').value = data.sppobox || '';
+
+    const wrap = document.getElementById('spouseFormWrap');
+    const btn = document.getElementById('spouseToggleBtn');
+    if (wrap.classList.contains('hidden')) {
+      wrap.classList.remove('hidden');
+      btn.textContent = "−";
+    }
+  } else if (type === "Child") {
+    document.getElementById('childName').value = data.chname || '';
+    setSelectValue('childSex', data.Sex);
+    document.getElementById('childDob').value = formatDate(data.dateofbirth || '');
+    document.getElementById('childPhone').value = data.chphone || '';
+    document.getElementById('childEmail').value = data.chemail || '';
+    document.getElementById('childStreet').value = data.chstreet || '';
+    document.getElementById('childTown').value = data.chtown || '';
+    setSelectValue('childState', data.Statecode);
+    setSelectValue('childLga', data.Lgcode);
+    document.getElementById('childPoBox').value = data.chpobox || '';
+    document.getElementById('childSchool').value = data.chschool || '';
+    document.getElementById('childOffice').value = data.officeaddress || '';
+    document.getElementById('childOccupation').value = data.occupation || '';
+    
+    const wrap = document.getElementById('childFormWrap');
+    const btn = document.getElementById('childToggleBtn');
+    if (wrap.classList.contains('hidden')) {
+      wrap.classList.remove('hidden');
+      btn.textContent = '−';
+    }
+  }
+};
+
+// NOK functionality
+const nokFormWrap = document.getElementById('nokFormWrap');
+const nokToggleBtn = document.getElementById('nokToggleBtn');
+const nokSaveBtn = document.getElementById('nokSave');
+const nokCancelBtn = document.getElementById('nokCancel');
+
+nokToggleBtn?.addEventListener('click', () => toggleBlock(nokFormWrap, nokToggleBtn));
+
+nokCancelBtn?.addEventListener('click', () => {
+  document.getElementById('nokForm')?.reset();
+  editStates.NOK.id = null;
+  editStates.NOK.row = null;
+  toggleBlock(nokFormWrap, nokToggleBtn);
+});
+
+nokSaveBtn?.addEventListener('click', async () => {
+  const first = val('nokFirst');
+  const last = val('nokLast');
+  const rel = val('nokRelationship');
+  const mobile = val('nokMobile');
+  const email = val('nokEmail');
+  const dob = val('nokDob');
+  const address = val('nokAddress');
+  const home = val('nokHome');
+  const work = val('nokWork');
+  const type = val('nokType') || 'Main';
+
+  const nokData = {
+    FirstName: first,
+    LastName: last,
+    NextofkinType: type,
+    RShipcode: rel,
+    MobileNumber: mobile,
+    HomeNumber: home,
+    EmailAddress: email,
+    dateofbirth: dob,
+    FullAddress: address,
+    PlaceOfWork: work
+  };
+
+  const requiredFields = [
+    { field: 'First Name', value: first },
+    { field: 'Last Name', value: last },
+    { field: 'Relationship', value: rel },
+    { field: 'Mobile Number', value: mobile },
+    { field: 'Email', value: email },
+    { field: 'Date of Birth', value: dob },
+    { field: 'Address', value: address },
+    { field: 'Type', value: type }
+  ];
+
+  let missingFields = requiredFields.filter(f => !f.value).map(f => f.field);
+  if (missingFields.length > 0) { 
+    showAlert('Please fill in the following required fields:\n' + missingFields.join('\n'));
+    return; 
+  }
+
+  try {
+    const list = document.getElementById('nokList');
+    const empty = document.getElementById('nokEmpty');
+
+    if (editStates.NOK.row && editStates.NOK.id) {
+      if (formMode === 'edit') {
+        await apiRequest(`${API_BASE}/nextofkin/${editStates.NOK.id}`, {
+          method: 'PUT',
+          body: JSON.stringify(nokData)
+        });
+      } else {
+        const index = pendingFamilyData.nok.findIndex(n => n._tempId === editStates.NOK.id);
+        if (index !== -1) {
+          pendingFamilyData.nok[index] = { ...nokData, _tempId: editStates.NOK.id };
+        }
+      }
+
+      const cells = editStates.NOK.row.querySelectorAll('td');
+      cells[0].textContent = `${first} ${last}`;
+      cells[1].textContent = rel;
+      cells[2].textContent = mobile;
+      cells[3].textContent = email;
+      
+      editStates.NOK.row = null;
+      editStates.NOK.id = null;
+      showPopup("NOK updated successfully");
+    } else {
+      if (formMode === 'edit' && currentEmployeeId) {
+        const safeId = currentEmployeeId.replace(/\//g, '_SLASH_');
+        const result = await apiRequest(`${API_BASE}/employees/${safeId}/nextofkin`, {
+          method: 'POST',
+          body: JSON.stringify(nokData)
+        });
+
+        if (empty) empty.remove();
+        
+        list.insertAdjacentHTML('beforeend', `
+          <tr data-type="NOK" data-id="${result.nokId}" class="hover:bg-yellow-50">
+            <td class="border px-3 py-2">${escapeHtml(first)} ${escapeHtml(last)}</td>
+            <td class="border px-3 py-2">${escapeHtml(rel)}</td>
+            <td class="border px-3 py-2">${escapeHtml(mobile)}</td>
+            <td class="border px-3 py-2">${escapeHtml(email)}</td>
+            <td class="border px-3 py-2">${actionBtns('NOK', result.nokId)}</td>
+          </tr>`);
+      } else {
+        nokCounter++;
+        const tempId = nokCounter;
+        nokData._tempId = tempId;
+        pendingFamilyData.nok.push(nokData);
+
+        if (empty) empty.remove();
+        
+        list.insertAdjacentHTML('beforeend', `
+          <tr data-type="NOK" data-id="${tempId}" class="hover:bg-yellow-50">
+            <td class="border px-3 py-2">${escapeHtml(first)} ${escapeHtml(last)}</td>
+            <td class="border px-3 py-2">${escapeHtml(rel)}</td>
+            <td class="border px-3 py-2">${escapeHtml(mobile)}</td>
+            <td class="border px-3 py-2">${escapeHtml(email)}</td>
+            <td class="border px-3 py-2">${actionBtns('NOK', tempId)}</td>
+          </tr>`);
+      }
+      showPopup("NOK saved successfully");
+    }
+
+    document.getElementById('nokForm')?.reset();
+    toggleBlock(nokFormWrap, nokToggleBtn);
+  } catch (error) {
+    console.error('NOK save failed:', error);
+  }
+});
+
+// Spouse functionality
+const spouseFormWrap = document.getElementById('spouseFormWrap');
+const spouseToggleBtn = document.getElementById('spouseToggleBtn');
+const spouseSaveBtn = document.getElementById('spouseSave');
+const spouseCancelBtn = document.getElementById('spouseCancel');
+
+spouseToggleBtn?.addEventListener('click', () => toggleBlock(spouseFormWrap, spouseToggleBtn));
+
+spouseCancelBtn?.addEventListener('click', () => {
+  document.getElementById('spouseForm')?.reset();
+  editStates.Spouse.id = null;
+  editStates.Spouse.row = null;
+  toggleBlock(spouseFormWrap, spouseToggleBtn);
+});
+
+spouseSaveBtn?.addEventListener('click', async () => {
+  const name = val('spouseName');
+  const phone = val('spousePhone');
+  const email = val('spouseEmail');
+  const dob = val('spouseDob');
+  const dom = val('spouseDom');
+  const street = val('spouseStreet');
+  const town = val('spouseTown');
+  const state = val('spouseState');
+  const lga = val('spouseLga');
+  const poBox = val('spousePoBox');
+
+  const spouseData = {
+    spname: name,
+    spphone: phone,
+    spemail: email,
+    dateofbirth: dob,
+    marrieddate: dom,
+    spstreet: street,
+    sptown: town,
+    Statecode: state,
+    Lgcode: lga,
+    sppobox: poBox
+  };
+
+  const requiredFields = [
+    { field: 'Full Name', value: name },
+    { field: 'Phone Number', value: phone },
+    { field: 'Email', value: email },
+    { field: 'Date of Birth', value: dob },
+    { field: 'Date of Marriage', value: dom },
+    { field: 'Town', value: town },
+    { field: 'State', value: state },
+    { field: 'LGA', value: lga }
+  ]; 
+
+  let missingFields = requiredFields.filter(f => !f.value).map(f => f.field);
+  if (missingFields.length > 0) {
+    showAlert('Please fill in the required fields: ' + missingFields.join(', '));
+    return;
+  }
+
+  try {
+    const list = document.getElementById('spouseList');
+    const empty = document.getElementById('spouseEmpty');
+
+    if (editStates.Spouse.row && editStates.Spouse.id) {
+      if (formMode === 'edit') {
+        await apiRequest(`${API_BASE}/spouse/${editStates.Spouse.id}`, {
+          method: 'PUT',
+          body: JSON.stringify(spouseData)
+        });
+      } else {
+        const index = pendingFamilyData.spouse.findIndex(s => s._tempId === editStates.Spouse.id);
+        if (index !== -1) {
+          pendingFamilyData.spouse[index] = { ...spouseData, _tempId: editStates.Spouse.id };
+        }
+      }
+
+      const cells = editStates.Spouse.row.querySelectorAll('td');
+      cells[0].textContent = name;
+      cells[1].textContent = phone;
+      cells[2].textContent = email;
+      
+      editStates.Spouse.row = null;
+      editStates.Spouse.id = null;
+      showPopup("Spouse updated successfully");
+    } else {
+      if (formMode === 'edit' && currentEmployeeId) {
+        const safeId = currentEmployeeId.replace(/\//g, '_SLASH_');
+        const result = await apiRequest(`${API_BASE}/employees/${safeId}/spouse`, {
+          method: 'POST',
+          body: JSON.stringify(spouseData)
+        });
+
+        if (empty) empty.remove();
+        
+        list.insertAdjacentHTML('beforeend', `
+          <tr data-type="Spouse" data-id="${result.spouseId}" class="hover:bg-yellow-50">
+            <td class="border px-3 py-2">${escapeHtml(name)}</td>
+            <td class="border px-3 py-2">${escapeHtml(phone)}</td>
+            <td class="border px-3 py-2">${escapeHtml(email)}</td>
+            <td class="border px-3 py-2">${actionBtns('Spouse', result.spouseId)}</td>
+          </tr>`);
+      } else {
+        spouseCounter++;
+        const tempId = spouseCounter;
+        spouseData._tempId = tempId;
+        pendingFamilyData.spouse.push(spouseData);
+
+        if (empty) empty.remove();
+        
+        list.insertAdjacentHTML('beforeend', `
+          <tr data-type="Spouse" data-id="${tempId}" class="hover:bg-yellow-50">
+            <td class="border px-3 py-2">${escapeHtml(name)}</td>
+            <td class="border px-3 py-2">${escapeHtml(phone)}</td>
+            <td class="border px-3 py-2">${escapeHtml(email)}</td>
+            <td class="border px-3 py-2">${actionBtns('Spouse', tempId)}</td>
+          </tr>`);
+      }
+      showPopup("Spouse saved successfully");
+    }
+
+    document.getElementById('spouseForm')?.reset();
+    toggleBlock(spouseFormWrap, spouseToggleBtn);
+  } catch (error) {
+    console.error('Spouse save failed:', error);
+  }
+});
+
+// Children functionality
+const childFormWrap = document.getElementById('childFormWrap');
+const childToggleBtn = document.getElementById('childToggleBtn');
+const childSaveBtn = document.getElementById('childSave');
+const childCancelBtn = document.getElementById('childCancel');
+
+childToggleBtn?.addEventListener('click', () => toggleBlock(childFormWrap, childToggleBtn));
+
+childCancelBtn?.addEventListener('click', () => {
+  document.getElementById('childForm')?.reset();
+  editStates.Child.id = null;
+  editStates.Child.row = null;
+  toggleBlock(childFormWrap, childToggleBtn);
+});
+
+childSaveBtn?.addEventListener('click', async () => {
+  const name = val('childName');
+  const sex = val('childSex');
+  const dob = val('childDob');
+  const phone = val('childPhone');
+  const email = val('childEmail');
+  const street = val('childStreet');
+  const town = val('childTown');
+  const state = val('childState');
+  const lga = val('childLga');
+  const poBox = val('childPoBox');
+  const school = val('childSchool');
+  const office = val('childOffice');
+  const occupation = val('childOccupation');
+
+  const childData = {
+    chname: name,
+    Sex: sex,
+    dateofbirth: dob,
+    chphone: phone,
+    chemail: email,
+    chstreet: street,
+    chtown: town,
+    Statecode: state,
+    Lgcode: lga,
+    chpobox: poBox,
+    chschool: school,
+    officeaddress: office,
+    occupation: occupation
+  };
+
+  const requiredFields = [
+    { field: 'Name', value: name },
+    { field: 'Sex', value: sex },
+    { field: 'Date of Birth', value: dob },
+    { field: 'Phone Number', value: phone },
+    { field: 'Email', value: email },
+    { field: 'Town', value: town },
+    { field: 'State', value: state },
+    { field: 'LGA', value: lga }
+  ];
+
+  let missingFields = requiredFields.filter(f => !f.value).map(f => f.field);
+  if (missingFields.length > 0) {
+    showAlert('Please fill in the required fields: ' + missingFields.join(', '));
+    return;
+  }
+
+  try {
+    const list = document.getElementById('childList');
+    const empty = document.getElementById('childEmpty');
+
+    if (editStates.Child.row && editStates.Child.id) {
+      if (formMode === 'edit') {
+        await apiRequest(`${API_BASE}/children/${editStates.Child.id}`, {
+          method: 'PUT',
+          body: JSON.stringify(childData)
+        });
+      } else {
+        const index = pendingFamilyData.children.findIndex(c => c._tempId === editStates.Child.id);
+        if (index !== -1) {
+          pendingFamilyData.children[index] = { ...childData, _tempId: editStates.Child.id };
+        }
+      }
+
+      const cells = editStates.Child.row.querySelectorAll('td');
+      cells[0].textContent = name;
+      cells[1].textContent = sex;
+      cells[2].textContent = dob;
+      cells[3].textContent = phone;
+      
+      editStates.Child.row = null;
+      editStates.Child.id = null;
+      showPopup("Child updated successfully");
+    } else {
+      if (formMode === 'edit' && currentEmployeeId) {
+        const safeId = currentEmployeeId.replace(/\//g, '_SLASH_');
+        const result = await apiRequest(`${API_BASE}/employees/${safeId}/children`, {
+          method: 'POST',
+          body: JSON.stringify(childData)
+        });
+
+        if (empty) empty.remove();
+        
+        list.insertAdjacentHTML('beforeend', `
+          <tr data-type="Child" data-id="${result.childId}" class="hover:bg-yellow-50">
+            <td class="border px-3 py-2">${escapeHtml(name)}</td>
+            <td class="border px-3 py-2">${escapeHtml(sex)}</td>
+            <td class="border px-3 py-2">${escapeHtml(dob)}</td>
+            <td class="border px-3 py-2">${escapeHtml(phone)}</td>
+            <td class="border px-3 py-2">${actionBtns('Child', result.childId)}</td>
+          </tr>`);
+      } else {
+        childCounter++;
+        const tempId = childCounter;
+        childData._tempId = tempId;
+        pendingFamilyData.children.push(childData);
+
+        if (empty) empty.remove();
+        
+        list.insertAdjacentHTML('beforeend', `
+          <tr data-type="Child" data-id="${tempId}" class="hover:bg-yellow-50">
+            <td class="border px-3 py-2">${escapeHtml(name)}</td>
+            <td class="border px-3 py-2">${escapeHtml(sex)}</td>
+            <td class="border px-3 py-2">${escapeHtml(dob)}</td>
+            <td class="border px-3 py-2">${escapeHtml(phone)}</td>
+            <td class="border px-3 py-2">${actionBtns('Child', tempId)}</td>
+          </tr>`);
+      }
+      showPopup("Child saved successfully");
+    }
+
+    document.getElementById('childForm')?.reset();
+    toggleBlock(childFormWrap, childToggleBtn);
+  } catch (error) {
+    console.error('Child save failed:', error);
+  }
+});
+
+// Mode Management
+function setCreateMode() {
+  formMode = 'create';
+  currentEmployeeId = null;
+  editingEmployeeData = null;
+  localStorage.removeItem('editing_employee');
+  
+  const submitBtn = document.querySelector('#personnelForm button[type="button"]:last-child');
+  if (submitBtn) submitBtn.textContent = 'Submit';
+}
+
+// setEditMode function
+function setEditMode(employeeId, employeeData) {
+  formMode = 'edit';
+  currentEmployeeId = employeeId;
+  editingEmployeeData = employeeData;
+
+  //Disable Service Number
+  document.getElementById("field-service-number").disabled = true;
+  
+  // Set localStorage with explicit string
+  localStorage.setItem(EDIT_KEY, String(employeeId));
+  //console.log('Edit mode set for:', employeeId, 'Stored:', localStorage.getItem(EDIT_KEY));
+  
+  const formTitle = document.getElementById('formTitle');
+  if (formTitle) {
+    formTitle.textContent = `Edit Personnel: ${employeeData.Surname} ${employeeData.OtherName}`;
+    formTitle.classList.remove('hidden');
+  }
+  
+  const submitBtn = document.querySelector('#personnelForm button[type="button"]:last-child');
+  if (submitBtn) submitBtn.textContent = 'Update Personnel';
+}
+
+
+// Load NOK records with fallback from employee table
+function loadNOKRecords(nextOfKin, employee) {
+  let nokList = nextOfKin || [];
+  
+  // Clear existing NOK data
+  pendingFamilyData.nok = [];
+  
+  // Fallback: If no NOK records exist, check employee table for fallback data
+  if (nokList.length === 0 && employee) {
+    const nokRelation = (employee.nok_relation || '').toLowerCase().trim();
+    
+    // Only add to NOK if relationship is NOT wife, son, or daughter
+    if (nokRelation !== 'wife' && nokRelation !== 'son' && nokRelation !== 'daughter') {
+      if (employee.nok_name || employee.nokphone || employee.nok_addr || employee.nok_relation) {
+        nokList = [{
+          FirstName: employee.nok_name || '',
+          LastName: '',
+          RShipcode: employee.nok_relation || '',
+          NextofkinType: 'Main',
+          MobileNumber: employee.nokphone || '',
+          EmailAddress: '',
+          dateofbirth: null,
+          FullAddress: employee.nok_addr || '',
+          HomeNumber: '',
+          PlaceOfWork: '',
+          _isFallback: true,
+          nok_id: 'fallback-nok-1'
+        }];
+      }
+    }
+  }
+  
+  // Clear and render table
+  const nokListElement = document.getElementById('nokList');
+  if (!nokListElement) return;
+  
+  nokListElement.innerHTML = '';
+  
+  if (nokList.length === 0) {
+    nokListElement.innerHTML = '<tr id="nokEmpty"><td colspan="5" class="py-4 text-gray-500">No NOKs yet.</td></tr>';
+  } else {
+    nokList.forEach((nok, index) => {
+      const id = nok.nok_id || nok._tempId || `temp-nok-${Date.now()}-${index}`;
+      
+      // Add to pendingFamilyData
+      pendingFamilyData.nok.push({
+        ...nok,
+        _tempId: id
+      });
+      
+      nokListElement.insertAdjacentHTML('beforeend', `
+        <tr data-type="NOK" data-id="${id}" class="hover:bg-yellow-50">
+          <td class="border px-3 py-2">${escapeHtml(nok.FirstName || '')} ${escapeHtml(nok.LastName || '')}</td>
+          <td class="border px-3 py-2">${escapeHtml(nok.RShipcode || '')}</td>
+          <td class="border px-3 py-2">${escapeHtml(nok.MobileNumber || '')}</td>
+          <td class="border px-3 py-2">${escapeHtml(nok.EmailAddress || '')}</td>
+          <td class="border px-3 py-2">${actionBtns('NOK', id)}</td>
+        </tr>`);
+    });
+  }
+}
+
+// Load Spouse records with fallback from employee table
+function loadSpouseRecords(spouse, employee) {
+  let spouseList = spouse || [];
+  
+  // Clear existing spouse data
+  pendingFamilyData.spouse = [];
+  
+  // Fallback: Check if NOK relationship is "wife" and no spouse records exist
+  if (spouseList.length === 0 && employee) {
+    const nokRelation = (employee.nok_relation || '').toLowerCase().trim();
+    
+    if (nokRelation === 'wife' && employee.nok_name) {
+      spouseList = [{
+        spname: employee.nok_name || '',
+        spphone: employee.nokphone || '',
+        spemail: '',
+        dateofbirth: null,
+        marrieddate: null,
+        Statecode: null,
+        Lgcode: null,
+        sptown: '',
+        spstreet: employee.nok_addr || '',
+        sppobox: '',
+        _isFallback: true,
+        spouse_id: 'fallback-spouse-1'
+      }];
+    }
+  }
+  
+  // Clear and render table
+  const spouseListElement = document.getElementById('spouseList');
+  if (!spouseListElement) return;
+  
+  spouseListElement.innerHTML = '';
+  
+  if (spouseList.length === 0) {
+    spouseListElement.innerHTML = '<tr id="spouseEmpty"><td colspan="4" class="py-4 text-gray-500">No spouse records yet.</td></tr>';
+  } else {
+    spouseList.forEach((sp, index) => {
+      const id = sp.spouse_id || sp._tempId || `temp-spouse-${Date.now()}-${index}`;
+      
+      // Add to pendingFamilyData
+      pendingFamilyData.spouse.push({
+        ...sp,
+        _tempId: id
+      });
+      
+      spouseListElement.insertAdjacentHTML('beforeend', `
+        <tr data-type="Spouse" data-id="${id}" class="hover:bg-yellow-50">
+          <td class="border px-3 py-2">${escapeHtml(sp.spname || '')}</td>
+          <td class="border px-3 py-2">${escapeHtml(sp.spphone || '')}</td>
+          <td class="border px-3 py-2">${escapeHtml(sp.spemail || '')}</td>
+          <td class="border px-3 py-2">${actionBtns('Spouse', id)}</td>
+        </tr>`);
+    });
+  }
+}
+
+// Load Children records with fallback from employee table
+function loadChildrenRecords(children, employee) {
+  let childrenList = children || [];
+  
+  // Clear existing children data
+  pendingFamilyData.children = [];
+  
+  // Fallback: Check if NOK relationship is "son" or "daughter" and no children records exist
+  if (childrenList.length === 0 && employee) {
+    const nokRelation = (employee.nok_relation || '').toLowerCase().trim();
+    
+    if ((nokRelation === 'son' || nokRelation === 'daughter') && employee.nok_name) {
+      childrenList = [{
+        chname: employee.nok_name || '',
+        Sex: nokRelation === 'son' ? 'Male' : nokRelation === 'daughter' ? 'Female' : '',
+        dateofbirth: null,
+        chphone: employee.nokphone || '',
+        chemail: '',
+        chpobox: '',
+        chschool: '',
+        occupation: '',
+        officeaddress: '',
+        chstreet: employee.nok_addr || '',
+        chtown: '',
+        Statecode: null,
+        Lgcode: null,
+        _isFallback: true,
+        child_id: 'fallback-child-1'
+      }];
+    }
+  }
+  
+  // Clear and render table
+  const childListElement = document.getElementById('childList');
+  if (!childListElement) return;
+  
+  childListElement.innerHTML = '';
+  
+  if (childrenList.length === 0) {
+    childListElement.innerHTML = '<tr id="childEmpty"><td colspan="5" class="py-4 text-gray-500">No children yet.</td></tr>';
+  } else {
+    childrenList.forEach((child, index) => {
+      const id = child.child_id || child._tempId || `temp-child-${Date.now()}-${index}`;
+      
+      // Add to pendingFamilyData
+      pendingFamilyData.children.push({
+        ...child,
+        _tempId: id
+      });
+      
+      childListElement.insertAdjacentHTML('beforeend', `
+        <tr data-type="Child" data-id="${id}" class="hover:bg-yellow-50">
+          <td class="border px-3 py-2">${escapeHtml(child.chname || '')}</td>
+          <td class="border px-3 py-2">${escapeHtml(child.Sex || '')}</td>
+          <td class="border px-3 py-2">${escapeHtml(child.dateofbirth || '')}</td>
+          <td class="border px-3 py-2">${escapeHtml(child.chphone || '')}</td>
+          <td class="border px-3 py-2">${actionBtns('Child', id)}</td>
+        </tr>`);
+    });
+  }
+}
+
+// Load Employee for Edit
+async function loadEmployeeDataForEdit(employeeId) {
+  try {
+    console.log('=== loadEmployeeDataForEdit START ===');
+    console.log('Employee ID:', employeeId);
+    
+    const safeId = employeeId.replace(/\//g, '_SLASH_');
+    const result = await apiRequest(`${API_BASE}/employees/${safeId}`);
+    
+    console.log('API Response:', result);
+    
+    const { employee, children, nextOfKin, spouse } = result.data;
+    
+    console.log('Employee data:', employee);
+    console.log('NOK from API:', nextOfKin);
+    console.log('Spouse from API:', spouse);
+    console.log('Children from API:', children);
+    console.log('Employee NOK fields:', {
+      nok_name: employee.nok_name,
+      nok_relation: employee.nok_relation,
+      nokphone: employee.nokphone,
+      nok_addr: employee.nok_addr
+    });
+    
+    setEditMode(employeeId, employee);
+    toggleStep(1);
+
+    // IMPORTANT: Clear pendingFamilyData before loading new data
+    console.log('Clearing pendingFamilyData...');
+    pendingFamilyData = { nok: [], spouse: [], children: [] };
+    console.log('pendingFamilyData after clear:', pendingFamilyData);
+
+    await initializeDropdowns();
+    await loadAllDropdowns(employee);
+    
+    setTimeout(() => {
+      populatePersonnelForm(employee);
+      handleSpouseTabVisibility();
+    }, 500);
+    
+    // Load with fallback data from employee table
+    console.log('Calling loadNOKRecords...');
+    loadNOKRecords(nextOfKin, employee);
+    
+    console.log('Calling loadSpouseRecords...');
+    loadSpouseRecords(spouse, employee);
+    
+    console.log('Calling loadChildrenRecords...');
+    loadChildrenRecords(children, employee);
+    
+    console.log('Final pendingFamilyData:', pendingFamilyData);
+    console.log('=== loadEmployeeDataForEdit END ===');
+    
+    showPopup("Employee data loaded for editing");
+  } catch (error) {
+    console.error('loadEmployeeDataForEdit ERROR:', error);
+    throw error;
+  }
+}
+
+// Populate Form - Step 1 with IDs, Step 2 & 3 with names
+function populatePersonnelForm(employee) {
+  const reverseMap = {};
+  Object.entries(DB_FIELD_MAP).forEach(([formField, dbField]) => {
+    reverseMap[dbField] = formField;
+  });
+
+  Object.entries(employee).forEach(([dbField, value]) => {
+    if (reverseMap[dbField] && value !== null && value !== undefined && value !== "") {
+      const formField = reverseMap[dbField];
+      let element = null;
+
+      // Step 1 → custom IDs
+      if ([
+        'Service Number', 'Rank', 'Surname', 'OtherName', 'Date of Birth',
+        'State Of Origin', 'Local Government', 'Town', 'Residential Address',
+        'Email Address', 'GSM Number', 'Sex', 'Marital Status', 'Religion', 'Passport Photograph'
+      ].includes(formField)) {
+        const elementId = `field-${formField.replace(/\s+/g, '-').toLowerCase()}`;
+        element = document.getElementById(elementId);
+      }
+      // Step 2 & 3 → use DB field name
+      else {
+        element = document.querySelector(`[name="${dbField}"]`);
+      }
+
+      if (element) {
+        // Handle file input
+        if (element.type === 'file') {
+          if (dbField === 'passport' && value) {
+            convertPassportInputToAvatar(element, value);
+          }
+          return;
+        }
+        
+        // Handle date inputs
+        if (element.type === 'date') {
+          if (typeof value === 'string') {
+            if (value.match(/^\d{8}$/))  {
+              const year = value.substring(0, 4);
+              const month = value.substring(4, 6);
+              const day = value.substring(6, 8);
+              element.value = `${year}-${month}-${day}`;
+            } else if (value.match(/^\d{2}-\d{2}-\d{4}$/)) {
+              const [day, month, year] = value.split('-');
+              element.value = `${year}-${month}-${day}`;
+            } else if (value.includes('T')) {
+              element.value = value.split('T')[0];
+            }
+          }
+        } else if (element.tagName === 'SELECT') {
+          // Handle select elements - add missing option if value doesn't exist
+          addMissingOptionIfNeeded(element, value);
+          element.value = value;
+        } else {
+          // All other inputs - wrapper handles CustomDropdown vs native
+          element.value = value;
+        }
+      }
+    }
+  });
+}
+
+// Helper function to add missing option to select if value doesn't exist
+function addMissingOptionIfNeeded(selectElement, value) {
+  if (!value) return;
+  
+  // Check if the value exists in current options
+  const optionExists = Array.from(selectElement.options).some(opt => opt.value == value);
+  
+  if (!optionExists) {
+    // Add the missing option with value as both value and text
+    const option = document.createElement('option');
+    option.value = value;
+    option.textContent = value;
+    option.style.fontStyle = 'italic';
+    option.style.color = '#666';
+    selectElement.appendChild(option);
+  }
+}
+
+// Convert file input to avatar preview with change button
+function convertPassportInputToAvatar(fileInput, base64Data) {
+  // Hide the original file input
+  fileInput.style.display = 'none';
+  
+  // Store the base64 data as a data attribute for later use
+  fileInput.setAttribute('data-current-passport', base64Data);
+  
+  // Create avatar preview container
+  const avatarContainer = document.createElement('div');
+  avatarContainer.className = 'passport-avatar-container';
+  avatarContainer.innerHTML = `
+    <div class="flex items-center gap-4 p-3 border border-blue-500 rounded-md bg-blue-50">
+      <img src="data:image/jpeg;base64,${base64Data}" 
+           alt="Passport" 
+           class="w-20 h-20 object-cover rounded-full border-2 border-blue-600 shadow-md"
+           id="passport-avatar-preview"/>
+      <div class="flex flex-col gap-2">
+        <span class="text-sm font-semibold text-gray-700" id="passport-status-text">Current Passport Photo</span>
+        <div class="flex gap-2">
+          <button type="button" 
+                  onclick="changePassportPhoto()" 
+                  class="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition">
+            Change
+          </button>
+          <button type="button" 
+                  onclick="viewPassportFull(document.getElementById('passport-avatar-preview').src.split(',')[1])" 
+                  class="px-3 py-1 text-sm bg-gray-600 text-white rounded hover:bg-gray-700 transition">
+            View
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  // Insert after the hidden file input
+  fileInput.parentElement.appendChild(avatarContainer);
+}
+
+// Function to change passport photo
+window.changePassportPhoto = function() {
+  const fileInput = document.querySelector('input[name="Passport Photograph"]');
+  const avatarContainer = document.querySelector('.passport-avatar-container');
+  
+  if (!fileInput) return;
+  
+  // Create temporary file input
+  const tempInput = document.createElement('input');
+  tempInput.type = 'file';
+  tempInput.accept = 'image/*';
+  
+  tempInput.onchange = async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Convert to base64
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64 = reader.result.split(',')[1];
+        
+        // Update the avatar preview
+        const avatarImg = document.getElementById('passport-avatar-preview');
+        if (avatarImg) {
+          avatarImg.src = `data:image/jpeg;base64,${base64}`;
+        }
+        
+        // Update the status text
+        const statusText = document.getElementById('passport-status-text');
+        if (statusText) {
+          statusText.textContent = 'New Passport Photo Selected';
+          statusText.className = 'text-sm font-semibold text-green-600'; // Change color to green
+        }
+        
+        // Update the border color to indicate change
+        const container = avatarContainer.querySelector('div');
+        if (container) {
+          container.className = 'flex items-center gap-4 p-3 border border-green-500 rounded-md bg-green-50';
+        }
+        
+        // Update avatar border to green
+        if (avatarImg) {
+          avatarImg.className = 'w-20 h-20 object-cover rounded-full border-2 border-green-600 shadow-md';
+        }
+        
+        // Update the stored data
+        fileInput.setAttribute('data-current-passport', base64);
+        fileInput.setAttribute('data-passport-changed', 'true');
+        
+        console.log(' New passport photo selected');
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+  
+  // Trigger file selection
+  tempInput.click();
+}
+// Function to view full-size passport
+window.viewPassportFull = function(base64Data) {
+  const modal = document.createElement('div');
+  modal.className = 'fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50';
+  modal.innerHTML = `
+    <div class="relative bg-white p-6 rounded-lg max-w-2xl">
+      <button onclick="this.closest('.fixed').remove()" 
+              class="absolute top-2 right-2 text-gray-600 hover:text-gray-900 text-3xl font-bold w-10 h-10 flex items-center justify-center hover:bg-gray-100 rounded-full">
+        ×
+      </button>
+      <h3 class="text-lg font-bold mb-4">Passport Photograph</h3>
+      <img src="data:image/jpeg;base64,${base64Data}" 
+           alt="Passport Full Size" 
+           class="max-w-full max-h-[70vh] rounded shadow-lg mx-auto"/>
+    </div>
+  `;
+  
+  modal.onclick = (e) => {
+    if (e.target === modal) modal.remove();
+  };
+  
+  document.body.appendChild(modal);
+}
+
+// Helper function to clean form data
+function cleanFormData(formData) {
+  const cleanData = {};
+  
+  // Convert FormData to object and clean values
+  for (let [key, value] of formData.entries()) {
+    // Skip empty values unless they should explicitly be null
+    if (value === '') {
+      cleanData[key] = null;
+    } else if (value !== undefined) {
+      cleanData[key] = value;
+    }
+  }
+  
+  return cleanData;
+}
+
+//validation
+async function checkDuplicate(input, field, excludeId = null) {
+  const value = input.value.trim();
+  if (!value) {
+    input.setCustomValidity("");
+    input.reportValidity();
+    return;
+  }
+
+  // Use your actual edit flag
+  const isEditing = (formMode === 'edit' && currentEmployeeId);
+  const dbField = DB_FIELD_MAP[field] || field;
+
+  // Skip if editing and value hasn’t changed
+  if (isEditing && originalData && originalData[dbField] === value) {
+    input.setCustomValidity("");
+    input.reportValidity();
+    return;
+  }
+
+  try {
+    const token = localStorage.getItem("token");
+
+    let url = `${API_BASE}/employees/check/${field}/${encodeURIComponent(value)}`;
+    if (isEditing && excludeId) {
+      url += `?exclude=${excludeId}`;
+    }
+
+    const res = await auth.fetchWithAuth(url, {
+      headers: { "Authorization": `Bearer ${token}` }
+    });
+    const data = await res.json();
+
+    if (data.exists) {
+      input.setCustomValidity(`⚠️ This ${field} already exists, please use a different one.`);
+      input.reportValidity();
+
+      // Keep focus trapped in the field until fixed
+      input.focus();
+      input.select();
+    } else {
+      input.setCustomValidity("");
+      input.reportValidity();
+    }
+  } catch (err) {
+    console.error(`Error checking ${field}:`, err);
+  }
+}
+
+// attach validation on blur
+document.getElementById("field-service-number").addEventListener("blur", function () {
+    checkDuplicate(this, 'Empl_ID');
+  });
+
+// Form submission - Collect ALL steps
+async function submitPersonnelForm() {
+  const personnelData = {};
+  const duplicateFields = ["Service Number"]; // fields to check for duplicates
+
+  // Handle passport photograph
+  let passportBase64 = null;
+  const passportInput = document.querySelector('input[name="Passport Photograph"]');
+
+  if (passportInput) {
+    const currentPassport = passportInput.getAttribute('data-current-passport');
+    const passportChanged = passportInput.getAttribute('data-passport-changed');
+
+    if (currentPassport && !passportChanged) {
+      passportBase64 = currentPassport;
+    } else if (currentPassport && passportChanged) {
+      passportBase64 = currentPassport;
+    } else if (passportInput.files && passportInput.files[0]) {
+      passportBase64 = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const base64 = reader.result.split(',')[1];
+          console.log('Base64 conversion successful, length:', base64.length);
+          resolve(base64);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(passportInput.files[0]);
+      });
+    }
+  }
+
+  // Collect ALL form fields
+  const allInputs = document.querySelectorAll('#step1 input, #step1 select, #step1 .custom-dropdown-wrapper, #step2 input, #step2 select, #step2 .custom-dropdown-wrapper, #step3 input, #step3 select, #step3 .custom-dropdown-wrapper');
+
+  for (const input of allInputs) {
+    const fieldName = input.getAttribute('name') || '';
+
+    if (input.type === 'file' || input.type === 'hidden' || input.disabled) continue;
+    if ((input.type === 'checkbox' || input.type === 'radio') && !input.checked) continue;
+
+    let value = input.value?.trim() ?? '';
+
+    // Handle DATE fields FIRST (all date fields)
+    if (input.type === 'date') {
+      if (!value) {
+        if (DB_FIELD_MAP[fieldName]) personnelData[DB_FIELD_MAP[fieldName]] = null;
+      } else {
+        const dateObj = new Date(value);
+        const day = String(dateObj.getDate()).padStart(2, '0');
+        const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+        const year = dateObj.getFullYear();
+        const formattedDate = `${year}${month}${day}`;
+        console.log(`Date converted: ${fieldName} = ${formattedDate}`);
+        if (DB_FIELD_MAP[fieldName]) personnelData[DB_FIELD_MAP[fieldName]] = formattedDate;
+      }
+      continue;
+    }
+
+    // Handle SELECT
+    if (input.tagName === 'SELECT') {
+      const lowerValue = value.toLowerCase();
+      const isPlaceholder =
+        lowerValue === 'select' ||
+        lowerValue.startsWith('select ') ||
+        lowerValue === 'choose' ||
+        lowerValue.startsWith('choose ') ||
+        lowerValue === '--' ||
+        lowerValue === '---' ||
+        value === '';
+
+      if (DB_FIELD_MAP[fieldName]) {
+        personnelData[DB_FIELD_MAP[fieldName]] = isPlaceholder ? null : value;
+      }
+      continue;
+    }
+
+    // Handle dropdownConfig
+    if (input.classList.contains('custom-dropdown-wrapper') || input.tagName === 'DIV') {
+      const lowerValue = value.toLowerCase();
+      const isPlaceholder =
+        lowerValue === 'select' ||
+        lowerValue.startsWith('select ') ||
+        lowerValue === 'choose' ||
+        lowerValue.startsWith('choose ') ||
+        lowerValue === '--' ||
+        lowerValue === '---' ||
+        value === '';
+
+      if (DB_FIELD_MAP[fieldName]) {
+        personnelData[DB_FIELD_MAP[fieldName]] = isPlaceholder ? null : value;
+      }
+      continue;
+    }
+
+    // Normal inputs
+    if (DB_FIELD_MAP[fieldName]) {
+      personnelData[DB_FIELD_MAP[fieldName]] = value === '' ? null : value;
+    }
+  }
+
+  // Add passport
+  if (passportBase64) {
+    personnelData.passport = passportBase64;
+    console.log('Passport added to personnelData');
+  }
+
+  // After collecting all form data, add TitleDesc
+  const rankDropdown = document.getElementById('field-rank');
+  if (rankDropdown && rankDropdown.value) {
+    const titleDescField = document.querySelector('[name="Title"]');
+    if (titleDescField) {
+      const titleDesc = titleDescField.getAttribute('data-titledesc');
+      if (titleDesc) {
+        personnelData.Titledesc = titleDesc;
+      }
+    }
+  }
+  
+  console.log('Final personnelData keys:', Object.keys(personnelData));
+  console.log('Passport included?', !!personnelData.passport);
+  console.log('Final personnelData:', personnelData);
+
+  try {
+    // Duplicate validation before submission
+    for (const field of duplicateFields) {
+      const input = document.querySelector(`[name="${field}"]`);
+      if (input) {
+        await checkDuplicate(input, field);
+        if (input.validationMessage) {
+          showAlert(input.validationMessage);
+          return;
+        }
+      }
+    }
+
+    // EDIT MODE - UPDATE EXISTING EMPLOYEE
+    if (formMode === 'edit' && currentEmployeeId) {
+      console.log('Updating employee:', currentEmployeeId);
+
+      const safeId = currentEmployeeId.replace(/\//g, '_SLASH_');
+
+      await apiRequest(`${API_BASE}/employees/${safeId}`, {
+        method: 'PUT',
+        body: JSON.stringify(personnelData)
+      });
+
+      const dateLeftVal = personnelData.DateLeft;
+      const exitTypeVal = personnelData.exittype;
+      const hasExited = (dateLeftVal && dateLeftVal !== null && dateLeftVal !== '') ||
+                        (exitTypeVal && exitTypeVal !== null && exitTypeVal !== '');
+
+      const wasInCurrent = localStorage.getItem('navigatedFromCurrentPersonnel') === 'true';
+      const wasInOld = localStorage.getItem('navigatedFromOldPersonnel') === 'true';
+      
+      const statusChanged = (wasInCurrent && hasExited) || (wasInOld && !hasExited);
+      
+      console.log('📊 Edit status check:', {
+        wasInCurrent,
+        wasInOld,
+        hasExited,
+        statusChanged
+      });
+
+      const redirectSection = hasExited ? 'old-personnel' : 'current-personnel';
+      const redirectTitle = hasExited ? 'Old Personnel' : 'Current Personnel';
+
+      const updatedEmployeeData = {
+        Empl_ID: currentEmployeeId,
+        Surname: personnelData.Surname,
+        OtherName: personnelData.OtherName,
+        Title: personnelData.Title,
+        DateLeft: personnelData.DateLeft,
+        exittype: personnelData.exittype,
+        email: personnelData.email,
+        gsm_number: personnelData.gsm_number
+      };
+
+      showPopup("Personnel updated successfully", async () => {
+        localStorage.removeItem('editing_employee_id');
+        localStorage.removeItem('isEditMode');
+        
+        if (statusChanged) {
+          console.log('🔄 Status changed - removing from source section');
+          
+          // Determine which section we're leaving
+          const sourceSection = wasInCurrent ? 'current' : 'old';
+          const sourceManager = wasInCurrent ? window.personnelManager : window.oldPersonnelManager;
+          
+          if (sourceManager) {
+            console.log('🧹 Removing employee from ALL snapshots in', sourceSection, 'section');
+            
+            // ✅ UPDATE BOTH SNAPSHOTS (pagination AND filter)
+            // We don't know which one is active, so update both!
+            
+            // Keys are stored as: <baseKey>__sid_<userId>:<currentClass>
+            const _resolveSnapshotKey = (baseKey) => {
+              const userId   = localStorage.getItem('user_id')         || 'anon';
+              const dbName   = localStorage.getItem('current_class')   ||
+                              localStorage.getItem('currentDatabase') || null;
+              const explicit = localStorage.getItem('currentSessionId') || null;
+              if (explicit) return `${baseKey}__sid_${explicit}`;
+              if (dbName)   return `${baseKey}__sid_${userId}:${dbName}`;
+              return `${baseKey}__sid_${userId}`;
+            };
+
+            const baseKeys = [
+              `personnel_pagination_${sourceSection}`,
+              `personnel_filter_${sourceSection}`
+            ];
+
+            let updatedCount = 0;
+
+            baseKeys.forEach(baseKey => {
+              const storageKey = _resolveSnapshotKey(baseKey);
+              console.log(`[SNAPSHOT] Looking for key: "${storageKey}"`);
+              const snapshot = localStorage.getItem(storageKey);
+
+              if (snapshot) {
+                try {
+                  const state = JSON.parse(snapshot);
+                  if (state.data && Array.isArray(state.data)) {
+                    const beforeLength = state.data.length;
+                    state.data = state.data.filter(p => p.Empl_ID !== currentEmployeeId);
+                    const afterLength = state.data.length;
+
+                    if (beforeLength !== afterLength) {
+                      console.log(`💾 Updated ${storageKey}: ${beforeLength} → ${afterLength} records`);
+                      if (state.paginationInfo?.totalRecords) state.paginationInfo.totalRecords -= 1;
+                      state.timestamp = Date.now();
+                      localStorage.setItem(storageKey, JSON.stringify(state));
+                      updatedCount++;
+                    } else {
+                      console.log(`⏭️ Employee not found in ${storageKey}`);
+                    }
+                  }
+                } catch (error) {
+                  console.error(`Error updating ${storageKey}:`, error);
+                  localStorage.removeItem(storageKey);
+                }
+              } else {
+                console.log(`⏭️ ${storageKey} doesn't exist`);
+              }
+            });
+            
+            if (updatedCount > 0) {
+              console.log(`✅ Updated ${updatedCount} snapshot(s)`);
+            } else {
+              console.warn('⚠️ No snapshots were updated - employee may still appear in source section');
+            }
+          }
+          
+          // Clear navigation states
+          localStorage.removeItem('navigatedFromCurrentPersonnel');
+          localStorage.removeItem('navigatedFromOldPersonnel');
+          localStorage.removeItem('currentPersonnelPage');
+          localStorage.removeItem('currentPersonnelType');
+          localStorage.removeItem('oldPersonnelPage');
+          localStorage.removeItem('oldPersonnelType');
+          
+          // Navigate to destination
+          if (window.navigation?.navigateToSection) {
+            await window.navigation.navigateToSection(redirectSection, redirectTitle);
+          }
+          
+          await new Promise(resolve => setTimeout(resolve, 200));
+          
+          // Smart navigation in destination
+          if (hasExited && window.oldPersonnelManager?.handleEmployeeAdded) {
+            console.log('🎯 Smart navigation in Old Personnel');
+            await window.oldPersonnelManager.handleEmployeeAdded(updatedEmployeeData, 'statusChange');
+          } else if (!hasExited && window.personnelManager?.handleEmployeeAdded) {
+            console.log('🎯 Smart navigation in Current Personnel');
+            await window.personnelManager.handleEmployeeAdded(updatedEmployeeData, 'statusChange');
+          }
+        }else {
+          // ✅ No status change - use existing restoration logic (don't clear states)
+          console.log('✅ Status unchanged - using restoration logic');
+          
+          if (window.navigation?.navigateToSection) {
+            window.navigation.navigateToSection(redirectSection, redirectTitle);
+          }
+        }
+      });
+    }
+        
+    // CREATE MODE - NEW EMPLOYEE
+    else {
+      const serviceNo = document.getElementById('field-service-number')?.value.trim();
+      if (!serviceNo) {
+        showAlert('Service Number is required');
+        return;
+      }
+
+      personnelData.Empl_ID = serviceNo;
+
+      console.log('Creating new employee with service number:', serviceNo);
+
+      // Create employee
+      await apiRequest(`${API_BASE}/employees`, {
+        method: 'POST',
+        body: JSON.stringify(personnelData)
+      });
+           
+      // Create family members (NOK, Spouse, Children)
+      if (pendingFamilyData.nok.length > 0) {
+        for (const nok of pendingFamilyData.nok) {
+          delete nok._tempId;
+          const safeServiceNo = serviceNo.replace(/\//g, '_SLASH_');
+          await apiRequest(`${API_BASE}/employees/${safeServiceNo}/nextofkin`, {
+            method: 'POST',
+            body: JSON.stringify(nok)
+          });
+        }
+      }
+      
+      if (pendingFamilyData.spouse.length > 0) {
+        for (const spouse of pendingFamilyData.spouse) {
+          delete spouse._tempId;
+          const safeServiceNo = serviceNo.replace(/\//g, '_SLASH_');
+          await apiRequest(`${API_BASE}/employees/${safeServiceNo}/spouse`, {
+            method: 'POST',
+            body: JSON.stringify(spouse)
+          });
+        }
+      }
+      
+      if (pendingFamilyData.children.length > 0) {
+        for (const child of pendingFamilyData.children) {
+          delete child._tempId;
+          const safeServiceNo = serviceNo.replace(/\//g, '_SLASH_');
+          await apiRequest(`${API_BASE}/employees/${safeServiceNo}/children`, {
+            method: 'POST',
+            body: JSON.stringify(child)
+          });
+        }
+      }
+
+      // Determine redirect based on exit status
+      const dateLeftVal = personnelData.DateLeft;
+      const exitTypeVal = personnelData.exittype;
+
+      const hasExited =
+        (dateLeftVal && dateLeftVal !== null && dateLeftVal !== '') ||
+        (exitTypeVal && exitTypeVal !== null && exitTypeVal !== '');
+
+      const redirectSection = hasExited ? 'old-personnel' : 'current-personnel';
+      const redirectTitle = hasExited ? 'Old Personnel' : 'Current Personnel';
+
+      // Collect new employee data for smart navigation
+      const newEmployeeData = {
+        Empl_ID: serviceNo,
+        Surname: personnelData.Surname,
+        OtherName: personnelData.OtherName,
+        Title: personnelData.Title,
+        DateLeft: personnelData.DateLeft,
+        exittype: personnelData.exittype,
+        email: personnelData.email,
+        gsm_number: personnelData.gsm_number
+      };
+
+      showPopup("Personnel and family records created successfully", async () => {
+        // Navigate to appropriate section
+        if (window.navigation?.navigateToSection) {
+          await window.navigation.navigateToSection(redirectSection, redirectTitle);
+        }
+
+        // Wait for navigation to complete
+        await new Promise(resolve => setTimeout(resolve, 200));
+
+        // ✨ NEW: Smart navigation for current personnel only
+        if (!hasExited && window.personnelManager?.handleEmployeeAdded) {
+          console.log('🎯 Triggering smart navigation after create');
+          await window.personnelManager.handleEmployeeAdded(newEmployeeData, 'create');
+        } else if (hasExited) {
+          // For old personnel, just refresh normally
+          if (window.oldPersonnelManager?.refresh) {
+            window.oldPersonnelManager.refresh();
+          }
+        } else {
+          // Fallback refresh
+          if (window.personnelManager?.refresh) {
+            window.personnelManager.refresh();
+          }
+        }
+      });
+
+      // Reset form after successful creation
+      document.getElementById('personnelForm')?.reset();
+      pendingFamilyData = { nok: [], spouse: [], children: [] };
+      clearAllFamilyTables();
+      toggleStep(1);
+    }
+
+  } catch (error) {
+    console.error('Submit failed:', error);
+    showAlert('Failed to save employee: ' + error.message);
+  }
+}
+
+// Capitalize first letter, keep the rest lower
+function capitalizeWords(str) {
+  return str
+    ? str
+        .toLowerCase()
+        .split(" ")
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ")
+    : "";
+}
+
+["field-residential-address", "field-town","nokFirst", "nokLast", "nokAddress", "nokWork", "spouseName", "spouseStreet", "spouseTown", "childName", "childStreet", "childTown", "childSchool", "childOffice", "childOccupation"].forEach(fieldId => {
+  const el = document.getElementById(fieldId);
+  el.addEventListener("input", () => {
+    el.value = capitalizeWords(el.value);
+  });
+});
+
+//capitalize all
+["field-service-number", "TaxCode", "field-surname", "field-othername", "NSITFcode", "award", "InternalACNo", "Jobtitle", "NHFcode", "spousePoBox", "childPoBox"].forEach(id => {
+  const el = document.getElementById(id);
+  el.addEventListener("input", () => {
+    el.value = el.value.toUpperCase();
+  });
+});
+
+//Numeric only
+["field-gsm-number", "salarygrade",  "BankACNumber", "nokMobile", "nokHome", "spousePhone", "childPhone"].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) {
+    el.addEventListener("input", () => {
+      el.value = el.value.replace(/[^0-9]/g, '');
+    });
+  }
+});
+
+
+
+//----------Batch Upload Handlers----------//
+document.getElementById("uploadBatchBtn").addEventListener("click", async () => {
+  const fileInput = document.getElementById("batchFile");
+  const file = fileInput.files[0];
+  
+  if (!file) {
+    showAlert('Please select a file to upload');
+    return;
+  }
+  
+  // Validate file input
+  if (!file) {
+    showAlert('Please select a file to upload');
+    return;
+  }
+
+  // Safer validation by extension
+  const allowedExtensions = ['.csv', '.xlsx', '.xls'];
+  const fileName = file.name.toLowerCase();
+  const isExcelOrCsv = allowedExtensions.some(ext => fileName.endsWith(ext));
+
+  if (!isExcelOrCsv) {
+    showAlert('Please upload only CSV or Excel files');
+    return;
+  }
+
+  // Size validation
+  if (file.size > 5 * 1024 * 1024) {
+    showAlert('File size must be less than 5MB');
+    return;
+  }
+
+  try {
+    console.log('Starting upload for file:', file.name);
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const token = localStorage.getItem('token');
+
+    const response = await auth.fetchWithAuth(`${API_BATCH}/batch-upload`, {
+      method: 'POST',
+      headers: {
+        "Authorization": `Bearer ${token}`
+      },
+      body: formData
+    });
+
+    let result;
+
+    // Try to parse JSON safely (even when error occurs)
+    try {
+      result = await response.json();
+    } catch {
+      throw new Error(`Unexpected server response (${response.status})`);
+    }
+
+    if (!response.ok) {
+      // If backend sends { error: "something went wrong" }
+      const message = result.error || result.message || response.statusText || "Unknown error";
+      throw new Error(message);
+    }
+
+    console.log('Upload result:', result);
+
+    // Handle success response
+    if (result.summary) {
+      const summary = result.summary;
+      let message = `Batch upload completed!\n\n`;
+      message += `Total Records: ${summary.totalRecords}\n`;
+      message += `Inserted: ${summary.inserted}\n`;
+      message += `Successful Inserts: ${summary.successful}\n`;
+      message += `Failed Inserts: ${summary.failed}\n`;
+
+      if (summary.duplicates && summary.duplicates.length > 0) {
+        message += `\n⚠️ Duplicate Service Numbers (already exist):\n`;
+        message += summary.duplicates.slice(0, 10).join(', ');
+        if (summary.duplicates.length > 10) {
+          message += ` ...and ${summary.duplicates.length - 10} more`;
+        }
+      }
+
+      if (summary.errors && summary.errors.length > 0) {
+        message += `\n\n❌ Row Errors:\n`;
+        summary.errors.slice(0, 5).forEach(error => {
+          message += `Row ${error.row} (${error.serviceNumber}): ${error.error}\n`;
+        });
+        if (summary.errors.length > 5) {
+          message += `...and ${summary.errors.length - 5} more errors`;
+        }
+      }
+
+      showAlert(message);
+
+      if (summary.successful > 0) {
+  document.getElementById("batchUploadForm").reset();
+  document.getElementById("batchUploadForm").classList.add("hidden");
+  resetBatchUploadForm();
+
+  showPopup(`${summary.successful} personnel uploaded successfully`, async () => {
+    try {
+      console.log('🚀 BATCH UPLOAD: Starting complete refresh...');
+      
+      // ============================================================
+      // STEP 1: NUCLEAR OPTION - Clear EVERYTHING
+      // ============================================================
+      console.log('💣 NUCLEAR: Clearing all personnel-related data...');
+      
+      // Clear all snapshots
+      localStorage.removeItem('personnel_filter_current');
+      localStorage.removeItem('personnel_pagination_current');
+      localStorage.removeItem('personnel_filter_old');
+      localStorage.removeItem('personnel_pagination_old');
+      
+      // Clear navigation states
+      localStorage.removeItem('navigatedFromCurrentPersonnel');
+      localStorage.removeItem('navigatedFromOldPersonnel');
+      localStorage.removeItem('currentPersonnelPage');
+      localStorage.removeItem('currentPersonnelType');
+      localStorage.removeItem('oldPersonnelPage');
+      localStorage.removeItem('oldPersonnelType');
+      
+      // If manager exists, destroy it completely
+      if (window.personnelManager) {
+        console.log('💣 NUCLEAR: Destroying personnel manager instance...');
+        window.personnelManager.currentPage = 1;
+        window.personnelManager.personnel = [];
+        window.personnelManager.filteredPersonnel = [];
+        window.personnelManager.paginationInfo = {};
+        window.personnelManager.lastFilterParams = null;
+        
+        // Cancel any in-flight requests
+        if (window.personnelManager.activeFilterController) {
+          window.personnelManager.activeFilterController.abort();
+          window.personnelManager.activeFilterController = null;
+        }
+      }
+      
+      console.log('✅ All data cleared');
+      
+      // ============================================================
+      // STEP 2: Navigate
+      // ============================================================
+      console.log('📍 Navigating to current-personnel...');
+      
+      if (window.navigation?.navigateToSection) {
+        await window.navigation.navigateToSection('current-personnel', 'Current Personnel');
+      }
+
+      // ============================================================
+      // STEP 3: Wait for initialization to complete
+      // ============================================================
+      console.log('⏳ Waiting for complete initialization...');
+      await new Promise(resolve => setTimeout(resolve, 600)); // Even longer wait
+      
+      // ============================================================
+      // STEP 4: Verify manager and force reload if needed
+      // ============================================================
+      if (!window.personnelManager) {
+        console.error('❌ CRITICAL: personnelManager not initialized!');
+        alert('Error initializing personnel manager. Please refresh the page manually.');
+        return;
+      }
+      
+      console.log('✅ Personnel manager exists');
+      
+      // Check what data was loaded
+      const loadedCount = window.personnelManager.personnel?.length || 0;
+      console.log('📊 Currently loaded:', loadedCount, 'records');
+      
+      // ============================================================
+      // STEP 5: Force a fresh reload regardless
+      // ============================================================
+      console.log('🔄 Forcing fresh reload from API...');
+      
+      // Clear UI filters
+      const searchInput = document.getElementById('current-personnel-search');
+      const rankFilter = document.getElementById('rank-filter');
+      const statusFilter = document.getElementById('status-filter');
+      
+      if (searchInput) searchInput.value = '';
+      if (rankFilter) rankFilter.value = '';
+      if (statusFilter) statusFilter.value = '';
+      
+      // Reset manager state
+      window.personnelManager.currentPage = 1;
+      window.personnelManager.personnel = [];
+      window.personnelManager.filteredPersonnel = [];
+      window.personnelManager.paginationInfo = {};
+      
+      // Force fresh load
+      if (window.personnelManager.forceNextLoad !== undefined) {
+        window.personnelManager.forceNextLoad = true;
+      }
+      
+      // Load page 1
+      await window.personnelManager.loadPersonnelData('current', 1);
+      
+      // ============================================================
+      // STEP 6: Verify new data loaded
+      // ============================================================
+      const newCount = window.personnelManager.personnel?.length || 0;
+      const totalRecords = window.personnelManager.paginationInfo?.totalRecords || 0;
+      
+      console.log('📊 After reload:', {
+        page: window.personnelManager.currentPage,
+        loaded: newCount,
+        total: totalRecords,
+        hasNext: window.personnelManager.paginationInfo?.hasNextPage
+      });
+      
+      // ============================================================
+      // STEP 7: Verify table rendered
+      // ============================================================
+      const tbody = document.getElementById('personnel-table-body');
+      
+      if (!tbody) {
+        console.error('❌ Table body not found!');
+        alert('Error: Table not found. Please refresh the page.');
+        return;
+      }
+      
+      const rows = tbody.querySelectorAll('tr');
+      console.log('📊 Table rows:', rows.length);
+      
+      // If no rows or loading message, force render
+      if (rows.length === 0 || rows[0]?.textContent?.includes('Loading')) {
+        console.log('🔧 Force rendering table...');
+        await window.personnelManager.renderTable();
+      }
+      
+      // ============================================================
+      // STEP 8: Show success banner with verification
+      // ============================================================
+      if (newCount > 0) {
+        console.log('✅ SUCCESS: Data loaded and displayed');
+        
+        setTimeout(() => {
+          const container = document.querySelector('#personnel-table-body')?.parentElement?.parentElement;
+          if (container) {
+            const existingBanner = container.querySelector('.batch-upload-banner');
+            if (existingBanner) existingBanner.remove();
+            
+            const banner = document.createElement('div');
+            banner.className = 'batch-upload-banner bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4';
+            banner.innerHTML = `
+              <div class="flex items-center justify-between">
+                <div>
+                  <strong>✅ Batch Upload Complete!</strong><br>
+                  <span class="text-sm">
+                    ${summary.successful} employees uploaded successfully | 
+                    Showing ${newCount} of ${totalRecords} total records on page 1
+                  </span>
+                </div>
+                <button onclick="this.parentElement.parentElement.remove()" class="text-green-700 hover:text-green-900 font-bold text-xl px-2">×</button>
+              </div>
+            `;
+            container.insertBefore(banner, container.firstChild);
+            
+            setTimeout(() => banner.remove(), 8000);
+          }
+        }, 300);
+      } else {
+        // ============================================================
+        // STEP 9: Nuclear fallback - suggest manual refresh
+        // ============================================================
+        console.error('❌ CRITICAL: No data loaded after all attempts!');
+        
+        const shouldRefresh = confirm(
+          `Upload successful! However, the table is not refreshing automatically.\n\n` +
+          `${summary.successful} employees were uploaded to the database.\n\n` +
+          `Click OK to refresh the entire page, or Cancel to manually navigate to Current Personnel.`
+        );
+        
+        if (shouldRefresh) {
+          console.log('🔄 User chose to refresh page');
+          window.location.reload();
+        }
+      }
+      
+    } catch (error) {
+      console.error('❌ CRITICAL ERROR in batch upload:', error);
+      
+      const shouldRefresh = confirm(
+        `Upload was successful, but an error occurred while displaying the data.\n\n` +
+        `Error: ${error.message}\n\n` +
+        `Click OK to refresh the page.`
+      );
+      
+      if (shouldRefresh) {
+        window.location.reload();
+      }
+    }
+  });
+}
+    } else {
+      // No summary object (fallback for older backend responses)
+      showPopup('Upload completed successfully!');
+      document.getElementById("batchUploadForm").reset();
+      document.getElementById("batchUploadForm").classList.add("hidden");
+
+      showPopup("Personnel Uploaded successfully", async () => {
+        if (window.navigation?.navigateToSection) {
+          await window.navigation.navigateToSection('current-personnel', 'Current Personnel');
+        }
+        
+        await new Promise(resolve => setTimeout(resolve, 200));
+        
+        if (window.personnelManager) {
+          window.personnelManager.clearNormalPaginationState();
+          window.personnelManager.clearFilterState();
+          
+          const searchInput = document.getElementById('current-personnel-search');
+          const rankFilter = document.getElementById('rank-filter');
+          const statusFilter = document.getElementById('status-filter');
+          
+          if (searchInput) searchInput.value = '';
+          if (rankFilter) rankFilter.value = '';
+          if (statusFilter) statusFilter.value = '';
+          
+          await window.personnelManager.loadPersonnelData('current', 1);
+        }
+      });
+    }
+
+  } catch (error) {
+    console.error('Batch upload failed:', error);
+    showAlert(`❌ Upload failed:\n${error.message}`);
+  }
+});
+
+// Download sample template
+document.getElementById("downloadSampleBtn").addEventListener("click", async (e) => {
+  e.preventDefault();
+  try {
+    const response = await auth.fetchWithAuth(`${API_BATCH}/batch-template`, {
+      method: 'GET',
+      headers: API_HEADERS
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to download sample: ${response.statusText}`);
+    }
+
+    // Handle file download
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'sample_template.xlsx';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error('Failed to download sample:', error);
+    showAlert('Failed to download sample template');
+  }
+});
+
+
+// Show selected file info
+document.addEventListener('DOMContentLoaded', () => {
+  const batchFileInput = document.getElementById("batchFile");
+  if (batchFileInput) {
+    batchFileInput.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const fileInfo = document.createElement('div');
+        fileInfo.className = 'mt-2 text-sm text-gray-600 file-info';
+        fileInfo.textContent = `Selected: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+
+        const existingInfo = e.target.parentNode.querySelector('.file-info');
+        if (existingInfo) existingInfo.remove();
+
+        e.target.parentNode.appendChild(fileInfo);
+      }
+    });
+  }
+});
+
+// Cancel Batch Upload — reset everything cleanly
+function resetBatchUploadForm() {
+  const form = document.getElementById("batchUploadForm");
+  const fileInput = document.getElementById("batchFile");
+
+  if (!form) return;
+
+  // Clear file input
+  if (fileInput) {
+    fileInput.value = "";
+  }
+
+  // Remove file info (e.g., "Selected: file.xlsx (123 KB)")
+  const fileInfo = form.querySelector(".file-info");
+  if (fileInfo) {
+    fileInfo.remove();
+  }
+
+  // Optionally clear alerts or messages
+  if (typeof clearAlerts === "function") clearAlerts();
+
+  console.log(" Batch upload form reset successfully");
+}
+
+// Cancel Button handler
+document.getElementById("cancelBatchBtn").addEventListener("click", resetBatchUploadForm);
+
+// Global API
+window.PersonnelAPI = {
+  loadEmployeeDataForEdit,
+  setCreateMode,
+  setEditMode,
+  getCurrentEmployee: () => currentEmployeeId,
+  getFormMode: () => formMode,
+  showTab,
+  validateForm: validatePersonnelForm,
+  clearAllFamilyTables,
+  setNavigatedFromCurrentPersonnel: (value) => {
+    navigatedFromCurrentPersonnel = value;
+  },
+  setNavigatedFromOldPersonnel: (value) => {
+    navigatedFromOldPersonnel = value;
+  }
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+  setCreateMode();
+});
+</script>

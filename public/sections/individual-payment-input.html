@@ -1,0 +1,1114 @@
+<style>
+  @keyframes grow-up {
+    0% { height: 0; bottom: 0; }
+    100% { height: 100%; bottom: 0; }
+  }
+  @keyframes grow-down {
+    0% { height: 0; top: 0; }
+    100% { height: 100%; top: 0; }
+  }
+  @keyframes expand {
+    0% { width: 0; left: 50%; transform: translate(-50%, -50%); }
+    100% { width: 100%; left: 0; transform: translateY(-50%); }
+  }
+  .animate-grow-up {
+    animation: grow-up 0.6s ease-in-out infinite alternate;
+    position: absolute;
+    bottom: 0;
+  }
+  .animate-grow-down {
+    animation: grow-down 0.6s ease-in-out infinite alternate;
+    position: absolute;
+    top: 0;
+  }
+  .animate-expand {
+    animation: expand 0.6s ease-in-out infinite alternate;
+  }
+</style>
+
+<div class="p-6">
+
+  <div class="flex flex-wrap gap-2 items-center justify-between mb-4">
+    <div>
+      <!-- Search Input -->
+      <div class="relative">
+        <input type="text" id="tableSearchInput" placeholder="Search by Service No or Type..."
+          class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 w-64" />
+        <button id="clearSearchBtn" class="hidden absolute right-2 top-2 text-gray-400 hover:text-gray-600">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="flex flex-wrap gap-2">
+      <button id="createPaymentBtn" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded shadow">+ Add
+        Payment</button>
+      <button id="quickNav-irregular-one-off-reports"
+        onclick="window.navigation.navigateToSection('irregular-one-off-reports', 'One-Off Reports')"
+        class="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700">
+        <i class="fas fa-file-alt mr-2"></i>Generate Report
+      </button>
+    </div>
+  </div>
+
+  <div id="paymentFormWrapper" class="hidden items border rounded-lg m-6 max-w-lg mr-auto p-6 mx-auto">
+    <!-- header -->
+    <h2 id="formTitle" class="text-xl font-bold text-blue-700 mb-4">Add One-Off Individual Payment Input</h2>
+    <!-- form -->
+    <form id="paymentForm" class="grid grid-cols-1 gap-2">
+      <label for="paymentDescription" class="block font-semibold text-gray-900 text-sm"> Number/Name</label>
+      <!-- Employee Search Dropdown -->
+      <div class="relative col-span-1">
+        <div class="relative">
+          <input type="text" id="searchInput"
+            class="w-full border border-blue-500 focus:border-yellow-500 bg-transparent rounded-md px-3 py-2"
+            placeholder="Search Name or Number..." autocomplete="off">
+          <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </span>
+        </div>
+
+        <div id="dropdownList"
+          class="absolute z-10 w-full mt-1 bg-yellow-50 border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto hidden">
+          <div class="py-1" id="employeeDropdownItems">
+            <!-- Items will be loaded dynamically -->
+          </div>
+        </div>
+      </div>
+
+      <label for="paymentDescription" class="block font-semibold text-gray-900 text-sm">Payment Description</label>
+      <select name="paymentDescription" id="description"
+        class="border border-blue-500 focus:border-yellow-500 bg-transparent rounded-md px-3 py-2 w-full">
+        <option value="">Select Payment Description...</option>
+      </select>
+
+      <label for="paymentAmount" class="block font-semibold text-gray-900 text-sm">Payment Amount</label>
+      <input type="number" id="paymentAmount"
+        class="border border-blue-500 focus:border-yellow-500 bg-transparent rounded-md px-3 py-2 w-full"
+        placeholder="Enter Payment Amount">
+
+      <div class="flex justify-end gap-2">
+        <button type="button" id="clearBtn"
+          class="px-4 text-black py-1 bg-gray-300 hover:bg-gray-400 text-white rounded shadow">Cancel</button>
+        <button id="saveBtn" class="px-4 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded shadow">Submit</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Table -->
+  <div class="overflow-x-auto">
+    <table class="min-w-full border border-gray-200 rounded-lg">
+      <thead class="bg-blue-100 text-blue-900">
+        <tr>
+          <th class="py-2 px-4 border text-left">Service No</th>
+          <th class="py-2 px-4 border text-left">Type</th>
+          <th class="py-2 px-4 border text-left">Amount</th>
+          <th class="py-2 px-4 border text-left">Action</th>
+        </tr>
+      </thead>
+      <tbody id="paymentTableBody" class="text-left text-[14px]">
+        <tr>
+          <td colspan="4" class="py-4 text-gray-500">Loading...</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination Controls -->
+  <div class="flex flex-col sm:flex-row justify-between items-center mt-4 gap-4">
+    <div class="flex items-center gap-2">
+      <label for="recordsPerPage" class="text-sm text-gray-600">Records per page:</label>
+      <select id="recordsPerPage" class="border border-gray-300 rounded px-2 py-1 text-sm">
+        <option value="10">10</option>
+        <option value="25">25</option>
+        <option value="50">50</option>
+        <option value="100">100</option>
+      </select>
+    </div>
+
+    <div class="text-sm text-gray-600">
+      Showing <span id="startRecord">0</span> to <span id="endRecord">0</span> of <span id="totalRecords">0</span>
+      records
+    </div>
+
+    <div class="flex items-center gap-2">
+      <button id="prevPage"
+        class="px-3 py-1 border border-gray-300 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed">
+        Previous
+      </button>
+      <span class="text-sm text-gray-600">
+        Page <span id="currentPage">1</span> of <span id="totalPages">1</span>
+      </span>
+      <button id="nextPage"
+        class="px-3 py-1 border border-gray-300 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed">
+        Next
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div id="confirmModal"
+  class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm hidden flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+    <h3 class="text-lg font-semibold text-gray-800 mb-4">Confirm Delete</h3>
+    <p class="text-gray-600 mb-6">Are you sure you want to delete this record? This action cannot be undone.</p>
+    <div class="flex justify-end space-x-4">
+      <button id="cancelDelete" class="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400">Cancel</button>
+      <button id="confirmDelete" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- Success Modal -->
+<div id="successModal"
+  class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm hidden flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg p-8 max-w-sm w-full mx-4 text-center">
+    <div id="loadingSpinner" class="flex justify-center mb-4">
+      <div class="relative w-10 h-10">
+        <div class="absolute left-1 w-[6px] bg-blue-600 rounded animate-grow-up"></div>
+        <div class="absolute right-1 w-[6px] bg-blue-600 rounded animate-grow-down [animation-delay:0.3s]"></div>
+        <div
+          class="absolute top-1/2 left-1 h-[6px] bg-blue-600 rounded animate-expand [animation-delay:0.6s] -translate-y-1/2">
+        </div>
+      </div>
+    </div>
+    <div id="successTick" class="hidden flex justify-center mb-4">
+      <div class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
+        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+        </svg>
+      </div>
+    </div>
+    <div id="errorIcon" class="hidden flex justify-center mb-4">
+      <div class="w-10 h-10 bg-red-500 rounded-full flex items-center justify-center">
+        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </div>
+    </div>
+    <p id="successMessage" class="text-gray-700 font-medium">Processing...</p>
+  </div>
+</div>
+
+
+<script>
+  const auth = window.authService;
+  (function () {
+    let allData = []; // Store all data for client-side filtering
+    let filteredData = []; // Store filtered results
+    let allEmployees = [];
+    let elementTypeData = [];
+    let isEditing = false;
+    let editingRecord = null;
+    let rowToDelete = null;
+    let lookupMaps = {};
+
+    const formWrapper = document.getElementById('paymentFormWrapper');
+    const form = document.getElementById("paymentForm");
+    const tableBody = document.getElementById("paymentTableBody");
+    const saveBtn = document.getElementById("saveBtn");
+    const clearBtn = document.getElementById("clearBtn");
+    const createPaymentBtn = document.getElementById("createPaymentBtn");
+
+    // Modals
+    const confirmModal = document.getElementById("confirmModal");
+    const successModal = document.getElementById("successModal");
+    const loadingSpinner = document.getElementById("loadingSpinner");
+    const successTick = document.getElementById("successTick");
+    const errorIcon = document.getElementById("errorIcon");
+    const successMessage = document.getElementById("successMessage");
+    const cancelDelete = document.getElementById("cancelDelete");
+    const confirmDelete = document.getElementById("confirmDelete");
+
+    // Dropdown elements
+    const searchInput = document.getElementById('searchInput');
+    const dropdownList = document.getElementById('dropdownList');
+    const employeeDropdownItems = document.getElementById('employeeDropdownItems');
+
+    // Pagination variables
+    let currentPage = 1;
+    let recordsPerPage = 10;
+    let currentSearchQuery = '';
+
+    // Pagination elements
+    const prevPageBtn = document.getElementById('prevPage');
+    const nextPageBtn = document.getElementById('nextPage');
+    const currentPageSpan = document.getElementById('currentPage');
+    const totalPagesSpan = document.getElementById('totalPages');
+    const recordsPerPageSelect = document.getElementById('recordsPerPage');
+    const startRecordSpan = document.getElementById('startRecord');
+    const endRecordSpan = document.getElementById('endRecord');
+    const totalRecordsSpan = document.getElementById('totalRecords');
+
+    // Table search elements
+    const tableSearchInput = document.getElementById('tableSearchInput');
+    const clearSearchBtn = document.getElementById('clearSearchBtn');
+
+    // Add hidden input to store the selected employee ID
+    const hiddenInput = document.createElement('input');
+    hiddenInput.type = 'hidden';
+    hiddenInput.name = 'paymentName';
+    hiddenInput.id = 'paymentName';
+    document.getElementById('paymentForm').appendChild(hiddenInput);
+
+    async function fetchEmployees() {
+      if (allEmployees.length > 0) return;
+
+      employeeDropdownItems.innerHTML = `
+      <div class="px-3 py-4 text-center text-gray-500">
+        <div class="relative w-7 h-7 mx-auto mb-2">
+          <div class="absolute left-1 w-[3px] bg-gray-500 rounded animate-grow-up"></div>
+          <div class="absolute right-1 w-[3px] bg-gray-500 rounded animate-grow-down [animation-delay:0.3s]"></div>
+          <div class="absolute top-1/2 left-1 h-[3px] bg-gray-500 rounded animate-expand [animation-delay:0.6s] -translate-y-1/2"></div>
+        </div>
+        Loading employees...
+      </div>
+    `;
+
+      try {
+        const token = localStorage.getItem('token');
+        const response = await auth.fetchWithAuth('/regno/employees', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        const result = await response.json();
+
+        if (result.data && Array.isArray(result.data)) {
+          allEmployees = result.data;
+          renderEmployeeDropdown(allEmployees);
+        } else {
+          employeeDropdownItems.innerHTML = `
+          <div class="px-3 py-4 text-center text-red-500">
+            Failed to load employees
+          </div>
+        `;
+        }
+      } catch (error) {
+        console.error('Error fetching employees:', error);
+        employeeDropdownItems.innerHTML = `
+        <div class="px-3 py-4 text-center text-red-500">
+          Error loading employees
+        </div>
+      `;
+      }
+    }
+
+    function renderEmployeeDropdown(employees) {
+      employeeDropdownItems.innerHTML = '';
+
+      employees.forEach(emp => {
+        const div = document.createElement('div');
+        div.className = 'dropdown-item px-3 py-2 hover:bg-blue-50 cursor-pointer border-b border-gray-100';
+        div.setAttribute('data-value', emp.Empl_ID);
+        div.innerHTML = `
+        <span class="font-semibold text-blue-600">${emp.Empl_ID}</span> - ${emp.Surname} ${emp.OtherName}
+      `;
+
+        div.addEventListener('click', function () {
+          const value = this.getAttribute('data-value');
+          const text = this.textContent.trim();
+
+          searchInput.value = text;
+          hiddenInput.value = value;
+          dropdownList.classList.add('hidden');
+        });
+
+        employeeDropdownItems.appendChild(div);
+      });
+    }
+
+    // DROPDOWN FUNCTIONALITY
+    searchInput.addEventListener('focus', () => {
+      dropdownList.classList.remove('hidden');
+    });
+
+    searchInput.addEventListener('input', function () {
+      const searchText = this.value.toLowerCase();
+      const items = employeeDropdownItems.querySelectorAll('.dropdown-item');
+
+      items.forEach(item => {
+        const text = item.textContent.toLowerCase();
+        const shouldShow = text.includes(searchText);
+        item.style.display = shouldShow ? 'block' : 'none';
+      });
+
+      dropdownList.classList.remove('hidden');
+    });
+
+    document.addEventListener('click', function (e) {
+      if (!searchInput.contains(e.target) && !dropdownList.contains(e.target)) {
+        dropdownList.classList.add('hidden');
+      }
+    });
+
+    searchInput.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') {
+        dropdownList.classList.add('hidden');
+        this.blur();
+      }
+    });
+
+    // fetch pay elements 
+    async function loadDropdown(endpoint, elementId, valueField, textField, placeholder) {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await auth.fetchWithAuth(`/reference/${endpoint}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          }
+        });
+        const data = await response.json();
+
+        // BUILD THE LOOKUP MAP FIRST
+        lookupMaps[endpoint] = Object.fromEntries(
+          data.map(item => [item[valueField], item[textField]])
+        );
+
+        // THEN POPULATE THE DROPDOWN IF IT EXISTS
+        const dropdown = document.getElementById(elementId);
+        if (dropdown) {
+          dropdown.innerHTML = `<option value="">${placeholder}</option>`;
+          data.forEach(item => {
+            const option = document.createElement("option");
+            option.value = item[valueField];
+            option.textContent = item[textField];
+            dropdown.appendChild(option);
+          });
+        }
+
+        return data;
+      } catch (err) {
+        console.error(`Failed to load ${endpoint}:`, err);
+        return [];
+      }
+    }
+
+    async function loadAllDropdowns() {
+      await loadDropdown("oneoff", "description", "one_type", "one_type", "Select One-Off Type");
+    }
+
+    function resolveName(code, endpoint) {
+      if (!code) return 'N/A';
+      return lookupMaps[endpoint]?.[code] || code;
+    }
+
+    //API calls
+    async function loadIndividualPayments() {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await auth.fetchWithAuth('/individual', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        const result = await response.json();
+
+        allData = result.data || [];
+        applyFilters();
+      } catch (error) {
+        console.error('Error loading individual payments:', error);
+        showError('Error loading individual payments');
+      }
+    }
+
+    function applyFilters() {
+      // Filter data based on search query
+      if (currentSearchQuery) {
+        const query = currentSearchQuery.toLowerCase();
+        filteredData = allData.filter(item =>
+          item.his_empno.toLowerCase().includes(query) ||
+          item.his_type.toLowerCase().includes(query) ||
+          resolveName(item.his_type, "elementtype").toLowerCase().includes(query)
+        );
+      } else {
+        filteredData = [...allData];
+      }
+
+      // Reset to first page when filters change
+      currentPage = 1;
+      renderTable();
+      updatePaginationUI();
+    }
+
+    async function submitPayment(data) {
+      try {
+        const token = localStorage.getItem('token');
+
+        const response = await auth.fetchWithAuth('/individual/create', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          showSuccessModal('Payment submitted successfully');
+          clearForm();
+          formWrapper.classList.add('hidden');
+          await loadIndividualPayments();
+        } else {
+          showError(result.message || 'Failed to submit payment');
+        }
+      } catch (error) {
+        console.error('Error submitting payment:', error);
+        showError('Error submitting payment');
+      }
+    }
+
+    async function updatePayment(his_empno, his_type, data) {
+      try {
+        const token = localStorage.getItem('token');
+        const hisEmpno = his_empno.replace(/\//g, '_SLASH_');
+        const hisType = his_type.replace(/\//g, '_SLASH_');
+
+        const response = await auth.fetchWithAuth(`/individual/${hisEmpno}/${hisType}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          showSuccessModal('Payment updated successfully');
+          clearForm();
+          formWrapper.classList.add('hidden');
+          await loadIndividualPayments();
+        } else {
+          showError(result.message || 'Failed to update payment');
+        }
+      } catch (error) {
+        console.error('Error updating payment:', error);
+        showError('Error updating payment');
+      }
+    }
+
+    async function deletePayment(his_empno, his_type) {
+      try {
+        const token = localStorage.getItem('token');
+        const hisEmpno = his_empno.replace(/\//g, '_SLASH_');
+        const hisType = his_type.replace(/\//g, '_SLASH_');
+
+        const response = await auth.fetchWithAuth(`/individual/${hisEmpno}/${hisType}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          showSuccessModal('Record deleted successfully!');
+          await loadIndividualPayments();
+        } else {
+          showError(result.message || 'Failed to delete payment');
+        }
+      } catch (error) {
+        console.error('Error deleting payment:', error);
+        showError('Error deleting payment');
+      }
+    }
+
+    // render table
+    function renderTable() {
+      tableBody.innerHTML = '';
+
+      const totalRecords = filteredData.length;
+      const totalPages = Math.ceil(totalRecords / recordsPerPage);
+
+      if (totalRecords === 0) {
+        tableBody.innerHTML = `
+        <tr>
+          <td colspan="4" class="py-4 text-gray-500">${currentSearchQuery ? 'No records found matching your search' : 'No records found'}</td>
+        </tr>
+      `;
+        return;
+      }
+
+      // Calculate pagination
+      const startIndex = (currentPage - 1) * recordsPerPage;
+      const endIndex = Math.min(startIndex + recordsPerPage, totalRecords);
+      const pageData = filteredData.slice(startIndex, endIndex);
+
+      pageData.forEach(item => {
+        const row = document.createElement('tr');
+        row.className = 'hover:bg-yellow-50';
+        row.innerHTML = `
+        <td class="py-2 px-4 border">${item.his_empno}</td>
+        <td class="py-2 px-4 border">${item.description || item.his_type} (${item.his_type})</td>
+        <td class="py-2 px-4 border">₦${Number(item.amtthismth).toLocaleString()}</td>
+        <td class="py-2 px-4 border">
+          <button onclick="editRow('${item.his_empno}', '${escapeQuotes(item.his_type)}')" class="text-blue-600 hover:underline">Edit</button> |
+          <button onclick="deleteRow('${item.his_empno}', '${escapeQuotes(item.his_type)}')" class="text-red-600 hover:underline">Delete</button>
+        </td>
+      `;
+        tableBody.appendChild(row);
+      });
+    }
+
+    function escapeQuotes(str) {
+      return str.replace(/'/g, "\\'").replace(/"/g, '\\"');
+    }
+
+    function updatePaginationUI() {
+      const totalRecords = filteredData.length;
+      const totalPages = Math.ceil(totalRecords / recordsPerPage) || 1;
+
+      currentPageSpan.textContent = currentPage;
+      totalPagesSpan.textContent = totalPages;
+
+      const start = totalRecords === 0 ? 0 : (currentPage - 1) * recordsPerPage + 1;
+      const end = Math.min(start + recordsPerPage - 1, totalRecords);
+
+      startRecordSpan.textContent = start;
+      endRecordSpan.textContent = end;
+      totalRecordsSpan.textContent = totalRecords;
+
+      prevPageBtn.disabled = currentPage <= 1;
+      nextPageBtn.disabled = currentPage >= totalPages;
+
+      // Show/hide clear button based on search query
+      if (currentSearchQuery) {
+        clearSearchBtn.classList.remove('hidden');
+      } else {
+        clearSearchBtn.classList.add('hidden');
+      }
+    }
+
+    function performSearch() {
+      applyFilters();
+    }
+
+    function clearSearch() {
+      currentSearchQuery = '';
+      tableSearchInput.value = '';
+      clearSearchBtn.classList.add('hidden');
+      applyFilters();
+    }
+
+    function toggleForm() {
+      formWrapper.classList.toggle("hidden");
+    }
+
+    function savePayment(e) {
+      e.preventDefault();
+      const data = {
+        his_empno: document.getElementById('paymentName').value,
+        his_type: document.getElementById('description').value,
+        amtthismth: document.getElementById('paymentAmount').value
+      };
+
+      if (!data.his_empno || !data.his_type || !data.amtthismth) {
+        showError('Please fill in all required fields');
+        return;
+      }
+
+      if (isEditing && editingRecord) {
+        updatePayment(editingRecord.his_empno, editingRecord.his_type, data);
+      } else {
+        submitPayment(data);
+      }
+    }
+
+    async function loadPaymentForEdit(his_empno, his_type) {
+      try {
+        const token = localStorage.getItem('token');
+
+        const safeEmpno = his_empno.replace(/\//g, '_SLASH_');
+
+        if (allEmployees.length === 0) {
+          await fetchEmployees();
+        }
+
+        const response = await auth.fetchWithAuth(`/individual/${safeEmpno}`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        const result = await response.json();
+
+        if (result.success && result.data) {
+          const payment = result.data.find(p => p.his_type === his_type);
+
+          if (payment) {
+            document.getElementById('paymentName').value = payment.his_empno;
+
+            const employee = allEmployees.find(emp => emp.Empl_ID === payment.his_empno);
+            document.getElementById('searchInput').value = employee
+              ? `${employee.Empl_ID} - ${employee.Surname} ${employee.OtherName}`
+              : payment.his_empno;
+
+            document.getElementById('description').value = payment.his_type;
+            document.getElementById('paymentAmount').value = payment.amtthismth;
+
+            isEditing = true;
+            editingRecord = { his_empno: payment.his_empno, his_type: payment.his_type };
+            document.getElementById('formTitle').textContent = 'Edit Individual Payment';
+            saveBtn.textContent = 'Update';
+            formWrapper.classList.remove('hidden');
+          } else {
+            showError('Payment record not found for editing');
+          }
+        } else {
+          showError(result.message || 'Failed to load payment for editing');
+        }
+      } catch (error) {
+        console.error('Error loading payment for edit:', error);
+        showError('Error loading payment for edit');
+      }
+    }
+
+    window.editRow = function (his_empno, his_type) {
+      const unescapedType = his_type.replace(/_SLASH_/g, '/');
+      const unescapedEmpno = his_empno.replace(/_SLASH_/g, '/');
+      loadPaymentForEdit(unescapedEmpno, unescapedType);
+    };
+
+    window.deleteRow = function (his_empno, his_type) {
+      rowToDelete = { his_empno, his_type };
+      confirmModal.classList.remove("hidden");
+    };
+
+    //modal functions
+    function showSuccessModal(message, isError = false) {
+      successMessage.textContent = "Processing...";
+      loadingSpinner.classList.remove("hidden");
+      successTick.classList.add("hidden");
+      errorIcon.classList.add("hidden");
+      successModal.classList.remove("hidden");
+
+      setTimeout(() => {
+        loadingSpinner.classList.add("hidden");
+
+        if (isError) {
+          errorIcon.classList.remove("hidden");
+        } else {
+          successTick.classList.remove("hidden");
+        }
+
+        successMessage.textContent = message;
+
+        setTimeout(() => {
+          successModal.classList.add("hidden");
+        }, 2000);
+      }, 1000);
+    }
+
+    function showError(message) {
+      showSuccessModal(message, true);
+    }
+
+    function clearForm() {
+      document.getElementById('paymentForm').reset();
+      hiddenInput.value = '';
+      searchInput.value = '';
+      formWrapper.classList.add('hidden');
+      isEditing = false;
+      editingRecord = null;
+    }
+
+    clearBtn.addEventListener('click', clearForm);
+
+    createPaymentBtn.addEventListener('click', () => {
+      isEditing = false;
+      editingRecord = null;
+      document.getElementById('formTitle').textContent = 'Add One-Off Individual Payment Input';
+      saveBtn.textContent = 'Submit';
+      clearForm();
+      formWrapper.classList.remove('hidden');
+    });
+
+    form.addEventListener('submit', savePayment);
+
+    cancelDelete.addEventListener("click", () => {
+      confirmModal.classList.add("hidden");
+      rowToDelete = null;
+    });
+
+    confirmDelete.addEventListener("click", () => {
+      if (rowToDelete) {
+        deletePayment(rowToDelete.his_empno, rowToDelete.his_type);
+      }
+      confirmModal.classList.add("hidden");
+      rowToDelete = null;
+    });
+
+    confirmModal.addEventListener("click", (e) => {
+      if (e.target === confirmModal) {
+        confirmModal.classList.add("hidden");
+        rowToDelete = null;
+      }
+    });
+
+    successModal.addEventListener("click", (e) => {
+      if (e.target === successModal) {
+        successModal.classList.add("hidden");
+      }
+    });
+
+    // Pagination event listeners
+    prevPageBtn.addEventListener('click', () => {
+      if (currentPage > 1) {
+        currentPage--;
+        renderTable();
+        updatePaginationUI();
+      }
+    });
+
+    nextPageBtn.addEventListener('click', () => {
+      const totalPages = Math.ceil(filteredData.length / recordsPerPage);
+      if (currentPage < totalPages) {
+        currentPage++;
+        renderTable();
+        updatePaginationUI();
+      }
+    });
+
+    recordsPerPageSelect.addEventListener('change', (e) => {
+      recordsPerPage = parseInt(e.target.value);
+      currentPage = 1;
+      renderTable();
+      updatePaginationUI();
+    });
+
+    // TABLE SEARCH FUNCTIONALITY
+    let searchTimeout;
+    tableSearchInput.addEventListener('input', (e) => {
+      clearTimeout(searchTimeout);
+      const query = e.target.value.trim();
+
+      // Debounce search by 500ms
+      searchTimeout = setTimeout(() => {
+        currentSearchQuery = query;
+        performSearch();
+      }, 500);
+    });
+
+    // Clear search button
+    clearSearchBtn.addEventListener('click', clearSearch);
+
+    // Allow Enter key to trigger immediate search
+    tableSearchInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        clearTimeout(searchTimeout);
+        currentSearchQuery = e.target.value.trim();
+        performSearch();
+      }
+    });
+
+    //generate reports functionality
+    async function generateReport() {
+      const REPORT_API_URL = '/individual';
+
+      let fullData;
+      try {
+        const token = localStorage.getItem('token');
+        const response = await auth.fetchWithAuth(REPORT_API_URL, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          }
+        });
+        const result = await response.json();
+
+        if (!result.success) {
+          showError('Failed to load report data: ' + result.message);
+          return;
+        }
+
+        fullData = result.data;
+
+      } catch (error) {
+        console.error('Error fetching report data:', error);
+        showError('An error occurred while fetching report data.');
+        return;
+      }
+
+      if (!fullData || fullData.length === 0) {
+        showError('No records found for the report.');
+        return;
+      }
+
+      // Pre-resolve all type names before creating print window
+      const data = fullData.map(item => ({
+        ...item,
+        typeName: resolveName(item.his_type, "elementtype")
+      }));
+
+      const now = new Date();
+      const dateStr = now.toLocaleDateString('en-GB', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+      const timeStr = now.toLocaleTimeString('en-GB', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      });
+
+      const printWindow = window.open('', '_blank');
+
+      const formatCurrency = (amount) => {
+        if (!amount) return '-';
+        return new Intl.NumberFormat('en-NG', {
+          style: 'currency',
+          currency: 'NGN'
+        }).format(amount);
+      };
+
+      const printContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+      <meta charset="utf-8">
+        <title>Payments/Deductions Report</title>
+        <style>
+          @page { 
+            size: A4; 
+            margin: 5mm; 
+            background-color: #f8fbff;
+          }
+
+          body { 
+            font-family: Helvetica, Arial, sans-serif; 
+            font-size: 10pt;
+            margin: 0;
+            padding: 0;
+            position: relative;
+            color: #333;
+          }
+
+          /* Faint logo overlay */
+          body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('photos/logo.png');
+            background-size: auto 100%;
+            background-repeat: no-repeat;
+            background-position: center center;
+            opacity: 0.02;
+            z-index: -1;
+            pointer-events: none;
+          }
+
+          .header-wrapper {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 8px;
+            border-bottom: 2px solid #1a1a1a;
+            padding-bottom: 5px;
+          }
+
+          .header {
+            flex-grow: 1;
+            text-align: center;
+          }
+
+          .header h1 {
+            font-size: 13pt;
+            font-weight: bold;
+            margin-bottom: 2px;
+            letter-spacing: 1.5px;
+            color: #1e40af;
+            font-family: 'Libre Baskerville', Georgia, serif;
+          }
+
+          .header h2 {
+            font-size: 10pt;
+            font-weight: normal;
+            margin-top: 2px;
+            color: #4a4a4a;
+            font-family: 'Libre Baskerville', Georgia, serif;
+          }
+
+          .header-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 10px 0;
+            font-size: 9pt;
+          }
+
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            font-size: 12px;
+          }
+
+          th {
+            color: #1e40af;
+            padding: 8px 4px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            border-bottom: 1px solid #0056A0;
+          }
+
+          td {
+            padding: 6px 4px;
+            border: none;
+            vertical-align: middle;
+          }
+
+          .text-right {
+          }
+
+          .text-center {
+            text-align: center;
+          }
+
+          .footer {
+            padding-top: 10px;
+            border-top: 0.5px solid #1a1a1a;
+            text-align: center;
+            font-size: 8pt;
+            color: #64748b;
+            margin-top: 20px;
+          }
+
+          @media print {
+            body {
+              print-color-adjust: exact;
+              -webkit-print-color-adjust: exact;
+            }
+            
+            body::before {
+              position: fixed;
+              display: block;
+              content: "";
+              width: 100%;
+              height: 100%;
+              top: 0;
+              left: 0;
+              background-image: url('photos/logo.png');
+              background-size: auto 100%;
+              background-repeat: no-repeat;
+              background-position: center center;
+              opacity: 0.02;
+              z-index: -1;
+            }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="header-wrapper">
+            <div class="header">
+                <h1>Nigerian Navy (Naval Headquarters)</h1>
+                <h2>CENTRAL PAY OFFICE, 23 POINT ROAD APAPA</h2>
+            </div>
+        </div>
+
+        <div class="header-info">
+            <div class="left">
+                <strong>INDIVIDUAL ONE-OFF PAYMENT REPORT</strong>
+            </div>
+            <div class="center">
+                <span>PRODUCED ON</span> 
+                <strong>${dateStr}</strong> 
+                <span>AT</span> 
+                <strong>${timeStr}</strong>
+            </div>
+            <div class="right">
+                <strong>${data.length}</strong>
+                <span>RECORDS</span>
+            </div>
+        </div>
+
+        <table class="print-table" style="width: 100%;">
+          <thead>
+            <tr>
+              <th>No.</th>
+              <th>Service No</th>
+              <th> Type</th>
+              <th>Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${data.map((item, index) => `
+            <tr>
+              <td class="py-2 px-4 border">${index + 1}</td>
+              <td class="py-2 px-4 border">${item.his_empno}</td>
+              <td class="py-2 px-4 border">${item.typeName} (${item.his_type})</td>
+              <td class="py-2 px-4 border">₦${Number(item.amtthismth).toLocaleString()}</td>
+            </tr>
+          `).join('')}
+          </tbody>
+        </table>
+      
+        <div class="footer">
+          <p>Total Records: ${data.length}</p>
+          <p>Generated by: ${localStorage.getItem('full_name') || 'System User'}</p>
+        </div>
+      </body>
+      </html>
+    `;
+
+      printWindow.document.write(printContent);
+      printWindow.document.close();
+
+      printWindow.onload = function () {
+        printWindow.print();
+      };
+    }
+
+    // Add event listener to generate report button
+    //document.getElementById('generateReportBtn').addEventListener('click', generateReport);
+
+    // Hide quick nav buttons user has no access to
+    document.querySelectorAll('[id^="quickNav-"]').forEach(btn => {
+      const menuKey = btn.id.replace('quickNav-', '');
+      window.checkMenuAccess(menuKey, btn);
+    });
+
+    //initialize
+    (async function init() {
+      try {
+        console.log('Starting initialization...');
+
+        // Load dropdowns FIRST and WAIT for them
+        await loadAllDropdowns();
+        console.log('Dropdowns loaded, lookupMaps:', lookupMaps);
+
+        // Then load employees and payments
+        await loadIndividualPayments();
+        await fetchEmployees();
+
+        console.log('Initialization complete');
+      } catch (error) {
+        console.error('Initialization error:', error);
+      }
+    })();
+  })();
+</script>

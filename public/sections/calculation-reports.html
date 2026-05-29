@@ -1,0 +1,1298 @@
+<style>
+  @keyframes grow-up {
+    0% { height: 0; bottom: 0; }
+    100% { height: 100%; bottom: 0; }
+  }
+  @keyframes grow-down {
+    0% { height: 0; top: 0; }
+    100% { height: 100%; top: 0; }
+  }
+  @keyframes expand {
+    0% { width: 0; left: 50%; transform: translate(-50%, -50%); }
+    100% { width: 100%; left: 0; transform: translateY(-50%); }
+  }
+  .animate-grow-up {
+    animation: grow-up 0.6s ease-in-out infinite alternate;
+    position: absolute;
+    bottom: 0;
+  }
+  .animate-grow-down {
+    animation: grow-down 0.6s ease-in-out infinite alternate;
+    position: absolute;
+    top: 0;
+  }
+  .animate-expand {
+    animation: expand 0.6s ease-in-out infinite alternate;
+  }
+</style>
+
+<!-- Payroll Reports Section -->
+<div class="p-6">
+  <!-- Not Ready Banner -->
+  <div id="reportsNotReadyBanner" class="hidden mb-6">
+    <div class="flex items-start">
+      <div>
+        <h3 class="text-yellow-800 font-bold text-xl mb-2">Payroll Calculations Not Complete</h3>
+        <p class="text-yellow-700 mb-4">Reports are only available after payroll calculations have been completed.</p>
+        <button onclick="window.navigation && window.navigation.navigateToSection && window.navigation.navigateToSection('payroll-calculations', 'Payroll Calculations')" 
+                class="px-6 py-2 bg-yellow-600 text-white rounded-lg shadow hover:bg-yellow-700 transition">
+          <i class="fas fa-calculator mr-2"></i>Go to Payroll Calculations
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Reports Content -->
+  <div id="reportsMainContent" class="hidden">
+    <div class="flex items-center justify-between border-b-2 border-gray-200 pb-2 mb-2">
+      <div class="flex items-center space-x-3">
+        <div class="text-navy">
+          <i class="fas fa-file-alt text-2xl"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-blue-800">Calculation Reports Generated For <span id="reportMonth"></span> <span id="reportYear"></span></h2>
+      </div>
+    </div>
+
+    <!-- Period Display -->
+    <!--<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 p-4 bg-gray-50 rounded-lg border">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Processing Month</label>
+        <input id="reportMonth" type="text" readonly class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-white text-gray-700 font-semibold" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Processing Year</label>
+        <input id="reportYear" type="text" readonly class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-white text-gray-700 font-semibold" />
+      </div>
+    </div>-->
+
+    <!-- Report Cards Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+
+      <!-- Control Sheet Report -->
+      <div class="bg-slate-50 rounded-lg border-2 border-gray-200 p-3 hover:border-purple-500 hover:shadow-lg transition">
+        <div class="flex items-start justify-between mb-4">
+          <i class="fas fa-clipboard-list text-purple-600 text-2xl"></i>
+          <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded font-semibold">EXCEL</span>
+        </div>
+        <h3 class="text-lg font-bold text-gray-800 mb-2">Control Sheet</h3>
+        <p class="text-sm text-gray-600 mb-4">Debit/Credit analysis</p>
+        <div class="flex gap-2">
+          <button onclick="viewReport('controlsheet')" class="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition text-sm">
+            <i class="fas fa-eye mr-2"></i>View
+          </button>
+          <button onclick="downloadReport('controlsheet', 'excel')" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition text-sm">
+            <i class="fas fa-download"></i>
+          </button>
+        </div>
+      </div>
+      
+      <!-- Payroll Summary Report -->
+      <div class="bg-slate-50 rounded-lg border-2 border-gray-200 p-3 hover:border-blue-500 hover:shadow-lg transition">
+        <div class="flex items-start justify-between mb-4">
+          <i class="fas fa-chart-pie text-blue-600 text-2xl"></i>
+          <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded font-semibold">EXCEL</span>
+        </div>
+        <h3 class="text-lg font-bold text-gray-800 mb-2">Summary Report</h3>
+        <p class="text-sm text-gray-600 mb-4">Overall summary with totals and averages</p>
+        <div class="flex gap-2">
+          <button onclick="viewReport('summary')" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm">
+            <i class="fas fa-eye mr-2"></i>View
+          </button>
+          <button onclick="downloadReport('summary', 'excel')" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition text-sm">
+            <i class="fas fa-download"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Bank Payment Report -->
+      <div class="bg-slate-50 rounded-lg border-2 border-gray-200 p-3 hover:border-green-500 hover:shadow-lg transition">
+        <div class="flex items-start justify-between mb-4">
+          <i class="fas fa-university text-green-600 text-2xl"></i>
+          <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded font-semibold">EXCEL</span>
+        </div>
+        <h3 class="text-lg font-bold text-gray-800 mb-2">Bank Payment Report</h3>
+        <p class="text-sm text-gray-600 mb-4">Payment breakdown by bank for salary transfers</p>
+        <div class="flex gap-2">
+          <button onclick="viewReport('bank')" class="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm">
+            <i class="fas fa-eye mr-2"></i>View
+          </button>
+          <button onclick="downloadReport('bank', 'excel')" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition text-sm">
+            <i class="fas fa-download"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Deductions Summary -->
+      <div class="bg-slate-50 rounded-lg border-2 border-gray-200 p-3 hover:border-red-500 hover:shadow-lg transition">
+        <div class="flex items-start justify-between mb-4">
+          <i class="fas fa-minus-circle text-red-600 text-2xl"></i>
+          <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded font-semibold">EXCEL</span>
+        </div>
+        <h3 class="text-lg font-bold text-gray-800 mb-2">Deductions Summary</h3>
+        <p class="text-sm text-gray-600 mb-4">Summary of all deductions by type</p>
+        <div class="flex gap-2">
+          <button onclick="viewReport('deductions')" class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm">
+            <i class="fas fa-eye mr-2"></i>View
+          </button>
+          <button onclick="downloadReport('deductions', 'excel')" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition text-sm">
+            <i class="fas fa-download"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Allowances Summary Report -->
+      <div class="bg-slate-50 rounded-lg border-2 border-gray-200 p-3 hover:border-cyan-500 hover:shadow-lg transition">
+        <div class="flex items-start justify-between mb-4">
+          <i class="fas fa-hand-holding-usd text-cyan-600 text-2xl"></i>
+          <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded font-semibold">EXCEL</span>
+        </div>
+        <h3 class="text-lg font-bold text-gray-800 mb-2">Allowances Summary</h3>
+        <p class="text-sm text-gray-600 mb-4">Detailed breakdown of all allowances paid</p>
+        <div class="flex gap-2">
+          <button onclick="viewReport('allowances')" class="flex-1 px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition text-sm">
+            <i class="fas fa-eye mr-2"></i>View
+          </button>
+          <button onclick="downloadReport('allowances', 'excel')" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition text-sm">
+            <i class="fas fa-download"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Tax Report (PAYE) -->
+      <div class="bg-slate-50 rounded-lg border-2 border-gray-200 p-3 hover:border-yellow-500 hover:shadow-lg transition">
+        <div class="flex items-start justify-between mb-4">
+          <i class="fas fa-receipt text-yellow-600 text-2xl"></i>
+          <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded font-semibold">EXCEL</span>
+        </div>
+        <h3 class="text-lg font-bold text-gray-800 mb-2">Tax Report </h3>
+        <p class="text-sm text-gray-600 mb-4">Detailed tax deductions and cumulative tax</p>
+        <div class="flex gap-2">
+          <button onclick="viewReport('tax')" class="flex-1 px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition text-sm">
+            <i class="fas fa-eye mr-2"></i>View
+          </button>
+          <button onclick="downloadReport('tax', 'excel')" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition text-sm">
+            <i class="fas fa-download"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Department Summary -->
+      <div class="bg-slate-50 rounded-lg border-2 border-gray-200 p-3 hover:border-indigo-500 hover:shadow-lg transition">
+        <div class="flex items-start justify-between mb-4">
+          <i class="fas fa-building text-indigo-600 text-2xl"></i>
+          <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded font-semibold">EXCEL</span>
+        </div>
+        <h3 class="text-lg font-bold text-gray-800 mb-2">Department Summary</h3>
+        <p class="text-sm text-gray-600 mb-4">Payroll summary grouped by department</p>
+        <div class="flex gap-2">
+          <button onclick="viewReport('department')" class="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition text-sm">
+            <i class="fas fa-eye mr-2"></i>View
+          </button>
+          <button onclick="downloadReport('department', 'excel')" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition text-sm">
+            <i class="fas fa-download"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Grade Summary -->
+      <div class="bg-slate-50 rounded-lg border-2 border-gray-200 p-3 hover:border-teal-500 hover:shadow-lg transition">
+        <div class="flex items-start justify-between mb-4">
+          <i class="fas fa-layer-group text-teal-600 text-xl"></i>
+          <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded font-semibold">EXCEL</span>
+        </div>
+        <h3 class="text-lg font-bold text-gray-800 mb-2">Grade Summary</h3>
+        <p class="text-sm text-gray-600 mb-4">Payroll summary grouped by grade level</p>
+        <div class="flex gap-2">
+          <button onclick="viewReport('grade')" class="flex-1 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition text-sm">
+            <i class="fas fa-eye mr-2"></i>View
+          </button>
+          <button onclick="downloadReport('grade', 'excel')" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition text-sm">
+            <i class="fas fa-download"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Exception Report -->
+      <div class="bg-slate-50 rounded-lg border-2 border-gray-200 p-3 hover:border-orange-500 hover:shadow-lg transition">
+        <div class="flex items-start justify-between mb-4">
+          <i class="fas fa-exclamation-triangle text-orange-600 text-2xl"></i>
+          <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded font-semibold">EXCEL</span>
+        </div>
+        <h3 class="text-lg font-bold text-gray-800 mb-2">Exception Report</h3>
+        <p class="text-sm text-gray-600 mb-4">Anomalies: zero pays, negative amounts, etc.</p>
+        <div class="flex gap-2">
+          <button onclick="viewReport('exceptions')" class="flex-1 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition text-sm">
+            <i class="fas fa-eye mr-2"></i>View
+          </button>
+          <button onclick="downloadReport('exceptions', 'excel')" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition text-sm">
+            <i class="fas fa-download"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Report View Modal -->
+<div id="reportViewModal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+  <div class="bg-slate-50 rounded-xl shadow-2xl max-w-6xl w-full mx-4 max-h-[90vh] overflow-hidden">
+    <div class="flex justify-between items-center p-6 border-b bg-blue-600 text-white">
+      <h3 id="reportModalTitle" class="text-2xl font-bold"></h3>
+      <button id="closeReportModal" class="text-white hover:text-gray-200 transition">
+        <i class="fas fa-times text-2xl"></i>
+      </button>
+    </div>
+    <div id="reportModalContent" class="p-6 overflow-y-auto max-h-[70vh]">
+      <!-- Report content loaded dynamically -->
+    </div>
+    <div class="flex justify-end gap-3 p-2 border-t bg-gray-50">
+      <button id="printReportBtn" class="hidden px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition">
+        <i class="fas fa-print mr-2"></i>Print
+      </button>
+      <button id="downloadReportBtn" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+        <i class="fas fa-download mr-2"></i>Download
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Loading Modal -->
+<div id="reportLoadingModal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+  <div class="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 p-6">
+    <div class="text-center">
+      <div class="flex justify-center mb-4">
+        <div class="relative w-10 h-10">
+          <div class="absolute left-1 w-[6px] bg-blue-600 rounded animate-grow-up"></div>
+          <div class="absolute right-1 w-[6px] bg-blue-600 rounded animate-grow-down [animation-delay:0.3s]"></div>
+          <div class="absolute top-1/2 left-1 h-[6px] bg-blue-600 rounded animate-expand [animation-delay:0.6s] -translate-y-1/2"></div>
+        </div>
+      </div>
+      <h3 class="text-xl font-semibold text-gray-900 mb-2">Generating Report...</h3>
+      <p id="reportLoadingMessage" class="text-gray-600">Please wait while we prepare your report...</p>
+    </div>
+  </div>
+</div>
+
+<div id="customAlertModal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 transition-opacity duration-300">
+  <div id="modalContent" class="bg-white rounded-xl shadow-2xl max-w-sm w-full mx-4 p-6 transform scale-95 transition-transform duration-300">
+    <div class="text-center">
+      <div class="flex justify-center mb-4">
+        <div id="modalIconBg" class="w-16 h-16 rounded-full flex items-center justify-center transition-colors duration-200">
+          <i id="modalIcon" class="text-white text-4xl"></i>
+        </div>
+      </div>
+      <h3 id="modalTitle" class="text-2xl font-bold mb-2 transition-colors duration-200"></h3>
+      <p id="modalMessage" class="font-semibold mb-6"></p>
+      <button id="modalCloseButton" class="px-6 py-3 font-medium rounded-lg transition-all shadow-lg w-full text-white">
+        OK
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const auth = window.authService;
+(function() {
+  const API_BASE = '/calcreports';
+  const STATUS_API = '/status-payroll';
+  const STAGE_CALC_COMPLETED = 999;
+
+  const monthNames = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
+
+  let currentPayrollStage = 0;
+  let currentReportType = null;
+  let currentReportFormat = null;
+
+  // DOM Elements
+  const reportsNotReadyBanner = document.getElementById('reportsNotReadyBanner');
+  const reportsMainContent = document.getElementById('reportsMainContent');
+  const reportMonth = document.getElementById('reportMonth');
+  const reportYear = document.getElementById('reportYear');
+  const reportViewModal = document.getElementById('reportViewModal');
+  const reportModalTitle = document.getElementById('reportModalTitle');
+  const reportModalContent = document.getElementById('reportModalContent');
+  const closeReportModal = document.getElementById('closeReportModal');
+  const printReportBtn = document.getElementById('printReportBtn');
+  const downloadReportBtn = document.getElementById('downloadReportBtn');
+  const reportLoadingModal = document.getElementById('reportLoadingModal');
+  const reportLoadingMessage = document.getElementById('reportLoadingMessage');
+
+  // Helper Functions
+  function formatCurrency(amount) {
+    return new Intl.NumberFormat('en-NG', {
+      style: 'currency',
+      currency: 'NGN',
+      minimumFractionDigits: 2
+    }).format(amount || 0);
+  }
+
+  function showLoading(message = 'Generating report...') {
+    reportLoadingMessage.textContent = message;
+    reportLoadingModal.classList.remove('hidden');
+  }
+
+  function hideLoading() {
+    reportLoadingModal.classList.add('hidden');
+  }
+
+function showAlert(message, type = 'error') {
+  const modal = document.getElementById('customAlertModal');
+  const modalContent = document.getElementById('modalContent');
+  const iconBgEl = document.getElementById('modalIconBg');
+  const iconEl = document.getElementById('modalIcon');
+  const titleEl = document.getElementById('modalTitle');
+  const messageEl = document.getElementById('modalMessage');
+  const closeBtn = document.getElementById('modalCloseButton');
+
+  // --- 1. Define UI Elements based on Type ---
+  let titleText = '';
+  let messageColorClass = '';
+  let iconClass = '';
+  let colorClasses = {
+    bg: '', // for icon background
+    titleText: '', // for title color
+    button: '' // for button classes
+  };
+
+  switch (type) {
+    case 'success':
+      titleText = 'Success!';
+      iconClass = 'fas fa-check-circle';
+      messageColorClass = 'text-green-600';
+      colorClasses.bg = 'bg-green-500';
+      colorClasses.titleText = 'text-green-700';
+      colorClasses.button = 'bg-green-600 hover:bg-green-700';
+      break;
+    case 'warning':
+      titleText = 'Warning';
+      iconClass = 'fas fa-exclamation-triangle';
+      messageColorClass = 'text-yellow-600';
+      colorClasses.bg = 'bg-yellow-400';
+      colorClasses.titleText = 'text-yellow-700';
+      colorClasses.button = 'bg-yellow-500 hover:bg-yellow-600';
+      break;
+    case 'info':
+      titleText = 'Information';
+      iconClass = 'fas fa-info-circle';
+      messageColorClass = 'text-blue-600';
+      colorClasses.bg = 'bg-blue-500';
+      colorClasses.titleText = 'text-blue-700';
+      colorClasses.button = 'bg-blue-600 hover:bg-blue-700';
+      break;
+    case 'error':
+    default:
+      titleText = 'Error!';
+      iconClass = 'fas fa-times-circle'; // Or fas fa-exclamation-circle
+      messageColorClass = 'text-red-600';
+      colorClasses.bg = 'bg-red-500';
+      colorClasses.titleText = 'text-red-700';
+      colorClasses.button = 'bg-red-600 hover:bg-red-700';
+      break;
+  }
+
+  // --- 2. Apply Content and Styling ---
+
+  // Clear and set icon/title/message
+  iconBgEl.className = `w-16 h-16 rounded-full flex items-center justify-center transition-colors duration-200 ${colorClasses.bg}`;
+  iconEl.className = `text-white text-4xl ${iconClass}`;
+  
+  titleEl.textContent = titleText;
+  titleEl.className = `text-2xl font-bold mb-2 transition-colors duration-200 ${colorClasses.titleText}`;
+  
+  messageEl.textContent = message;
+  messageEl.className = `font-semibold mb-6 ${messageColorClass}`;
+
+  // *** FIX APPLIED: Using className for the button ***
+  const baseButtonClasses = 'px-6 py-3 font-medium rounded-lg transition-all shadow-lg w-full text-white ';
+  closeBtn.className = baseButtonClasses + colorClasses.button;
+
+
+  // --- 3. Display Modal (with transitions) ---
+  modal.classList.remove('hidden');
+  
+  // Force a re-flow before starting the transition for CSS effect
+  void modal.offsetWidth; 
+  
+  modal.style.opacity = '1';
+  modalContent.classList.remove('scale-95');
+
+  // --- 4. Close Handlers ---
+  function closeModal() {
+    // Hide Modal (start transition back)
+    modal.style.opacity = '0';
+    modalContent.classList.add('scale-95');
+    
+    // Use a timeout to fully hide the modal AFTER the transition
+    setTimeout(() => {
+        modal.classList.add('hidden');
+    }, 300); // 300ms matches the CSS transition duration
+
+    // Clean up event listeners
+    closeBtn.removeEventListener('click', closeModal);
+    modal.removeEventListener('click', overlayClick);
+  }
+
+  // Handle clicking the "OK" button
+  closeBtn.addEventListener('click', closeModal);
+
+  // Handle clicking outside the modal content (overlay)
+  function overlayClick(event) {
+    if (event.target === modal) {
+      closeModal();
+    }
+  }
+  modal.addEventListener('click', overlayClick);
+}
+
+  // Update UI based on stage
+  function updateUIVisibility() {
+    if (currentPayrollStage >= STAGE_CALC_COMPLETED) {
+      reportsNotReadyBanner.classList.add('hidden');
+      reportsMainContent.classList.remove('hidden');
+    } else {
+      reportsNotReadyBanner.classList.remove('hidden');
+      reportsMainContent.classList.add('hidden');
+    }
+  }
+
+  // Load period info
+  async function loadPeriodInfo() {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await auth.fetchWithAuth(STATUS_API, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        const month = parseInt(data.mth) || new Date().getMonth() + 1;
+        const year = parseInt(data.ord) || new Date().getFullYear();
+        
+        reportMonth.innerHTML = monthNames[month - 1];
+        reportYear.innerHTML = year;
+      }
+    } catch (error) {
+      console.error('Error loading period:', error);
+    }
+  }
+
+  // View Report
+  window.viewReport = async function(reportType) {
+    showLoading(`Loading ${reportType} report...`);
+    currentReportType = reportType;
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await auth.fetchWithAuth(`${API_BASE}/${reportType}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to load report');
+      }
+
+      const result = await response.json();
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to load report');
+      }
+
+      hideLoading();
+      displayReport(reportType, result.data);
+      reportViewModal.classList.remove('hidden');
+
+    } catch (error) {
+      hideLoading();
+      showAlert('Error loading report: ' + error.message);
+    }
+  };
+
+  // Display Report Content
+  function displayReport(reportType, data) {
+    const titles = {
+      summary: 'Overall Summary Report',
+      bank: 'Bank Payment Report',
+      deductions: 'Deductions Summary Report',
+      tax: 'Tax Report',
+      department: 'Department Summary',
+      grade: 'Grade-wise Summary',
+      exceptions: 'Exception Report',
+      controlsheet: 'Payroll Control Sheet',
+      allowances: 'Allowances Summary Report'
+    };
+
+    reportModalTitle.textContent = titles[reportType] || 'Report';
+
+    let html = '';
+
+    switch(reportType) {
+      case 'summary':
+        html = renderSummaryReport(data);
+        break;
+      case 'bank':
+        html = renderBankReport(data);
+        break;
+      case 'deductions':
+        html = renderDeductionsReport(data);
+        break;
+      case 'tax':
+        html = renderTaxReport(data);
+        break;
+      case 'department':
+        html = renderDepartmentReport(data);
+        break;
+      case 'grade':
+        html = renderGradeReport(data);
+        break;
+      case 'exceptions':
+        html = renderExceptionsReport(data);
+        break;
+      case 'controlsheet':
+        html = renderControlSheetReport(data);
+        break;
+      case 'allowances':
+        html = renderAllowancesReport(data);
+        break;
+    }
+
+    reportModalContent.innerHTML = html;
+  }
+
+  // Render Summary Report
+  function renderSummaryReport(data) {
+    const { period, summary } = data;
+    return `
+      <div class="space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="bg-white p-4 border rounded-lg">
+            <div class="text-gray-600 text-sm">Total Employees</div>
+            <div class="text-3xl font-bold text-blue-900">${summary.total_employees}</div>
+          </div>
+          <div class="bg-white p-4 border rounded-lg">
+            <div class="text-gray-600 text-sm">Average Net Pay</div>
+            <div class="text-3xl font-bold text-blue-900">${formatCurrency(summary.average_net_pay)}</div>
+          </div>
+          <div class="bg-green-50 p-4 border border-green-200 rounded-lg">
+            <div class="text-green-700 text-sm font-semibold">Total Gross Pay</div>
+            <div class="text-2xl font-bold text-green-900">${formatCurrency(summary.total_gross)}</div>
+          </div>
+          <div class="bg-blue-50 p-4 border border-blue-200 rounded-lg">
+            <div class="text-blue-700 text-sm font-semibold">Total Allowances</div>
+            <div class="text-2xl font-bold text-blue-900">${formatCurrency(summary.total_allowances)}</div>
+          </div>
+          <div class="bg-red-50 p-4 border border-red-200 rounded-lg">
+            <div class="text-red-700 text-sm font-semibold">Total Tax</div>
+            <div class="text-2xl font-bold text-red-900">${formatCurrency(summary.total_tax)}</div>
+          </div>
+          <div class="bg-orange-50 p-4 border border-orange-200 rounded-lg">
+            <div class="text-orange-700 text-sm font-semibold">Total Deductions</div>
+            <div class="text-2xl font-bold text-orange-900">${formatCurrency(summary.total_deductions)}</div>
+          </div>
+        </div>
+
+        <div class="bg-blue-50 p-6 border-2 border-blue-300 rounded-lg">
+          <div class="text-blue-700 text-sm font-semibold mb-1">TOTAL NET PAY</div>
+          <div class="text-4xl font-bold text-blue-900">${formatCurrency(summary.total_net)}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  // Render Bank Report
+  function renderBankReport(data) {
+    const { period, byBank, grandTotal, totalEmployees } = data;
+    
+    let html = `
+      <div class="space-y-6">
+        <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+          <div class="flex items-center justify-between gap-6">
+
+            <!-- Period -->
+            <h4 class="font-bold text-green-900 whitespace-nowrap">
+              Period: ${monthNames[period.month - 1]} ${period.year}
+            </h4>
+
+            <!-- Total Employees -->
+            <div class="flex items-center gap-2">
+              <span class="text-green-700 text-sm whitespace-nowrap">Total Employees:</span>
+              <span class="text-xl font-bold text-green-900">${totalEmployees}</span>
+            </div>
+
+            <!-- Grand Total -->
+            <div class="flex items-center gap-2">
+              <span class="text-green-700 text-sm whitespace-nowrap">Grand Total:</span>
+              <span class="text-xl font-bold text-green-900">${formatCurrency(grandTotal)}</span>
+            </div>
+          </div>
+        </div>
+      `;
+
+    Object.keys(byBank).forEach(bank => {
+      const bankData = byBank[bank];
+      html += `
+        <div class="border rounded-lg overflow-hidden">
+          <div class="bg-gray-100 p-3 border-b">
+            <div class="flex justify-between items-center">
+              <h5 class="font-bold text-gray-800">Bank: ${bank}</h5>
+              <div class="text-right">
+                <div class="text-sm text-gray-600">Total: ${bankData.count}</div>
+                <div class="font-bold text-green-700">${formatCurrency(bankData.total)}</div>
+              </div>
+            </div>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="min-w-full text-sm">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-4 py-2 text-left">Employee ID</th>
+                  <th class="px-4 py-2 text-left">Full Name</th>
+                  <th class="px-4 py-2 text-left">Account Number</th>
+                  <th class="px-4 py-2 text-right">Net Pay</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y">
+                ${bankData.employees.map(emp => `
+                  <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-2">${emp.employee_id}</td>
+                    <td class="px-4 py-2">${emp.full_name}</td>
+                    <td class="px-4 py-2">${emp.bankacnumber || 'N/A'}</td>
+                    <td class="px-4 py-2 text-right font-semibold">${formatCurrency(emp.net_pay)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    });
+
+    html += '</div>';
+    return html;
+  }
+
+  // Render Deductions Report
+  function renderDeductionsReport(data) {
+    const { period, deductions, totalDeductions, deductionCount } = data;
+    
+    return `
+      <div class="space-y-6">
+        <div class="bg-red-50 p-4 rounded-lg border border-red-200">
+          <div class="flex items-center justify-between gap-6">
+
+            <!-- Period -->
+            <h4 class="font-bold text-red-900 whitespace-nowrap">
+              Period: ${monthNames[period.month - 1]} ${period.year}
+            </h4>
+
+            <!-- Deduction Types -->
+            <div class="flex items-center gap-2">
+              <span class="text-red-700 text-sm whitespace-nowrap">Deduction Types:</span>
+              <span class="text-xl font-bold text-red-900">${deductionCount}</span>
+            </div>
+
+            <!-- Total Amount -->
+            <div class="flex items-center gap-2">
+              <span class="text-red-700 text-sm whitespace-nowrap">Total Amount:</span>
+              <span class="text-xl font-bold text-red-900">${formatCurrency(totalDeductions)}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="min-w-full text-sm border">
+            <thead class="bg-red-50">
+              <tr>
+                <th class="px-4 py-3 text-left border">Deduction Code</th>
+                <th class="px-4 py-3 text-left border">Description</th>
+                <th class="px-4 py-3 text-right border">Employees</th>
+                <th class="px-4 py-3 text-right border">Total Amount</th>
+                <th class="px-4 py-3 text-right border">Average</th>
+                <th class="px-4 py-3 text-right border">Min</th>
+                <th class="px-4 py-3 text-right border">Max</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y">
+              ${deductions.map(ded => `
+                <tr class="hover:bg-gray-50">
+                  <td class="px-4 py-2 border font-semibold">${ded.his_type}</td>
+                  <td class="px-4 py-2 border">${ded.deduction_name}</td>
+                  <td class="px-4 py-2 border text-right">${ded.employee_count}</td>
+                  <td class="px-4 py-2 border text-right font-bold text-red-700">${formatCurrency(ded.total_amount)}</td>
+                  <td class="px-4 py-2 border text-right">${formatCurrency(ded.average_amount)}</td>
+                  <td class="px-4 py-2 border text-right">${formatCurrency(ded.min_amount)}</td>
+                  <td class="px-4 py-2 border text-right">${formatCurrency(ded.max_amount)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+            <tfoot class="bg-gray-100 font-bold">
+              <tr>
+                <td colspan="3" class="px-4 py-3 border text-right">TOTAL:</td>
+                <td class="px-4 py-3 border text-right text-red-900">${formatCurrency(totalDeductions)}</td>
+                <td colspan="3" class="border"></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    `;
+  }
+
+  // Render Tax Report
+  function renderTaxReport(data) {
+    const { period, taxData, summary } = data;
+    
+    return `
+      <div class="space-y-6">
+        <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+          <h4 class="font-bold text-yellow-900 mb-2">Period: ${monthNames[period.month - 1]} ${period.year}</h4>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-3">
+            <div>
+              <div class="text-yellow-700 text-sm">Total Employees</div>
+              <div class="text-xl font-bold text-yellow-900">${summary.totalEmployees}</div>
+            </div>
+            <div>
+              <div class="text-yellow-700 text-sm">Employees Taxed</div>
+              <div class="text-xl font-bold text-yellow-900">${summary.employeesWithTax}</div>
+            </div>
+            <div>
+              <div class="text-yellow-700 text-sm">Total Tax Collected</div>
+              <div class="text-xl font-bold text-yellow-900">${formatCurrency(summary.totalTaxCollected)}</div>
+            </div>
+            <div>
+              <div class="text-yellow-700 text-sm">Taxable Income</div>
+              <div class="text-xl font-bold text-yellow-900">${formatCurrency(summary.totalTaxableIncome)}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="min-w-full text-sm border">
+            <thead class="bg-yellow-50">
+              <tr>
+                <th class="px-4 py-3 text-left border">Employee ID</th>
+                <th class="px-4 py-3 text-left border">Full Name</th>
+                <th class="px-4 py-3 text-left border">Grade</th>
+                <th class="px-4 py-3 text-right border">Gross Pay</th>
+                <th class="px-4 py-3 text-right border">Taxable Income</th>
+                <th class="px-4 py-3 text-right border">Tax This Month</th>
+                <th class="px-4 py-3 text-right border">Cumulative Tax</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y">
+              ${taxData.map(tax => `
+                <tr class="hover:bg-gray-50">
+                  <td class="px-4 py-2 border">${tax.employee_id}</td>
+                  <td class="px-4 py-2 border">${tax.full_name}</td>
+                  <td class="px-4 py-2 border">${tax.gradelevel}</td>
+                  <td class="px-4 py-2 border text-right">${formatCurrency(tax.gross_pay)}</td>
+                  <td class="px-4 py-2 border text-right">${formatCurrency(tax.taxable_income)}</td>
+                  <td class="px-4 py-2 border text-right font-bold text-yellow-700">${formatCurrency(tax.tax_deducted)}</td>
+                  <td class="px-4 py-2 border text-right">${formatCurrency(tax.cumulative_tax)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  }
+
+  // Render Department Report
+  function renderDepartmentReport(data) {
+    const { period, departments, grandTotal, departmentCount } = data;
+    
+    return `
+      <div class="space-y-6">
+        <div class="bg-indigo-50 p-4 rounded-lg border border-indigo-200">
+          <div class="flex items-center justify-between gap-6">
+
+            <!-- Period -->
+            <h4 class="font-bold text-indigo-900 whitespace-nowrap">
+              Period: ${monthNames[period.month - 1]} ${period.year}
+            </h4>
+
+            <!-- Total Departments -->
+            <div class="flex items-center gap-2">
+              <span class="text-indigo-700 text-sm whitespace-nowrap">Total Departments:</span>
+              <span class="text-xl font-bold text-indigo-900">${departmentCount}</span>
+            </div>
+
+            <!-- Grand Total -->
+            <div class="flex items-center gap-2">
+              <span class="text-indigo-700 text-sm whitespace-nowrap">Grand Total:</span>
+              <span class="text-xl font-bold text-indigo-900">${formatCurrency(grandTotal)}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="min-w-full text-sm border">
+            <thead class="bg-indigo-50">
+              <tr>
+                <th class="px-4 py-3 text-left border">Department</th>
+                <th class="px-4 py-3 text-right border">Employees</th>
+                <th class="px-4 py-3 text-right border">Total Gross</th>
+                <th class="px-4 py-3 text-right border">Total Tax</th>
+                <th class="px-4 py-3 text-right border">Total Net</th>
+                <th class="px-4 py-3 text-right border">Average Net</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y">
+              ${departments.map(dept => `
+                <tr class="hover:bg-gray-50">
+                  <td class="px-4 py-2 border font-semibold">${dept.department || 'N/A'}</td>
+                  <td class="px-4 py-2 border text-right">${dept.employee_count}</td>
+                  <td class="px-4 py-2 border text-right">${formatCurrency(dept.total_gross)}</td>
+                  <td class="px-4 py-2 border text-right">${formatCurrency(dept.total_tax)}</td>
+                  <td class="px-4 py-2 border text-right font-bold text-indigo-700">${formatCurrency(dept.total_net)}</td>
+                  <td class="px-4 py-2 border text-right">${formatCurrency(dept.average_net)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+            <tfoot class="bg-gray-100 font-bold">
+              <tr>
+                <td colspan="4" class="px-4 py-3 border text-right">GRAND TOTAL:</td>
+                <td class="px-4 py-3 border text-right text-indigo-900">${formatCurrency(grandTotal)}</td>
+                <td class="border"></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    `;
+  }
+
+  // Render Grade Report
+  function renderGradeReport(data) {
+    const { period, grades, grandTotal, gradeCount } = data;
+    
+    return `
+              <div class="space-y-6">
+        <div class="bg-teal-50 p-4 rounded-lg border border-teal-200">
+          <div class="flex items-center justify-between gap-6">
+
+            <!-- Period -->
+            <h4 class="font-bold text-teal-900 whitespace-nowrap">
+              Period: ${monthNames[period.month - 1]} ${period.year}
+            </h4>
+
+            <!-- Total Grades -->
+            <div class="flex items-center gap-2">
+              <span class="text-teal-700 text-sm whitespace-nowrap">Total Grades:</span>
+              <span class="text-xl font-bold text-teal-900">${gradeCount}</span>
+            </div>
+
+            <!-- Grand Total -->
+            <div class="flex items-center gap-2">
+              <span class="text-teal-700 text-sm whitespace-nowrap">Grand Total:</span>
+              <span class="text-xl font-bold text-teal-900">${formatCurrency(grandTotal)}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="min-w-full text-sm border">
+            <thead class="bg-teal-50">
+              <tr>
+                <th class="px-4 py-3 text-left border">Grade</th>
+                <th class="px-4 py-3 text-left border">Type</th>
+                <th class="px-4 py-3 text-right border">Employees</th>
+                <th class="px-4 py-3 text-right border">Total Gross</th>
+                <th class="px-4 py-3 text-right border">Total Tax</th>
+                <th class="px-4 py-3 text-right border">Total Net</th>
+                <th class="px-4 py-3 text-right border">Average Net</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y">
+              ${grades.map(grade => `
+                <tr class="hover:bg-gray-50">
+                  <td class="px-4 py-2 border font-semibold">${grade.grade}</td>
+                  <td class="px-4 py-2 border">${grade.gradetype || 'N/A'}</td>
+                  <td class="px-4 py-2 border text-right">${grade.employee_count}</td>
+                  <td class="px-4 py-2 border text-right">${formatCurrency(grade.total_gross)}</td>
+                  <td class="px-4 py-2 border text-right">${formatCurrency(grade.total_tax)}</td>
+                  <td class="px-4 py-2 border text-right font-bold text-teal-700">${formatCurrency(grade.total_net)}</td>
+                  <td class="px-4 py-2 border text-right">${formatCurrency(grade.average_net)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+            <tfoot class="bg-gray-100 font-bold">
+              <tr>
+                <td colspan="5" class="px-4 py-3 border text-right">GRAND TOTAL:</td>
+                <td class="px-4 py-3 border text-right text-teal-900">${formatCurrency(grandTotal)}</td>
+                <td class="border"></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    `;
+  }
+
+  // Render Exceptions Report
+  function renderExceptionsReport(data) {
+    const { period, exceptions, byType, totalExceptions } = data;
+    
+    return `
+      <div class="space-y-6">
+        <div class="flex items-center justify-between bg-orange-50 p-4 rounded-lg border border-orange-200">
+
+          <!-- Left: Period -->
+          <h4 class="font-bold text-orange-900">
+            Period: ${monthNames[period.month - 1]} ${period.year}
+          </h4>
+
+          <div class="flex items-center gap-4">
+            <!-- Middle: Label -->
+            <div class="text-orange-700 text-sm">
+              Total Exceptions Found
+            </div>
+
+            <!-- Right: Value -->
+            <div class="text-3xl font-bold text-orange-900">
+              ${totalExceptions}
+            </div>
+          </div>
+        </div>
+
+        ${Object.keys(byType).map(type => `
+          <div class="border-2 border-orange-200 rounded-lg overflow-hidden">
+            <div class="bg-orange-100 p-3 border-b">
+              <h5 class="font-bold text-orange-900">${type} (${byType[type].length})</h5>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="min-w-full text-sm">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th class="px-4 py-2 text-left">Employee ID</th>
+                    <th class="px-4 py-2 text-left">Full Name</th>
+                    <th class="px-4 py-2 text-left">Grade</th>
+                    <th class="px-4 py-2 text-right">Gross Pay</th>
+                    <th class="px-4 py-2 text-right">Net Pay</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y">
+                  ${byType[type].map(ex => `
+                    <tr class="hover:bg-gray-50">
+                      <td class="px-4 py-2">${ex.employee_id}</td>
+                      <td class="px-4 py-2">${ex.full_name}</td>
+                      <td class="px-4 py-2">${ex.gradelevel}</td>
+                      <td class="px-4 py-2 text-right">${formatCurrency(ex.gross_pay)}</td>
+                      <td class="px-4 py-2 text-right font-bold ${parseFloat(ex.net_pay) <= 0 ? 'text-red-600' : ''}">${formatCurrency(ex.net_pay)}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
+
+  // Render Control Sheet Report
+  function renderControlSheetReport(data) {
+    const { period, controlData, byCategory, summary } = data;
+    
+    // Helper function to render a category table
+    function renderCategory(title, categoryData, bgColor, borderColor) {
+      if (categoryData.length === 0) return '';
+      
+      const categoryTotal = categoryData.reduce((sum, item) => {
+        return sum + parseFloat(item.dr_amount || 0) + parseFloat(item.cr_amount || 0);
+      }, 0);
+
+      return `
+        <div class="border-2 ${borderColor} rounded-lg overflow-hidden mb-4">
+          <div class="${bgColor} p-3 border-b">
+            <div class="flex justify-between items-center">
+              <h5 class="font-bold text-gray-800">${title}</h5>
+              <span class="text-sm font-semibold">${categoryData.length} item(s)</span>
+            </div>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="min-w-full text-sm">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-4 py-2 text-left border">Code</th>
+                  <th class="px-4 py-2 text-left border">Description</th>
+                  <th class="px-4 py-2 text-left border">Ledger Code</th>
+                  <th class="px-4 py-2 text-center border">DR/CR</th>
+                  <th class="px-4 py-2 text-right border">Debit (₦)</th>
+                  <th class="px-4 py-2 text-right border">Credit (₦)</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y">
+                ${categoryData.map(item => `
+                  <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-2 border font-semibold">${item.payment_type}</td>
+                    <td class="px-4 py-2 border">${item.payment_description}</td>
+                    <td class="px-4 py-2 border text-center">${item.ledger_code || '-'}</td>
+                    <td class="px-4 py-2 border text-center">
+                      <span class="px-2 py-1 rounded text-xs font-semibold ${item.dr_cr_indicator === 'DR' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'}">
+                        ${item.dr_cr_indicator}
+                      </span>
+                    </td>
+                    <td class="px-4 py-2 border text-right ${parseFloat(item.dr_amount) > 0 ? 'font-bold text-blue-700' : 'text-gray-400'}">
+                      ${parseFloat(item.dr_amount) > 0 ? formatCurrency(item.dr_amount) : '-'}
+                    </td>
+                    <td class="px-4 py-2 border text-right ${parseFloat(item.cr_amount) > 0 ? 'font-bold text-green-700' : 'text-gray-400'}">
+                      ${parseFloat(item.cr_amount) > 0 ? formatCurrency(item.cr_amount) : '-'}
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    return `
+      <div class="space-y-6">
+        <!-- Summary Header -->
+        <div class="bg-purple-50 p-4 rounded-lg border-2 border-purple-200">
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="font-bold text-purple-900">
+              Period: ${monthNames[period.month - 1]} ${period.year}
+            </h4>
+            <div class="flex items-center gap-2">
+              <span class="text-purple-700 text-sm">Reconciliation Status:</span>
+              <span class="px-3 py-1 rounded-full text-sm font-bold ${summary.isBalanced ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                ${summary.isBalanced ? '✓ BALANCED' : '✗ VARIANCE DETECTED'}
+              </span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+            <div class="bg-white p-3 rounded-lg border">
+              <div class="text-blue-700 text-sm font-semibold mb-1">Total Debits</div>
+              <div class="text-2xl font-bold text-blue-900">${formatCurrency(summary.totalDR)}</div>
+            </div>
+            <div class="bg-white p-3 rounded-lg border">
+              <div class="text-green-700 text-sm font-semibold mb-1">Total Credits</div>
+              <div class="text-2xl font-bold text-green-900">${formatCurrency(summary.totalCR)}</div>
+            </div>
+            <div class="bg-white p-3 rounded-lg border">
+              <div class="${summary.isBalanced ? 'text-green-700' : 'text-red-700'} text-sm font-semibold mb-1">Variance</div>
+              <div class="text-2xl font-bold ${summary.isBalanced ? 'text-green-900' : 'text-red-900'}">
+                ${summary.isBalanced ? '₦0.00' : formatCurrency(summary.variance)}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Category Breakdown -->
+        <div class="space-y-4">
+          <h4 class="text-lg font-bold text-gray-800 border-b-2 pb-2">Breakdown by Category</h4>
+          
+          ${renderCategory('Basic Salary & Pay', byCategory.basic_salary, 'bg-blue-50', 'border-blue-200')}
+          ${renderCategory('Allowances', byCategory.allowances, 'bg-cyan-50', 'border-cyan-200')}
+          ${renderCategory('Fringe Benefits', byCategory.fringe_benefits, 'bg-teal-50', 'border-teal-200')}
+          ${renderCategory('Deductions', byCategory.deductions, 'bg-red-50', 'border-red-200')}
+          ${renderCategory('Loans', byCategory.loans, 'bg-orange-50', 'border-orange-200')}
+          ${renderCategory('Payments (Net/Tax/Roundup)', byCategory.payments, 'bg-green-50', 'border-green-200')}
+        </div>
+
+        <!-- Final Totals -->
+        <div class="bg-gray-50 p-4 rounded-lg border-2">
+          <div class="flex justify-between items-center">
+            <span class="text-lg font-bold text-gray-800">GRAND TOTALS:</span>
+            <div class="flex gap-8">
+              <div class="text-right">
+                <div class="text-sm text-blue-700">Total Debits</div>
+                <div class="text-xl font-bold text-blue-900">${formatCurrency(summary.totalDR)}</div>
+              </div>
+              <div class="text-right">
+                <div class="text-sm text-green-700">Total Credits</div>
+                <div class="text-xl font-bold text-green-900">${formatCurrency(summary.totalCR)}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // Render Allowances Summary Report
+  function renderAllowancesReport(data) {
+    const { period, allowances, totalAllowances, allowanceCount } = data;
+    
+    return `
+      <div class="space-y-6">
+        <!-- Summary Header -->
+        <div class="bg-cyan-50 p-4 rounded-lg border-2 border-cyan-200">
+          <div class="flex items-center justify-between gap-6">
+            <!-- Period -->
+            <h4 class="font-bold text-cyan-900 whitespace-nowrap">
+              Period: ${monthNames[period.month - 1]} ${period.year}
+            </h4>
+
+            <!-- Allowance Types -->
+            <div class="flex items-center gap-2">
+              <span class="text-cyan-700 text-sm whitespace-nowrap">Allowance Types:</span>
+              <span class="text-xl font-bold text-cyan-900">${allowanceCount}</span>
+            </div>
+
+            <!-- Total Amount -->
+            <div class="flex items-center gap-2">
+              <span class="text-cyan-700 text-sm whitespace-nowrap">Total Allowances:</span>
+              <span class="text-xl font-bold text-cyan-900">${formatCurrency(totalAllowances)}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Detailed Table -->
+        <div class="overflow-x-auto">
+          <table class="min-w-full text-sm border">
+            <thead class="bg-cyan-50">
+              <tr>
+                <th class="px-4 py-3 text-left border">S/N</th>
+                <th class="px-4 py-3 text-left border">Code</th>
+                <th class="px-4 py-3 text-left border">Allowance Name</th>
+                <th class="px-4 py-3 text-right border">Employees</th>
+                <th class="px-4 py-3 text-right border">Total Amount (₦)</th>
+                <th class="px-4 py-3 text-right border">Average (₦)</th>
+                <th class="px-4 py-3 text-right border">Min (₦)</th>
+                <th class="px-4 py-3 text-right border">Max (₦)</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y">
+              ${allowances.map((item, idx) => `
+                <tr class="hover:bg-gray-50">
+                  <td class="px-4 py-2 border text-center">${idx + 1}</td>
+                  <td class="px-4 py-2 border font-semibold">${item.his_type}</td>
+                  <td class="px-4 py-2 border">${item.allowance_name || 'Unknown'}</td>
+                  <td class="px-4 py-2 border text-right">${item.employee_count}</td>
+                  <td class="px-4 py-2 border text-right font-bold text-cyan-700">${formatCurrency(item.total_amount)}</td>
+                  <td class="px-4 py-2 border text-right">${formatCurrency(item.average_amount)}</td>
+                  <td class="px-4 py-2 border text-right">${formatCurrency(item.min_amount)}</td>
+                  <td class="px-4 py-2 border text-right">${formatCurrency(item.max_amount)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+            <tfoot class="bg-gray-100 font-bold">
+              <tr>
+                <td colspan="4" class="px-4 py-3 border text-right">TOTAL:</td>
+                <td class="px-4 py-3 border text-right text-cyan-900">${formatCurrency(totalAllowances)}</td>
+                <td colspan="3" class="border"></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <!-- Statistics Summary -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="bg-white p-4 rounded-lg border">
+            <div class="text-cyan-700 text-sm font-semibold mb-1">Total Types</div>
+            <div class="text-2xl font-bold text-cyan-900">${allowanceCount}</div>
+          </div>
+          <div class="bg-white p-4 rounded-lg border">
+            <div class="text-cyan-700 text-sm font-semibold mb-1">Total Paid</div>
+            <div class="text-2xl font-bold text-cyan-900">${formatCurrency(totalAllowances)}</div>
+          </div>
+          <div class="bg-white p-4 rounded-lg border">
+            <div class="text-cyan-700 text-sm font-semibold mb-1">Average per Type</div>
+            <div class="text-2xl font-bold text-cyan-900">
+              ${formatCurrency(allowanceCount > 0 ? totalAllowances / allowanceCount : 0)}
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // Download Report
+  window.downloadReport = async function(reportType, format) {
+    showLoading(`Preparing ${format.toUpperCase()} download...`);
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await auth.fetchWithAuth(`${API_BASE}/${reportType}/export/${format}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (!response.ok) {
+        throw new Error('Download failed');
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${reportType}_report.${format === 'excel' ? 'xlsx' : 'pdf'}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+
+      hideLoading();
+      showAlert(`Report downloaded successfully!`, 'success');
+
+    } catch (error) {
+      hideLoading();
+      showAlert('Download failed: ' + error.message);
+    }
+  };
+
+  // Print Report
+  printReportBtn.addEventListener('click', () => {
+    window.print();
+  });
+
+  // Download from modal
+  downloadReportBtn.addEventListener('click', () => {
+    if (currentReportType) {
+      const format = /*currentReportType === 'summary' || currentReportType === 'department' || currentReportType === 'grade' ? 'pdf' :*/ 'excel';
+      downloadReport(currentReportType, format);
+    }
+  });
+
+  // Close modal
+  closeReportModal.addEventListener('click', () => {
+    reportViewModal.classList.add('hidden');
+    currentReportType = null;
+  });
+
+  // Check payroll status
+  async function checkPayrollStatus() {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await auth.fetchWithAuth(STATUS_API, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      
+      if (!response.ok) return;
+      
+      const data = await response.json();
+      currentPayrollStage = Number(data?.sun || 0);
+      
+      updateUIVisibility();
+    } catch (error) {
+      console.error('Error checking payroll status:', error);
+    }
+  }
+
+  // Listen for status changes
+  window.addEventListener('payrollStatusChanged', async function(event) {
+    if (event.detail && typeof event.detail.stage === 'number') {
+      currentPayrollStage = event.detail.stage;
+      updateUIVisibility();
+    } else {
+      await checkPayrollStatus();
+    }
+  });
+
+  // Initial load
+  function initialize() {
+    loadPeriodInfo();
+    checkPayrollStatus();
+  }
+
+  document.addEventListener('DOMContentLoaded', initialize);
+  if (document.readyState !== 'loading') initialize();
+})();
+</script>

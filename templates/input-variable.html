@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    @page { size: A4 landscape; margin: 0.2mm; background-color: #f8fbff; }
+    body { font-family: Helvetica, Arial, sans-serif; font-size: 8pt; }
+
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url('{{{logoDataUrl}}}');
+      background-size: auto 100%;    /* 80% of height */
+      background-repeat: no-repeat;
+      background-position: center center;
+      opacity: 0.02;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .header-wrapper {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 8px;
+        border-bottom: 2px solid #1a1a1a;
+        padding-bottom: 5px;
+    }
+
+    .className {
+        flex-shrink: 0;
+        margin-right: 20px;
+        align-self: center;
+        font-size: 9pt;
+    }
+
+    .header {
+        flex-grow: 1;
+        text-align: center;
+    }
+    
+    .header h1 {
+        font-size: 13pt;
+        font-weight: bold;
+        margin-bottom: 2px;
+        letter-spacing: 1.5px;
+        color: #1e40af;
+        font-family: 'Libre Baskerville', Georgia, serif;
+    }
+    
+    .header h2 {
+        font-size: 10pt;
+        font-weight: normal;
+        margin-top: 2px;
+        color: #4a4a4a;
+        font-family: 'Libre Baskerville', Georgia, serif;
+    }
+
+    .header-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 10px 0;
+      font-size: 9pt;
+    }
+
+    .summary-box {
+      border-top: 1.5px solid #0070C0;
+      border-bottom: 1.5px solid #0070C0;
+      padding: 8px 0;
+      margin-bottom: 15px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+    }
+
+    .summary-item {
+      text-align: center;
+      padding: 0 15px;
+      background: none;
+      border: none;
+      border-right: 1px solid #ddd;
+      flex-grow: 1;
+    }
+
+    .summary-item:last-child {
+      border-right: none;
+    }
+
+    .summary-item .label {
+      font-size: 8px;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 2px;
+    }
+
+    .summary-item .value {
+      font-size: 12px;
+      font-weight: bold;
+      color: #1F4E78;
+    }
+
+    .summary-item.highlight .value {
+      color: #006100;
+      font-size: 13px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+      font-size: 8px;
+    }
+
+    th {
+      color: #1e40af;
+      padding: 8px 4px;
+      text-align: left;
+      font-weight: bold;
+      font-size: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      border-bottom: 1px solid #0056A0;
+    }
+
+    td {
+      padding: 6px 4px;
+      border: none;
+      vertical-align: middle;
+    }
+
+    .text-right {
+      text-align: right;
+    }
+
+    .text-center {
+      text-align: center;
+    }
+
+    .currency {
+      font-family: 'Courier New', monospace;
+      text-align: right;
+      white-space: nowrap;
+      font-weight: 600;
+    }
+
+    .footer {
+      padding-top: 10px;
+      border-top: 0.5px solid #1a1a1a;
+      text-align: center;
+      font-size: 8pt;
+      color: #64748b;
+      margin-top: 20px;
+    }
+
+    .high-amount {
+      color: #006100;
+      font-weight: bold;
+    }
+
+    .page-break {
+      page-break-after: always;
+    }
+
+    @media print {
+      body {
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url('{{{logoDataUrl}}}');
+        background-size: auto 100%;    /* 80% of height */
+        background-repeat: no-repeat;
+        background-position: center center;
+        opacity: 0.02;
+        z-index: -1;
+        pointer-events: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header-wrapper">
+      <div class="className">
+          {{className}}
+      </div>
+      <div class="header">
+          <h1>Nigerian Navy (Naval Headquarters)</h1>
+          <h2>CENTRAL PAY OFFICE, 23 POINT ROAD APAPA</h2>
+      </div>
+  </div>
+
+  <div class="header-info">
+    <div class="left">
+      <strong>VARIATION INPUT LISTINGS</strong>
+    </div>
+    <div class="center">
+      <span>PRODUCED ON</span> 
+      <strong>{{formatDate reportDate}}</strong> 
+      <span>AT</span> 
+      <strong>{{formatTime reportDate}}</strong>
+    </div>
+    <div class="right">
+      <span>FOR</span> 
+      <strong>{{period}}</strong>
+    </div>
+  </div>
+
+  <!-- Filter Information
+  {{#if filters}}
+  <div style="margin-bottom: 10px; font-size: 8pt; color: #4a4a4a; font-style: italic;">
+    <strong>Filters Applied:</strong> {{filters}}
+  </div>-->
+  {{/if}}
+
+  <!-- Data Table -->
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 8%; text-align: left;">Svc No.</th>
+        <th style="width: 5%; text-align: left;">Rank</th>
+        <th style="width: 15%; text-align: left; white-space: nowrap;">Full Name</th>
+        <th style="width: 6%; text-align: center;">Pay Code</th>
+        <th style="width: 18%; text-align: left;">Description</th>
+        <th style="width: 5%; text-align: center;">MAK1</th>
+        <th style="width: 10%; text-align: center;">Amt Payable</th>
+        <th style="width: 5%; text-align: center;">MAK2</th>
+        <th style="width: 10%; text-align: center;">Amt ToDate</th>
+        <th style="width: 6%; text-align: center;">Pay Ind</th>
+        <th style="width: 4%; text-align: center;">Tenor</th>
+        <th style="width: 8%; text-align: left;">Created By</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each data}}
+        <tr>
+          <td>{{this.employee_id}}</td>
+          <td>{{this.title}} {{this.Title}}</td>
+          <td style="white-space: nowrap;">{{this.full_name}}</td>
+          <td style="text-align: center;">{{this.pay_element_type}}</td>
+          <td style="white-space: nowrap;">{{this.pay_element_description}}</td>
+          <td style="text-align: center;">{{this.mak1}}</td>
+          <td style="text-align: center;">₦{{formatCurrency this.amount_primary}}</td>
+          <td style="text-align: center;">{{this.mak2}}</td>
+          <td style="text-align: center;">₦{{formatCurrency this.amount_to_date}}</td>
+          <td style="text-align: center;">{{this.payment_indicator}}</td>
+          <td style="text-align: center;">{{this.number_of_months}}</td>
+          <td style="white-space: nowrap;">{{this.created_by}}</td>
+        </tr>
+      {{/each}}
+    </tbody>
+  </table>
+
+    <!-- Statistics Summary Box -->
+  <div class="summary-box">
+    <div class="summary-item">
+      <div class="label">Total Records</div>
+      <div class="value">{{statistics.total_records}}</div>
+    </div>
+    <div class="summary-item">
+      <div class="label">Employees</div>
+      <div class="value">{{statistics.total_employees}}</div>
+    </div>
+    <div class="summary-item">
+      <div class="label">Pay Elements</div>
+      <div class="value">{{statistics.total_pay_elements}}</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>All rights reserved &#xA9; Hicad Systems Limited.</p>
+  </div>
+
+  <script>
+  const auth = window.authService;
+    // Helper functions for Handlebars
+    Handlebars.registerHelper('gt', function(a, b) {
+      return parseFloat(a) > parseFloat(b);
+    });
+
+    Handlebars.registerHelper('eq', function(a, b) {
+      return a === b;
+    });
+  </script>
+</body>
+</html>

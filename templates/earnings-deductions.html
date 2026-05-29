@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @page { size: A4; margin: 5mm; background-color: #f8fbff; }
+        body { font-family: Helvetica, Arial, sans-serif; font-size: 10pt; color: #1a1a1a; }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('{{{logoDataUrl}}}');
+            background-size: auto 100%;    /* 80% of height */
+            background-repeat: no-repeat;
+            background-position: center center;
+            opacity: 0.02;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .header-wrapper {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 5px;
+            border-bottom: 2px solid #1a1a1a;
+            padding-bottom: 3px;
+        }
+
+        .className {
+            flex-shrink: 0;
+            margin-right: 20px;
+            align-self: center;
+            font-size: 9pt;
+        }
+
+        .header {
+            flex-grow: 1;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 13pt;
+            font-weight: bold;
+            margin: 0 0 2px 0;
+            letter-spacing: 1.5px;
+            color: #1e40af;
+            font-family: 'Libre Baskerville', Georgia, serif;
+        }
+        
+        .header h2 {
+            font-size: 10pt;
+            font-weight: normal;
+            margin: 2px 0 0 0;
+            color: #4a4a4a;
+            font-family: 'Libre Baskerville', Georgia, serif;
+        }
+
+        .header-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 5px 0 5px 0;
+            font-size: 9pt;
+        }
+
+        .report-info { margin-top: 2px; font-size: 9pt; color: #64748b; }
+        
+        /* CRITICAL FIX: Removed page-break-inside: avoid - this was blocking page breaks! */
+        .category-section { 
+            margin-top: 0;
+        }
+        
+        /* Page break BEFORE non-first categories */
+        .category-section.page-break {
+            page-break-before: always;
+        }
+        
+        .category-title { 
+            font-size: 12pt; 
+            font-weight: bold; 
+            color: #1e3a8a; 
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #1e3a8a;
+            page-break-after: avoid;
+        }
+        
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-bottom: 20px;
+            page-break-inside: auto;
+        }
+        
+        thead { 
+            display: table-header-group;
+            page-break-after: avoid;
+        }
+        
+        tbody { 
+            display: table-row-group;
+        }
+        
+        tfoot {
+            display: table-footer-group;
+            page-break-inside: avoid;
+        }
+        
+        tr { 
+            page-break-inside: avoid;
+            page-break-after: auto;
+        }
+        
+        th { 
+            padding: 8px; 
+            text-align: left; 
+            font-size: 9pt; 
+            font-weight: 600;
+            color: #1e3a8a;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        td { 
+            padding: 6px 8px; 
+            border-bottom: 1px solid #f1f5f9; 
+            font-size: 9pt; 
+        }
+        
+        .amount { font-family: 'Courier New', monospace; font-weight: 600; }
+        .employee-id { font-family: 'Courier New', monospace; font-size: 8pt; font-weight: 600; }
+        
+        .total-row { 
+            font-weight: bold; 
+            border-top: 2px solid #1e3a8a;
+            background: #f8fafc;
+            page-break-inside: avoid;
+        }
+        .total-row td { padding: 10px 8px; }
+        
+        /* Summary specific */
+        .summary-table th { text-align: center; }
+        .summary-table td { text-align: center; }
+        .summary-table td.amount { text-align: right; }
+        .summary-table .total-row td:first-child { text-align: right; }
+
+        /* CRITICAL FIX: Removed page-break-inside: avoid - this was blocking page breaks! */
+        .payment-group { 
+            margin-bottom: 25px; 
+        }
+        
+        /* Page break BEFORE non-first payment groups */
+        .payment-group.page-break {
+            page-break-before: always;
+        }
+        
+        .payment-header { 
+            padding: 10px;
+            color: #1e40af;
+            font-weight: bold; 
+            font-size: 11pt;
+            text-align: center;
+            border-bottom: .5px solid #e0e0e0;
+            background: #f8fafc;
+            page-break-after: avoid;
+        }
+        
+        table.details { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin: 10px 0; 
+        }
+        
+        table.details th { 
+            padding: 7px; 
+            color: #1e40af;
+            text-align: left; 
+            font-size: 8.5pt;
+            font-weight: 600;
+            border-bottom: solid 1px #1e40af;
+        }
+        
+        table.details td { 
+            padding: 5px 6px; 
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 8.5pt;
+        }
+
+        .footer {
+            padding-top: 5px;
+            border-top: .5px solid #1a1a1a;
+            text-align: center;
+            font-size: 8pt;
+            color: #64748b;
+        }
+
+        @media print {
+            body {
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact;
+            }
+            
+            body::before {
+                content: "";
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-image: url('{{{logoDataUrl}}}');
+                background-size: auto 100%;    /* 80% of height */
+                background-repeat: no-repeat;
+                background-position: center center;
+                opacity: 0.02;
+                z-index: -1;
+                pointer-events: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header-wrapper">
+        <div class="className">
+            {{className}}
+        </div>
+        <div class="header">
+            <h1>Nigerian Navy (Naval Headquarters)</h1>
+            <h2>CENTRAL PAY OFFICE, 23 POINT ROAD APAPA</h2>
+        </div>
+    </div>
+
+    <div class="header-info">
+        <div class="left">
+            ANALYSIS OF EARNINGS & DEDUCTIONS
+        </div>
+        <div class="center">
+            <span>PRODUCED ON</span>
+            <strong>{{formatDate reportDate}}</strong>
+            <span>AT</span>
+            <strong>{{formatTime reportDate}}</strong>
+        </div>
+        <div class="period-info">
+            FOR PERIOD: {{formatMonth month}} {{year}}
+        </div>
+  </div>
+    
+    {{#if isSummary}}
+        {{!-- Summary Report --}}
+        {{#each categories}}
+    <div class="category-section{{#unless @first}} page-break{{/unless}}">
+    <div class="category-title">{{categoryName}}</div>
+            <table class="summary-table">
+                <thead>
+                    <tr>
+                        <th>Payment Type</th>
+                        <th>Description</th>
+                        <th>Total Personnel</th>
+                        <th class="amount">Total Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#each items}}
+                    <tr>
+                        <td>{{payment_code}}</td>
+                        <td>{{payment_description}}</td>
+                        <td>{{employee_count}}</td>
+                        <td class="amount">₦{{formatCurrency subtotal}}</td>
+                    </tr>
+                    {{/each}}
+                </tbody>
+                <tfoot>
+                    <tr class="total-row">
+                        <td colspan="3">TOTAL:</td>
+                        <td class="amount">₦{{formatCurrency categoryTotal}}</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        {{/each}}
+        
+    {{else}}
+        {{!-- Detailed Report - NEW GROUPED DESIGN --}}
+        {{#each categories}}
+        <div class="category-section{{#unless @first}} page-break{{/unless}}">
+            <div class="category-title">{{categoryName}}</div>
+            
+            {{#each paymentTypes}}
+            <div class="payment-group{{#unless @first}} page-break{{/unless}}">
+                <div class="payment-header">
+                    {{payment_code}} - {{payment_description}} | {{employee_count}} Personnel | Total: ₦{{formatCurrency subtotal}}
+                </div>
+                <table class="details">
+                    <thead>
+                        <tr>
+                            <th style="width: 15%;">Service No.</th>
+                            <th style="width: 45%;">Full Name</th>
+                            <th style="width: 20%;">Rank</th>
+                            <th class="amount" style="width: 20%;">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#each employees}}
+                        <tr>
+                            <td class="employee-id">{{his_empno}}</td>
+                            <td>{{fullname}}</td>
+                            <td>{{rank}}</td>
+                            <td class="amount">₦{{formatCurrency total_amount}}</td>
+                        </tr>
+                        {{/each}}
+                    </tbody>
+                </table>
+            </div>
+            {{/each}}
+            
+            <table style="margin-top: 15px;">
+                <tfoot>
+                    <tr class="total-row">
+                        <td colspan="3" style="text-align: right;">TOTAL {{categoryName}}:</td>
+                        <td class="amount">₦{{formatCurrency categoryTotal}}</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        {{/each}}
+    {{/if}}
+
+    <!-- Footer -->
+    <div class="footer">
+        <p>All rights reserved &#xA9; Hicad Systems Limited.</p>
+    </div>
+</body>
+</html>

@@ -1,0 +1,380 @@
+<!-- BATCH UPLOAD SECTION -->
+<style>
+  @keyframes grow-up {
+    0% {
+      height: 0;
+      bottom: 0;
+    }
+
+    100% {
+      height: 100%;
+      bottom: 0;
+    }
+  }
+
+  @keyframes grow-down {
+    0% {
+      height: 0;
+      top: 0;
+    }
+
+    100% {
+      height: 100%;
+      top: 0;
+    }
+  }
+
+  @keyframes expand {
+    0% {
+      width: 0;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    100% {
+      width: 100%;
+      left: 0;
+      transform: translateY(-50%);
+    }
+  }
+
+  .animate-grow-up {
+    animation: grow-up 0.6s ease-in-out infinite alternate;
+    position: absolute;
+    bottom: 0;
+  }
+
+  .animate-grow-down {
+    animation: grow-down 0.6s ease-in-out infinite alternate;
+    position: absolute;
+    top: 0;
+  }
+
+  .animate-expand {
+    animation: expand 0.6s ease-in-out infinite alternate;
+  }
+</style>
+
+<div id="section-batch" class="p-6">
+  <div class="flex flex-col items-center">
+    <div id="batchUploadDiv" class="w-full max-w-md rounded-2xl">
+      <!-- Notes -->
+      <div class="mb-6">
+        <h4 class="font-semibold text-blue-700 mb-2">Please Note:</h4>
+        <ul class="list-disc list-inside text-gray-700 text-sm space-y-1">
+          <li>Ensure your file is properly formatted before uploading.</li>
+          <li>If you encounter any issues, please contact support.</li>
+          <li>
+            Duplicate Service Number + Payment/Deduction Type will not be
+            uploaded.
+          </li>
+        </ul>
+      </div>
+
+      <!-- Upload Form -->
+      <form id="batchUploadForm" class="space-y-6">
+        <div>
+          <label for="batchFile" class="block text-sm font-medium text-gray-700 mb-2">Upload File</label>
+          <input type="file" id="batchFile" accept=".xlsx,.xls,.csv"
+            class="mt-1 block w-full border border-blue-300 bg-white rounded-lg px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400" />
+          <p class="text-xs text-gray-500 mt-2">
+            Only <span class="font-semibold">.xlsx</span>,
+            <span class="font-semibold">.xls</span> or
+            <span class="font-semibold">.csv</span> files are allowed.
+            <button type="button" id="downloadTemplateBtn" class="text-blue-600 font-medium hover:underline ml-2">
+              Download Template
+            </button>
+          </p>
+        </div>
+        <div class="flex justify-end gap-3">
+          <button type="button" id="cancelBatchBtn"
+            class="px-5 py-2 bg-gray-300 hover:bg-gray-400 rounded-lg text-gray-800 font-medium shadow-sm">
+            Cancel
+          </button>
+          <button type="button" id="uploadBatchBtn"
+            class="px-5 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white font-medium shadow-md">
+            Upload
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Success Modal -->
+  <div id="successModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-xl shadow-lg p-6 max-w-md w-full text-center">
+      <div id="successIcon" class="mb-3 flex items-center justify-center">
+        <svg class="h-8 w-8 text-green-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+        </svg>
+      </div>
+      <h2 id="successTitle" class="text-xl font-bold text-green-600 mb-2">
+        Success
+      </h2>
+      <p id="successMessage" class="text-gray-600 mb-4">
+        Action completed successfully.
+      </p>
+      <div id="uploadSummary" class="hidden text-left bg-gray-50 rounded-lg p-4 mb-4 text-sm">
+        <p class="font-semibold mb-2">Upload Summary:</p>
+        <p>
+          Total Unique Records:
+          <span id="total-Records" class="font-medium">0</span>
+        </p>
+        <p>
+          Successfully Computed:
+          <span id="successRecords" class="font-medium text-green-600">0</span>
+        </p>
+        <p>
+          Duplicate Rows:
+          <span id="duplicateRows" class="font-medium text-red-600">0</span>
+        </p>
+        <p>
+          Inactive Staff:
+          <span id="inactive" class="font-medium text-red-600">0</span>
+        </p>
+        <p>
+          Non-Existent Staff (No Records):
+          <span id="nonexist" class="font-medium text-red-600">0</span>
+        </p>
+        <div id="failedPayclasses" class="mt-3 hidden">
+          <p class="font-semibold text-red-600">Failed Pay Classes:</p>
+          <div id="failedList" class="text-xs text-red-500 mt-1"></div>
+        </div>
+      </div>
+      <button id="closeModalBtn" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium">
+        OK
+      </button>
+    </div>
+  </div>
+
+  <!-- Error Modal -->
+  <div id="errorModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-xl shadow-lg p-6 max-w-2xl w-full">
+      <h2 class="text-xl font-bold text-red-600 mb-4">Upload Errors</h2>
+      <div id="errorContent" class="text-gray-700 text-sm max-h-96 overflow-y-auto"></div>
+      <div class="flex justify-end mt-4">
+        <button id="closeErrorBtn" class="px-5 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const auth = window.authService;
+  (function () {
+    // Configuration
+    const API_BASE_URL = "payhead";
+    let authToken = localStorage.getItem("token");
+
+    // DOM Elements
+    const uploadBtn = document.getElementById("uploadBatchBtn");
+    const cancelBatchBtn = document.getElementById("cancelBatchBtn");
+    const batchFileInput = document.getElementById("batchFile");
+    const batchDiv = document.getElementById("batchUploadDiv");
+    const downloadTemplateBtn = document.getElementById("downloadTemplateBtn");
+    const modal = document.getElementById("successModal");
+    const closeModalBtn = document.getElementById("closeModalBtn");
+    const errorModal = document.getElementById("errorModal");
+    const closeErrorBtn = document.getElementById("closeErrorBtn");
+    const successTitle = document.getElementById("successTitle");
+    const successMessage = document.getElementById("successMessage");
+    const successIcon = document.getElementById("successIcon");
+    const uploadSummary = document.getElementById("uploadSummary");
+
+    // Download Template
+    downloadTemplateBtn.addEventListener("click", async () => {
+      try {
+        const response = await auth.fetchWithAuth(`${API_BASE_URL}/template`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        });
+
+        if (!response.ok) throw new Error("Failed to download template");
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "payment-adjustments_template.xlsx";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+      } catch (error) {
+        console.error("Error downloading template:", error);
+        showErrors("Failed to download template. Please try again.");
+      }
+    });
+
+    // Cancel Button
+    cancelBatchBtn.addEventListener("click", () => {
+      batchFileInput.value = "";
+    });
+
+    // Upload File
+    uploadBtn.addEventListener("click", async () => {
+      const file = batchFileInput.files[0];
+
+      if (!file) {
+        showErrors("Please select a file to upload");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      // Show loading
+      showLoading();
+
+      try {
+        const response = await auth.fetchWithAuth(`${API_BASE_URL}/`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+          body: formData,
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          modal.classList.add("hidden");
+
+          if (result.details && Array.isArray(result.details)) {
+            showErrors(result.details);
+          } else {
+            throw new Error(result.error || "Upload failed");
+          }
+          return;
+        }
+
+        // Show success with summary
+        showUploadSuccess(result);
+
+        // Clear file input and hide form
+        batchFileInput.value = "";
+        console.log("gotten res");
+        const byteCharacters = atob(result.file.data);
+        console.log("gotten data");
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: result.file.mimetype });
+
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = result.file.filename;
+        a.click();
+      } catch (error) {
+        console.error("Upload error:", error);
+        modal.classList.add("hidden");
+        showErrors(`Upload failed: ${error.message}`);
+      }
+    });
+
+    // Show Loading
+    function showLoading() {
+      successIcon.innerHTML = `
+      <div class="relative w-10 h-10">
+        <div class="absolute left-1 w-[6px] bg-blue-600 rounded animate-grow-up"></div>
+        <div class="absolute right-1 w-[6px] bg-blue-600 rounded animate-grow-down [animation-delay:0.3s]"></div>
+        <div class="absolute top-1/2 left-1 h-[6px] bg-blue-600 rounded animate-expand [animation-delay:0.6s] -translate-y-1/2"></div>
+      </div>`;
+      successTitle.textContent = "Uploading...";
+      successMessage.textContent = "Please wait while we process your file.";
+      uploadSummary.classList.add("hidden");
+      modal.classList.remove("hidden");
+    }
+
+    // Show Upload Success
+    function showUploadSuccess(result) {
+      const summary = result.summary;
+
+      successIcon.innerHTML = `<svg class="h-8 w-8 text-green-600" fill="none" stroke="currentColor" stroke-width="2"
+      viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>`;
+
+      successTitle.textContent = "Upload Complete";
+      successMessage.textContent =
+        result.message || "Batch upload completed successfully.";
+
+      // Show summary
+      document.getElementById("total-Records").textContent =
+        summary.totalUniqueRecords || 0;
+      document.getElementById("inactive").textContent = summary.inactive || 0;
+      document.getElementById("successRecords").textContent =
+        summary.computed || 0;
+      document.getElementById("duplicateRows").textContent =
+        summary.duplicates || 0;
+      document.getElementById("nonexist").textContent =
+        summary.non_exist || 0;
+
+      // Show failed pay classes if any
+      if (summary.failed && Object.keys(summary.failed).length > 0) {
+        const failedDiv = document.getElementById("failedPayclasses");
+        const failedList = document.getElementById("failedList");
+
+        let failedHtml = "";
+        for (const [payclass, error] of Object.entries(summary.failed)) {
+          failedHtml += `<p>• ${payclass}: ${error}</p>`;
+        }
+
+        failedList.innerHTML = failedHtml;
+        failedDiv.classList.remove("hidden");
+      }
+
+      uploadSummary.classList.remove("hidden");
+      modal.classList.remove("hidden");
+    }
+
+    // Show Errors
+    function showErrors(errors) {
+      const errorContent = document.getElementById("errorContent");
+
+      let html = '<div class="space-y-2">';
+
+      if (typeof errors === "string") {
+        html += `
+        <div class="bg-red-50 border border-red-200 rounded p-3">
+          <p class="text-sm text-red-600">${errors}</p>
+        </div>`;
+      } else if (Array.isArray(errors)) {
+        errors.forEach((err, index) => {
+          html += `
+          <div class="bg-red-50 border border-red-200 rounded p-3">
+            <p class="font-semibold text-red-700">Error ${index + 1}:</p>
+            ${err.row ? `<p class="text-sm">Row: ${err.row}</p>` : ""}
+            ${err.serviceNumber
+              ? `<p class="text-sm">Service Number: ${err.serviceNumber}</p>`
+              : ""
+            }
+            ${err.deductionType
+              ? `<p class="text-sm">Deduction Type: ${err.deductionType}</p>`
+              : ""
+            }
+            <p class="text-sm text-red-600">${err.error || err}</p>
+          </div>`;
+        });
+      }
+      html += "</div>";
+
+      errorContent.innerHTML = html;
+      errorModal.classList.remove("hidden");
+    }
+
+    // Close Modals
+    closeModalBtn.addEventListener("click", () => {
+      modal.classList.add("hidden");
+    });
+
+    closeErrorBtn.addEventListener("click", () => {
+      errorModal.classList.add("hidden");
+    });
+  })();
+</script>
