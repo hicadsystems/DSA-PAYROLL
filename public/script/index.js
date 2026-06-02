@@ -1,35 +1,55 @@
 // Live time and date update
 function updateTime() {
   const now = new Date();
-  
+
   // Format time
-  const hours = String(now.getHours()).padStart(2, '0');
-  const minutes = String(now.getMinutes()).padStart(2, '0');
-  const seconds = String(now.getSeconds()).padStart(2, '0');
-  const timeElement = document.getElementById('liveTime');
+  const hours = String(now.getHours()).padStart(2, "0");
+  const minutes = String(now.getMinutes()).padStart(2, "0");
+  const seconds = String(now.getSeconds()).padStart(2, "0");
+  const timeElement = document.getElementById("liveTime");
   if (timeElement) {
     timeElement.textContent = `${hours}:${minutes}:${seconds}`;
   }
-  
+
   // Day of week
-  const days = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
-  const dayElement = document.getElementById('dayOfWeek');
+  const days = [
+    "SUNDAY",
+    "MONDAY",
+    "TUESDAY",
+    "WEDNESDAY",
+    "THURSDAY",
+    "FRIDAY",
+    "SATURDAY",
+  ];
+  const dayElement = document.getElementById("dayOfWeek");
   if (dayElement) {
     dayElement.textContent = days[now.getDay()];
   }
-  
+
   // Month and Year
-  const months = ['JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY', 'JUNE', 
-                  'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVEMBER', 'DECEMBER'];
-  const monthYearElement = document.getElementById('monthYear');
+  const months = [
+    "JANUARY",
+    "FEBRUARY",
+    "MARCH",
+    "APRIL",
+    "MAY",
+    "JUNE",
+    "JULY",
+    "AUGUST",
+    "SEPTEMBER",
+    "OCTOBER",
+    "NOVEMBER",
+    "DECEMBER",
+  ];
+  const monthYearElement = document.getElementById("monthYear");
   if (monthYearElement) {
     monthYearElement.textContent = `${months[now.getMonth()]} ${now.getFullYear()}`;
   }
-  
+
   // Date number
-  const dateElement = document.getElementById('dateNumber');
+  const dateElement = document.getElementById("dateNumber");
   if (dateElement) {
-    dateElement.textContent = String(now.getDate()).padStart(2, '0');
+    dateElement.textContent = String(now.getDate()).padStart(2, "0");
   }
 }
 
@@ -38,13 +58,11 @@ updateTime();
 setInterval(updateTime, 1000);
 
 // Year
-document.getElementById('year').textContent = new Date().getFullYear();
+document.getElementById("year").textContent = new Date().getFullYear();
 
-
-
-// Professional Animated Canvas Background - Navy Blue Theme
-const canvas = document.getElementById('particleCanvas');
-const ctx = canvas.getContext('2d');
+// Professional Animated Canvas Background - Navy Orange Theme
+const canvas = document.getElementById("particleCanvas");
+const ctx = canvas.getContext("2d");
 
 // Set canvas size
 function resizeCanvas() {
@@ -52,7 +70,7 @@ function resizeCanvas() {
   canvas.height = window.innerHeight;
 }
 resizeCanvas();
-window.addEventListener('resize', resizeCanvas);
+window.addEventListener("resize", resizeCanvas);
 
 // Particle system
 class Particle {
@@ -77,7 +95,7 @@ class Particle {
   }
 
   draw() {
-    ctx.fillStyle = `rgba(59, 130, 246, ${this.opacity})`; // Blue color
+    ctx.fillStyle = `rgba(249, 115, 22, ${this.opacity})`; // Orange color
     ctx.beginPath();
     ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
     ctx.fill();
@@ -95,10 +113,10 @@ for (let i = 0; i < particleCount; i++) {
 let mouse = {
   x: null,
   y: null,
-  radius: 150
+  radius: 150,
 };
 
-window.addEventListener('mousemove', (e) => {
+window.addEventListener("mousemove", (e) => {
   mouse.x = e.x;
   mouse.y = e.y;
 });
@@ -112,7 +130,7 @@ function connectParticles() {
       const distance = Math.sqrt(dx * dx + dy * dy);
 
       if (distance < 120) {
-        ctx.strokeStyle = `rgba(59, 130, 246, ${0.15 * (1 - distance / 120)})`; // Blue connections
+        ctx.strokeStyle = `rgba(249, 115, 22, ${0.15 * (1 - distance / 120)})`; // Orange connections
         ctx.lineWidth = 1;
         ctx.beginPath();
         ctx.moveTo(particles[i].x, particles[i].y);
@@ -128,7 +146,7 @@ function connectParticles() {
       const distance = Math.sqrt(dx * dx + dy * dy);
 
       if (distance < mouse.radius) {
-        ctx.strokeStyle = `rgba(59, 130, 246, ${0.3 * (1 - distance / mouse.radius)})`; // Blue mouse interaction
+        ctx.strokeStyle = `rgba(249, 115, 22, ${0.3 * (1 - distance / mouse.radius)})`; // Orange mouse interaction
         ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.moveTo(particles[i].x, particles[i].y);
@@ -139,12 +157,12 @@ function connectParticles() {
   }
 }
 
-// Gradient background - Navy Blue theme
+// Gradient background - Navy Orange theme
 function drawGradient() {
   const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-  gradient.addColorStop(0, '#000000');      // Black
-  gradient.addColorStop(0.5, '#111827');    // Dark gray
-  gradient.addColorStop(1, '#1e40af');      // Navy blue
+  gradient.addColorStop(0, "#000000"); // Black
+  gradient.addColorStop(0.5, "#111827"); // Dark gray
+  gradient.addColorStop(1, "#4d1c08"); // Deep orange
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
@@ -155,7 +173,7 @@ function animate() {
   drawGradient();
 
   // Update and draw particles
-  particles.forEach(particle => {
+  particles.forEach((particle) => {
     particle.update();
     particle.draw();
   });

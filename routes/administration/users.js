@@ -1,268 +1,241 @@
-/**
- * FILE: routes/administration/users.js
- *
- * Scope: Payroll users only.
- *
- * Removed from here (now in routes/auth/unified-login.js):
- *   POST /pre-login
- *   POST /pre-login/verify-identity
- *   POST /pre-login/reset-password
- *
- * Kept here:
- *   POST   /login               — full payroll login (with class)
- *   POST   /logout
- *   POST   /refresh
- *   POST   /verify-identity     — payroll forgot password step 1 (needs class)
- *   POST   /reset-password      — payroll forgot password step 2 (needs class)
- *   GET    /                    — list users
- *   GET    /:id                 — get user
- *   POST   /                    — create user
- *   PUT    /:user_id            — update user
- *   DELETE /:user_id            — delete user
- */
-
-"use strict";
-
 const express = require("express");
+const pool = require("../../config/db"); // mysql2 pool
 const router = express.Router();
-const pool = require("../../config/db");
-const config = require("../../config");
+const path = require("path");
+const dotenv = require("dotenv");
+const envFile = ".env.local";
+dotenv.config({ path: path.resolve(__dirname, envFile) });
 const jwt = require("jsonwebtoken");
+const JWT_SECRET = process.env.JWT_SECRET;
 const verifyToken = require("../../middware/authentication");
 
-const jwtSign = ({ data, secret, time }) =>
-  jwt.sign(data, secret, { expiresIn: time });
-
-const jwtVerify = ({ token, secret }) =>
-  jwt.verify(token, secret, (err, decoded) => {
-    if (err) {
-      return err.name === "TokenExpiredError"
-        ? { message: "Token has expired", decoded: "" }
-        : { message: "Invalid token", decoded: "" };
-    }
-    return { decoded, message: "" };
-  });
-
-// ─────────────────────────────────────────────────────────────
-// HELPER — payroll class mapping (unchanged from original)
-// ─────────────────────────────────────────────────────────────
-async function loadPayrollMapping() {
-  let databasesToSearch = [];
-  let dbToClass = {};
-  let classToDb = {};
-
-  try {
-    const officersDb = process.env.DB_OFFICERS || config.databases.officers;
-    pool.useDatabase(officersDb);
-
-    const [rows] = await pool.query(
-      "SELECT db_name, classname FROM py_payrollclass WHERE status = 'active'",
-    );
-
-    rows.forEach((row) => {
-      dbToClass[row.db_name] = row.classname;
-      classToDb[row.classname] = row.db_name;
-    });
-
-    const others = rows.map((r) => r.db_name).filter((db) => db !== officersDb);
-    databasesToSearch = [officersDb, ...others];
-  } catch (err) {
-    console.warn(
-      "⚠️ py_payrollclass load failed, using env fallback:",
-      err.message,
-    );
-    databasesToSearch = [
-      process.env.DB_OFFICERS,
-      process.env.DB_WOFFICERS,
-      process.env.DB_RATINGS,
-      process.env.DB_RATINGS_A,
-      process.env.DB_RATINGS_B,
-      process.env.DB_JUNIOR_TRAINEE,
-    ].filter(Boolean);
-  }
-
-  return { databasesToSearch, dbToClass, classToDb };
-}
-
-function resolveToDbName(primaryClass, dbToClass, classToDb) {
-  if (dbToClass[primaryClass]) return primaryClass;
-  if (classToDb[primaryClass]) return classToDb[primaryClass];
-  return null;
-}
-
-// ─────────────────────────────────────────────────────────────
-// POST /login — full payroll login with class selection
-//
-// Password is NOT re-checked here. The user already authenticated
-// via POST /api/auth/pre-login against hr_employees. By the time
-// they reach this endpoint they hold a valid JWT. We only verify
-// their class assignment and issue a class-scoped token.
-// ─────────────────────────────────────────────────────────────
+// User login - searches across all databases
 router.post("/login", async (req, res) => {
-  const { user_id, payroll_class } = req.body;
-
-  // Verify the pre-login token they already hold
-  const bearerHeader = req.headers["authorization"];
-  const preToken = bearerHeader?.startsWith("Bearer ")
-    ? bearerHeader.split(" ")[1]
-    : null;
-
-  if (!preToken) {
-    return res.status(401).json({ error: "Pre-login token required" });
-  }
-
-  let decoded;
-  try {
-    decoded = jwt.verify(preToken, config.jwt.secret);
-  } catch (err) {
-    return res
-      .status(401)
-      .json({ error: "Invalid or expired token. Please log in again." });
-  }
-
-  // Confirm token user matches submitted user_id
-  if (decoded.user_id !== (user_id || "").trim()) {
-    return res.status(403).json({ error: "Token mismatch" });
-  }
-
-  console.log("Class selection attempt:", { user_id, payroll_class });
+  const { user_id, password, payroll_class } = req.body;
+  // payroll_class comes from frontend as: 'hicaddata', 'hicaddata1' (db_name)
 
   try {
-    const { databasesToSearch, dbToClass, classToDb } =
-      await loadPayrollMapping();
+    const userCandidates = []; // Store all found user instances
 
-    let requestedDb = null;
-    if (dbToClass[payroll_class]) requestedDb = payroll_class;
-    else if (classToDb[payroll_class]) requestedDb = classToDb[payroll_class];
+    // Get list of all available databases to search AND create a mapping of db_name <-> classname
+    let databasesToSearch = [];
+    let dbClassMapping = {}; // { 'hicaddata': 'OFFICERS', 'OFFICERS': 'hicaddata' }
 
-    if (!requestedDb) {
-      console.log(`❌ Cannot resolve payroll_class: '${payroll_class}'`);
-      return res.status(400).json({ error: "Invalid payroll class selected" });
+    try {
+      // Try to get all db_classes from officers database
+      pool.useDatabase(process.env.DB_OFFICERS);
+      const [dbClasses] = await pool.query(
+        "SELECT db_name, classname FROM py_payrollclass",
+      );
+
+      // Build list: officers first, then all other databases
+      const otherDatabases = dbClasses
+        .map((row) => row.db_name)
+        .filter((db) => db !== process.env.DB_OFFICERS);
+      databasesToSearch = [process.env.DB_OFFICERS, ...otherDatabases];
+
+      // Create bidirectional mapping
+      dbClasses.forEach((row) => {
+        dbClassMapping[row.db_name] = row.classname; // 'hicaddata' -> 'OFFICERS'
+        dbClassMapping[row.classname] = row.db_name; // 'OFFICERS' -> 'hicaddata'
+      });
+
+      console.log("📋 Databases to search:", databasesToSearch);
+      console.log("🔗 Class mapping created:", dbClassMapping);
+    } catch (err) {
+      // If db_classes table doesn't exist, fallback to searching common databases
+      console.log("⚠️ Could not fetch db_classes, using fallback list");
+      databasesToSearch = [
+        process.env.DB_OFFICERS,
+        process.env.DB_WOFFICERS,
+        process.env.DB_RATINGS,
+        process.env.DB_RATINGS_A,
+        process.env.DB_RATINGS_B,
+        process.env.DB_JUNIOR_TRAINEE,
+      ];
     }
 
-    const requestedClassName = dbToClass[requestedDb];
-    console.log(
-      `✅ Resolved '${payroll_class}' → db:'${requestedDb}' class:'${requestedClassName}'`,
-    );
-
-    // Find the user in the payroll users table for this class
-    let authenticatedUser = null,
-      authenticatedDatabase = null;
-
+    // Search for user in ALL databases and collect all instances
     for (const dbName of databasesToSearch) {
-      if (!dbName) continue;
+      if (!dbName) continue; // Skip null/undefined entries
+
       try {
+        console.log(`🔍 Searching for user ${user_id} in database: ${dbName}`);
         pool.useDatabase(dbName);
+
         const [rows] = await pool.query(
           "SELECT * FROM users WHERE user_id = ?",
-          [decoded.user_id],
+          [user_id],
         );
-        if (!rows.length) continue;
 
-        const user = rows[0];
-
-        // Check account status and expiry
-        if (user.status !== "active") continue;
-
-        if (user.expiry_date) {
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
-          if (new Date(user.expiry_date) < today) continue;
+        if (rows.length > 0) {
+          const foundUser = rows[0];
+          userCandidates.push({
+            user: foundUser,
+            database: dbName,
+          });
+          console.log(`✅ User found in database: ${dbName}`);
+          console.log(
+            `   👤 Name: ${foundUser.full_name}, Primary Class: ${foundUser.primary_class}`,
+          );
+          console.log(
+            `   🔐 Password: "${foundUser.password}" (type: ${typeof foundUser.password})`,
+          );
         }
-
-        // Check class matches
-        const userPrimaryDb = resolveToDbName(
-          user.primary_class,
-          dbToClass,
-          classToDb,
-        );
-        if (userPrimaryDb !== requestedDb) continue;
-
-        authenticatedUser = user;
-        authenticatedDatabase = dbName;
-        break;
       } catch (err) {
-        console.log(`❌ DB error (${dbName}):`, err.message);
+        // If database doesn't exist or has no users table, continue to next
+        console.log(`❌ Error searching database ${dbName}:`, err.message);
+        continue;
       }
     }
 
-    if (!authenticatedUser) {
-      pool.useDatabase(config.databases.officers);
-
-      // Give specific error where possible
-      for (const dbName of databasesToSearch) {
-        if (!dbName) continue;
-        try {
-          pool.useDatabase(dbName);
-          const [rows] = await pool.query(
-            "SELECT * FROM users WHERE user_id = ?",
-            [decoded.user_id],
-          );
-          if (!rows.length) continue;
-          const user = rows[0];
-
-          if (user.status !== "active")
-            return res
-              .status(403)
-              .json({ error: "Payroll account is inactive or suspended." });
-
-          if (user.expiry_date) {
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            if (new Date(user.expiry_date) < today)
-              return res
-                .status(403)
-                .json({
-                  error:
-                    "Payroll account has expired. Please contact administrator.",
-                });
-          }
-
-          const userPrimaryDb = resolveToDbName(
-            user.primary_class,
-            dbToClass,
-            classToDb,
-          );
-          if (userPrimaryDb !== requestedDb)
-            return res
-              .status(403)
-              .json({
-                error:
-                  "Unauthorized payroll class. You can only login to your assigned class.",
-              });
-        } catch {}
-      }
-
-      return res
-        .status(403)
-        .json({ error: "Payroll access not found for this account." });
+    // If user not found in ANY database
+    if (userCandidates.length === 0) {
+      console.log(`❌ User ${user_id} not found in any database`);
+      return res.status(401).json({ error: "Invalid User ID or password" });
     }
 
-    const tokenPayload = {
-      user_id: authenticatedUser.user_id,
-      full_name: decoded.full_name,
-      email: decoded.email,
-      role: authenticatedUser.user_role,
-      primary_class: authenticatedUser.primary_class,
-      current_class: requestedDb,
-      created_in: authenticatedDatabase,
-    };
-
-    const token = jwtSign({
-      data: tokenPayload,
-      secret: config.jwt.secret,
-      time: "8h",
-    });
-
-    pool.useDatabase(authenticatedDatabase);
-    await pool.query("UPDATE users SET token = ? WHERE user_id = ?", [
-      token,
-      decoded.user_id,
-    ]);
-
-    pool.useDatabase(requestedDb);
     console.log(
-      `✅ Class login successful for ${decoded.user_id} → db:${requestedDb}`,
+      `\n📊 Found ${userCandidates.length} instance(s) of user ${user_id}`,
+    );
+
+    // Now validate password and find matching user
+    let authenticatedUser = null;
+    let authenticatedDatabase = null;
+
+    for (const candidate of userCandidates) {
+      const { user, database } = candidate;
+
+      console.log(`\n🔐 Checking credentials for user in ${database}:`);
+      console.log(
+        `   Stored password: "${user.password}" (${typeof user.password})`,
+      );
+      console.log(`   Provided password: "${password}" (${typeof password})`);
+      console.log(`   Match: ${user.password === password}`);
+      console.log(`   Status: ${user.status}`);
+      console.log(`   Expiry date: ${user.expiry_date}`);
+      console.log(`   Primary class (stored): ${user.primary_class}`);
+      console.log(`   Requested class (from login): ${payroll_class}`);
+
+      // Check expiry date if set
+      let isExpired = false;
+      if (user.expiry_date) {
+        const expiryDate = new Date(user.expiry_date);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Reset to start of day for fair comparison
+        isExpired = expiryDate < today;
+        console.log(`   Account expired: ${isExpired}`);
+      }
+
+      // Normalize the primary_class comparison
+      // The user.primary_class might be classname(OFFICERS) or db_name (hicaddata)
+      // The payroll_class from frontend is always db_name (hicaddata)
+
+      let userPrimaryDbName = user.primary_class;
+
+      // If primary_class looks like a classname(all caps, no numbers), convert it to db_name
+      if (dbClassMapping[user.primary_class]) {
+        userPrimaryDbName = dbClassMapping[user.primary_class];
+        console.log(
+          `   🔄 Converted classname "${user.primary_class}" to db_name "${userPrimaryDbName}"`,
+        );
+      }
+
+      const classMatches = userPrimaryDbName === payroll_class;
+      console.log(
+        `   Class match: ${classMatches} (user: ${userPrimaryDbName}, requested: ${payroll_class})`,
+      );
+
+      // Check if password matches, status is active, not expired, and primary_class matches
+      if (
+        user.password === password &&
+        user.status === "active" &&
+        !isExpired &&
+        classMatches
+      ) {
+        authenticatedUser = user;
+        authenticatedDatabase = database;
+        console.log(`✅ Valid credentials found in ${database}!`);
+        break; // Found valid match, stop searching
+      } else {
+        console.log(`❌ Invalid credentials in ${database}:`);
+        if (user.password !== password) console.log(`   - Password mismatch`);
+        if (user.status !== "active")
+          console.log(`   - Account status: ${user.status}`);
+        if (isExpired)
+          console.log(`   - Account expired on ${user.expiry_date}`);
+        if (!classMatches)
+          console.log(
+            `   - Class mismatch (has: ${userPrimaryDbName}, wants: ${payroll_class})`,
+          );
+      }
+    }
+
+    // If no valid match found after checking all instances
+    if (!authenticatedUser) {
+      console.log(
+        `\n❌ No valid credentials found for user ${user_id} across all databases`,
+      );
+
+      // Provide specific error message
+      const hasPasswordMatch = userCandidates.some(
+        (c) => c.user.password === password,
+      );
+      const hasInactiveAccount = userCandidates.some(
+        (c) => c.user.status !== "active",
+      );
+      const hasExpiredAccount = userCandidates.some((c) => {
+        if (!c.user.expiry_date) return false;
+        const expiryDate = new Date(c.user.expiry_date);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        return expiryDate < today;
+      });
+      const hasClassMismatch = userCandidates.some((c) => {
+        let userPrimaryDbName = c.user.primary_class;
+        if (dbClassMapping[c.user.primary_class]) {
+          userPrimaryDbName = dbClassMapping[c.user.primary_class];
+        }
+        return userPrimaryDbName !== payroll_class;
+      });
+
+      if (hasExpiredAccount && hasPasswordMatch) {
+        return res.status(403).json({
+          error: "Account has expired. Please contact administrator.",
+        });
+      } else if (hasInactiveAccount && hasPasswordMatch) {
+        return res
+          .status(403)
+          .json({ error: "Account is inactive or suspended" });
+      } else if (hasClassMismatch && hasPasswordMatch) {
+        return res.status(403).json({
+          error:
+            "Unauthorized payroll class selection. You can only login to your assigned class.",
+        });
+      } else {
+        return res.status(401).json({ error: "Invalid User ID or password" });
+      }
+    }
+
+    // Switch to user's assigned database (their primary_class)
+    pool.useDatabase(payroll_class);
+
+    // Generate JWT token
+    const token = jwt.sign(
+      {
+        user_id: authenticatedUser.user_id,
+        full_name: authenticatedUser.full_name,
+        role: authenticatedUser.user_role,
+        primary_class: authenticatedUser.primary_class,
+        current_class: payroll_class,
+        created_in: authenticatedDatabase,
+      },
+      JWT_SECRET,
+      { expiresIn: "8h" },
+    );
+
+    console.log(
+      `\n✅ Login successful for user ${user_id} from ${authenticatedDatabase}`,
     );
 
     res.json({
@@ -270,110 +243,26 @@ router.post("/login", async (req, res) => {
       token,
       user: {
         user_id: authenticatedUser.user_id,
-        full_name: decoded.full_name,
-        email: decoded.email,
+        full_name: authenticatedUser.full_name,
+        email: authenticatedUser.email,
         role: authenticatedUser.user_role,
         status: authenticatedUser.status,
         primary_class: authenticatedUser.primary_class,
-        current_class: requestedClassName,
+        current_class: payroll_class,
       },
     });
   } catch (err) {
-    pool.useDatabase(config.databases.officers);
     console.error("❌ Login error:", err);
     res.status(500).json({ error: "Server error" });
   }
 });
 
-// ─────────────────────────────────────────────────────────────
-// POST /logout
-// ─────────────────────────────────────────────────────────────
-router.post("/logout", verifyToken, async (req, res) => {
-  try {
-    const bearerHeader = req.headers["authorization"];
-    let token = null;
-    if (bearerHeader && bearerHeader.startsWith("Bearer "))
-      token = bearerHeader.split(" ")[1];
-    if (!token && req.query.token) token = req.query.token;
-    if (!token) return res.status(403).json({ message: "No token provided" });
-
-    pool.useDatabase(config.databases.officers);
-    await pool.query("UPDATE users SET token = NULL WHERE user_id = ?", [
-      req.user_id,
-    ]);
-    return res.status(204).send();
-  } catch (err) {
-    console.error("❌ Logout error:", err);
-    res.status(500).json({ error: "Server error" });
-  }
-});
-
-// ─────────────────────────────────────────────────────────────
-// POST /refresh
-// ─────────────────────────────────────────────────────────────
-router.post("/refresh", async (req, res) => {
-  try {
-    const { refresh_token } = req.body;
-    if (!refresh_token)
-      return res.status(400).json({ message: "Please Log In" });
-
-    const { message, decoded } = jwtVerify({
-      token: refresh_token,
-      secret: config.jwt.refreshSecret,
-    });
-    if (message || !decoded) return res.status(400).json({ message });
-
-    const { classToDb } = await loadPayrollMapping();
-    const dbName = classToDb[decoded.created_in] || decoded.created_in;
-
-    pool.useDatabase(dbName);
-    const [userRows] = await pool.query(
-      "SELECT * FROM users WHERE user_id = ?",
-      [decoded.user_id],
-    );
-    if (!userRows.length)
-      return res.status(404).json({ message: "User not found" });
-
-    const user = userRows[0];
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    if (
-      (user.expiry_date && new Date(user.expiry_date) < today) ||
-      user.status !== "active"
-    )
-      return res.status(401).json({ message: "Please Log In." });
-
-    const token = jwtSign({
-      data: {
-        user_id: user.user_id,
-        full_name: user.full_name,
-        email: user.email,
-        role: user.user_role,
-        primary_class: user.primary_class,
-        current_class: decoded.current_class,
-        created_in: decoded.created_in,
-      },
-      secret: config.jwt.secret,
-      time: "8h",
-    });
-
-    console.log(`🔄 Token refreshed for ${user.user_id}`);
-    res.status(200).json({ message: "Token Refreshed", token });
-  } catch (err) {
-    console.error("❌ Refresh error:", err);
-    res.status(500).json({ error: "Server error" });
-  }
-});
-
-// ─────────────────────────────────────────────────────────────
-// USER CRUD
-// ─────────────────────────────────────────────────────────────
-
+//  Get all users
 router.get("/", verifyToken, async (req, res) => {
   try {
-    const [rows] = await pool.query(
-      "SELECT * FROM users ORDER BY full_name ASC",
-    );
+    const [rows] = await pool.query(`
+      SELECT * FROM users ORDER BY full_name ASC
+    `);
     res.json(rows);
   } catch (err) {
     console.error("❌ Error fetching users:", err);
@@ -381,12 +270,21 @@ router.get("/", verifyToken, async (req, res) => {
   }
 });
 
+// Get single user by ID
 router.get("/:id", verifyToken, async (req, res) => {
   try {
-    const [rows] = await pool.query("SELECT * FROM users WHERE user_id = ?", [
-      req.params.id,
-    ]);
-    if (!rows.length) return res.status(404).json({ error: "User not found" });
+    const [rows] = await pool.query(
+      `
+      SELECT * FROM users u
+      WHERE u.user_id = ?
+    `,
+      [req.params.id],
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
     res.json(rows[0]);
   } catch (err) {
     console.error("❌ Error fetching user:", err);
@@ -394,16 +292,7 @@ router.get("/:id", verifyToken, async (req, res) => {
   }
 });
 
-// GET /api/users/employee/:id for fullname autofill on user creation (payroll only)
-router.get('/employee/:id', verifyToken, async (req, res) => {
-  const [rows] = await pool.query(
-    'SELECT Empl_ID, Title, Surname, OtherName, email, gsm_number FROM hr_employees WHERE Empl_ID = ? LIMIT 1',
-    [req.params.id]
-  );
-  if (!rows.length) return res.status(404).json({ error: 'Employee not found' });
-  res.json({ employee: rows[0] });
-});
-
+//  Create user
 router.post("/", verifyToken, async (req, res) => {
   const {
     user_id,
@@ -413,42 +302,49 @@ router.post("/", verifyToken, async (req, res) => {
     role,
     status,
     phone,
+    password,
     expiryDate,
   } = req.body;
+
   try {
-    if (!user_id || !fullName || !email || !role || !payroll_class)
-      return res
-        .status(400)
-        .json({
-          error:
-            "User ID, Payroll Class, full name, email, and role are required",
-        });
-
-    const validStatuses = ["active", "inactive", "suspended"];
-    const userStatus = status || "active";
-    if (!validStatuses.includes(userStatus))
-      return res
-        .status(400)
-        .json({
-          error: `Invalid status. Must be one of: ${validStatuses.join(", ")}`,
-        });
-
-    if (expiryDate) {
-      const expiry = new Date(expiryDate);
-      if (isNaN(expiry.getTime()))
-        return res.status(400).json({ error: "Invalid expiry date format" });
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      if (expiry < today)
-        return res
-          .status(400)
-          .json({ error: "Expiry date cannot be in the past" });
+    // Required field validation
+    if (!user_id || !fullName || !email || !role || !payroll_class) {
+      return res.status(400).json({
+        error:
+          "User ID, Payroll Class, full name, email, and role are required",
+      });
     }
 
-    // NOTE: no password column — authentication is handled via hr_employees.password
-    await pool.query(
-      `INSERT INTO users (user_id, full_name, primary_class, email, user_role, status, phone_number, expiry_date)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    // Status validation
+    const validStatuses = ["active", "inactive", "suspended"];
+    const userStatus = status || "active"; // Default to 'active' if not provided
+
+    if (!validStatuses.includes(userStatus)) {
+      return res.status(400).json({
+        error: `Invalid status. Must be one of: ${validStatuses.join(", ")}`,
+      });
+    }
+
+    // Expiry date validation
+    if (expiryDate) {
+      const expiry = new Date(expiryDate);
+      if (isNaN(expiry.getTime())) {
+        return res.status(400).json({ error: "Invalid expiry date format" });
+      }
+
+      // Optional: Check if expiry date is in the past
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (expiry < today) {
+        return res.status(400).json({
+          error: "Expiry date cannot be in the past",
+        });
+      }
+    }
+
+    const [] = await pool.query(
+      `INSERT INTO users (user_id, full_name, primary_class, email, user_role, status, phone_number, password, expiry_date) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         user_id,
         fullName,
@@ -457,29 +353,19 @@ router.post("/", verifyToken, async (req, res) => {
         role,
         userStatus,
         phone,
+        password,
         expiryDate || null,
       ],
     );
+
     res.status(201).json({ message: "✅ User created", user_id });
   } catch (err) {
     console.error("❌ Error creating user:", err);
-    if (err.code === "ER_DUP_ENTRY") {
-      if (err.message.includes("PRIMARY") || err.message.includes("user_id"))
-        return res
-          .status(409)
-          .json({ error: `User ID "${user_id}" already exists.` });
-      if (err.message.includes("email"))
-        return res
-          .status(409)
-          .json({ error: `Email "${email}" is already registered.` });
-      return res
-        .status(409)
-        .json({ error: "A user with this ID or email already exists." });
-    }
-    res.status(500).json({ error: err.message || "Database error" });
+    res.status(500).json({ error: "Database error" });
   }
 });
 
+// Update user
 router.put("/:user_id", verifyToken, async (req, res) => {
   const {
     payroll_class,
@@ -488,37 +374,45 @@ router.put("/:user_id", verifyToken, async (req, res) => {
     user_role,
     status,
     phone_number,
+    password,
     expiry_date,
   } = req.body;
-  // NOTE: password intentionally excluded — use /api/auth/change-password instead
+
   try {
+    // Status validation if provided
     if (typeof status !== "undefined") {
       const validStatuses = ["active", "inactive", "suspended"];
-      if (!validStatuses.includes(status))
-        return res
-          .status(400)
-          .json({
-            error: `Invalid status. Must be one of: ${validStatuses.join(", ")}`,
-          });
+      if (!validStatuses.includes(status)) {
+        return res.status(400).json({
+          error: `Invalid status. Must be one of: ${validStatuses.join(", ")}`,
+        });
+      }
     }
+
+    // Expiry date validation if provided
     if (
       typeof expiry_date !== "undefined" &&
       expiry_date !== null &&
       expiry_date !== ""
     ) {
       const expiry = new Date(expiry_date);
-      if (isNaN(expiry.getTime()))
+      if (isNaN(expiry.getTime())) {
         return res.status(400).json({ error: "Invalid expiry date format" });
+      }
+
+      // Optional: Check if expiry date is in the past
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      if (expiry < today)
-        return res
-          .status(400)
-          .json({ error: "Expiry date cannot be in the past" });
+      if (expiry < today) {
+        return res.status(400).json({
+          error: "Expiry date cannot be in the past",
+        });
+      }
     }
 
-    const sets = [],
-      params = [];
+    const sets = [];
+    const params = [];
+
     if (typeof full_name !== "undefined") {
       sets.push("full_name = ?");
       params.push(full_name);
@@ -540,6 +434,7 @@ router.put("/:user_id", verifyToken, async (req, res) => {
       params.push(phone_number);
     }
     if (typeof expiry_date !== "undefined") {
+      // Allow setting to null to remove expiry date
       sets.push("expiry_date = ?");
       params.push(expiry_date === "" ? null : expiry_date);
     }
@@ -548,17 +443,24 @@ router.put("/:user_id", verifyToken, async (req, res) => {
       params.push(payroll_class);
     }
 
-    if (!sets.length)
-      return res.status(400).json({ error: "No updatable fields provided" });
+    // Only include password when a non-empty value is provided
+    if (typeof password !== "undefined" && password !== "") {
+      sets.push("password = ?");
+      params.push(password);
+    }
 
+    if (sets.length === 0) {
+      return res.status(400).json({ error: "No updatable fields provided" });
+    }
+
+    const sql = `UPDATE users SET ${sets.join(", ")} WHERE user_id = ?`;
     params.push(req.params.user_id);
-    const [result] = await pool.query(
-      `UPDATE users SET ${sets.join(", ")} WHERE user_id = ?`,
-      params,
-    );
+
+    const [result] = await pool.query(sql, params);
     if (result.affectedRows === 0)
       return res.status(404).json({ error: "User not found" });
 
+    // return updated row for frontend to update UI and show success reliably
     const [rows] = await pool.query("SELECT * FROM users WHERE user_id = ?", [
       req.params.user_id,
     ]);
@@ -569,13 +471,17 @@ router.put("/:user_id", verifyToken, async (req, res) => {
   }
 });
 
+//  Delete user
 router.delete("/:user_id", verifyToken, async (req, res) => {
   try {
     const [result] = await pool.query("DELETE FROM users WHERE user_id = ?", [
       req.params.user_id,
     ]);
-    if (result.affectedRows === 0)
+
+    if (result.affectedRows === 0) {
       return res.status(404).json({ error: "User not found" });
+    }
+
     res.json({ message: "✅ User deleted", user_id: req.params.user_id });
   } catch (err) {
     console.error("❌ Error deleting user:", err);
@@ -583,138 +489,215 @@ router.delete("/:user_id", verifyToken, async (req, res) => {
   }
 });
 
-// ─────────────────────────────────────────────────────────────
-// PAYROLL FORGOT PASSWORD
-// These stay here because they require payroll class verification.
-// Personnel (non-payroll) forgot password is handled in
-// /api/auth/forgot-password (unified-login.js).
-// ─────────────────────────────────────────────────────────────
+// ============================================
+// FORGOT PASSWORD ROUTESs
+// ============================================
 
-async function findUserCandidates(user_id, databasesToSearch) {
-  const candidates = [];
-  for (const dbName of databasesToSearch) {
-    if (!dbName) continue;
-    try {
-      pool.useDatabase(dbName);
-      const [rows] = await pool.query("SELECT * FROM users WHERE user_id = ?", [
-        user_id,
-      ]);
-      if (rows.length) {
-        candidates.push({ user: rows[0], database: dbName });
-        console.log(`✅ Found ${user_id} in ${dbName}`);
-      }
-    } catch (err) {
-      console.log(`❌ Error searching ${dbName}:`, err.message);
-    }
-  }
-  return candidates;
-}
-
-function checkIdentityMatch(
-  user,
-  full_name,
-  primary_class,
-  dbToClass,
-  classToDb,
-) {
-  const nameOk =
-    user.full_name?.toLowerCase().trim() === full_name.toLowerCase().trim();
-  const userDbName =
-    resolveToDbName(user.primary_class, dbToClass, classToDb) ??
-    user.primary_class;
-  const inputDbName =
-    resolveToDbName(primary_class, dbToClass, classToDb) ?? primary_class;
-  const classOk = userDbName === inputDbName;
-  return { nameOk, classOk, ok: nameOk && classOk };
-}
-
-function identityErrorMsg(
-  candidates,
-  full_name,
-  primary_class,
-  dbToClass,
-  classToDb,
-) {
-  const wrong = new Set();
-  for (const { user } of candidates) {
-    const { nameOk, classOk } = checkIdentityMatch(
-      user,
-      full_name,
-      primary_class,
-      dbToClass,
-      classToDb,
-    );
-    if (!nameOk) wrong.add("Full Name");
-    if (!classOk) wrong.add("Payroll Class");
-  }
-  const list = [...wrong];
-  return (
-    "Identity verification failed. " +
-    (list.length
-      ? `Incorrect: ${list.join(", ")}. Please check and try again.`
-      : "Please check your information and try again.")
-  );
-}
-
+// Verify user identity for password reset
 router.post("/verify-identity", async (req, res) => {
-  const { user_id, full_name, primary_class } = req.body;
+  const { user_id, full_name, email, primary_class } = req.body;
+
   try {
-    if (!user_id || !full_name || !primary_class)
-      return res
-        .status(400)
-        .json({
-          error:
-            "User ID, Full Name, and Payroll Class are required for verification",
-        });
+    // Validation
+    if (!user_id || !full_name || !email) {
+      return res.status(400).json({
+        error: "User ID, Full Name, and Email are required for verification",
+      });
+    }
 
-    const { databasesToSearch, dbToClass, classToDb } =
-      await loadPayrollMapping();
-    const candidates = await findUserCandidates(user_id, databasesToSearch);
+    const userCandidates = [];
+    let databasesToSearch = [];
+    let dbClassMapping = {};
 
-    if (!candidates.length)
+    // Get databases to search
+    try {
+      pool.useDatabase(process.env.DB_OFFICERS);
+      const [dbClasses] = await pool.query(
+        "SELECT db_name, classname FROM py_payrollclass",
+      );
+
+      const otherDatabases = dbClasses
+        .map((row) => row.db_name)
+        .filter((db) => db !== process.env.DB_OFFICERS);
+      databasesToSearch = [process.env.DB_OFFICERS, ...otherDatabases];
+
+      // Create bidirectional mapping
+      dbClasses.forEach((row) => {
+        dbClassMapping[row.db_name] = row.display_name;
+        dbClassMapping[row.display_name] = row.db_name;
+      });
+    } catch (err) {
+      console.log("⚠️ Could not fetch db_classes, using fallback list");
+      databasesToSearch = [
+        process.env.DB_OFFICERS,
+        process.env.DB_WOFFICERS,
+        process.env.DB_RATINGS,
+        process.env.DB_RATINGS_A,
+        process.env.DB_RATINGS_B,
+        process.env.DB_JUNIOR_TRAINEE,
+      ];
+    }
+
+    // Search for user in ALL databases
+    for (const dbName of databasesToSearch) {
+      if (!dbName) continue;
+
+      try {
+        console.log(`🔍 Searching for user ${user_id} in database: ${dbName}`);
+        pool.useDatabase(dbName);
+
+        const [rows] = await pool.query(
+          "SELECT * FROM users WHERE user_id = ?",
+          [user_id],
+        );
+
+        if (rows.length > 0) {
+          userCandidates.push({
+            user: rows[0],
+            database: dbName,
+          });
+          console.log(`✅ User found in database: ${dbName}`);
+        }
+      } catch (err) {
+        console.log(`❌ Error searching database ${dbName}:`, err.message);
+        continue;
+      }
+    }
+
+    if (userCandidates.length === 0) {
+      console.log(`❌ User ${user_id} not found in any database`);
       return res
         .status(404)
         .json({ error: "User not found. Please check your User ID." });
+    }
 
-    let verifiedUser = null,
-      verifiedDatabase = null;
-    for (const { user, database } of candidates) {
-      if (
-        checkIdentityMatch(user, full_name, primary_class, dbToClass, classToDb)
-          .ok
-      ) {
+    console.log(
+      `\n📊 Found ${userCandidates.length} instance(s) of user ${user_id}`,
+    );
+
+    // Now verify identity with ALL provided fields
+    let verifiedUser = null;
+    let verifiedDatabase = null;
+
+    for (const candidate of userCandidates) {
+      const { user, database } = candidate;
+
+      console.log(`\n🔐 Verifying identity for user in ${database}:`);
+      console.log(
+        `   Provided - Name: ${full_name}, Email: ${email}, Class: ${primary_class || "not provided"}`,
+      );
+      console.log(
+        `   Database - Name: ${user.full_name}, Email: ${user.email}, Class: ${user.primary_class}`,
+      );
+
+      // Check all provided fields match
+      const nameMatches =
+        user.full_name?.toLowerCase().trim() === full_name.toLowerCase().trim();
+      const emailMatches =
+        user.email?.toLowerCase().trim() === email.toLowerCase().trim();
+
+      // Handle primary_class matching (could be display_name or db_name)
+      let classMatches = true; // Default true if not provided
+      if (primary_class) {
+        let userPrimaryDbName = user.primary_class;
+        let providedDbName = primary_class;
+
+        // Convert display_name to db_name if needed
+        if (dbClassMapping[user.primary_class]) {
+          userPrimaryDbName = dbClassMapping[user.primary_class];
+        }
+        if (dbClassMapping[primary_class]) {
+          providedDbName = dbClassMapping[primary_class];
+        }
+
+        classMatches = userPrimaryDbName === providedDbName;
+      }
+
+      console.log(
+        `   Match Results - Name: ${nameMatches}, Email: ${emailMatches}, Class: ${classMatches}`,
+      );
+
+      // All provided fields must match
+      if (nameMatches && emailMatches && classMatches) {
         verifiedUser = user;
         verifiedDatabase = database;
+        console.log(`✅ Identity verified in ${database}!`);
         break;
+      } else {
+        console.log(`❌ Identity verification failed in ${database}:`);
+        if (!nameMatches) console.log(`   - Full name mismatch`);
+        if (!emailMatches) console.log(`   - Email mismatch`);
+        if (!classMatches) console.log(`   - Payroll class mismatch`);
       }
     }
 
-    if (!verifiedUser)
-      return res
-        .status(401)
-        .json({
-          error: identityErrorMsg(
-            candidates,
-            full_name,
-            primary_class,
-            dbToClass,
-            classToDb,
-          ),
-        });
+    if (!verifiedUser) {
+      console.log(`\n❌ Identity verification failed for user ${user_id}`);
 
-    if (verifiedUser.status !== "active")
-      return res
-        .status(403)
-        .json({
-          error: "Account is not active. Please contact administrator.",
-        });
+      // Provide specific error messages about which fields are incorrect
+      const incorrectFields = [];
 
+      for (const candidate of userCandidates) {
+        const { user } = candidate;
+
+        const nameMatches =
+          user.full_name?.toLowerCase().trim() ===
+          full_name.toLowerCase().trim();
+        const emailMatches =
+          user.email?.toLowerCase().trim() === email.toLowerCase().trim();
+
+        if (!nameMatches) incorrectFields.push("Full Name");
+        if (!emailMatches) incorrectFields.push("Email");
+
+        if (primary_class) {
+          let userPrimaryDbName = user.primary_class;
+          let providedDbName = primary_class;
+
+          if (dbClassMapping[user.primary_class]) {
+            userPrimaryDbName = dbClassMapping[user.primary_class];
+          }
+          if (dbClassMapping[primary_class]) {
+            providedDbName = dbClassMapping[primary_class];
+          }
+
+          const classMatches = userPrimaryDbName === providedDbName;
+          if (!classMatches) incorrectFields.push("Payroll Class");
+        }
+      }
+
+      // Remove duplicates
+      const uniqueIncorrectFields = [...new Set(incorrectFields)];
+
+      let errorMessage = "Identity verification failed. ";
+      if (uniqueIncorrectFields.length > 0) {
+        errorMessage += `Incorrect: ${uniqueIncorrectFields.join(", ")}. Please check and try again.`;
+      } else {
+        errorMessage += "Please check your information and try again.";
+      }
+
+      return res.status(401).json({ error: errorMessage });
+    }
+
+    // Check if account is active
+    if (verifiedUser.status !== "active") {
+      return res.status(403).json({
+        error: "Account is not active. Please contact administrator.",
+      });
+    }
+
+    console.log(
+      `\n✅ Identity verified for user ${user_id} in ${verifiedDatabase}`,
+    );
+
+    // Return success with user info (but NO password!)
     res.json({
       message: "Identity verified successfully",
       user: {
         user_id: verifiedUser.user_id,
         full_name: verifiedUser.full_name,
+        email: verifiedUser.email,
         primary_class: verifiedUser.primary_class,
+        database: verifiedDatabase,
       },
     });
   } catch (err) {
@@ -723,56 +706,183 @@ router.post("/verify-identity", async (req, res) => {
   }
 });
 
+// Reset password after identity verification
 router.post("/reset-password", async (req, res) => {
-  const { user_id, full_name, new_password, primary_class } = req.body;
+  const { user_id, full_name, email, new_password, primary_class } = req.body;
+
   try {
-    if (!user_id || !full_name || !primary_class || !new_password)
-      return res.status(400).json({ error: "All fields are required" });
-    if (new_password.length < 6)
-      return res
-        .status(400)
-        .json({ error: "Password must be at least 6 characters long" });
+    // Validation
+    if (!user_id || !full_name || !email || !new_password) {
+      return res.status(400).json({
+        error: "All fields are required",
+      });
+    }
 
-    const { databasesToSearch, dbToClass, classToDb } =
-      await loadPayrollMapping();
-    const candidates = await findUserCandidates(user_id, databasesToSearch);
+    // Password validation
+    if (new_password.length < 6) {
+      return res.status(400).json({
+        error: "Password must be at least 6 characters long",
+      });
+    }
 
-    if (!candidates.length)
+    const userCandidates = [];
+    let databasesToSearch = [];
+    let dbClassMapping = {};
+
+    // Get databases to search
+    try {
+      pool.useDatabase(process.env.DB_OFFICERS);
+      const [dbClasses] = await pool.query(
+        "SELECT db_name, classname FROM py_payrollclass",
+      );
+
+      const otherDatabases = dbClasses
+        .map((row) => row.db_name)
+        .filter((db) => db !== process.env.DB_OFFICERS);
+      databasesToSearch = [process.env.DB_OFFICERS, ...otherDatabases];
+
+      // Create bidirectional mapping
+      dbClasses.forEach((row) => {
+        dbClassMapping[row.db_name] = row.display_name;
+        dbClassMapping[row.display_name] = row.db_name;
+      });
+    } catch (err) {
+      console.log("⚠️ Could not fetch db_classes, using fallback list");
+      databasesToSearch = [
+        process.env.DB_OFFICERS,
+        process.env.DB_WOFFICERS,
+        process.env.DB_RATINGS,
+        process.env.DB_RATINGS_A,
+        process.env.DB_RATINGS_B,
+        process.env.DB_JUNIOR_TRAINEE,
+      ];
+    }
+
+    // Search for user in ALL databases
+    for (const dbName of databasesToSearch) {
+      if (!dbName) continue;
+
+      try {
+        pool.useDatabase(dbName);
+
+        const [rows] = await pool.query(
+          "SELECT * FROM users WHERE user_id = ?",
+          [user_id],
+        );
+
+        if (rows.length > 0) {
+          userCandidates.push({
+            user: rows[0],
+            database: dbName,
+          });
+        }
+      } catch (err) {
+        continue;
+      }
+    }
+
+    if (userCandidates.length === 0) {
       return res.status(404).json({ error: "User not found" });
+    }
 
-    let verifiedUser = null,
-      verifiedDatabase = null;
-    for (const { user, database } of candidates) {
-      if (
-        checkIdentityMatch(user, full_name, primary_class, dbToClass, classToDb)
-          .ok
-      ) {
+    // Verify identity again before reset
+    let verifiedUser = null;
+    let verifiedDatabase = null;
+
+    for (const candidate of userCandidates) {
+      const { user, database } = candidate;
+
+      const nameMatches =
+        user.full_name?.toLowerCase().trim() === full_name.toLowerCase().trim();
+      const emailMatches =
+        user.email?.toLowerCase().trim() === email.toLowerCase().trim();
+
+      let classMatches = true;
+      if (primary_class) {
+        let userPrimaryDbName = user.primary_class;
+        let providedDbName = primary_class;
+
+        if (dbClassMapping[user.primary_class]) {
+          userPrimaryDbName = dbClassMapping[user.primary_class];
+        }
+        if (dbClassMapping[primary_class]) {
+          providedDbName = dbClassMapping[primary_class];
+        }
+
+        classMatches = userPrimaryDbName === providedDbName;
+      }
+
+      if (nameMatches && emailMatches && classMatches) {
         verifiedUser = user;
         verifiedDatabase = database;
         break;
       }
     }
 
-    if (!verifiedUser)
-      return res
-        .status(401)
-        .json({
-          error: identityErrorMsg(
-            candidates,
-            full_name,
-            primary_class,
-            dbToClass,
-            classToDb,
-          ),
-        });
+    if (!verifiedUser) {
+      // Provide specific error messages about which fields are incorrect
+      const incorrectFields = [];
 
+      for (const candidate of userCandidates) {
+        const { user } = candidate;
+
+        const nameMatches =
+          user.full_name?.toLowerCase().trim() ===
+          full_name.toLowerCase().trim();
+        const emailMatches =
+          user.email?.toLowerCase().trim() === email.toLowerCase().trim();
+
+        if (!nameMatches) incorrectFields.push("Full Name");
+        if (!emailMatches) incorrectFields.push("Email");
+
+        if (primary_class) {
+          let userPrimaryDbName = user.primary_class;
+          let providedDbName = primary_class;
+
+          if (dbClassMapping[user.primary_class]) {
+            userPrimaryDbName = dbClassMapping[user.primary_class];
+          }
+          if (dbClassMapping[primary_class]) {
+            providedDbName = dbClassMapping[primary_class];
+          }
+
+          const classMatches = userPrimaryDbName === providedDbName;
+          if (!classMatches) incorrectFields.push("Payroll Class");
+        }
+      }
+
+      // Remove duplicates
+      const uniqueIncorrectFields = [...new Set(incorrectFields)];
+
+      let errorMessage = "Identity verification failed. ";
+      if (uniqueIncorrectFields.length > 0) {
+        errorMessage += `Incorrect: ${uniqueIncorrectFields.join(", ")}. Please check and try again.`;
+      } else {
+        errorMessage += "Please check your information and try again.";
+      }
+
+      return res.status(401).json({ error: errorMessage });
+    }
+
+    // Update password in the correct database
     pool.useDatabase(verifiedDatabase);
-    // Password no longer stored in users table — nothing to update here.
-    // hr_employees is the single password source, updated via /api/auth/forgot/reset-password.
-    // This endpoint only handles payroll class verification for identity confirmation.
-    // Redirect the actual reset to the unified auth endpoint.
-    return res.status(400).json({
-      error: "Use POST /api/auth/forgot/reset-password to reset your password.",
+
+    const [result] = await pool.query(
+      "UPDATE users SET password = ? WHERE user_id = ?",
+      [new_password, user_id],
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(500).json({ error: "Failed to update password" });
+    }
+
+    console.log(
+      `✅ Password reset successful for user ${user_id} in ${verifiedDatabase}`,
+    );
+
+    res.json({
+      message: "✅ Password reset successfully",
+      user_id: user_id,
     });
   } catch (err) {
     console.error("❌ Password reset error:", err);

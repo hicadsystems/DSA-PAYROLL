@@ -95,7 +95,7 @@ module.exports = {
         layout: "1440px",
       },
       colors: {
-        navy: "#F0B323",
+        navy: "#B27A1A",
         warning: "#f6b409",
         success: "#047014",
         gold: { DEFAULT: "#C4932A", light: "#D4A94A", pale: "#F5EDD5" },

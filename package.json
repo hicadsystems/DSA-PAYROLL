@@ -55,15 +55,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/hicadsystems/NAVY-PAYROLL.git"
+    "url": "git+https://github.com/swizfcodes/DSA-PAYROLL.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/hicadsystems/NAVY-PAYROLL/issues"
+    "url": "https://github.com/swizfcodes/DSA-PAYROLL/issues"
   },
-  "homepage": "https://github.com/hicadsystems/NAVY-PAYROLL#readme",
+  "homepage": "https://github.com/swizfcodes/DSA-PAYROLL#readme",
   "description": "",
   "devDependencies": {
     "autoprefixer": "^10.4.23",

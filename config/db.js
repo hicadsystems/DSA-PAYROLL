@@ -9,7 +9,6 @@ const { AsyncLocalStorage } = require("async_hooks");
 const MASTER_TABLES = new Set([
   // Employee and Personal Info
   "hr_employees",
-  "py_emplhistory",
   "Spouse",
   "Children",
   "NextOfKin",
@@ -32,11 +31,10 @@ const MASTER_TABLES = new Set([
   "py_paydesc",
   "py_payind",
   "py_payrollclass",
-  "py_paysystem",
   //'py_stdrate',
   //'py_tax',
-  "py_salarygroup",
-  "py_salaryscale",
+  //'py_salarygroup',
+  //'py_salaryscale',
   "py_exittype",
   "entrymode",
   "py_specialisationarea",
@@ -81,17 +79,6 @@ let MASTER_DB;
 function qualifyMasterTables(sql, currentDb) {
   if (currentDb === MASTER_DB) return sql;
 
-  // Handle object form: { sql: "...", values: [...] }
-  if (typeof sql === "object" && sql !== null) {
-    return {
-      ...sql,
-      sql: qualifyMasterTables(sql.sql, currentDb),
-    };
-  }
-
-  // Guard: if still not a string, return as-is
-  if (typeof sql !== "string") return sql;
-
   let processedSql = sql;
   let modificationsCount = 0;
 
@@ -100,7 +87,7 @@ function qualifyMasterTables(sql, currentDb) {
       `(?<![.\\w])\\b${table}\\b(?=\\s|,|\\)|;|$|\\b(?!\\.))`,
       "gi",
     );
-    const matches = processedSql.match(regex);
+    const matches = sql.match(regex);
     if (matches) {
       processedSql = processedSql.replace(regex, `${MASTER_DB}.${table}`);
       modificationsCount += matches.length;
@@ -436,7 +423,7 @@ pool.transaction = pool.smartTransaction;
 
     // Get config with auto-detection
     dbConfig = await getConfig();
-    MASTER_DB = dbConfig.databases.officers;
+    MASTER_DB = dbConfig.databases.Military || dbConfig.databases.officers; // Adjust as needed
 
     console.log(`🔧 Database Type: ${dbConfig.type.toUpperCase()}`);
 

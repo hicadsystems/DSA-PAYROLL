@@ -1508,11 +1508,11 @@ class NavigationSystem {
     }
 
     // Update page title
-    document.title = "NAVY — Dashboard";
+    document.title = "DSA — Dashboard";
   }
 
   updateHistory(sectionId, sectionName) {
-    document.title = `NAVY — ${sectionName}`;
+    document.title = `DSA — ${sectionName}`;
     // Store both sectionId and original sectionName in history state
     window.history.pushState(
       {
@@ -1785,7 +1785,7 @@ async function logout() {
     if (capabilities) localStorage.setItem("capabilities", capabilities);
     //this.stopTracking();
     sessionStorage.setItem("_from_logout", "true");
-    window.location.href = "user-dashboard.html";
+    window.location.href = "personnel-login.html";
   }
 }
 

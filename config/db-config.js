@@ -1,5 +1,10 @@
 // config/db-config.js (REPLACES your existing db-config.js)
-const config = require("../config");
+const path = require("path");
+const dotenv = require("dotenv");
+
+const envFile =
+  process.env.NODE_ENV === "production" ? ".env.production" : ".env.local";
+dotenv.config({ path: path.resolve(__dirname, envFile) });
 
 // ==========================================
 // AUTO-DETECT DATABASE TYPE
@@ -7,17 +12,17 @@ const config = require("../config");
 
 async function detectAvailableDatabase() {
   const mysqlConfig = {
-    host: config.mysql.host,
-    port: parseInt(config.mysql.port) || 3306,
-    user: config.mysql.user,
-    password: config.mysql.password,
+    host: process.env.MYSQL_HOST || "localhost",
+    port: parseInt(process.env.MYSQL_PORT) || 3306,
+    user: process.env.MYSQL_USER,
+    password: process.env.MYSQL_PASSWORD,
   };
 
   const mssqlConfig = {
-    host: config.mssql.host,
-    port: parseInt(config.mssql.port) || 1433,
-    user: config.mssql.user,
-    password: config.mssql.password,
+    host: process.env.MSSQL_HOST || "localhost",
+    port: parseInt(process.env.MSSQL_PORT) || 1433,
+    user: process.env.MSSQL_USER,
+    password: process.env.MSSQL_PASSWORD,
   };
 
   const available = {
@@ -78,7 +83,7 @@ async function detectAvailableDatabase() {
 
 async function selectDatabase() {
   // Manual override from environment
-  const manualType = config.app.dbType?.toLowerCase();
+  const manualType = process.env.DB_TYPE?.toLowerCase();
 
   if (manualType === "mysql" || manualType === "mssql") {
     console.log(
@@ -121,34 +126,34 @@ async function buildConfig() {
 
   if (dbType === "mysql") {
     // Map MYSQL_* env vars to DB_* format
-    process.env.DB_USER = config.mysql.user;
-    process.env.DB_PASSWORD = config.mysql.password;
-    process.env.DB_HOST = config.mysql.host;
-    process.env.DB_PORT = config.mysql.port;
+    process.env.DB_USER = process.env.MYSQL_USER;
+    process.env.DB_PASSWORD = process.env.MYSQL_PASSWORD;
+    process.env.DB_HOST = process.env.MYSQL_HOST;
+    process.env.DB_PORT = process.env.MYSQL_PORT;
     process.env.DB_TYPE = "mysql";
 
     // Map database names
-    process.env.DB_OFFICERS = config.databases.officers;
-    process.env.DB_WOFFICERS = config.databases.wofficers;
-    process.env.DB_RATINGS = config.databases.ratings;
-    process.env.DB_RATINGS_A = config.databases.ratingsA;
-    process.env.DB_RATINGS_B = config.databases.ratingsB;
-    process.env.DB_JUNIOR_TRAINEE = config.databases.juniorTrainee;
+    process.env.DB_OFFICERS = process.env.MYSQL_DB_OFFICERS;
+    process.env.DB_WOFFICERS = process.env.MYSQL_DB_WOFFICERS;
+    process.env.DB_RATINGS = process.env.MYSQL_DB_RATINGS;
+    process.env.DB_RATINGS_A = process.env.MYSQL_DB_RATINGS_A;
+    process.env.DB_RATINGS_B = process.env.MYSQL_DB_RATINGS_B;
+    process.env.DB_JUNIOR_TRAINEE = process.env.MYSQL_DB_JUNIOR_TRAINEE;
   } else {
     // Map MSSQL_* env vars to DB_* format
-    process.env.DB_USER = config.mssql.user;
-    process.env.DB_PASSWORD = config.mssql.password;
-    process.env.DB_HOST = config.mssql.host;
-    process.env.DB_PORT = config.mssql.port;
+    process.env.DB_USER = process.env.MSSQL_USER;
+    process.env.DB_PASSWORD = process.env.MSSQL_PASSWORD;
+    process.env.DB_HOST = process.env.MSSQL_HOST;
+    process.env.DB_PORT = process.env.MSSQL_PORT;
     process.env.DB_TYPE = "mssql";
 
     // Map database names
-    process.env.DB_OFFICERS = config.databases.officers;
-    process.env.DB_WOFFICERS = config.databases.wofficers;
-    process.env.DB_RATINGS = config.databases.ratings;
-    process.env.DB_RATINGS_A = config.databases.ratingsA;
-    process.env.DB_RATINGS_B = config.databases.ratingsB;
-    process.env.DB_JUNIOR_TRAINEE = config.databases.juniorTrainee;
+    process.env.DB_OFFICERS = process.env.MSSQL_DB_OFFICERS;
+    process.env.DB_WOFFICERS = process.env.MSSQL_DB_WOFFICERS;
+    process.env.DB_RATINGS = process.env.MSSQL_DB_RATINGS;
+    process.env.DB_RATINGS_A = process.env.MSSQL_DB_RATINGS_A;
+    process.env.DB_RATINGS_B = process.env.MSSQL_DB_RATINGS_B;
+    process.env.DB_JUNIOR_TRAINEE = process.env.MSSQL_DB_JUNIOR_TRAINEE;
   }
 
   // Return config in YOUR EXACT format!
@@ -163,12 +168,12 @@ async function buildConfig() {
 
     // Payroll class to database mapping (YOUR FORMAT!)
     databases: {
-      officers: process.env.DB_OFFICERS,
-      wofficers: process.env.DB_WOFFICERS,
-      ratings: process.env.DB_RATINGS,
-      ratingsA: process.env.DB_RATINGS_A,
-      ratingsB: process.env.DB_RATINGS_B,
-      juniorTrainee: process.env.DB_JUNIOR_TRAINEE,
+      Military: process.env.DB_OFFICERS,
+      Civilian: process.env.DB_WOFFICERS,
+      Pension: process.env.DB_RATINGS,
+      NYSC: process.env.DB_RATINGS_A,
+      "Running Cost": process.env.DB_RATINGS_B,
+      //juniorTrainee: process.env.DB_JUNIOR_TRAINEE,
     },
   };
 }

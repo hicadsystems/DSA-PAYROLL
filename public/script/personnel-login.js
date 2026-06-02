@@ -1,12 +1,12 @@
-/*tailwind.config = {
-  theme: {
-    extend: {
-      colors: {
-        navy: "#1e40af",
-      },
-    },
-  },
-};*/
+// tailwind.config = {
+//   theme: {
+//     extend: {
+//       colors: {
+//         navy: "#F97316",
+//       },
+//     },
+//   },
+// };
 
 // Alert Modal System
 const AlertModal = {
@@ -78,13 +78,13 @@ const AlertModal = {
 
   getIcon(type) {
     const icons = {
-      info: '<svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>',
+      info: '<svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>',
       error:
         '<svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>',
       warning:
         '<svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>',
       success:
-        '<svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>',
+        '<svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>',
       confirm:
         '<svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>',
     };
@@ -95,26 +95,17 @@ const AlertModal = {
 // Initialize alert modal
 AlertModal.init();
 
-function toSlug(str) {
-  return str
-    .toLowerCase()
-    .trim()
-    .replace(/\//g, "-")
-    .replace(/\s+/g, "-")
-    .replace(/[^a-z0-9-]/g, "");
-}
-
 async function loadPayrollClasses() {
   try {
     const res = await fetch("/classes");
     const classes = await res.json();
 
     const select = document.getElementById("payroll-class");
+
     classes.forEach((cls) => {
       const opt = document.createElement("option");
-      opt.value = toSlug(cls.name); // OFFICERS, W/OFFICERS, RATE A === officers, w-officers, rate-a
+      opt.value = cls.id; // backend DB id (e.g. hicaddata3)
       opt.textContent = cls.name; // label (e.g. RATINGS A)
-      console.log(opt);
       select.appendChild(opt);
     });
   } catch (err) {
@@ -151,18 +142,12 @@ document
         const message = document.getElementById("loginMessage");
 
         popup.classList.remove("hidden");
-        spinner.innerHTML = `
-          <div class="relative w-10 h-10">
-            <div class="absolute left-1 w-[6px] bg-blue-600 rounded animate-grow-up"></div>
-            <div class="absolute right-1 w-[6px] bg-blue-600 rounded animate-grow-down"></div>
-            <div class="absolute top-1/2 left-1 h-[6px] bg-blue-600 rounded animate-expand -translate-y-1/2"></div>
-          </div>
-        `;
+        spinner.classList.remove("hidden");
         message.textContent = "Logging you in...";
 
         setTimeout(() => {
           spinner.classList.add("hidden");
-          message.innerHTML = `<span class="text-green-600">✔ Login successful!</span>`;
+          message.innerHTML = `<span class="text-blue-600">✔ Login successful!</span>`;
         }, 1200);
 
         setTimeout(() => {
@@ -172,7 +157,6 @@ document
 
         // Save token & user info
         localStorage.setItem("token", data.token);
-        localStorage.setItem("refresh_token", data.refresh_token);
         localStorage.setItem("user_id", data.user.user_id);
         localStorage.setItem("full_name", data.user.full_name);
         localStorage.setItem("role", data.user.role);
@@ -344,7 +328,7 @@ const ForgotPasswordManager = {
 
     if (password === confirm) {
       msg.textContent = "✓ Passwords match";
-      msg.className = "text-xs text-green-600";
+      msg.className = "text-xs text-blue-600";
       return true;
     } else {
       msg.textContent = "✗ Passwords do not match";
@@ -364,7 +348,7 @@ const ForgotPasswordManager = {
     const data = {
       user_id: formData.get("user_id"),
       full_name: formData.get("full_name"),
-      //email: formData.get("email"),
+      email: formData.get("email"),
       primary_class: formData.get("primary_class") || undefined,
     };
 
@@ -384,7 +368,7 @@ const ForgotPasswordManager = {
         // Populate hidden fields in reset form
         document.getElementById("reset-user-id").value = data.user_id;
         document.getElementById("reset-full-name").value = data.full_name;
-        //document.getElementById("reset-email").value = data.email;
+        document.getElementById("reset-email").value = data.email;
         document.getElementById("reset-primary-class").value =
           data.primary_class || "";
 
@@ -443,7 +427,7 @@ const ForgotPasswordManager = {
     const data = {
       user_id: document.getElementById("reset-user-id").value,
       full_name: document.getElementById("reset-full-name").value,
-      //email: document.getElementById("reset-email").value,
+      email: document.getElementById("reset-email").value,
       primary_class:
         document.getElementById("reset-primary-class").value || undefined,
       new_password: password,
@@ -489,7 +473,7 @@ const ForgotPasswordManager = {
 // Initialize when page loads
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", () =>
-    ForgotPasswordManager.init()
+    ForgotPasswordManager.init(),
   );
 } else {
   ForgotPasswordManager.init();

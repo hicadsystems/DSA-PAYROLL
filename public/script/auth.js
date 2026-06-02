@@ -227,7 +227,7 @@
 
         this.stopTracking();
         sessionStorage.setItem("_from_logout", "true");
-        window.location.href = "user-dashboard.html";
+        window.location.href = "personnel-login.html";
       }
     }
 
@@ -240,7 +240,7 @@
       let accessToken = this.getAccessToken();
 
       if (!accessToken) {
-        window.location.href = "/";
+        window.location.href = "personnel-login.html";
         throw new Error("No access token");
       }
 
@@ -256,7 +256,7 @@
       //   If token expired, try refresh
       if (response.status === 401) {
         try {
-          await this.refreshToken();          // try refresh first
+          await this.refreshToken(); // try refresh first
           options.headers.Authorization = `Bearer ${this.getAccessToken()}`;
           response = await fetch(url, options); // retry once
           if (response.status === 401) await this.logout(); // still 401 → logout
