@@ -108,20 +108,16 @@ class SalaryHistoryController extends BaseReportController {
     const username = req.user_fullname || req.user_id;
 
     if (!username) {
-      return res
-        .status(401)
-        .json({
-          success: false,
-          error: "User authentication required. Please log in again.",
-        });
+      return res.status(401).json({
+        success: false,
+        error: "User authentication required. Please log in again.",
+      });
     }
     if (!fromPeriod || !toPeriod || !payrollClass) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          error: "From period, To period and payroll class are required.",
-        });
+      return res.status(400).json({
+        success: false,
+        error: "From period, To period and payroll class are required.",
+      });
     }
 
     const fromYr = parseInt(fromPeriod.substring(0, 4));
@@ -139,22 +135,18 @@ class SalaryHistoryController extends BaseReportController {
       toMo < 1 ||
       toMo > 12
     ) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          error: "Invalid period format. Expected YYYYMM (e.g., 202501).",
-        });
+      return res.status(400).json({
+        success: false,
+        error: "Invalid period format. Expected YYYYMM (e.g., 202501).",
+      });
     }
 
     const months = (toYr - fromYr) * 12 + (toMo - fromMo) + 1;
     if (months < 1)
-      return res
-        .status(400)
-        .json({
-          success: false,
-          error: "To period must be after or equal to From period.",
-        });
+      return res.status(400).json({
+        success: false,
+        error: "To period must be after or equal to From period.",
+      });
     if (months > 12)
       return res
         .status(400)
@@ -232,12 +224,10 @@ class SalaryHistoryController extends BaseReportController {
     const mappedData = req.body.data || [];
 
     if (mappedData.length === 0) {
-      return res
-        .status(404)
-        .json({
-          success: false,
-          error: "No salary history data provided for PDF generation.",
-        });
+      return res.status(404).json({
+        success: false,
+        error: "No salary history data provided for PDF generation.",
+      });
     }
 
     try {
@@ -296,12 +286,10 @@ class SalaryHistoryController extends BaseReportController {
     const mappedData = req.body.data || [];
 
     if (mappedData.length === 0) {
-      return res
-        .status(404)
-        .json({
-          success: false,
-          error: "No salary history data provided for Excel generation.",
-        });
+      return res.status(404).json({
+        success: false,
+        error: "No salary history data provided for Excel generation.",
+      });
     }
 
     try {
@@ -324,7 +312,7 @@ class SalaryHistoryController extends BaseReportController {
         // Title block
         ws.mergeCells(1, 1, 1, n + 1);
         Object.assign(ws.getCell("A1"), {
-          value: "DEFENSE SPACE ADMINISTRATION — CENTRAL PAY OFFICE",
+          value: "DEFENCE SPACE ADMINISTRATION — CENTRAL PAY OFFICE",
           font: { bold: true, size: 12, color: { argb: "FF1E40AF" } },
           alignment: { horizontal: "center" },
         });

@@ -862,7 +862,7 @@
         <div class="header-wrapper">
           <div class="className">${emp.payclass ? esc(emp.payclass_name || "") : ""}</div>
           <div class="header">
-            <h1>DEFENSE SPACE ADMINISTRATION</h1>
+            <h1>DEFENCE SPACE ADMINISTRATION</h1>
             <h2>NATIONAL SPACE MUSEUM, ABUJA</h2>
           </div>
         </div>
@@ -907,10 +907,10 @@
         <!-- TAXABLE PAYMENT — deduction-style header with L.Bal / Os.Mths labels -->
         <div class="ded-header-row">
           <div class="dh-label">Taxable Payment</div>
-          <div class="dh-cols">
+          <!-- <div class="dh-cols">
             <span class="dh-col">&#x20A6;L.Bal</span>
             <span class="dh-col">Os.Mths</span>
-          </div>
+          </div> -->
         </div>
         <table class="items-table">
           <tbody>${taxableRows}</tbody>
@@ -937,7 +937,13 @@
         </div>
 
         <!-- DEDUCTIONS -->
-        <div class="section-header">Deductions</div>
+        <div class="ded-header-row">
+          <div class="dh-label">Deductions</div>
+          <div class="dh-cols">
+            <span class="dh-col">₦L.Bal</span>
+            <span class="dh-col">Os.Mths</span>
+          </div>
+        </div>
         <div class="full-row">
           <div class="left-zone">
             <table class="ded-table">

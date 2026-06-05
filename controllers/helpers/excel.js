@@ -5,7 +5,7 @@ const ExcelJS = require("exceljs");
 // ============================================
 const EXCEL_CONFIG = {
   company: {
-    name: "DEFENSE SPACE ADMINISTRATION",
+    name: "DEFENCE SPACE ADMINISTRATION",
     address: "NATIONAL SPACE MUSEUM, ABUJA",
   },
   colors: {

@@ -237,7 +237,7 @@
       }
 
       .ded-table col.col-lbal {
-        width: 80px;
+        width: 88px;
       }
 
       .ded-table col.col-osmth {
@@ -449,7 +449,7 @@
       <div class="header-wrapper">
         <div class="className">{{#if payclass}}{{payclass_name}}{{/if}}</div>
         <div class="header">
-          <h1>DEFENSE SPACE ADMINISTRATION</h1>
+          <h1>DEFENCE SPACE ADMINISTRATION</h1>
           <h2>NATIONAL SPACE MUSEUM, ABUJA</h2>
         </div>
       </div>
@@ -508,10 +508,10 @@
       <!-- TAXABLE PAYMENT — with L.Bal/Os.Mths labels on same line -->
       <div class="ded-header-row">
         <div class="dh-label">Taxable Payment</div>
-        <div class="dh-cols">
+        <!-- <div class="dh-cols">
           <span class="dh-col">₦L.Bal</span>
           <span class="dh-col">Os.Mths</span>
-        </div>
+        </div> -->
       </div>
       <table class="items-table">
         <tbody>
@@ -559,7 +559,14 @@
       </div>
 
       <!-- DEDUCTIONS -->
-      <div class="section-header">Deductions</div>
+      <div class="ded-header-row">
+        <div class="dh-label">Deductions</div>
+        <div class="dh-cols">
+          <span class="dh-col">₦L.Bal</span>
+          <span class="dh-col">Os.Mths</span>
+        </div>
+      </div>
+
       <table class="ded-table">
         <colgroup>
           <col class="col-desc" />

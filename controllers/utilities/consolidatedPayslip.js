@@ -551,7 +551,7 @@ class ConsolidatedPayslipController extends BaseReportController {
         // ════════════════════════════════════════════════════════════════════
         // HEADER BLOCK  — mirrors .header-wrapper
         // ════════════════════════════════════════════════════════════════════
-        titleRow("DEFENSE SPACE ADMINISTRATION", {
+        titleRow("DEFENCE SPACE ADMINISTRATION", {
           bold: true,
           size: 16,
           fg: BLUE,

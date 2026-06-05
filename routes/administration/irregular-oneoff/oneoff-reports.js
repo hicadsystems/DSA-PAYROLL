@@ -178,7 +178,7 @@ router.post("/generate-excel-report", verifyToken, async (req, res) => {
     // Handle summary report differently
     if (reportType === "summary") {
       const workbook = new ExcelJS.Workbook();
-      workbook.creator = "Defense Space Administration";
+      workbook.creator = "DEFENCE Space Administration";
       workbook.created = new Date();
 
       await generateSummaryExcel(workbook, payrollClass, classDescription);
@@ -333,7 +333,7 @@ router.post("/generate-excel-report", verifyToken, async (req, res) => {
 
     // Generate Excel
     const workbook = new ExcelJS.Workbook();
-    workbook.creator = "Defense Space Administration";
+    workbook.creator = "DEFENCE Space Administration";
     workbook.created = new Date();
 
     if (reportType === "bank") {
@@ -737,7 +737,7 @@ async function generateBankGroupedExcel(
     const worksheet = workbook.addWorksheet(finalSheetName);
 
     worksheet.mergeCells("A1:F1");
-    worksheet.getCell("A1").value = "DEFENSE SPACE ADMINISTRATION";
+    worksheet.getCell("A1").value = "DEFENCE SPACE ADMINISTRATION";
     worksheet.getCell("A1").font = { bold: true, size: 14 };
     worksheet.getCell("A1").alignment = { horizontal: "center" };
 
@@ -844,7 +844,7 @@ async function generateAnalysisGroupedExcel(workbook, data, classDescription) {
     );
 
     worksheet.mergeCells("A1:D1");
-    worksheet.getCell("A1").value = "DEFENSE SPACE ADMINISTRATION";
+    worksheet.getCell("A1").value = "DEFENCE SPACE ADMINISTRATION";
     worksheet.getCell("A1").font = { bold: true, size: 14 };
     worksheet.getCell("A1").alignment = { horizontal: "center" };
 
@@ -964,7 +964,7 @@ async function generateRemittanceExcel(
     const worksheet = workbook.addWorksheet(finalSheetName);
 
     worksheet.mergeCells("A1:E1");
-    worksheet.getCell("A1").value = "DEFENSE SPACE ADMINISTRATION";
+    worksheet.getCell("A1").value = "DEFENCE SPACE ADMINISTRATION";
     worksheet.getCell("A1").font = { bold: true, size: 14 };
     worksheet.getCell("A1").alignment = { horizontal: "center" };
 
@@ -1064,7 +1064,7 @@ async function generateSummaryExcel(workbook, payrollClass, classDescription) {
   const worksheet = workbook.addWorksheet("Summary");
 
   worksheet.mergeCells("A1:D1");
-  worksheet.getCell("A1").value = "DEFENSE SPACE ADMINISTRATION";
+  worksheet.getCell("A1").value = "DEFENCE SPACE ADMINISTRATION";
   worksheet.getCell("A1").font = { bold: true, size: 14 };
   worksheet.getCell("A1").alignment = { horizontal: "center" };
 
@@ -1393,7 +1393,7 @@ function generatePDFHTML(
       <div class="header-wrapper">
         <div class="className">${classDescription}</div>
         <div class="header">
-          <h1>DEFENSE SPACE ADMINISTRATION</h1>
+          <h1>DEFENCE SPACE ADMINISTRATION</h1>
           <h2>NATIONAL SPACE MUSEUM, ABUJA</h2>
         </div>
       </div>
@@ -1516,7 +1516,7 @@ async function generateSummaryPDFHTML(
       <div class="header-wrapper">
         <div class="className">${classDescription}</div>
         <div class="header">
-          <h1>DEFENSE SPACE ADMINISTRATION</h1>
+          <h1>DEFENCE SPACE ADMINISTRATION</h1>
           <h2>NATIONAL SPACE MUSEUM, ABUJA</h2>
         </div>
       </div>

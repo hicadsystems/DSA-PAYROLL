@@ -330,7 +330,7 @@ router.get("/batch-template", verifyToken, async (req, res) => {
     // Row 1 — Main header
     worksheet.mergeCells("A1:D1");
     const mainHeader = worksheet.getCell("A1");
-    mainHeader.value = "DEFENSE SPACE ADMINISTRATION";
+    mainHeader.value = "DEFENCE SPACE ADMINISTRATION";
     mainHeader.font = {
       name: "Arial",
       size: 13,
