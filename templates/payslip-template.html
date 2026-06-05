@@ -1,594 +1,607 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <style>
-        @page {
-            size: A5;
-            margin: 10mm;
-            margin-top: 0.2mm;
-            margin-bottom: 0.2mm;
-            background-color: #f8fbff;
-        }
+      @page {
+        size: A5;
+        margin: 10mm;
+        margin-top: 0.2mm;
+        margin-bottom: 0.2mm;
+        background-color: #f8fbff;
+      }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-        html,
+      html,
+      body {
+        font-family: "Helvetica", "Arial", sans-serif;
+        font-size: 7pt;
+        color: #1a1a1a;
+        line-height: 1.2;
+        background-color: transparent;
+        position: relative;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url("{{{logoDataUrl}}}");
+        background-size: auto 100%;
+        background-repeat: no-repeat;
+        background-position: center center;
+        opacity: 0.02;
+        z-index: -1;
+        pointer-events: none;
+      }
+
+      .container {
+        width: 100%;
+        padding: 10px;
+      }
+
+      .page-break {
+        page-break-after: always;
+      }
+
+      /* HEADER */
+      .header-wrapper {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 8px;
+        border-bottom: 2px solid #1a1a1a;
+        padding-bottom: 5px;
+      }
+
+      .className {
+        flex-shrink: 0;
+        margin-right: 20px;
+        align-self: center;
+        font-size: 6pt;
+        font-weight: bold;
+      }
+
+      .header {
+        flex-grow: 1;
+        text-align: center;
+      }
+
+      .header h1 {
+        font-size: 13pt;
+        font-weight: bold;
+        margin-bottom: 2px;
+        letter-spacing: 1.5px;
+        color: #1e40af;
+        font-family: "Libre Baskerville", Georgia, serif;
+      }
+
+      .header h2 {
+        font-size: 10pt;
+        font-weight: normal;
+        margin-top: 2px;
+        color: #4a4a4a;
+        font-family: "Libre Baskerville", Georgia, serif;
+      }
+
+      /* PAY PERIOD — full width, 3 columns */
+      .pay-period {
+        width: 100%;
+        margin: 3px 0;
+        font-size: 7pt;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #fafafa;
+      }
+
+      .pp-left,
+      .pp-right {
+        color: #4a4a4a;
+        white-space: nowrap;
+      }
+
+      .pp-left strong,
+      .pp-right strong {
+        color: #1a1a1a;
+      }
+
+      .pp-center {
+        flex-grow: 1;
+        text-align: center;
+        font-size: 7pt;
+        font-weight: bold;
+        color: #1a1a1a;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        padding: 0 5px;
+        white-space: nowrap;
+        font-family: "Times New Roman", Times, serif;
+        font-style: italic;
+      }
+
+      /* SECTION HEADERS — 70% wide */
+      .section-header {
+        font-size: 8pt;
+        font-weight: bold;
+        margin-top: 3px;
+        margin-bottom: 4px;
+        padding: 2px 5px;
+        color: #1e40af;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        width: 70%;
+      }
+
+      /* EMPLOYEE INFO — 70% wide, left-aligned */
+      .employee-info {
+        margin-bottom: 6px;
+        padding: 2px 6px;
+        background-color: #fafafa;
+        border: 1px solid #d0d0d0;
+        width: 70%;
+      }
+
+      .info-row {
+        display: flex;
+        padding: 2px 0;
+        font-size: 7pt;
+        border-bottom: 1px solid #f0f0f0;
+      }
+
+      .info-row:last-child {
+        border-bottom: none;
+      }
+
+      .info-label {
+        font-weight: 600;
+        min-width: 85px;
+        flex-shrink: 0;
+        color: #1a1a1a;
+      }
+
+      .info-value {
+        flex-grow: 1;
+        color: #4a4a4a;
+      }
+
+      /* REGULAR TABLE — 70% wide */
+      .items-table {
+        width: 70%;
+        border-collapse: collapse;
+        margin-bottom: 0;
+      }
+
+      .items-table tbody tr {
+        border-bottom: 1px solid #f0f0f0;
+      }
+
+      .items-table tbody td {
+        padding: 1px 4px;
+        font-size: 7pt;
+        vertical-align: middle;
+        color: #4a4a4a;
+      }
+
+      .items-table tbody td.amount {
+        text-align: right;
+        white-space: nowrap;
+        font-family: "Courier New", monospace;
+        color: #1a1a1a;
+        font-weight: 700;
+        font-size: 7.5pt;
+        padding-right: 8px;
+        width: 90px;
+      }
+
+      /* DEDUCTION TABLE — 100% wide, 4 columns */
+      .ded-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin-bottom: 0;
+      }
+
+      .ded-table tbody tr {
+        border: none;
+      }
+
+      .ded-table td.ded-desc,
+      .ded-table td.ded-amt {
+        border-bottom: 1px solid #f0f0f0;
+      }
+
+      .ded-table td.ded-lbal:empty,
+      .ded-table td.ded-osmth:empty {
+        border-bottom: none;
+      }
+
+      .ded-table td.ded-lbal:not(:empty),
+      .ded-table td.ded-osmth:not(:empty) {
+        border-bottom: 1px solid #f0f0f0;
+      }
+
+      .ded-table col.col-desc {
+        width: auto;
+      }
+
+      .ded-table col.col-amt {
+        width: 90px;
+      }
+
+      .ded-table col.col-lbal {
+        width: 80px;
+      }
+
+      .ded-table col.col-osmth {
+        width: 52px;
+      }
+
+      .ded-table td {
+        padding: 1px 4px;
+        font-size: 7pt;
+        vertical-align: middle;
+      }
+
+      .ded-table td.ded-desc {
+        color: #4a4a4a;
+      }
+
+      .ded-table td.ded-amt {
+        text-align: right;
+        white-space: nowrap;
+        font-family: "Courier New", monospace;
+        color: #1a1a1a;
+        font-weight: 700;
+        font-size: 7.5pt;
+        padding-right: 8px;
+      }
+
+      .ded-table td.ded-lbal {
+        text-align: left;
+        white-space: nowrap;
+        font-family: "Courier New", monospace;
+        font-size: 7pt;
+        font-weight: 600;
+        color: #1a1a1a;
+        padding-left: 12px;
+      }
+
+      .ded-table td.ded-osmth {
+        text-align: right;
+        white-space: nowrap;
+        font-family: "Courier New", monospace;
+        font-size: 7pt;
+        font-weight: 600;
+        color: #7c3aed;
+      }
+
+      /* Collapse lbal/osmth columns when empty */
+      .ded-table td.ded-lbal:empty,
+      .ded-table td.ded-osmth:empty {
+        padding: 0;
+        width: 0;
+        overflow: hidden;
+      }
+
+      /* DEDUCTION SECTION HEADER ROW — label 70% + L.Bal/Os.Mths 30% */
+      .ded-header-row {
+        width: 100%;
+        display: flex;
+        align-items: flex-end;
+      }
+
+      .ded-header-row .dh-label {
+        width: 70%;
+        flex-shrink: 0;
+        font-size: 8pt;
+        font-weight: bold;
+        margin-top: 3px;
+        margin-bottom: 4px;
+        padding: 2px 5px;
+        color: #1e40af;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .ded-header-row .dh-cols {
+        width: 30%;
+        flex-shrink: 0;
+        display: flex;
+        justify-content: space-between;
+        padding: 0 4px 4px 12px;
+      }
+
+      .dh-col {
+        font-size: 7pt;
+        font-weight: 600;
+        color: #4a4a4a;
+      }
+
+      /* TOTAL / NET-PAY ROWS — 70% wide */
+      .total-row {
+        background-color: #f5f5f5;
+        border-top: 1px solid #d0d0d0;
+        border-bottom: 1px solid #d0d0d0;
+        padding: 2px 6px;
+        display: flex;
+        justify-content: space-between;
+        font-size: 8pt;
+        font-weight: 600;
+        width: 70%;
+      }
+
+      .total-row .label {
+        text-transform: uppercase;
+        color: #1a1a1a;
+      }
+
+      .total-row .amount {
+        text-align: right;
+        min-width: 90px;
+        font-family: "Courier New", monospace;
+        color: #1a1a1a;
+        font-weight: 700;
+      }
+
+      .emolument-row {
+        background-color: #f5f5f5;
+        border: 1px solid #1a1a1a;
+        padding: 3px 6px;
+        margin: 2px 0;
+        display: flex;
+        justify-content: space-between;
+        font-size: 8.5pt;
+        font-weight: bold;
+        width: 70%;
+      }
+
+      .emolument-row .label {
+        text-transform: uppercase;
+        color: #1a1a1a;
+      }
+
+      .emolument-row .amount {
+        text-align: right;
+        min-width: 90px;
+        font-family: "Courier New", monospace;
+        color: #1a1a1a;
+        font-weight: 700;
+      }
+
+      .net-pay {
+        background-color: #f0f0f0;
+        border: 2px solid #1a1a1a;
+        padding: 5px 6px;
+        margin: 4px 0;
+        display: flex;
+        justify-content: space-between;
+        font-size: 9pt;
+        font-weight: bold;
+        width: 70%;
+      }
+
+      .net-pay .label {
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      .net-pay .amount {
+        text-align: right;
+        min-width: 80px;
+        font-family: "Courier New", monospace;
+        font-weight: 800;
+      }
+
+      /* FOOTER */
+      .footer {
+        margin-top: 3px;
+        padding-top: 1px;
+        border-top: 2px solid #d0d0d0;
+        text-align: center;
+        font-size: 6pt;
+        color: #6a6a6a;
+      }
+
+      .footer p {
+        margin: 1px 0;
+      }
+
+      .footer p:first-child {
+        font-weight: 600;
+        color: #4a4a4a;
+      }
+
+      .page-break {
+        page-break-after: always;
+      }
+
+      .accent-line {
+        display: none;
+      }
+
+      @media print {
         body {
-            font-family: 'Helvetica', 'Arial', sans-serif;
-            font-size: 7pt;
-            color: #1a1a1a;
-            line-height: 1.2;
-            background-color: transparent;
-            position: relative;
+          print-color-adjust: exact;
+          -webkit-print-color-adjust: exact;
         }
 
         body::before {
-            content: "";
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: url('{{{logoDataUrl}}}');
-            background-size: auto 100%;
-            background-repeat: no-repeat;
-            background-position: center center;
-            opacity: 0.02;
-            z-index: -1;
-            pointer-events: none;
+          position: fixed;
+          display: block;
+          background-image: url("{{{logoDataUrl}}}");
         }
-
-        .container {
-            width: 100%;
-            padding: 10px;
-        }
-
-        .page-break {
-            page-break-after: always;
-        }
-
-        /* HEADER */
-        .header-wrapper {
-            display: flex;
-            align-items: flex-start;
-            margin-bottom: 8px;
-            border-bottom: 2px solid #1a1a1a;
-            padding-bottom: 5px;
-        }
-
-        .className {
-            flex-shrink: 0;
-            margin-right: 20px;
-            align-self: center;
-            font-size: 6pt;
-            font-weight: bold;
-        }
-
-        .header {
-            flex-grow: 1;
-            text-align: center;
-        }
-
-        .header h1 {
-            font-size: 13pt;
-            font-weight: bold;
-            margin-bottom: 2px;
-            letter-spacing: 1.5px;
-            color: #1e40af;
-            font-family: 'Libre Baskerville', Georgia, serif;
-        }
-
-        .header h2 {
-            font-size: 10pt;
-            font-weight: normal;
-            margin-top: 2px;
-            color: #4a4a4a;
-            font-family: 'Libre Baskerville', Georgia, serif;
-        }
-
-        /* PAY PERIOD — full width, 3 columns */
-        .pay-period {
-            width: 100%;
-            margin: 3px 0;
-            font-size: 7pt;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: #fafafa;
-        }
-
-        .pp-left,
-        .pp-right {
-            color: #4a4a4a;
-            white-space: nowrap;
-        }
-
-        .pp-left strong,
-        .pp-right strong {
-            color: #1a1a1a;
-        }
-
-        .pp-center {
-            flex-grow: 1;
-            text-align: center;
-            font-size: 7pt;
-            font-weight: bold;
-            color: #1a1a1a;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-            padding: 0 5px;
-            white-space: nowrap;
-            font-family: "Times New Roman", Times, serif;
-            font-style: italic;
-        }
-
-        /* SECTION HEADERS — 70% wide */
-        .section-header {
-            font-size: 8pt;
-            font-weight: bold;
-            margin-top: 3px;
-            margin-bottom: 4px;
-            padding: 2px 5px;
-            color: #1e40af;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            width: 70%;
-        }
-
-        /* EMPLOYEE INFO — 70% wide, left-aligned */
-        .employee-info {
-            margin-bottom: 6px;
-            padding: 2px 6px;
-            background-color: #fafafa;
-            border: 1px solid #d0d0d0;
-            width: 70%;
-        }
-
-        .info-row {
-            display: flex;
-            padding: 2px 0;
-            font-size: 7pt;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .info-row:last-child {
-            border-bottom: none;
-        }
-
-        .info-label {
-            font-weight: 600;
-            min-width: 85px;
-            flex-shrink: 0;
-            color: #1a1a1a;
-        }
-
-        .info-value {
-            flex-grow: 1;
-            color: #4a4a4a;
-        }
-
-        /* REGULAR TABLE — 70% wide */
-        .items-table {
-            width: 70%;
-            border-collapse: collapse;
-            margin-bottom: 0;
-        }
-
-        .items-table tbody tr {
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .items-table tbody td {
-            padding: 1px 4px;
-            font-size: 7pt;
-            vertical-align: middle;
-            color: #4a4a4a;
-        }
-
-        .items-table tbody td.amount {
-            text-align: right;
-            white-space: nowrap;
-            font-family: 'Courier New', monospace;
-            color: #1a1a1a;
-            font-weight: 700;
-            font-size: 7.5pt;
-            padding-right: 8px;
-            width: 90px;
-        }
-
-        /* DEDUCTION TABLE — 100% wide, 4 columns */
-        .ded-table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-            margin-bottom: 0;
-        }
-
-        .ded-table tbody tr {
-            border: none;
-        }
-
-        .ded-table td.ded-desc,
-        .ded-table td.ded-amt {
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .ded-table td.ded-lbal:empty,
-        .ded-table td.ded-osmth:empty {
-            border-bottom: none;
-        }
-
-        .ded-table td.ded-lbal:not(:empty),
-        .ded-table td.ded-osmth:not(:empty) {
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .ded-table col.col-desc {
-            width: auto;
-        }
-
-        .ded-table col.col-amt {
-            width: 90px;
-        }
-
-        .ded-table col.col-lbal {
-            width: 80px;
-        }
-
-        .ded-table col.col-osmth {
-            width: 52px;
-        }
-
-        .ded-table td {
-            padding: 1px 4px;
-            font-size: 7pt;
-            vertical-align: middle;
-        }
-
-        .ded-table td.ded-desc {
-            color: #4a4a4a;
-        }
-
-        .ded-table td.ded-amt {
-            text-align: right;
-            white-space: nowrap;
-            font-family: 'Courier New', monospace;
-            color: #1a1a1a;
-            font-weight: 700;
-            font-size: 7.5pt;
-            padding-right: 8px;
-        }
-
-        .ded-table td.ded-lbal {
-            text-align: left;
-            white-space: nowrap;
-            font-family: 'Courier New', monospace;
-            font-size: 7pt;
-            font-weight: 600;
-            color: #1a1a1a;
-            padding-left: 12px;
-        }
-
-        .ded-table td.ded-osmth {
-            text-align: right;
-            white-space: nowrap;
-            font-family: 'Courier New', monospace;
-            font-size: 7pt;
-            font-weight: 600;
-            color: #7c3aed;
-        }
-
-        /* Collapse lbal/osmth columns when empty */
-        .ded-table td.ded-lbal:empty,
-        .ded-table td.ded-osmth:empty {
-            padding: 0;
-            width: 0;
-            overflow: hidden;
-        }
-
-        /* DEDUCTION SECTION HEADER ROW — label 70% + L.Bal/Os.Mths 30% */
-        .ded-header-row {
-            width: 100%;
-            display: flex;
-            align-items: flex-end;
-        }
-
-        .ded-header-row .dh-label {
-            width: 70%;
-            flex-shrink: 0;
-            font-size: 8pt;
-            font-weight: bold;
-            margin-top: 3px;
-            margin-bottom: 4px;
-            padding: 2px 5px;
-            color: #1e40af;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .ded-header-row .dh-cols {
-            width: 30%;
-            flex-shrink: 0;
-            display: flex;
-            justify-content: space-between;
-            padding: 0 4px 4px 12px;
-        }
-
-        .dh-col {
-            font-size: 7pt;
-            font-weight: 600;
-            color: #4a4a4a;
-        }
-
-        /* TOTAL / NET-PAY ROWS — 70% wide */
-        .total-row {
-            background-color: #f5f5f5;
-            border-top: 1px solid #d0d0d0;
-            border-bottom: 1px solid #d0d0d0;
-            padding: 2px 6px;
-            display: flex;
-            justify-content: space-between;
-            font-size: 8pt;
-            font-weight: 600;
-            width: 70%;
-        }
-
-        .total-row .label {
-            text-transform: uppercase;
-            color: #1a1a1a;
-        }
-
-        .total-row .amount {
-            text-align: right;
-            min-width: 90px;
-            font-family: 'Courier New', monospace;
-            color: #1a1a1a;
-            font-weight: 700;
-        }
-
-        .emolument-row {
-            background-color: #f5f5f5;
-            border: 1px solid #1a1a1a;
-            padding: 3px 6px;
-            margin: 2px 0;
-            display: flex;
-            justify-content: space-between;
-            font-size: 8.5pt;
-            font-weight: bold;
-            width: 70%;
-        }
-
-        .emolument-row .label {
-            text-transform: uppercase;
-            color: #1a1a1a;
-        }
-
-        .emolument-row .amount {
-            text-align: right;
-            min-width: 90px;
-            font-family: 'Courier New', monospace;
-            color: #1a1a1a;
-            font-weight: 700;
-        }
-
-        .net-pay {
-            background-color: #f0f0f0;
-            border: 2px solid #1a1a1a;
-            padding: 5px 6px;
-            margin: 4px 0;
-            display: flex;
-            justify-content: space-between;
-            font-size: 9pt;
-            font-weight: bold;
-            width: 70%;
-        }
-
-        .net-pay .label {
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .net-pay .amount {
-            text-align: right;
-            min-width: 80px;
-            font-family: 'Courier New', monospace;
-            font-weight: 800;
-        }
-
-        /* FOOTER */
-        .footer {
-            margin-top: 3px;
-            padding-top: 1px;
-            border-top: 2px solid #d0d0d0;
-            text-align: center;
-            font-size: 6pt;
-            color: #6a6a6a;
-        }
-
-        .footer p {
-            margin: 1px 0;
-        }
-
-        .footer p:first-child {
-            font-weight: 600;
-            color: #4a4a4a;
-        }
-
-        .page-break {
-            page-break-after: always;
-        }
-
-        .accent-line {
-            display: none;
-        }
-
-        @media print {
-            body {
-                print-color-adjust: exact;
-                -webkit-print-color-adjust: exact;
-            }
-
-            body::before {
-                position: fixed;
-                display: block;
-                background-image: url('{{{logoDataUrl}}}');
-            }
-        }
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
     {{#each employees}}
     <div class="container">
-
-        <!-- HEADER -->
-        <div class="header-wrapper">
-            <div class="className">{{#if payclass}}{{payclass_name}}{{/if}}</div>
-            <div class="header">
-                <h1>Nigerian Navy (Naval Headquarters)</h1>
-                <h2>CENTRAL PAY OFFICE, 23 POINT ROAD APAPA</h2>
-            </div>
+      <!-- HEADER -->
+      <div class="header-wrapper">
+        <div class="className">{{#if payclass}}{{payclass_name}}{{/if}}</div>
+        <div class="header">
+          <h1>DEFENSE SPACE ADMINISTRATION</h1>
+          <h2>NATIONAL SPACE MUSEUM, ABUJA</h2>
         </div>
+      </div>
 
-        <!-- PAY PERIOD -->
-        <div class="pay-period">
-            <span class="pp-left"><strong>Pay Period:</strong> {{payroll_month}} {{payroll_year}}</span>
-            <span class="pp-center">{{payclass_name}} PAYSLIP</span>
-            <span class="pp-right"><strong>Produced On:</strong> {{formatDate payDate}}</span>
-        </div>
+      <!-- PAY PERIOD -->
+      <div class="pay-period">
+        <span class="pp-left"
+          ><strong>Pay Period:</strong> {{payroll_month}} {{payroll_year}}</span
+        >
+        <span class="pp-center">{{payclass_name}} PAYSLIP</span>
+        <span class="pp-right"
+          ><strong>Produced On:</strong> {{formatDate payDate}}</span
+        >
+      </div>
 
-        <!-- EMPLOYEE INFO -->
-        <div class="section-header">Personnel Information</div>
-        <div class="employee-info">
-            <div class="info-row">
-                <span class="info-label">Name:</span>
-                <span class="info-value">{{title}}. {{surname}} {{othername}}</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">Service No:</span>
-                <span class="info-value">{{employee_id}}</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">Grade:</span>
-                <span class="info-value">{{gradelevel}}{{#if gradetype}} - {{gradetype}}{{/if}}</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">Department:</span>
-                <span class="info-value">{{department}}</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">Branch:</span>
-                <span class="info-value">{{factory}}</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">Bank Account:</span>
-                <span class="info-value">{{bank_account_number}}{{#if bank_name}} ({{bank_name}}){{/if}}</span>
-            </div>
-            {{#if nsitfcode}}
-            <div class="info-row">
-                <span class="info-label">RSA (Pension):</span>
-                <span class="info-value">{{nsitfcode}}</span>
-            </div>
-            {{/if}}
+      <!-- EMPLOYEE INFO -->
+      <div class="section-header">Personnel Information</div>
+      <div class="employee-info">
+        <div class="info-row">
+          <span class="info-label">Name:</span>
+          <span class="info-value">{{title}}. {{surname}} {{othername}}</span>
         </div>
+        <div class="info-row">
+          <span class="info-label">Service No:</span>
+          <span class="info-value">{{employee_id}}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Grade:</span>
+          <span class="info-value"
+            >{{gradelevel}}{{#if gradetype}} - {{gradetype}}{{/if}}</span
+          >
+        </div>
+        <div class="info-row">
+          <span class="info-label">Department:</span>
+          <span class="info-value">{{department}}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Branch:</span>
+          <span class="info-value">{{factory}}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Bank Account:</span>
+          <span class="info-value"
+            >{{bank_account_number}}{{#if bank_name}}
+            ({{bank_name}}){{/if}}</span
+          >
+        </div>
+        {{#if nsitfcode}}
+        <div class="info-row">
+          <span class="info-label">RSA (Pension):</span>
+          <span class="info-value">{{nsitfcode}}</span>
+        </div>
+        {{/if}}
+      </div>
 
-        <!-- TAXABLE PAYMENT — with L.Bal/Os.Mths labels on same line -->
-        <div class="ded-header-row">
-            <div class="dh-label">Taxable Payment</div>
-            <div class="dh-cols">
-                <span class="dh-col">₦L.Bal</span>
-                <span class="dh-col">Os.Mths</span>
-            </div>
+      <!-- TAXABLE PAYMENT — with L.Bal/Os.Mths labels on same line -->
+      <div class="ded-header-row">
+        <div class="dh-label">Taxable Payment</div>
+        <div class="dh-cols">
+          <span class="dh-col">₦L.Bal</span>
+          <span class="dh-col">Os.Mths</span>
         </div>
-        <table class="items-table">
-            <tbody>
-                {{#each earnings}}
-                {{#if (eq type "Taxable")}}
-                <tr>
-                    <td>{{description}}</td>
-                    <td class="amount">₦{{formatCurrency amount}}</td>
-                </tr>
-                {{/if}}
-                {{/each}}
-            </tbody>
-        </table>
-        <div class="total-row">
-            <span class="label">Total Taxable Payment</span>
-            <span class="amount">₦{{formatCurrency (sumByType earnings "Taxable")}}</span>
-        </div>
+      </div>
+      <table class="items-table">
+        <tbody>
+          {{#each earnings}} {{#if (eq type "Taxable")}}
+          <tr>
+            <td>{{description}}</td>
+            <td class="amount">₦{{formatCurrency amount}}</td>
+          </tr>
+          {{/if}} {{/each}}
+        </tbody>
+      </table>
+      <div class="total-row">
+        <span class="label">Total Taxable Payment</span>
+        <span class="amount"
+          >₦{{formatCurrency (sumByType earnings "Taxable")}}</span
+        >
+      </div>
 
-        <!-- NON-TAXABLE PAYMENT -->
-        <div class="section-header">Non-Taxable Payment</div>
-        <table class="items-table">
-            <tbody>
-                {{#each earnings}}
-                {{#if (eq type "Non-Taxable")}}
-                <tr>
-                    <td>{{description}}</td>
-                    <td class="amount">₦{{formatCurrency amount}}</td>
-                </tr>
-                {{/if}}
-                {{/each}}
-            </tbody>
-        </table>
-        <div class="total-row">
-            <span class="label">Total Non-Taxable Payment</span>
-            <span class="amount">₦{{formatCurrency (sumByType earnings "Non-Taxable")}}</span>
-        </div>
+      <!-- NON-TAXABLE PAYMENT -->
+      <div class="section-header">Non-Taxable Payment</div>
+      <table class="items-table">
+        <tbody>
+          {{#each earnings}} {{#if (eq type "Non-Taxable")}}
+          <tr>
+            <td>{{description}}</td>
+            <td class="amount">₦{{formatCurrency amount}}</td>
+          </tr>
+          {{/if}} {{/each}}
+        </tbody>
+      </table>
+      <div class="total-row">
+        <span class="label">Total Non-Taxable Payment</span>
+        <span class="amount"
+          >₦{{formatCurrency (sumByType earnings "Non-Taxable")}}</span
+        >
+      </div>
 
-        <!-- TOTAL EMOLUMENT -->
-        <div class="emolument-row">
-            <span class="label">Total Emolument</span>
-            <span class="amount">₦{{formatCurrency (add (sumByType earnings "Taxable") (sumByType earnings
-                "Non-Taxable"))}}</span>
-        </div>
+      <!-- TOTAL EMOLUMENT -->
+      <div class="emolument-row">
+        <span class="label">Total Emolument</span>
+        <span class="amount"
+          >₦{{formatCurrency (add (sumByType earnings "Taxable") (sumByType
+          earnings "Non-Taxable"))}}</span
+        >
+      </div>
 
-        <!-- DEDUCTIONS -->
-        <div class="section-header">Deductions</div>
-        <table class="ded-table">
-            <colgroup>
-                <col class="col-desc">
-                <col class="col-amt">
-                <col class="col-lbal">
-                <col class="col-osmth">
-            </colgroup>
-            <tbody>
-                {{#each deductions}}
-                <tr>
-                    <td class="ded-desc">{{description}}</td>
-                    <td class="ded-amt">₦{{formatCurrency amount}}</td>
-                    <td class="ded-lbal">{{#if is_loan}}{{#if loan_balance}}{{formatCurrency
-                        loan_balance}}{{/if}}{{/if}}</td>
-                    <td class="ded-osmth">{{#if is_loan}}{{#if outstanding_months}}{{#unless (eq outstanding_months
-                        "-")}}{{outstanding_months}}{{/unless}}{{/if}}{{/if}}</td>
-                </tr>
-                {{/each}}
-            </tbody>
-        </table>
-        <div class="total-row">
-            <span class="label">Total Deduction</span>
-            <span class="amount">₦{{formatCurrency total_deductions}}</span>
-        </div>
+      <!-- DEDUCTIONS -->
+      <div class="section-header">Deductions</div>
+      <table class="ded-table">
+        <colgroup>
+          <col class="col-desc" />
+          <col class="col-amt" />
+          <col class="col-lbal" />
+          <col class="col-osmth" />
+        </colgroup>
+        <tbody>
+          {{#each deductions}}
+          <tr>
+            <td class="ded-desc">{{description}}</td>
+            <td class="ded-amt">₦{{formatCurrency amount}}</td>
+            <td class="ded-lbal">
+              {{#if is_loan}}{{#if loan_balance}}{{formatCurrency
+              loan_balance}}{{/if}}{{/if}}
+            </td>
+            <td class="ded-osmth">
+              {{#if is_loan}}{{#if outstanding_months}}{{#unless (eq
+              outstanding_months
+              "-")}}{{outstanding_months}}{{/unless}}{{/if}}{{/if}}
+            </td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+      <div class="total-row">
+        <span class="label">Total Deduction</span>
+        <span class="amount">₦{{formatCurrency total_deductions}}</span>
+      </div>
 
-        <!-- NET PAY -->
-        <div class="net-pay">
-            <span class="label">Net Payment This Month</span>
-            <span class="amount">₦{{formatCurrency net_pay}}</span>
-        </div>
+      <!-- NET PAY -->
+      <div class="net-pay">
+        <span class="label">Net Payment This Month</span>
+        <span class="amount">₦{{formatCurrency net_pay}}</span>
+      </div>
 
-        <div class="footer">
-            <p>All rights reserved &#xA9; Hicad Systems Limited.</p>
-        </div>
-
+      <div class="footer">
+        <p>All rights reserved &#xA9; Hicad Systems Limited.</p>
+      </div>
     </div>
-    {{#unless @last}}<div class="page-break"></div>{{/unless}}
-    {{/each}}
-</body>
-
+    {{#unless @last}}
+    <div class="page-break"></div>
+    {{/unless}} {{/each}}
+  </body>
 </html>

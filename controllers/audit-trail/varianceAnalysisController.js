@@ -429,7 +429,7 @@ class VarianceAnalysisController extends BaseReportController {
       const subtitle = `Period: ${varianceAnalysisService.formatPeriod(result.monthName)} | Threshold: ${result.threshold_percentage}% | Pay Element: ${result.pay_element}`;
 
       const workbook = await exporter.createWorkbook({
-        title: "NIGERIAN NAVY - OVERPAYMENT ANALYSIS",
+        title: "DSA - OVERPAYMENT ANALYSIS",
         subtitle: subtitle,
         className: className,
         columns: columns,

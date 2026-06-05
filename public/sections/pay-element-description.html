@@ -1,103 +1,186 @@
 <div class="p-6">
   <div class="flex justify-end mb-4 gap-2">
-    <input type="text" id="searchElement" placeholder="Search type or description" class="border rounded px-3 py-2">
-    <button id="showFormBtn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">+ Add New</button>
-    <button id="generateReportBtn" class="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700">
+    <input
+      type="text"
+      id="searchElement"
+      placeholder="Search type or description"
+      class="border rounded px-3 py-2"
+    />
+    <button
+      id="showFormBtn"
+      class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+    >
+      + Add New
+    </button>
+    <button
+      id="generateReportBtn"
+      class="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700"
+    >
       <i class="fas fa-file-alt mr-2"></i>Generate Report
     </button>
   </div>
 
   <!-- Hidden Form -->
-  <form id="payElementsForm" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6 p-4 rounded border">
+  <form
+    id="payElementsForm"
+    class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6 p-4 rounded border"
+  >
     <div>
-      <label class="block text-sm font-medium text-gray-700">Payment Type *</label>
-      <input type="text" id="payElements" maxlength="6" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent" required>
+      <label class="block text-sm font-medium text-gray-700"
+        >Payment Type *</label
+      >
+      <input
+        type="text"
+        id="payElements"
+        maxlength="6"
+        class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent"
+        required
+      />
     </div>
 
     <div>
-      <label class="block text-sm font-medium text-gray-700">Description *</label>
-      <input type="text" id="description" maxlength="35" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent">
+      <label class="block text-sm font-medium text-gray-700"
+        >Description *</label
+      >
+      <input
+        type="text"
+        id="description"
+        maxlength="35"
+        class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent"
+      />
     </div>
 
     <div>
       <label class="block text-sm font-medium text-gray-700">Status</label>
-      <select id="status" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent">
+      <select
+        id="status"
+        class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent"
+      >
         <option value="">Select Status</option>
         <option value="Active">Active</option>
         <option value="Inactive">Inactive</option>
       </select>
     </div>
 
-
     <div>
-      <label class="block text-sm font-medium text-gray-700">Function Type *</label>
-      <select id="percentage" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent">
-       <option value="">Select Function Type</option>
+      <label class="block text-sm font-medium text-gray-700"
+        >Function Type *</label
+      >
+      <select
+        id="percentage"
+        class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent"
+      >
+        <option value="">Select Function Type</option>
       </select>
     </div>
 
     <div>
-      <label class="block text-sm font-medium text-gray-700">Standard Amount</label>
-      <input type="number" step="1,000" id="standardAmount" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent">
+      <label class="block text-sm font-medium text-gray-700"
+        >Standard Amount</label
+      >
+      <input
+        type="number"
+        step="1,000"
+        id="standardAmount"
+        class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent"
+      />
     </div>
 
     <div>
-      <label class="block text-sm font-medium text-gray-700">Maximum Amount</label>
-      <input type="number" id="maxAmount" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent">
+      <label class="block text-sm font-medium text-gray-700"
+        >Maximum Amount</label
+      >
+      <input
+        type="number"
+        id="maxAmount"
+        class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent"
+      />
     </div>
 
     <div>
       <label class="block text-sm font-medium text-gray-700">Dependence</label>
-      <select id="dependence" placeholder="Payment code" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent">
+      <select
+        id="dependence"
+        placeholder="Payment code"
+        class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent"
+      >
         <option value="">Select Dependance</option>
         <option value="None">None</option>
       </select>
     </div>
 
     <div>
-      <label class="block text-sm font-medium text-gray-700">Payment Frequency</label>
-      <select id="paymentFrequency" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent">
+      <label class="block text-sm font-medium text-gray-700"
+        >Payment Frequency</label
+      >
+      <select
+        id="paymentFrequency"
+        class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent"
+      >
         <option value="">Select Payment Frequency</option>
       </select>
     </div>
 
     <div>
-      <label class="block text-sm font-medium text-gray-700">Starting Month</label>
-      <select id="startingMonth" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent">
-          <option value="">Select Month</option>
-          <option value="01">01 - January</option>
-          <option value="02">02 - February</option>
-          <option value="03">03 - March</option>
-          <option value="04">04 - April</option>
-          <option value="05">05 - May</option>
-          <option value="06">06 - June</option>
-          <option value="07">07 - July</option>
-          <option value="08">08 - August</option>
-          <option value="09">09 - September</option>
-          <option value="10">10 - October</option>
-          <option value="11">11 - November</option>
-          <option value="12">12 - December</option>
+      <label class="block text-sm font-medium text-gray-700"
+        >Starting Month</label
+      >
+      <select
+        id="startingMonth"
+        class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent"
+      >
+        <option value="">Select Month</option>
+        <option value="01">01 - January</option>
+        <option value="02">02 - February</option>
+        <option value="03">03 - March</option>
+        <option value="04">04 - April</option>
+        <option value="05">05 - May</option>
+        <option value="06">06 - June</option>
+        <option value="07">07 - July</option>
+        <option value="08">08 - August</option>
+        <option value="09">09 - September</option>
+        <option value="10">10 - October</option>
+        <option value="11">11 - November</option>
+        <option value="12">12 - December</option>
       </select>
     </div>
 
     <div>
-      <label class="block text-sm font-medium text-gray-700">Tax Free Amount</label>
-      <input type="number" step="0.01" id="taxAllowance" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent">
+      <label class="block text-sm font-medium text-gray-700"
+        >Tax Free Amount</label
+      >
+      <input
+        type="number"
+        step="0.01"
+        id="taxAllowance"
+        class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent"
+      />
     </div>
 
     <div>
-      <label class="block text-sm font-medium text-gray-700">Required For All</label>
-      <select id="bPay" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent" required>
+      <label class="block text-sm font-medium text-gray-700"
+        >Required For All</label
+      >
+      <select
+        id="bPay"
+        class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent"
+        required
+      >
         <option value="">Select</option>
         <option value="Yes">Yes</option>
         <option value="N0">No</option>
       </select>
     </div>
 
-
     <div>
-      <label class="block text-sm font-medium text-gray-700">Year End Clearance </label>
-      <select id="yearEndClearance" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent" required>
+      <label class="block text-sm font-medium text-gray-700"
+        >Year End Clearance
+      </label>
+      <select
+        id="yearEndClearance"
+        class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent"
+        required
+      >
         <option value="">Select</option>
         <option value="Yes">Yes</option>
         <option value="No">No</option>
@@ -106,15 +189,23 @@
 
     <div>
       <label class="block text-sm font-medium text-gray-700">Ledger Code</label>
-      <select id="accountLedger" maxlength="15" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent">
+      <select
+        id="accountLedger"
+        maxlength="15"
+        class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent"
+      >
         <option value="">Select Ledger Code</option>
-
       </select>
     </div>
 
     <div>
-      <label class="block text-sm font-medium text-gray-700">Required By IPPIS?</label>
-      <select id="requiredByIPPIS" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent">
+      <label class="block text-sm font-medium text-gray-700"
+        >Required By IPPIS?</label
+      >
+      <select
+        id="requiredByIPPIS"
+        class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent"
+      >
         <option value="">Select</option>
         <option value="Yes">Yes</option>
         <option value="No">No</option>
@@ -122,13 +213,25 @@
     </div>
 
     <div class="col-span-1 flex justify-end gap-2 md:col-span-2 lg:col-span-3">
-      <button type="button" id="saveBtn" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Save</button>
-      <button type="button" id="cancelBtn" class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500">Cancel</button>
+      <button
+        type="button"
+        id="saveBtn"
+        class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+      >
+        Save
+      </button>
+      <button
+        type="button"
+        id="cancelBtn"
+        class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
+      >
+        Cancel
+      </button>
     </div>
   </form>
 
   <!-- Table -->
-  <div class="overflow-x-auto rounded-lg ">
+  <div class="overflow-x-auto rounded-lg">
     <table class="min-w-full border border-gray-200 rounded-lg text-sm">
       <thead class="bg-blue-50 text-blue-900">
         <tr>
@@ -149,22 +252,32 @@
   <!-- Pagination Controls -->
   <div class="mt-4 flex items-center justify-between">
     <div class="text-sm text-gray-600">
-      Showing <span id="startRecord">0</span> to <span id="endRecord">0</span> of <span id="totalRecords">0</span> records
+      Showing <span id="startRecord">0</span> to
+      <span id="endRecord">0</span> of <span id="totalRecords">0</span> records
     </div>
     <div class="flex items-center space-x-2">
-      <select id="recordsPerPage" class="border border-gray-300 rounded px-2 py-1 text-sm">
+      <select
+        id="recordsPerPage"
+        class="border border-gray-300 rounded px-2 py-1 text-sm"
+      >
         <option value="10">10 per page</option>
         <option value="25">25 per page</option>
         <option value="50">50 per page</option>
         <option value="100">100 per page</option>
       </select>
-      <button id="prevPage" class="px-3 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 disabled:opacity-50">
+      <button
+        id="prevPage"
+        class="px-3 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 disabled:opacity-50"
+      >
         Previous
       </button>
       <span class="text-sm">
         Page <span id="currentPage">1</span> of <span id="totalPages">1</span>
       </span>
-      <button id="nextPage" class="px-3 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 disabled:opacity-50">
+      <button
+        id="nextPage"
+        class="px-3 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 disabled:opacity-50"
+      >
         Next
       </button>
     </div>
@@ -172,31 +285,64 @@
 </div>
 
 <!-- Success Modal -->
-<div id="successModal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+<div
+  id="successModal"
+  class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+>
   <div class="bg-white p-6 rounded-lg shadow-xl max-w-md w-full mx-4">
     <h3 class="text-lg font-semibold mb-2 text-green-600">Success!</h3>
-    <p id="successMessage" class="mb-4 text-gray-700">Your changes have been saved successfully!</p>
-    <button id="closeSuccessModal" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">OK</button>
+    <p id="successMessage" class="mb-4 text-gray-700">
+      Your changes have been saved successfully!
+    </p>
+    <button
+      id="closeSuccessModal"
+      class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+    >
+      OK
+    </button>
   </div>
 </div>
 
 <!-- Error Modal -->
-<div id="errorModal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+<div
+  id="errorModal"
+  class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+>
   <div class="bg-white p-6 rounded-lg shadow-xl max-w-md w-full mx-4">
     <h3 class="text-lg font-semibold mb-2 text-red-600">Error!</h3>
     <p id="errorMessage" class="mb-4 text-gray-700">An error occurred.</p>
-    <button id="closeErrorModal" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">OK</button>
+    <button
+      id="closeErrorModal"
+      class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+    >
+      OK
+    </button>
   </div>
 </div>
 
 <!-- View Modal -->
-<div id="viewModal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-  <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-2xl mx-4 max-h-screen overflow-y-auto">
+<div
+  id="viewModal"
+  class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+>
+  <div
+    class="bg-white p-6 rounded-lg shadow-xl w-full max-w-2xl mx-4 max-h-screen overflow-y-auto"
+  >
     <div class="flex justify-between items-center mb-4">
       <h3 class="text-lg font-semibold text-blue-600">Pay Element Details</h3>
       <button id="closeViewModal" class="text-gray-400 hover:text-gray-600">
-        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        <svg
+          class="h-6 w-6"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M6 18L18 6M6 6l12 12"
+          ></path>
         </svg>
       </button>
     </div>
@@ -205,332 +351,389 @@
 </div>
 
 <!-- Confirm Delete Modal -->
-<div id="sectionConfirmModal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+<div
+  id="sectionConfirmModal"
+  class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+>
   <div class="bg-white p-6 rounded-lg shadow-xl max-w-md w-full mx-4">
     <h3 class="text-lg font-semibold text-yellow-600 mb-2">Confirm Delete</h3>
-    <p id="confirmMessage" class="mb-4 text-gray-700">Are you sure you want to delete this section command?</p>
+    <p id="confirmMessage" class="mb-4 text-gray-700">
+      Are you sure you want to delete this section command?
+    </p>
     <div class="flex justify-end gap-2">
-      <button id="cancelSectionDelete" class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500">Cancel</button>
-      <button id="sectionConfirmAction" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Delete</button>
+      <button
+        id="cancelSectionDelete"
+        class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
+      >
+        Cancel
+      </button>
+      <button
+        id="sectionConfirmAction"
+        class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+      >
+        Delete
+      </button>
     </div>
   </div>
 </div>
 
 <script>
   const auth = window.authService;
-(function () {
-  // Global variables
-  let editingIndex = null;
-  let data = [];
-  let originalData = [];
-  let lookupMaps = {};
+  (function () {
+    // Global variables
+    let editingIndex = null;
+    let data = [];
+    let originalData = [];
+    let lookupMaps = {};
 
-  let currentPage = 1;
-  let recordsPerPage = 10;
-  let filteredData = []; // Store filtered results from search
-  let currentSearchTerm = ""; // Store current search term
+    let currentPage = 1;
+    let recordsPerPage = 10;
+    let filteredData = []; // Store filtered results from search
+    let currentSearchTerm = ""; // Store current search term
 
-  // DOM elements
-  const form = document.getElementById("payElementsForm");
-  const showFormBtn = document.getElementById("showFormBtn");
-  const saveBtn = document.getElementById("saveBtn");
-  const cancelBtn = document.getElementById("cancelBtn");
-  const tableBody = document.getElementById("payElementsTable");
-  const searchElement = document.getElementById("searchElement");
+    // DOM elements
+    const form = document.getElementById("payElementsForm");
+    const showFormBtn = document.getElementById("showFormBtn");
+    const saveBtn = document.getElementById("saveBtn");
+    const cancelBtn = document.getElementById("cancelBtn");
+    const tableBody = document.getElementById("payElementsTable");
+    const searchElement = document.getElementById("searchElement");
 
-  // Pagination elements
-  const prevPageBtn = document.getElementById('prevPage');
-  const nextPageBtn = document.getElementById('nextPage');
-  const currentPageSpan = document.getElementById('currentPage');
-  const totalPagesSpan = document.getElementById('totalPages');
-  const recordsPerPageSelect = document.getElementById('recordsPerPage');
-  const startRecordSpan = document.getElementById('startRecord');
-  const endRecordSpan = document.getElementById('endRecord');
-  const totalRecordsSpan = document.getElementById('totalRecords');
+    // Pagination elements
+    const prevPageBtn = document.getElementById("prevPage");
+    const nextPageBtn = document.getElementById("nextPage");
+    const currentPageSpan = document.getElementById("currentPage");
+    const totalPagesSpan = document.getElementById("totalPages");
+    const recordsPerPageSelect = document.getElementById("recordsPerPage");
+    const startRecordSpan = document.getElementById("startRecord");
+    const endRecordSpan = document.getElementById("endRecord");
+    const totalRecordsSpan = document.getElementById("totalRecords");
 
-  // --- API Functions ---
-  //Load Dropdown
-  async function loadDropdown(endpoint, elementId, valueField, textField, placeholder) {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await auth.fetchWithAuth(`/reference/${endpoint}`, {   
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}` 
+    // --- API Functions ---
+    //Load Dropdown
+    async function loadDropdown(
+      endpoint,
+      elementId,
+      valueField,
+      textField,
+      placeholder,
+    ) {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await auth.fetchWithAuth(`/reference/${endpoint}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const data = await response.json();
+        const dropdown = document.getElementById(elementId);
+        if (!dropdown) return;
+        dropdown.innerHTML = `<option value="">${placeholder}</option>`;
+        data.forEach((item) => {
+          const option = document.createElement("option");
+          option.value = item[valueField];
+          option.textContent = item[textField];
+          dropdown.appendChild(option);
+
+          lookupMaps[endpoint] = Object.fromEntries(
+            data.map((item) => [item[valueField], item[textField]]),
+          );
+        });
+        return data;
+      } catch (err) {
+        console.error(`Failed to load ${endpoint}:`, err);
+        return [];
+      }
+    }
+
+    async function loadAllDropdowns() {
+      const promises = [
+        loadDropdown(
+          "functiontype",
+          "percentage",
+          "funct",
+          "functdesc",
+          "Select Function Type",
+        ),
+        loadDropdown(
+          "ledger",
+          "accountLedger",
+          "acctnumber",
+          "description",
+          "Select Ledger Code",
+        ),
+        loadDropdown(
+          "elementtype",
+          "dependence",
+          "PaymentType",
+          "elmDesc",
+          "Select Dependance",
+        ),
+        loadDropdown(
+          "payfrequency",
+          "paymentFrequency",
+          "paycode",
+          "paydesc",
+          "Select pay Frequency",
+        ),
+      ];
+      await Promise.all(promises);
+    }
+
+    function getValueField(endpoint) {
+      const fieldMap = {
+        functiontype: "funct",
+        accchart: "acctnumber",
+        elementtype: "PaymentType",
+        payfrequency: "paycode",
+      };
+      return fieldMap[endpoint] || "code";
+    }
+
+    function getTextField(endpoint) {
+      const fieldMap = {
+        functiontype: "functdesc",
+        accchart: "description",
+        elementtype: "elmDesc",
+        payfrequency: "paydesc",
+      };
+      return fieldMap[endpoint] || "name";
+    }
+
+    function resolveName(code, endpoint) {
+      if (!code) return "N/A";
+      return lookupMaps[endpoint]?.[code] || code;
+    }
+
+    async function fetchPayElements(preserveElements = false) {
+      try {
+        const token = localStorage.getItem("token");
+
+        const response = await auth.fetchWithAuth("/pay/elementtypes", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) throw new Error("Failed to fetch data");
+
+        const result = await response.json();
+
+        // Handle different response structures
+        if (result.success) {
+          data = result.data || [];
+        } else if (Array.isArray(result)) {
+          data = result;
+        } else if (result.data) {
+          data = result.data;
+        } else {
+          data = [];
         }
-      });
-      const data = await response.json();
-      const dropdown = document.getElementById(elementId);
-      if (!dropdown) return;
-      dropdown.innerHTML = `<option value="">${placeholder}</option>`;
-      data.forEach(item => {
-        const option = document.createElement("option");
-        option.value = item[valueField];
-        option.textContent = item[textField];
-        dropdown.appendChild(option);
 
-        lookupMaps[endpoint] = Object.fromEntries(
-          data.map(item => [item[valueField], item[textField]])
-        )
-      });
-      return data;
-    } catch (err) {
-      console.error(`Failed to load ${endpoint}:`, err);
-      return [];
-    }
-  }
+        if (preserveElements) {
+          // Reapply the current search filter
+          applySearch(currentSearchTerm);
 
-  async function loadAllDropdowns() {
-    const promises = [
-      loadDropdown("functiontype","percentage", "funct", "functdesc", "Select Function Type"),
-      loadDropdown("ledger","accountLedger", "acctnumber", "description", "Select Ledger Code"),
-      loadDropdown("elementtype", "dependence", "PaymentType", "elmDesc", "Select Dependance"),
-      loadDropdown("payfrequency", "paymentFrequency", "paycode", "paydesc", "Select pay Frequency")      
-    ];
-    await Promise.all(promises);
-  }
-
-  function getValueField(endpoint) {
-    const fieldMap = {
-      'functiontype': 'funct',
-      'accchart': 'acctnumber',
-      'elementtype': 'PaymentType',
-      'payfrequency': 'paycode'
-    };
-    return fieldMap[endpoint] || 'code';
-  }
-
-  function getTextField(endpoint) {
-    const fieldMap = {
-      'functiontype': 'functdesc',
-      'accchart': 'description',
-      'elementtype': 'elmDesc',
-      'payfrequency': 'paydesc'      
-    }
-    return fieldMap[endpoint] || 'name';
-  }
-
-  function resolveName(code, endpoint) {
-    if (!code) return 'N/A';
-    return lookupMaps[endpoint]?.[code] || code;
-  }
-
-  async function fetchPayElements(preserveElements = false) {
-    try {
-      const token = localStorage.getItem("token");
-
-      const response = await auth.fetchWithAuth('/pay/elementtypes',{   
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}` 
-      }
-    });
-
-      if (!response.ok) throw new Error('Failed to fetch data');
-
-      const result = await response.json();
- 
-      // Handle different response structures
-      if (result.success) {
-        data = result.data || [];
-      } else if (Array.isArray(result)) {
-        data = result;
-      } else if (result.data) {
-        data = result.data;
-      } else {
-        data = [];
-      }
-
-      if (preserveElements) {
-        // Reapply the current search filter
-        applySearch(currentSearchTerm);
-        
-        // Validate current page is still valid
-        const totalPages = Math.ceil(filteredData.length / recordsPerPage) || 1;
-        if (currentPage > totalPages) {
-          currentPage = totalPages;
+          // Validate current page is still valid
+          const totalPages =
+            Math.ceil(filteredData.length / recordsPerPage) || 1;
+          if (currentPage > totalPages) {
+            currentPage = totalPages;
+          }
+        } else {
+          // Fresh load - reset everything
+          filteredData = [...data];
+          currentPage = 1;
+          currentSearchTerm = "";
         }
-      } else {
-        // Fresh load - reset everything
-        filteredData = [...data];
-        currentPage = 1;
-        currentSearchTerm = "";
+
+        renderWithPagination();
+      } catch (error) {
+        console.error("Error fetching pay elements:", error);
+        showError("Failed to load payment elements");
       }
-      
-      renderWithPagination();
-
-       } catch (error) {
-      console.error('Error fetching pay elements:', error);
-      showError('Failed to load payment elements');
     }
-  }
 
-  async function createPayElement(elementData) {
-    try {
-      const token = localStorage.getItem("token");
+    async function createPayElement(elementData) {
+      try {
+        const token = localStorage.getItem("token");
 
-      const response = await auth.fetchWithAuth('/pay/elementtypes', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify(elementData)
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create element');
+        const response = await auth.fetchWithAuth("/pay/elementtypes", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(elementData),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || "Failed to create element");
+        }
+
+        return await response.json();
+      } catch (error) {
+        console.error("Error creating pay element:", error);
+        throw error;
       }
-      
-      return await response.json();
-    } catch (error) {
-      console.error('Error creating pay element:', error);
-      throw error;
     }
-  }
 
-  //validation
-  async function checkDuplicate(input, field, excludePaymentType = null) {
-    const value = input.value.trim();
-    if (!value) {
-      input.setCustomValidity("");
-      input.reportValidity();
-      return;
-    }
+    //validation
+    async function checkDuplicate(input, field, excludePaymentType = null) {
+      const value = input.value.trim();
+      if (!value) {
+        input.setCustomValidity("");
+        input.reportValidity();
+        return;
+      }
 
       // If editing, check if this field value has actually changed
-    if (originalData && originalData[field] === value) {
-      input.setCustomValidity(""); // Clear any existing validation message
-      input.reportValidity();
-      return; // Skip duplicate check if value hasn't changed
-    }
-
-    try {
-      const token = localStorage.getItem("token");
-
-      let url = `/pay/elementtypes/check/${field}/${encodeURIComponent(value)}`;
-      if (excludePaymentType){
-        url += `?exclude=${excludePaymentType}`;
+      if (originalData && originalData[field] === value) {
+        input.setCustomValidity(""); // Clear any existing validation message
+        input.reportValidity();
+        return; // Skip duplicate check if value hasn't changed
       }
 
-      const res = await auth.fetchWithAuth(url, {
-        headers: { "Authorization": `Bearer ${token}` }
-      });
+      try {
+        const token = localStorage.getItem("token");
 
-      const data = await res.json();
-      if (data.exists) {
-        input.setCustomValidity(`⚠️ This ${field} already exists.`);
-      } else {
-        input.setCustomValidity("");
-      }
-      input.reportValidity();
-    } catch (err) {
-      console.error(`Error checking ${field}:`, err);
-    }
-  }
-
-  // attach validation on blur
-  document.getElementById("payElements").addEventListener("blur", function () {
-    checkDuplicate(this, 'PaymentType');
-  });
-
-  document.getElementById("description").addEventListener("blur", function () {
-    checkDuplicate(this, 'elmDesc');
-  });
-
-
-  async function updatePayElement(paymentType, elementData) {
-    try {
-      const token = localStorage.getItem("token");
-
-      const response = await auth.fetchWithAuth(`/pay/elementtypes/${paymentType}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify(elementData)
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to update element');
-      }
-      
-      return await response.json();
-    } catch (error) {
-      console.error('Error updating pay element:', error);
-      throw error;
-    }
-  }
-
-  async function deletePayElement(paymentType) {
-    try {
-      const token = localStorage.getItem("token");
-
-      const response = await auth.fetchWithAuth(`/pay/elementtypes/${paymentType}`, {
-        method: 'DELETE', 
-        headers: { 
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
+        let url = `/pay/elementtypes/check/${field}/${encodeURIComponent(value)}`;
+        if (excludePaymentType) {
+          url += `?exclude=${excludePaymentType}`;
         }
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to delete element');
+
+        const res = await auth.fetchWithAuth(url, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        const data = await res.json();
+        if (data.exists) {
+          input.setCustomValidity(`⚠️ This ${field} already exists.`);
+        } else {
+          input.setCustomValidity("");
+        }
+        input.reportValidity();
+      } catch (err) {
+        console.error(`Error checking ${field}:`, err);
       }
-      
-      return await response.json();
-    } catch (error) {
-      console.error('Error deleting pay element:', error);
-      throw error;
     }
-  }
 
-  // --- UI Functions ---
+    // attach validation on blur
+    document
+      .getElementById("payElements")
+      .addEventListener("blur", function () {
+        checkDuplicate(this, "PaymentType");
+      });
 
-  // Separate function to apply search filtering
-  function applySearch(term) {
-    currentSearchTerm = term;
-    if (term) {
-      filteredData = data.filter(p => 
-        p.PaymentType.toLowerCase().includes(term) ||
-        p.elmDesc.toLowerCase().includes(term)
-      );
-    } else {
-      filteredData = [...data];
+    document
+      .getElementById("description")
+      .addEventListener("blur", function () {
+        checkDuplicate(this, "elmDesc");
+      });
+
+    async function updatePayElement(paymentType, elementData) {
+      try {
+        const token = localStorage.getItem("token");
+
+        const response = await auth.fetchWithAuth(
+          `/pay/elementtypes/${paymentType}`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(elementData),
+          },
+        );
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || "Failed to update element");
+        }
+
+        return await response.json();
+      } catch (error) {
+        console.error("Error updating pay element:", error);
+        throw error;
+      }
     }
-  }
 
-  // --- FRONTEND PAGINATION FUNCTIONS ---
-  function getPaginationData() {
-    const totalRecords = filteredData.length;
-    const totalPages = Math.ceil(totalRecords / recordsPerPage) || 1;
-    const startIndex = (currentPage - 1) * recordsPerPage;
-    const endIndex = startIndex + recordsPerPage;
-    const currentData = filteredData.slice(startIndex, endIndex);
-    const startRecord = totalRecords === 0 ? 0 : startIndex + 1;
-    const endRecord = Math.min(endIndex, totalRecords);
+    async function deletePayElement(paymentType) {
+      try {
+        const token = localStorage.getItem("token");
 
-    return { totalRecords, totalPages, currentData, startRecord, endRecord };
-  }
+        const response = await auth.fetchWithAuth(
+          `/pay/elementtypes/${paymentType}`,
+          {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        );
 
-  function renderTable() {
-    const { currentData } = getPaginationData();
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || "Failed to delete element");
+        }
 
-    tableBody.innerHTML = currentData.map((item, index) => `
+        return await response.json();
+      } catch (error) {
+        console.error("Error deleting pay element:", error);
+        throw error;
+      }
+    }
+
+    // --- UI Functions ---
+
+    // Separate function to apply search filtering
+    function applySearch(term) {
+      currentSearchTerm = term;
+      if (term) {
+        filteredData = data.filter(
+          (p) =>
+            p.PaymentType.toLowerCase().includes(term) ||
+            p.elmDesc.toLowerCase().includes(term),
+        );
+      } else {
+        filteredData = [...data];
+      }
+    }
+
+    // --- FRONTEND PAGINATION FUNCTIONS ---
+    function getPaginationData() {
+      const totalRecords = filteredData.length;
+      const totalPages = Math.ceil(totalRecords / recordsPerPage) || 1;
+      const startIndex = (currentPage - 1) * recordsPerPage;
+      const endIndex = startIndex + recordsPerPage;
+      const currentData = filteredData.slice(startIndex, endIndex);
+      const startRecord = totalRecords === 0 ? 0 : startIndex + 1;
+      const endRecord = Math.min(endIndex, totalRecords);
+
+      return { totalRecords, totalPages, currentData, startRecord, endRecord };
+    }
+
+    function renderTable() {
+      const { currentData } = getPaginationData();
+
+      tableBody.innerHTML = currentData
+        .map(
+          (item, index) => `
       <tr class="hover:bg-gray-50">
         <td class="border px-2 py-2 text-left">${item.PaymentType}</td>
-        <td class="border px-2 py-2 text-left">${item.elmDesc || '-'}</td>
-        <td class="border px-2 py-2 text-left">${resolveName(item.perc, 'functiontype')}</td>
-        <td class="border px-2 py-2 text-left">${resolveName(item.dependence, 'elementtype')} (${item.dependence})</td>
+        <td class="border px-2 py-2 text-left">${item.elmDesc || "-"}</td>
+        <td class="border px-2 py-2 text-left">${resolveName(item.perc, "functiontype")}</td>
+        <td class="border px-2 py-2 text-left">${resolveName(item.dependence, "elementtype")} (${item.dependence})</td>
         <td class="border px-2 py-2 text-left">
-          <span class="px-2 py-1 rounded text-xs ${item.Status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
-            ${item.Status || 'Active'}
+          <span class="px-2 py-1 rounded text-xs ${item.Status === "Active" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}">
+            ${item.Status || "Active"}
           </span>
         </td>
         <td class="border px-2 py-2 text-center">
@@ -539,359 +742,375 @@
           <button onclick="deleteRow('${item.PaymentType}')" class="text-red-600 hover:text-red-800 px-2 py-1 rounded hover:bg-red-50">Delete</button>
         </td>
       </tr>
-    `).join("");
-  }
+    `,
+        )
+        .join("");
+    }
 
-  function updatePaginationUI() {
-    const { totalRecords, totalPages, startRecord, endRecord } = getPaginationData();
-    
-    currentPageSpan.textContent = currentPage;
-    totalPagesSpan.textContent = totalPages;
-    startRecordSpan.textContent = startRecord;
-    endRecordSpan.textContent = endRecord;
-    totalRecordsSpan.textContent = totalRecords;
+    function updatePaginationUI() {
+      const { totalRecords, totalPages, startRecord, endRecord } =
+        getPaginationData();
 
-    prevPageBtn.disabled = currentPage <= 1;
-    nextPageBtn.disabled = currentPage >= totalPages;
-  }
+      currentPageSpan.textContent = currentPage;
+      totalPagesSpan.textContent = totalPages;
+      startRecordSpan.textContent = startRecord;
+      endRecordSpan.textContent = endRecord;
+      totalRecordsSpan.textContent = totalRecords;
 
-  function renderWithPagination() {
-    renderTable();
-    updatePaginationUI();
-  }
+      prevPageBtn.disabled = currentPage <= 1;
+      nextPageBtn.disabled = currentPage >= totalPages;
+    }
 
-  function clearForm() {
-    form.reset();
-    editingIndex = null;
-    document.getElementById("payElements").disabled = false;
-  }
+    function renderWithPagination() {
+      renderTable();
+      updatePaginationUI();
+    }
 
-  function populateForm(item) {
-    document.getElementById("payElements").value = item.PaymentType || '';
-    document.getElementById("description").value = item.elmDesc || '';
-    document.getElementById("status").value = item.Status || '';
-    document.getElementById("percentage").value = item.perc || '';
-    document.getElementById("standardAmount").value = item.std || '';
-    document.getElementById("maxAmount").value = item.maxi || '';
-    document.getElementById("dependence").value = item.dependence || '';
-    document.getElementById("paymentFrequency").value = item.payfreq || '';
-    document.getElementById("startingMonth").value = item.pmonth || '';
-    document.getElementById("taxAllowance").value = item.freetax || '';
-    document.getElementById("bPay").value = item.bpay || '';
-    document.getElementById("yearEndClearance").value = item.yearend || '';
-    document.getElementById("accountLedger").value = item.Ledger || '';
-    document.getElementById("requiredByIPPIS").value = item.ipis || '';
-  }
+    function clearForm() {
+      form.reset();
+      editingIndex = null;
+      document.getElementById("payElements").disabled = false;
+    }
 
-  function getFormData() {
-    return {
-      PaymentType: document.getElementById("payElements").value.trim().toUpperCase(),
-      elmDesc: document.getElementById("description").value.trim(),
-      Status: document.getElementById("status").value || 'Active',
-      perc: document.getElementById("percentage").value.trim(),
-      std: parseFloat(document.getElementById("standardAmount").value) || null,
-      maxi: parseFloat(document.getElementById("maxAmount").value) || null,
-      dependence: document.getElementById("dependence").value.trim() || null,
-      payfreq: document.getElementById("paymentFrequency").value || null,
-      pmonth: document.getElementById("startingMonth").value || null,
-      freetax: parseFloat(document.getElementById("taxAllowance").value) || null,
-      bpay: document.getElementById("bPay").value,
-      yearend: document.getElementById("yearEndClearance").value,
-      Ledger: document.getElementById("accountLedger").value.trim(),
-      ipis: document.getElementById("requiredByIPPIS").value || null
-    };
-  }
+    function populateForm(item) {
+      document.getElementById("payElements").value = item.PaymentType || "";
+      document.getElementById("description").value = item.elmDesc || "";
+      document.getElementById("status").value = item.Status || "";
+      document.getElementById("percentage").value = item.perc || "";
+      document.getElementById("standardAmount").value = item.std || "";
+      document.getElementById("maxAmount").value = item.maxi || "";
+      document.getElementById("dependence").value = item.dependence || "";
+      document.getElementById("paymentFrequency").value = item.payfreq || "";
+      document.getElementById("startingMonth").value = item.pmonth || "";
+      document.getElementById("taxAllowance").value = item.freetax || "";
+      document.getElementById("bPay").value = item.bpay || "";
+      document.getElementById("yearEndClearance").value = item.yearend || "";
+      document.getElementById("accountLedger").value = item.Ledger || "";
+      document.getElementById("requiredByIPPIS").value = item.ipis || "";
+    }
 
-  // --- Modal Functions ---
-  function openModal(id) {
-    document.getElementById(id).classList.remove("hidden");
-  }
+    function getFormData() {
+      return {
+        PaymentType: document
+          .getElementById("payElements")
+          .value.trim()
+          .toUpperCase(),
+        elmDesc: document.getElementById("description").value.trim(),
+        Status: document.getElementById("status").value || "Active",
+        perc: document.getElementById("percentage").value.trim(),
+        std:
+          parseFloat(document.getElementById("standardAmount").value) || null,
+        maxi: parseFloat(document.getElementById("maxAmount").value) || null,
+        dependence: document.getElementById("dependence").value.trim() || null,
+        payfreq: document.getElementById("paymentFrequency").value || null,
+        pmonth: document.getElementById("startingMonth").value || null,
+        freetax:
+          parseFloat(document.getElementById("taxAllowance").value) || null,
+        bpay: document.getElementById("bPay").value,
+        yearend: document.getElementById("yearEndClearance").value,
+        Ledger: document.getElementById("accountLedger").value.trim(),
+        ipis: document.getElementById("requiredByIPPIS").value || null,
+      };
+    }
 
-  function closeModal(id) {
-    document.getElementById(id).classList.add("hidden");
-  }
+    // --- Modal Functions ---
+    function openModal(id) {
+      document.getElementById(id).classList.remove("hidden");
+    }
 
-  function showSuccess(message) {
-    document.getElementById("successMessage").textContent = message;
-    openModal("successModal");
-  }
+    function closeModal(id) {
+      document.getElementById(id).classList.add("hidden");
+    }
 
-  function showError(message) {
-    document.getElementById("errorMessage").textContent = message;
-    openModal("errorModal");
-  }
+    function showSuccess(message) {
+      document.getElementById("successMessage").textContent = message;
+      openModal("successModal");
+    }
 
-  // --- Global Action Functions ---
-  window.viewRow = function(paymentType) {
-    const item = data.find(d => d.PaymentType === paymentType);
-    if (!item) return;
+    function showError(message) {
+      document.getElementById("errorMessage").textContent = message;
+      openModal("errorModal");
+    }
 
-    let html = "";
-    const fieldLabels = {
-      PaymentType: "Payment Type",
-      elmDesc: "Description", 
-      Status: "Status",
-      perc: "Function Type",
-      std: "Standard Amount",
-      maxi: "Maximum Amount",
-      dependence: "Dependence",
-      payfreq: "Payment Frequency",
-      pmonth: "Starting Month",
-      freetax: "Tax Free Amount",
-      bpay: "Required For All",
-      yearend: "Year End Clearance",
-      Ledger: "Account Ledger",
-      ipis: "Required By IPPIS",
-      createdby: "Created By",
-      datecreated: "Date Created"
-    };
+    // --- Global Action Functions ---
+    window.viewRow = function (paymentType) {
+      const item = data.find((d) => d.PaymentType === paymentType);
+      if (!item) return;
 
-    for (let key in item) {
-      if (fieldLabels[key]) {
-        let value = item[key];
-        if (key === 'datecreated' && value) {
-          value = new Date(value).toLocaleString();
-        } else if (key === "perc") {
-          value = `${resolveName(value, "functiontype")} (${value || "N/A"})`;
-        } else if (key === "dependence") {
-          value = `${resolveName(value, "elementtype")} (${value || "N/A"})`;
-        } else if (key === "Ledger") {
-          value = `${resolveName(value, "accchart")} (${value || "N/A"})`;
-        } else if (key === "payfreq") {
-          value = `${resolveName(value, "payfrequency")} (${value || "N/A"})`;
-        }
-        
-        html += `<div class="grid grid-cols-3 gap-2 py-2 border-b border-gray-200">
+      let html = "";
+      const fieldLabels = {
+        PaymentType: "Payment Type",
+        elmDesc: "Description",
+        Status: "Status",
+        perc: "Function Type",
+        std: "Standard Amount",
+        maxi: "Maximum Amount",
+        dependence: "Dependence",
+        payfreq: "Payment Frequency",
+        pmonth: "Starting Month",
+        freetax: "Tax Free Amount",
+        bpay: "Required For All",
+        yearend: "Year End Clearance",
+        Ledger: "Account Ledger",
+        ipis: "Required By IPPIS",
+        createdby: "Created By",
+        datecreated: "Date Created",
+      };
+
+      for (let key in item) {
+        if (fieldLabels[key]) {
+          let value = item[key];
+          if (key === "datecreated" && value) {
+            value = new Date(value).toLocaleString();
+          } else if (key === "perc") {
+            value = `${resolveName(value, "functiontype")} (${value || "N/A"})`;
+          } else if (key === "dependence") {
+            value = `${resolveName(value, "elementtype")} (${value || "N/A"})`;
+          } else if (key === "Ledger") {
+            value = `${resolveName(value, "accchart")} (${value || "N/A"})`;
+          } else if (key === "payfreq") {
+            value = `${resolveName(value, "payfrequency")} (${value || "N/A"})`;
+          }
+
+          html += `<div class="grid grid-cols-3 gap-2 py-2 border-b border-gray-200">
           <dt class="font-medium text-gray-600"><strong>${fieldLabels[key]}:</strong></dt>
-          <dd class="col-span-2 text-gray-900">${value || 'N/A'}</dd>
+          <dd class="col-span-2 text-gray-900">${value || "N/A"}</dd>
         </div>`;
+        }
       }
-    }
-    
-    document.getElementById("viewContent").innerHTML = html;
-    openModal("viewModal");
-  };
 
-  window.editRow = function(paymentType) {
-    const item = data.find(d => d.PaymentType === paymentType);
-    if (!item) return;
-
-    // Store original values for comparison
-    originalData = {
-      paymentType: item.PaymentType,
-      elmDesc: item.elmDesc
+      document.getElementById("viewContent").innerHTML = html;
+      openModal("viewModal");
     };
 
-    populateForm(item);
+    window.editRow = function (paymentType) {
+      const item = data.find((d) => d.PaymentType === paymentType);
+      if (!item) return;
 
-    // Clear any existing validation messages
-    document.getElementById("payElements").setCustomValidity("");
-    document.getElementById("description").setCustomValidity("");
+      // Store original values for comparison
+      originalData = {
+        paymentType: item.PaymentType,
+        elmDesc: item.elmDesc,
+      };
 
-    editingIndex = paymentType;
-    form.classList.remove("hidden");
-    document.getElementById("payElements").disabled = true;
-  };
+      populateForm(item);
 
-  window.deleteRow = async function(paymentType) {
-    const item = data.find(d => d.PaymentType === paymentType);
-    const confirmed = await showConfirmModal("Are you sure you want to delete this record?");
-    if (!item) return;
+      // Clear any existing validation messages
+      document.getElementById("payElements").setCustomValidity("");
+      document.getElementById("description").setCustomValidity("");
 
-    if (confirmed) {
-      deletePayElement(paymentType)
-        .then(() => {
-          showSuccess("Payment element deleted successfully!");
-          fetchPayElements(true); // Refresh data
-        })
-        .catch(error => {
-          showError(error.message);
-        });
-    }
-  };
+      editingIndex = paymentType;
+      form.classList.remove("hidden");
+      document.getElementById("payElements").disabled = true;
+    };
 
-  // --- Event Listeners ---
-  showFormBtn.addEventListener("click", () => {
-    clearForm();
-    form.classList.remove("hidden");
-  });
+    window.deleteRow = async function (paymentType) {
+      const item = data.find((d) => d.PaymentType === paymentType);
+      const confirmed = await showConfirmModal(
+        "Are you sure you want to delete this record?",
+      );
+      if (!item) return;
 
-  cancelBtn.addEventListener("click", () => {
-    form.classList.add("hidden");
-    clearForm();
-  });
-
-  saveBtn.addEventListener("click", async () => {
-    const formData = getFormData();
-
-    let requiredFields = ['PaymentType', 'elmDesc', 'perc'];
-    
-    let missingFields = requiredFields.filter(field => !formData[field]);
-
-    // Basic validation
-    if (missingFields.length > 0) {
-      showError(`Please fill in all required fields: ${missingFields.join(', ')}`);
-      return;
-    }
-
-    if (formData.PaymentType.length > 6) {
-      showError("Payment Type cannot exceed 6 characters.");
-      return;
-    }
-
-    // Check for duplicates before saving
-    const paymentTypeInput = document.getElementById("payElements");
-    const elmDescInput = document.getElementById("description");
-
-    // Get the current stateCode for editing
-    const currentPaymentType = editingIndex;
-
-    // Perform duplicate checks only for changed fields
-    await checkDuplicate(paymentTypeInput, 'PaymentType', currentPaymentType);
-    await checkDuplicate(elmDescInput, 'elmDesc', currentPaymentType);
-
-    // Check if any validation errors exist
-    if (!paymentTypeInput.checkValidity() || 
-        !elmDescInput.checkValidity()) {
-      showError("Please fix the validation errors before saving.");
-      return;
-    }
-
-    try {
-      if (currentPaymentType) {
-        // Update existing
-        await updatePayElement(currentPaymentType, formData);
-        showSuccess("Payment element updated successfully!");
-      } else {
-        // Create new
-        await createPayElement(formData);
-        showSuccess("Payment element created successfully!");
+      if (confirmed) {
+        deletePayElement(paymentType)
+          .then(() => {
+            showSuccess("Payment element deleted successfully!");
+            fetchPayElements(true); // Refresh data
+          })
+          .catch((error) => {
+            showError(error.message);
+          });
       }
-      
+    };
+
+    // --- Event Listeners ---
+    showFormBtn.addEventListener("click", () => {
+      clearForm();
+      form.classList.remove("hidden");
+    });
+
+    cancelBtn.addEventListener("click", () => {
       form.classList.add("hidden");
       clearForm();
-      await fetchPayElements(true);
-      originalData = null;
+    });
 
-    } catch (error) {
-      showError(error.message);
-    }
-  });
+    saveBtn.addEventListener("click", async () => {
+      const formData = getFormData();
 
-  // Modal close events
-  document.getElementById('closeSuccessModal').addEventListener('click', () => closeModal('successModal'));
-  document.getElementById('closeErrorModal').addEventListener('click', () => closeModal('errorModal'));
-  document.getElementById('closeViewModal').addEventListener('click', () => closeModal('viewModal'));
+      let requiredFields = ["PaymentType", "elmDesc", "perc"];
 
-  // Close modals when clicking outside
-  document.getElementById('successModal').addEventListener('click', (e) => {
-    if (e.target === e.currentTarget) closeModal('successModal');
-  });
+      let missingFields = requiredFields.filter((field) => !formData[field]);
 
-  document.getElementById('errorModal').addEventListener('click', (e) => {
-    if (e.target === e.currentTarget) closeModal('errorModal');
-  });
+      // Basic validation
+      if (missingFields.length > 0) {
+        showError(
+          `Please fill in all required fields: ${missingFields.join(", ")}`,
+        );
+        return;
+      }
 
-  document.getElementById('viewModal').addEventListener('click', (e) => {
-    if (e.target === e.currentTarget) closeModal('viewModal');
-  });
+      if (formData.PaymentType.length > 6) {
+        showError("Payment Type cannot exceed 6 characters.");
+        return;
+      }
 
-  // Reusable Confirm Modal
-  function showConfirmModal(message = "Are you sure?") {
-    return new Promise((resolve) => {
-      const modal = document.getElementById("sectionConfirmModal");
-      const msg = document.getElementById("confirmMessage");
-      const cancelBtn = document.getElementById("cancelSectionDelete");
-      const confirmBtn = document.getElementById("sectionConfirmAction");
+      // Check for duplicates before saving
+      const paymentTypeInput = document.getElementById("payElements");
+      const elmDescInput = document.getElementById("description");
 
-      msg.textContent = message;
-      modal.classList.remove("hidden");
+      // Get the current stateCode for editing
+      const currentPaymentType = editingIndex;
 
-      // Remove old listeners
-      cancelBtn.onclick = () => {
-        modal.classList.add("hidden");
-        resolve(false);
-      };
+      // Perform duplicate checks only for changed fields
+      await checkDuplicate(paymentTypeInput, "PaymentType", currentPaymentType);
+      await checkDuplicate(elmDescInput, "elmDesc", currentPaymentType);
 
-      confirmBtn.onclick = () => {
-        modal.classList.add("hidden");
-        resolve(true);
-      };
+      // Check if any validation errors exist
+      if (!paymentTypeInput.checkValidity() || !elmDescInput.checkValidity()) {
+        showError("Please fix the validation errors before saving.");
+        return;
+      }
 
-      modal.onclick = (e) => {
-        if (e.target.id === "sectionConfirmModal") {
+      try {
+        if (currentPaymentType) {
+          // Update existing
+          await updatePayElement(currentPaymentType, formData);
+          showSuccess("Payment element updated successfully!");
+        } else {
+          // Create new
+          await createPayElement(formData);
+          showSuccess("Payment element created successfully!");
+        }
+
+        form.classList.add("hidden");
+        clearForm();
+        await fetchPayElements(true);
+        originalData = null;
+      } catch (error) {
+        showError(error.message);
+      }
+    });
+
+    // Modal close events
+    document
+      .getElementById("closeSuccessModal")
+      .addEventListener("click", () => closeModal("successModal"));
+    document
+      .getElementById("closeErrorModal")
+      .addEventListener("click", () => closeModal("errorModal"));
+    document
+      .getElementById("closeViewModal")
+      .addEventListener("click", () => closeModal("viewModal"));
+
+    // Close modals when clicking outside
+    document.getElementById("successModal").addEventListener("click", (e) => {
+      if (e.target === e.currentTarget) closeModal("successModal");
+    });
+
+    document.getElementById("errorModal").addEventListener("click", (e) => {
+      if (e.target === e.currentTarget) closeModal("errorModal");
+    });
+
+    document.getElementById("viewModal").addEventListener("click", (e) => {
+      if (e.target === e.currentTarget) closeModal("viewModal");
+    });
+
+    // Reusable Confirm Modal
+    function showConfirmModal(message = "Are you sure?") {
+      return new Promise((resolve) => {
+        const modal = document.getElementById("sectionConfirmModal");
+        const msg = document.getElementById("confirmMessage");
+        const cancelBtn = document.getElementById("cancelSectionDelete");
+        const confirmBtn = document.getElementById("sectionConfirmAction");
+
+        msg.textContent = message;
+        modal.classList.remove("hidden");
+
+        // Remove old listeners
+        cancelBtn.onclick = () => {
           modal.classList.add("hidden");
           resolve(false);
-        }
+        };
+
+        confirmBtn.onclick = () => {
+          modal.classList.add("hidden");
+          resolve(true);
+        };
+
+        modal.onclick = (e) => {
+          if (e.target.id === "sectionConfirmModal") {
+            modal.classList.add("hidden");
+            resolve(false);
+          }
+        };
+      });
+    }
+
+    searchElement.addEventListener("input", (e) => {
+      const term = e.target.value.toLowerCase();
+      applySearch(term);
+      currentPage = 1; // Reset to first page on new search
+      renderWithPagination();
+    });
+
+    // --- Pagination Event Listeners---
+    prevPageBtn.addEventListener("click", () => {
+      if (currentPage > 1) {
+        currentPage--;
+        renderWithPagination();
+      }
+    });
+
+    nextPageBtn.addEventListener("click", () => {
+      const { totalPages } = getPaginationData();
+      if (currentPage < totalPages) {
+        currentPage++;
+        renderWithPagination();
+      }
+    });
+
+    recordsPerPageSelect.addEventListener("change", (e) => {
+      recordsPerPage = parseInt(e.target.value);
+      currentPage = 1; // Reset to first page
+      renderWithPagination();
+    });
+
+    // Force uppercase as user types
+    ["payElements", "description"].forEach((id) => {
+      const el = document.getElementById(id);
+      el.addEventListener("input", () => {
+        el.value = el.value.toUpperCase();
+      });
+    });
+
+    //generate reports functionality
+    function generateReport() {
+      const now = new Date();
+      const dateStr = now.toLocaleDateString("en-GB", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+      const timeStr = now.toLocaleTimeString("en-GB", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      });
+
+      const generatedBy = localStorage.getItem("full_name") || "System User";
+
+      const printWindow = window.open("", "_blank");
+
+      const formatCurrency = (amount) => {
+        if (!amount) return "-";
+        return new Intl.NumberFormat("en-NG", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }).format(amount);
       };
-    });
-  }
 
-  searchElement.addEventListener("input", (e) => {
-    const term = e.target.value.toLowerCase();
-    applySearch(term);
-    currentPage = 1; // Reset to first page on new search
-    renderWithPagination();
-  });
-
-  // --- Pagination Event Listeners---
-  prevPageBtn.addEventListener('click', () => {
-    if (currentPage > 1) {
-      currentPage--;
-      renderWithPagination();
-    }
-  });
-
-  nextPageBtn.addEventListener('click', () => {
-    const { totalPages } = getPaginationData();
-    if (currentPage < totalPages) {
-      currentPage++;
-      renderWithPagination();
-    }
-  });
-
-  recordsPerPageSelect.addEventListener('change', (e) => {
-    recordsPerPage = parseInt(e.target.value);
-    currentPage = 1; // Reset to first page
-    renderWithPagination();
-  });
-
-  // Force uppercase as user types 
-  ["payElements", "description"].forEach(id => {
-    const el = document.getElementById(id);
-    el.addEventListener("input", () => {
-      el.value = el.value.toUpperCase();
-    });
-  });
-
-  //generate reports functionality
-  function generateReport() {
-    const now = new Date();
-    const dateStr = now.toLocaleDateString('en-GB', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-    const timeStr = now.toLocaleTimeString('en-GB', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true
-    });
-    
-    const generatedBy = localStorage.getItem('full_name') || 'System User';
-    
-    const printWindow = window.open('', '_blank');
-    
-    const formatCurrency = (amount) => {
-      if (!amount) return '-';
-      return new Intl.NumberFormat('en-NG', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-      }).format(amount);
-    };
-
-    const printContent = `
+      const printContent = `
       <!DOCTYPE html>
       <html>
       <head>
@@ -1046,8 +1265,8 @@
       <body>
         <div class="header-wrapper">
           <div class="header">
-            <h1>Nigerian Navy (Naval Headquarters)</h1>
-            <h2>CENTRAL PAY OFFICE, 23 POINT ROAD APAPA</h2>
+            <h1>DEFENSE SPACE ADMINISTRATION</h1>
+            <h2>NATIONAL SPACE MUSEUM, ABUJA</h2>
           </div>
         </div>
 
@@ -1087,23 +1306,27 @@
             </tr>
           </thead>
           <tbody>
-            ${data.map(item => `
+            ${data
+              .map(
+                (item) => `
               <tr>
                 <td><strong>${item.PaymentType}</strong></td>
-                <td style="white-space: nowrap;">${item.elmDesc || '-'}</td>
-                <td class="status-${item.Status?.toLowerCase()} text-center">${item.Status || 'Active'}</td>
-                <td>${resolveName(item.perc, 'functiontype')}</td>
+                <td style="white-space: nowrap;">${item.elmDesc || "-"}</td>
+                <td class="status-${item.Status?.toLowerCase()} text-center">${item.Status || "Active"}</td>
+                <td>${resolveName(item.perc, "functiontype")}</td>
                 <td class="text-right">${formatCurrency(item.std)}</td>
                 <td class="text-right">${formatCurrency(item.maxi)}</td>
-                <td style="white-space: nowrap;">${resolveName(item.Ledger, 'accchart')}</td>
-                <td>${resolveName(item.dependence, 'elementtype')}</td>
-                <td class="text-center">${resolveName(item.payfreq, 'payfrequency') || '-'}</td>
-                <td class="text-center">${item.pmonth || '-'}</td>
+                <td style="white-space: nowrap;">${resolveName(item.Ledger, "accchart")}</td>
+                <td>${resolveName(item.dependence, "elementtype")}</td>
+                <td class="text-center">${resolveName(item.payfreq, "payfrequency") || "-"}</td>
+                <td class="text-center">${item.pmonth || "-"}</td>
                 <td class="text-right">${formatCurrency(item.freetax)}</td>
-                <td class="text-center">${item.bpay || 'NO'}</td>
-                <td class="text-center">${item.yearend || 'NO'}</td>
+                <td class="text-center">${item.bpay || "NO"}</td>
+                <td class="text-center">${item.yearend || "NO"}</td>
               </tr>
-            `).join('')}
+            `,
+              )
+              .join("")}
           </tbody>
         </table>
 
@@ -1114,33 +1337,34 @@
       </html>
     `;
 
-    printWindow.document.write(printContent);
-    printWindow.document.close();
+      printWindow.document.write(printContent);
+      printWindow.document.close();
 
-    printWindow.onload = function() {
-      printWindow.print();
-    };
-  }
-
-  // Add event listener to generate report button
-  document.getElementById('generateReportBtn').addEventListener('click', generateReport);
-
-// Init
-  async function initializeApp() {
-    try {
-      // First load all dropdowns and wait for completion
-      await loadAllDropdowns();
-      
-      // Only after dropdowns are loaded, fetch and render data
-      await fetchPayElements();
-      
-    } catch (error) {
-      console.error('Failed to initialize app:', error);
-      showError('Failed to load application data');
+      printWindow.onload = function () {
+        printWindow.print();
+      };
     }
-  }
 
-  // Call the initialization
-  initializeApp();
-})();
+    // Add event listener to generate report button
+    document
+      .getElementById("generateReportBtn")
+      .addEventListener("click", generateReport);
+
+    // Init
+    async function initializeApp() {
+      try {
+        // First load all dropdowns and wait for completion
+        await loadAllDropdowns();
+
+        // Only after dropdowns are loaded, fetch and render data
+        await fetchPayElements();
+      } catch (error) {
+        console.error("Failed to initialize app:", error);
+        showError("Failed to load application data");
+      }
+    }
+
+    // Call the initialization
+    initializeApp();
+  })();
 </script>

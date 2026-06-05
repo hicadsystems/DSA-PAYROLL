@@ -1,11 +1,27 @@
 <div class="p-6">
   <div class="flex flex-wrap justify-between">
-    <h2 class="text-xl font-semibold mb-4 text-gray-800">Tax Table Configuration</h2>
+    <h2 class="text-xl font-semibold mb-4 text-gray-800">
+      Tax Table Configuration
+    </h2>
     <div class="mb-4 flex justify-end gap-2">
-      <button id="showFormBtn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">+ Add New</button>
-      <button id="configureMfpBtn" class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700">Configure Minimum Free Pay</button>
-      <button id="generateReportBtn" class="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700">
-        <i class="fas fa-file-alt mr-2"></i>Generate Report</button>
+      <button
+        id="showFormBtn"
+        class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+      >
+        + Add New
+      </button>
+      <button
+        id="configureMfpBtn"
+        class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700"
+      >
+        Configure Minimum Free Pay
+      </button>
+      <button
+        id="generateReportBtn"
+        class="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700"
+      >
+        <i class="fas fa-file-alt mr-2"></i>Generate Report
+      </button>
     </div>
   </div>
 
@@ -13,35 +29,87 @@
   <form id="bandForm" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 hidden">
     <div>
       <label class="block text-sm font-medium text-gray-700">Interval</label>
-      <input type="text" id="interval" class="w-full border border-blue-500 rounded-md px-3 py-2" placeholder="e.g., 1">
+      <input
+        type="text"
+        id="interval"
+        class="w-full border border-blue-500 rounded-md px-3 py-2"
+        placeholder="e.g., 1"
+      />
     </div>
     <div>
       <label class="block text-sm font-medium text-gray-700">Value</label>
-      <input type="number" id="value" class="w-full border border-blue-500 rounded-md px-3 py-2" placeholder="Enter value">
+      <input
+        type="number"
+        id="value"
+        class="w-full border border-blue-500 rounded-md px-3 py-2"
+        placeholder="Enter value"
+      />
     </div>
     <div>
       <label class="block text-sm font-medium text-gray-700">Percentage</label>
-      <input type="number" id="percentage" step="0.01" class="w-full border border-blue-500 rounded-md px-3 py-2" placeholder="Enter percentage">
+      <input
+        type="number"
+        id="percentage"
+        step="0.01"
+        class="w-full border border-blue-500 rounded-md px-3 py-2"
+        placeholder="Enter percentage"
+      />
     </div>
     <div class="col-span-1 md:col-span-3 flex justify-end gap-2">
-      <button type="button" id="saveBandBtn" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Save</button>
-      <button type="button" id="cancelBandBtn" class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500">Cancel</button>
+      <button
+        type="button"
+        id="saveBandBtn"
+        class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+      >
+        Save
+      </button>
+      <button
+        type="button"
+        id="cancelBandBtn"
+        class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
+      >
+        Cancel
+      </button>
     </div>
   </form>
 
   <!-- Minimum Free Pay Form -->
   <form id="mfpForm" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 hidden">
     <div>
-      <label class="block text-sm font-medium text-gray-700">Free Pay Value</label>
-      <input type="number" id="mfpValue" class="w-full border border-purple-500 rounded-md px-3 py-2" placeholder="e.g., 800000">
+      <label class="block text-sm font-medium text-gray-700"
+        >Free Pay Value</label
+      >
+      <input
+        type="number"
+        id="mfpValue"
+        class="w-full border border-purple-500 rounded-md px-3 py-2"
+        placeholder="e.g., 800000"
+      />
     </div>
     <div>
       <label class="block text-sm font-medium text-gray-700">Percentage</label>
-      <input type="number" id="mfpPerc" class="w-full border border-purple-500 rounded-md px-3 py-2" placeholder="e.g., 0">
+      <input
+        type="number"
+        id="mfpPerc"
+        class="w-full border border-purple-500 rounded-md px-3 py-2"
+        placeholder="e.g., 0"
+      />
     </div>
     <div class="col-span-1 md:col-span-2 flex justify-end gap-2">
-      <button type="button" id="saveMfpBtn" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Save</button>
-      <button type="button" id="cancelMfpBtn" class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500">Cancel</button>
+      <button
+        type="button"
+        id="saveMfpBtn"
+        class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+      >
+        Save
+      </button>
+      <button
+        type="button"
+        id="cancelMfpBtn"
+        class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
+      >
+        Cancel
+      </button>
     </div>
   </form>
 
@@ -66,31 +134,64 @@
 </div>
 
 <!-- Success Modal -->
-<div id="successModal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+<div
+  id="successModal"
+  class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+>
   <div class="bg-white p-6 rounded-lg shadow-xl max-w-md w-full mx-4">
     <h3 class="text-lg font-semibold mb-2 text-green-600">Success!</h3>
     <p class="mb-4 text-gray-700">Action completed successfully!</p>
-    <button id="closeSuccessModal" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">OK</button>
+    <button
+      id="closeSuccessModal"
+      class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+    >
+      OK
+    </button>
   </div>
 </div>
 
 <!-- Alert Modal -->
-<div id="alertModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
+<div
+  id="alertModal"
+  class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50"
+>
   <div class="bg-white rounded-lg shadow-xl max-w-sm w-full p-6 text-center">
-    <h3 id="alertTitle" class="text-lg font-semibold text-gray-800 mb-2">Alert!</h3>
+    <h3 id="alertTitle" class="text-lg font-semibold text-gray-800 mb-2">
+      Alert!
+    </h3>
     <p id="alertMessage" class="text-gray-600 mb-4"></p>
-    <button id="alertOkBtn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">OK</button>
+    <button
+      id="alertOkBtn"
+      class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+    >
+      OK
+    </button>
   </div>
 </div>
 
 <!-- Confirm Delete Modal -->
-<div id="confirmModal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+<div
+  id="confirmModal"
+  class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+>
   <div class="bg-white p-6 rounded-lg shadow-xl max-w-md w-full mx-4">
     <h3 class="text-lg font-semibold text-yellow-600 mb-2">Confirm Delete</h3>
-    <p id="confirmMessage" class="mb-4 text-gray-700">Are you sure you want to delete this record?</p>
+    <p id="confirmMessage" class="mb-4 text-gray-700">
+      Are you sure you want to delete this record?
+    </p>
     <div class="flex justify-end gap-2">
-      <button id="cancelDeleteBtn" class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500">Cancel</button>
-      <button id="confirmDeleteBtn" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Delete</button>
+      <button
+        id="cancelDeleteBtn"
+        class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
+      >
+        Cancel
+      </button>
+      <button
+        id="confirmDeleteBtn"
+        class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+      >
+        Delete
+      </button>
     </div>
   </div>
 </div>
@@ -110,7 +211,7 @@
   async function loadBands() {
     try {
       const res = await auth.fetchWithAuth(API_URL, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) throw new Error("Failed to load bands");
       bandData = await res.json();
@@ -122,7 +223,9 @@
   }
 
   function renderBandTable() {
-    bandTableBody.innerHTML = bandData.map((item, index) => `
+    bandTableBody.innerHTML = bandData
+      .map(
+        (item, index) => `
       <tr class="hover:bg-yellow-50">
         <td class="border px-2 py-3">${item.INTER}</td>
         <td class="border px-2 py-3">${item.val}</td>
@@ -134,7 +237,9 @@
           <button onclick="deleteBand(${index})" class="text-red-600 hover:text-red-900">Delete</button>
         </td>
       </tr>
-    `).join("");
+    `,
+      )
+      .join("");
   }
 
   // --- Band CRUD ---
@@ -153,15 +258,19 @@
     const payload = {
       INTER: document.getElementById("interval").value.trim(),
       val: parseInt(document.getElementById("value").value.trim()),
-      perc: parseFloat(document.getElementById("percentage").value.trim())
+      perc: parseFloat(document.getElementById("percentage").value.trim()),
     };
 
     const requiredFields = ["INTER", "val", "perc"];
 
-    let missingFields = requiredFields.filter(field => !payload[field] && payload[field] !== 0);
-    
+    let missingFields = requiredFields.filter(
+      (field) => !payload[field] && payload[field] !== 0,
+    );
+
     if (missingFields.length) {
-      return showAlert(`Please fill in all required fields: ${missingFields.join(", ")}`);
+      return showAlert(
+        `Please fill in all required fields: ${missingFields.join(", ")}`,
+      );
     }
 
     try {
@@ -169,14 +278,20 @@
       if (editingIndex !== null) {
         response = await auth.fetchWithAuth(`${API_URL}/${payload.INTER}`, {
           method: "PUT",
-          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-          body: JSON.stringify(payload)
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
         });
       } else {
         response = await auth.fetchWithAuth(`${API_URL}/create`, {
           method: "POST",
-          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-          body: JSON.stringify(payload)
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
         });
       }
       if (!response.ok) throw new Error("Save failed");
@@ -188,7 +303,7 @@
     }
   });
 
-  window.editBand = function(index) {
+  window.editBand = function (index) {
     const item = bandData[index];
     document.getElementById("interval").value = item.INTER;
     document.getElementById("value").value = item.val;
@@ -197,12 +312,12 @@
     bandForm.classList.remove("hidden");
   };
 
-  window.deleteBand = async function(index) {
+  window.deleteBand = async function (index) {
     const item = bandData[index];
     if (await confirmModal("Delete this band?")) {
       await auth.fetchWithAuth(`${API_URL}/${item.INTER}`, {
         method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
       await loadBands();
       showSuccessModal();
@@ -210,23 +325,27 @@
   };
 
   function resetBandForm() {
-    ["interval", "value", "percentage"].forEach(id => document.getElementById(id).value = "");
+    ["interval", "value", "percentage"].forEach(
+      (id) => (document.getElementById(id).value = ""),
+    );
   }
 
   // --- Minimum Free Pay ---
-  document.getElementById("configureMfpBtn").addEventListener("click", async () => {
-    try {
-      const res = await auth.fetchWithAuth(`${API_URL}/999`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (res.ok) {
-        const mfp = await res.json();
-        document.getElementById("mfpValue").value = mfp.val || "";
-        document.getElementById("mfpPerc").value = mfp.perc || "";
-      }
-    } catch {}
-    mfpForm.classList.remove("hidden");
-  });
+  document
+    .getElementById("configureMfpBtn")
+    .addEventListener("click", async () => {
+      try {
+        const res = await auth.fetchWithAuth(`${API_URL}/999`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const mfp = await res.json();
+          document.getElementById("mfpValue").value = mfp.val || "";
+          document.getElementById("mfpPerc").value = mfp.perc || "";
+        }
+      } catch {}
+      mfpForm.classList.remove("hidden");
+    });
 
   document.getElementById("cancelMfpBtn").addEventListener("click", () => {
     mfpForm.classList.add("hidden");
@@ -235,21 +354,33 @@
   document.getElementById("saveMfpBtn").addEventListener("click", async () => {
     const val = document.getElementById("mfpValue").value.trim();
     const perc = document.getElementById("mfpPerc").value.trim();
-    const payload = { INTER: 999, val: parseInt(val), perc: parseFloat(perc) || 0 };
+    const payload = {
+      INTER: 999,
+      val: parseInt(val),
+      perc: parseFloat(perc) || 0,
+    };
     try {
-      const res = await auth.fetchWithAuth(`${API_URL}/999`, { headers: { Authorization: `Bearer ${token}` } });
+      const res = await auth.fetchWithAuth(`${API_URL}/999`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       let response;
       if (res.ok) {
         response = await auth.fetchWithAuth(`${API_URL}/999`, {
           method: "PUT",
-          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-          body: JSON.stringify(payload)
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
         });
       } else {
         response = await auth.fetchWithAuth(`${API_URL}/create`, {
           method: "POST",
-          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-          body: JSON.stringify(payload)
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
         });
       }
       if (!response.ok) throw new Error("Save failed");
@@ -261,56 +392,69 @@
   });
 
   // --- Modals ---
-  function showSuccessModal() { document.getElementById("successModal").classList.remove("hidden"); }
-  document.getElementById("closeSuccessModal").addEventListener("click", () => document.getElementById("successModal").classList.add("hidden"));
+  function showSuccessModal() {
+    document.getElementById("successModal").classList.remove("hidden");
+  }
+  document
+    .getElementById("closeSuccessModal")
+    .addEventListener("click", () =>
+      document.getElementById("successModal").classList.add("hidden"),
+    );
 
-  function showAlert(message, title="Alert") {
+  function showAlert(message, title = "Alert") {
     document.getElementById("alertTitle").textContent = title;
     document.getElementById("alertMessage").textContent = message;
     document.getElementById("alertModal").classList.remove("hidden");
-    document.getElementById("alertOkBtn").onclick = () => document.getElementById("alertModal").classList.add("hidden");
+    document.getElementById("alertOkBtn").onclick = () =>
+      document.getElementById("alertModal").classList.add("hidden");
   }
 
-  function confirmModal(message="Are you sure?") {
-    return new Promise(resolve => {
+  function confirmModal(message = "Are you sure?") {
+    return new Promise((resolve) => {
       const modal = document.getElementById("confirmModal");
       document.getElementById("confirmMessage").textContent = message;
       modal.classList.remove("hidden");
-      document.getElementById("cancelDeleteBtn").onclick = () => { modal.classList.add("hidden"); resolve(false); };
-      document.getElementById("confirmDeleteBtn").onclick = () => { modal.classList.add("hidden"); resolve(true); };
+      document.getElementById("cancelDeleteBtn").onclick = () => {
+        modal.classList.add("hidden");
+        resolve(false);
+      };
+      document.getElementById("confirmDeleteBtn").onclick = () => {
+        modal.classList.add("hidden");
+        resolve(true);
+      };
     });
   }
 
-async function generateReport() {
-  const now = new Date();
-  const dateStr = now.toLocaleDateString('en-GB', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  });
-  const timeStr = now.toLocaleTimeString('en-GB', {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: true
-  });
-
-  // Fetch MFP separately
-  let mfpData = null;
-  try {
-    const res = await auth.fetchWithAuth(`${API_URL}/999`, {
-      headers: { Authorization: `Bearer ${token}` }
+  async function generateReport() {
+    const now = new Date();
+    const dateStr = now.toLocaleDateString("en-GB", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
-    if (res.ok) mfpData = await res.json();
-  } catch (err) {
-    console.warn("MFP not found");
-  }
+    const timeStr = now.toLocaleTimeString("en-GB", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
 
-  const generatedBy = localStorage.getItem("full_name") || "System User";
+    // Fetch MFP separately
+    let mfpData = null;
+    try {
+      const res = await auth.fetchWithAuth(`${API_URL}/999`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) mfpData = await res.json();
+    } catch (err) {
+      console.warn("MFP not found");
+    }
 
-  const printWindow = window.open('', '_blank');
+    const generatedBy = localStorage.getItem("full_name") || "System User";
 
-  const printContent = `
+    const printWindow = window.open("", "_blank");
+
+    const printContent = `
     <!DOCTYPE html>
     <html>
     <head>
@@ -526,8 +670,8 @@ async function generateReport() {
     <body>
       <div class="header-wrapper">
         <div class="header">
-          <h1>Nigerian Navy (Naval Headquarters)</h1>
-          <h2>CENTRAL PAY OFFICE, 23 POINT ROAD APAPA</h2>
+          <h1>DEFENSE SPACE ADMINISTRATION</h1>
+          <h2>NATIONAL SPACE MUSEUM, ABUJA</h2>
         </div>
       </div>
 
@@ -555,7 +699,7 @@ async function generateReport() {
         </div>
         <div class="summary-item">
           <div class="label">Min Free Pay</div>
-          <div class="value highlight-value">₦${mfpData?.val?.toLocaleString('en-NG') || '0'}</div>
+          <div class="value highlight-value">₦${mfpData?.val?.toLocaleString("en-NG") || "0"}</div>
         </div>
         <div class="summary-item">
           <div class="label">MFP Percentage</div>
@@ -581,15 +725,19 @@ async function generateReport() {
           </tr>
         </thead>
         <tbody>
-          ${bandData.map((item, index) => `
+          ${bandData
+            .map(
+              (item, index) => `
             <tr>
               <td class="text-center"><strong>${index + 1}</strong></td>
               <td><strong>${item.INTER}</strong></td>
-              <td class="amount">${item.val?.toLocaleString('en-NG', {minimumFractionDigits: 2}) || '-'}</td>
+              <td class="amount">${item.val?.toLocaleString("en-NG", { minimumFractionDigits: 2 }) || "-"}</td>
               <td class="text-center"><strong>${item.perc}%</strong></td>
-              <td class="amount">${item.cumval?.toLocaleString('en-NG', {minimumFractionDigits: 2}) || '-'}</td>
-              <td class="amount">${item.lowbound?.toLocaleString('en-NG', {minimumFractionDigits: 2}) || '-'}</td>
-            </tr>`).join("")}
+              <td class="amount">${item.cumval?.toLocaleString("en-NG", { minimumFractionDigits: 2 }) || "-"}</td>
+              <td class="amount">${item.lowbound?.toLocaleString("en-NG", { minimumFractionDigits: 2 }) || "-"}</td>
+            </tr>`,
+            )
+            .join("")}
         </tbody>
       </table>
 
@@ -607,7 +755,7 @@ async function generateReport() {
           <tbody>
             <tr>
               <td><strong>Minimum Free Pay (MFP)</strong></td>
-              <td class="amount highlight-value" style="font-size: 10pt;">₦${mfpData?.val?.toLocaleString('en-NG', {minimumFractionDigits: 2}) || '0.00'}</td>
+              <td class="amount highlight-value" style="font-size: 10pt;">₦${mfpData?.val?.toLocaleString("en-NG", { minimumFractionDigits: 2 }) || "0.00"}</td>
               <td class="text-center"><strong>${mfpData?.perc || 0}%</strong></td>
             </tr>
           </tbody>
@@ -624,13 +772,15 @@ async function generateReport() {
     </html>
   `;
 
-  printWindow.document.write(printContent);
-  printWindow.document.close();
-  printWindow.onload = () => printWindow.print();
-}
+    printWindow.document.write(printContent);
+    printWindow.document.close();
+    printWindow.onload = () => printWindow.print();
+  }
 
-// Add event listener to generate report button
-document.getElementById('generateReportBtn').addEventListener('click', generateReport);
+  // Add event listener to generate report button
+  document
+    .getElementById("generateReportBtn")
+    .addEventListener("click", generateReport);
 
   // Init
   loadBands();

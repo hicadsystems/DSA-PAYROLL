@@ -1,15 +1,35 @@
 <style>
   @keyframes grow-up {
-    0% { height: 0; bottom: 0; }
-    100% { height: 100%; bottom: 0; }
+    0% {
+      height: 0;
+      bottom: 0;
+    }
+    100% {
+      height: 100%;
+      bottom: 0;
+    }
   }
   @keyframes grow-down {
-    0% { height: 0; top: 0; }
-    100% { height: 100%; top: 0; }
+    0% {
+      height: 0;
+      top: 0;
+    }
+    100% {
+      height: 100%;
+      top: 0;
+    }
   }
   @keyframes expand {
-    0% { width: 0; left: 50%; transform: translate(-50%, -50%); }
-    100% { width: 100%; left: 0; transform: translateY(-50%); }
+    0% {
+      width: 0;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    100% {
+      width: 100%;
+      left: 0;
+      transform: translateY(-50%);
+    }
   }
   .animate-grow-up {
     animation: grow-up 0.6s ease-in-out infinite alternate;
@@ -26,35 +46,64 @@
   }
 </style>
 
-
 <div class="p-6">
   <div class="flex justify-end mb-4 gap-2">
-    <button id="showFormBtn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">+ Add New</button>
-    <button id="generateReportBtn" class="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700">
-      <i class="fas fa-file-alt mr-2"></i>Generate Report</button>
+    <button
+      id="showFormBtn"
+      class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+    >
+      + Add New
+    </button>
+    <button
+      id="generateReportBtn"
+      class="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700"
+    >
+      <i class="fas fa-file-alt mr-2"></i>Generate Report
+    </button>
   </div>
 
   <!-- Hidden Form -->
-  <form id="payElementsForm" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6 p-4 rounded border">
+  <form
+    id="payElementsForm"
+    class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6 p-4 rounded border"
+  >
     <div>
       <label class="block text-sm font-medium text-gray-700">Description</label>
       <div class="relative">
-        <input 
-          type="text" 
+        <input
+          type="text"
           id="descriptionSearch"
           class="w-full border border-blue-500 focus:border-yellow-500 bg-transparent rounded-md px-3 py-2"
           placeholder="Search Payment Type..."
-          autocomplete="off">
-        <input type="hidden" id="description">
-        <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-          <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          autocomplete="off"
+        />
+        <input type="hidden" id="description" />
+        <span
+          class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none"
+        >
+          <svg
+            class="w-5 h-5 text-gray-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M19 9l-7 7-7-7"
+            />
           </svg>
         </span>
-        
-        <div id="descriptionDropdown" class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto hidden top-full left-0">
+
+        <div
+          id="descriptionDropdown"
+          class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto hidden top-full left-0"
+        >
           <div class="py-1">
-            <div class="px-3 py-2 text-center text-gray-500 text-sm">Type to search...</div>
+            <div class="px-3 py-2 text-center text-gray-500 text-sm">
+              Type to search...
+            </div>
           </div>
         </div>
       </div>
@@ -62,44 +111,87 @@
 
     <div>
       <label class="block text-sm font-medium text-gray-700">Code</label>
-      <input type="text" id="codeInput" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-gray-100" readonly>
+      <input
+        type="text"
+        id="codeInput"
+        class="w-full border border-blue-500 rounded-md px-3 py-2 bg-gray-100"
+        readonly
+      />
     </div>
 
     <div>
-      <label class="block text-sm font-medium text-gray-700">Function Type</label>
-      <select id="function" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent">
+      <label class="block text-sm font-medium text-gray-700"
+        >Function Type</label
+      >
+      <select
+        id="function"
+        class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent"
+      >
         <option value="">Select Function Type</option>
       </select>
     </div>
 
     <div>
-      <label class="block text-sm font-medium text-gray-700">% or Standard Amount</label>
-      <input type="number" id="standardAmount" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent" placeholder="Enter amount or %">
+      <label class="block text-sm font-medium text-gray-700"
+        >% or Standard Amount</label
+      >
+      <input
+        type="number"
+        id="standardAmount"
+        class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent"
+        placeholder="Enter amount or %"
+      />
     </div>
 
     <div>
       <label class="block text-sm font-medium text-gray-700">Dependence</label>
-      <select id="dependence" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent">
-      </select>
+      <select
+        id="dependence"
+        class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent"
+      ></select>
     </div>
 
     <div>
-      <label class="block text-sm font-medium text-gray-700">Maximum Value</label>
-      <input id="maximumValue" type="number" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent" placeholder="Enter maximum value">
+      <label class="block text-sm font-medium text-gray-700"
+        >Maximum Value</label
+      >
+      <input
+        id="maximumValue"
+        type="number"
+        class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent"
+        placeholder="Enter maximum value"
+      />
     </div>
 
     <div>
-      <label class="block text-sm font-medium text-gray-700">Required For All</label>
-      <select id="requiredForAll" class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent">
+      <label class="block text-sm font-medium text-gray-700"
+        >Required For All</label
+      >
+      <select
+        id="requiredForAll"
+        class="w-full border border-blue-500 rounded-md px-3 py-2 bg-transparent"
+      >
         <option value="">Select Option</option>
-        <option value="Yes">YES</option>4
+        <option value="Yes">YES</option>
+        4
         <option value="No">NO</option>
       </select>
     </div>
 
     <div class="md:col-span-2 flex justify-end space-x-3 mt-4">
-      <button type="button" id="cancelBtn" class="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400">Cancel</button>
-      <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Save</button>
+      <button
+        type="button"
+        id="cancelBtn"
+        class="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400"
+      >
+        Cancel
+      </button>
+      <button
+        type="submit"
+        class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+      >
+        Save
+      </button>
     </div>
   </form>
 
@@ -122,31 +214,66 @@
 </div>
 
 <!-- Success Modal -->
-<div id="successModal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+<div
+  id="successModal"
+  class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+>
   <div class="bg-white p-6 rounded-lg shadow-xl max-w-md w-full mx-4">
     <h3 class="text-lg font-semibold mb-2 text-green-600">Success!</h3>
-    <p id="successMessage" class="mb-4 text-gray-700">Your changes have been saved successfully!</p>
-    <button id="closeSuccessModal" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">OK</button>
+    <p id="successMessage" class="mb-4 text-gray-700">
+      Your changes have been saved successfully!
+    </p>
+    <button
+      id="closeSuccessModal"
+      class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+    >
+      OK
+    </button>
   </div>
 </div>
 
 <!-- Error Modal -->
-<div id="errorModal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+<div
+  id="errorModal"
+  class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+>
   <div class="bg-white p-6 rounded-lg shadow-xl max-w-md w-full mx-4">
     <h3 class="text-lg font-semibold mb-2 text-red-600">Error!</h3>
     <p id="errorMessage" class="mb-4 text-gray-700">An error occurred.</p>
-    <button id="closeErrorModal" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">OK</button>
+    <button
+      id="closeErrorModal"
+      class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+    >
+      OK
+    </button>
   </div>
 </div>
 
 <!-- View Modal -->
-<div id="viewModal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-  <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-2xl mx-4 max-h-screen overflow-y-auto">
+<div
+  id="viewModal"
+  class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+>
+  <div
+    class="bg-white p-6 rounded-lg shadow-xl w-full max-w-2xl mx-4 max-h-screen overflow-y-auto"
+  >
     <div class="flex justify-between items-center mb-4">
-      <h3 class="text-lg font-semibold text-blue-600">One-Off Payment Details</h3>
+      <h3 class="text-lg font-semibold text-blue-600">
+        One-Off Payment Details
+      </h3>
       <button id="closeViewModal" class="text-gray-400 hover:text-gray-600">
-        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        <svg
+          class="h-6 w-6"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M6 18L18 6M6 6l12 12"
+          ></path>
         </svg>
       </button>
     </div>
@@ -155,13 +282,28 @@
 </div>
 
 <!-- Confirm Delete Modal -->
-<div id="sectionConfirmModal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+<div
+  id="sectionConfirmModal"
+  class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+>
   <div class="bg-white p-6 rounded-lg shadow-xl max-w-md w-full mx-4">
     <h3 class="text-lg font-semibold text-yellow-600 mb-2">Confirm Delete</h3>
-    <p id="confirmMessage" class="mb-4 text-gray-700">Are you sure you want to delete this record?</p>
+    <p id="confirmMessage" class="mb-4 text-gray-700">
+      Are you sure you want to delete this record?
+    </p>
     <div class="flex justify-end gap-2">
-      <button id="cancelSectionDelete" class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500">Cancel</button>
-      <button id="sectionConfirmAction" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Delete</button>
+      <button
+        id="cancelSectionDelete"
+        class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
+      >
+        Cancel
+      </button>
+      <button
+        id="sectionConfirmAction"
+        class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+      >
+        Delete
+      </button>
     </div>
   </div>
 </div>
@@ -181,64 +323,82 @@
   const descriptionHidden = document.getElementById("description");
   const codeInput = document.getElementById("codeInput");
 
-  async function loadDropdown(endpoint, elementId, valueField, textField, placeholder) {
-  try {
-    const token = localStorage.getItem('token');
-    const response = await auth.fetchWithAuth(`/reference/${endpoint}`, {   
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}` 
-      }
-    });
-    const data = await response.json();
-    const dropdown = document.getElementById(elementId);
-    if (!dropdown) return;
-    dropdown.innerHTML = `<option value="">${placeholder}</option>`;
-    data.forEach(item => {
-      const option = document.createElement("option");
-      option.value = item[valueField];
-      option.textContent = item[textField];
-      dropdown.appendChild(option);
+  async function loadDropdown(
+    endpoint,
+    elementId,
+    valueField,
+    textField,
+    placeholder,
+  ) {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await auth.fetchWithAuth(`/reference/${endpoint}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = await response.json();
+      const dropdown = document.getElementById(elementId);
+      if (!dropdown) return;
+      dropdown.innerHTML = `<option value="">${placeholder}</option>`;
+      data.forEach((item) => {
+        const option = document.createElement("option");
+        option.value = item[valueField];
+        option.textContent = item[textField];
+        dropdown.appendChild(option);
 
-      const map = Object.fromEntries(
-        data.map(item => [item[valueField], item[textField]])
-      );
-      lookupMaps[endpoint] = map;
-    });
-    return data;
-  } catch (err) {
-    console.error(`Failed to load ${endpoint}:`, err);
-    return [];
+        const map = Object.fromEntries(
+          data.map((item) => [item[valueField], item[textField]]),
+        );
+        lookupMaps[endpoint] = map;
+      });
+      return data;
+    } catch (err) {
+      console.error(`Failed to load ${endpoint}:`, err);
+      return [];
+    }
   }
-}
 
   async function loadAllDropdowns() {
     const promises = [
-      loadDropdown('functiontype', 'function', 'funct', 'functdesc', 'Select Function Type'),
-      loadDropdown("elementtype","dependence", "PaymentType", "elmDesc", "Select Dependence"),
+      loadDropdown(
+        "functiontype",
+        "function",
+        "funct",
+        "functdesc",
+        "Select Function Type",
+      ),
+      loadDropdown(
+        "elementtype",
+        "dependence",
+        "PaymentType",
+        "elmDesc",
+        "Select Dependence",
+      ),
     ];
     await Promise.all(promises);
   }
 
   function getValueField(endpoint) {
     const fieldMap = {
-      'elementtype': 'PaymentType',
-      'functiontype': 'funct'
+      elementtype: "PaymentType",
+      functiontype: "funct",
     };
-    return fieldMap[endpoint] || 'code';
+    return fieldMap[endpoint] || "code";
   }
 
   function getTextField(endpoint) {
     const fieldMap = {
-      'elementtype': 'elmDesc',
-      'functiontype': 'functdesc'
-    }
-    return fieldMap[endpoint] || 'name';
+      elementtype: "elmDesc",
+      functiontype: "functdesc",
+    };
+    return fieldMap[endpoint] || "name";
   }
 
   function resolveName(code, endpoint) {
-    if (!code) return 'N/A';
+    if (!code) return "N/A";
     return lookupMaps[endpoint]?.[code] || code;
   }
 
@@ -248,9 +408,9 @@
   async function loadElementTypes() {
     if (isLoading) return;
     if (dropdownData.length > 0) return;
-    
+
     isLoading = true;
-    
+
     descriptionDropdown.innerHTML = `
       <div class="py-1">
         <div class="px-3 py-4 text-center text-gray-500">
@@ -266,20 +426,20 @@
         </div>
       </div>
     `;
-    descriptionDropdown.classList.remove('hidden');
-    
+    descriptionDropdown.classList.remove("hidden");
+
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       const response = await auth.fetchWithAuth(`/reference/elementtype`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
       const result = await response.json();
       dropdownData = Array.isArray(result) ? result : [];
-      
+
       if (dropdownData.length === 0) {
         descriptionDropdown.innerHTML = `
           <div class="py-1">
@@ -289,9 +449,8 @@
       } else {
         renderDropdown(dropdownData);
       }
-      
     } catch (error) {
-      console.error('Error fetching one-off types:', error);
+      console.error("Error fetching one-off types:", error);
       descriptionDropdown.innerHTML = `
         <div class="py-1">
           <div class="px-3 py-4 text-center text-red-500">
@@ -315,82 +474,89 @@
       return;
     }
 
-    const html = items.map(item => {
-      const type = item.PaymentType || 'N/A';
-      const desc = item.elmDesc || '';
-      
-      return `
+    const html = items
+      .map((item) => {
+        const type = item.PaymentType || "N/A";
+        const desc = item.elmDesc || "";
+
+        return `
         <div class="dropdown-item px-3 py-2 hover:bg-blue-50 cursor-pointer border-b border-gray-100" 
             data-value="${type}"
             data-desc="${desc}">
           <span class="font-semibold text-blue-600">${desc}</span>
-          ${type ? `<span class="text-gray-500 text-sm ml-1">(${type})</span>` : ''}
+          ${type ? `<span class="text-gray-500 text-sm ml-1">(${type})</span>` : ""}
         </div>
       `;
-    }).join('');
+      })
+      .join("");
 
     descriptionDropdown.innerHTML = `<div class="py-1">${html}</div>`;
     attachDropdownHandlers();
   }
 
   function attachDropdownHandlers() {
-    const items = descriptionDropdown.querySelectorAll('.dropdown-item');
-    items.forEach(item => {
-      item.addEventListener('click', () => {
-        const value = item.getAttribute('data-value');
-        descriptionSearch.value = item.getAttribute('data-desc');
+    const items = descriptionDropdown.querySelectorAll(".dropdown-item");
+    items.forEach((item) => {
+      item.addEventListener("click", () => {
+        const value = item.getAttribute("data-value");
+        descriptionSearch.value = item.getAttribute("data-desc");
         descriptionHidden.value = value;
         codeInput.value = value;
-        descriptionDropdown.classList.add('hidden');
+        descriptionDropdown.classList.add("hidden");
       });
     });
   }
 
-  descriptionSearch.addEventListener('focus', () => {
+  descriptionSearch.addEventListener("focus", () => {
     loadElementTypes();
     // Show dropdown if we have data loaded
     if (dropdownData.length > 0) {
       renderDropdown(dropdownData);
-      descriptionDropdown.classList.remove('hidden');
+      descriptionDropdown.classList.remove("hidden");
     }
   });
 
-  descriptionSearch.addEventListener('input', (e) => {
+  descriptionSearch.addEventListener("input", (e) => {
     const searchTerm = e.target.value.toLowerCase();
-    
+
     if (!searchTerm) {
       renderDropdown(dropdownData);
-      descriptionDropdown.classList.remove('hidden');
+      descriptionDropdown.classList.remove("hidden");
       return;
     }
 
-    const filtered = dropdownData.filter(item => 
-      item.elmDesc.toLowerCase().includes(searchTerm)
-      || item.PaymentType.toLowerCase().includes(searchTerm)
+    const filtered = dropdownData.filter(
+      (item) =>
+        item.elmDesc.toLowerCase().includes(searchTerm) ||
+        item.PaymentType.toLowerCase().includes(searchTerm),
     );
 
     renderDropdown(filtered);
-    descriptionDropdown.classList.remove('hidden');
+    descriptionDropdown.classList.remove("hidden");
   });
 
-  descriptionSearch.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' || e.key === 'Backspace' || e.key === 'Delete') {
+  descriptionSearch.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" || e.key === "Backspace" || e.key === "Delete") {
       // Only hide on Escape, let Backspace/Delete work normally for editing
-      if (e.key === 'Escape') {
-        descriptionDropdown.classList.add('hidden');
+      if (e.key === "Escape") {
+        descriptionDropdown.classList.add("hidden");
       }
-      
+
       // Clear the hidden values
-      if (e.key === 'Escape' || (e.key === 'Backspace' && descriptionSearch.value.length === 1) || e.key === 'Delete') {
+      if (
+        e.key === "Escape" ||
+        (e.key === "Backspace" && descriptionSearch.value.length === 1) ||
+        e.key === "Delete"
+      ) {
         codeInput.value = "";
         descriptionHidden.value = "";
       }
     }
   });
 
-  document.addEventListener('click', (e) => {
+  document.addEventListener("click", (e) => {
     if (e.target !== descriptionSearch) {
-      descriptionDropdown.classList.add('hidden');
+      descriptionDropdown.classList.add("hidden");
     }
   });
 
@@ -403,43 +569,43 @@
   async function fetchOneOff() {
     try {
       const token = localStorage.getItem("token");
-      const response = await auth.fetchWithAuth('/off/oneofftypes', {
+      const response = await auth.fetchWithAuth("/off/oneofftypes", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
 
-      if (!response.ok) throw new Error('Failed to fetch data');
+      if (!response.ok) throw new Error("Failed to fetch data");
       data = await response.json();
       renderTable();
     } catch (error) {
-      console.error('Error fetching pay elements:', error);
-      showError('Failed to load one-off payment types');
+      console.error("Error fetching pay elements:", error);
+      showError("Failed to load one-off payment types");
     }
   }
 
   async function createPayElement(elementData) {
     try {
       const token = localStorage.getItem("token");
-      const response = await auth.fetchWithAuth('/off/oneofftypes', {
-        method: 'POST',
+      const response = await auth.fetchWithAuth("/off/oneofftypes", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          "Authorization": `Bearer ${token}`
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(elementData)
+        body: JSON.stringify(elementData),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create element');
+        throw new Error(errorData.error || "Failed to create element");
       }
 
       return await response.json();
     } catch (error) {
-      console.error('Error creating pay element:', error);
+      console.error("Error creating pay element:", error);
       throw error;
     }
   }
@@ -448,22 +614,22 @@
     try {
       const token = localStorage.getItem("token");
       const response = await auth.fetchWithAuth(`/off/oneofftypes/${oneType}`, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
-          "Authorization": `Bearer ${token}`
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(elementData)
+        body: JSON.stringify(elementData),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to update element');
+        throw new Error(errorData.error || "Failed to update element");
       }
 
       return await response.json();
     } catch (error) {
-      console.error('Error updating pay element:', error);
+      console.error("Error updating pay element:", error);
       throw error;
     }
   }
@@ -472,31 +638,33 @@
     try {
       const token = localStorage.getItem("token");
       const response = await auth.fetchWithAuth(`/off/oneofftypes/${oneType}`, {
-        method: 'DELETE',
+        method: "DELETE",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to delete element');
+        throw new Error(errorData.error || "Failed to delete element");
       }
 
       return await response.json();
     } catch (error) {
-      console.error('Error deleting pay element:', error);
+      console.error("Error deleting pay element:", error);
       throw error;
     }
   }
 
   // --- UI Functions ---
   function renderTable(dataToRender = data) {
-    tableBody.innerHTML = dataToRender.map((item) => `
+    tableBody.innerHTML = dataToRender
+      .map(
+        (item) => `
       <tr class="hover:bg-gray-50">
         <td class="border px-2 py-2 text-left">${item.one_type}</td>
-        <td class="border px-2 py-2 text-left">${item.description || 'N/A'}</td>
+        <td class="border px-2 py-2 text-left">${item.description || "N/A"}</td>
         <td class="border px-2 py-2 text-left">${resolveName(item.one_perc, "functiontype")} (${item.one_perc})</td>
         <td class="border px-2 py-2 text-center">
           <button onclick="viewRow('${item.one_type}')" class="text-blue-600 hover:text-blue-800 mr-2 px-2 py-1 rounded hover:bg-blue-50">View</button>
@@ -504,7 +672,9 @@
           <button onclick="deleteRow('${item.one_type}')" class="text-red-600 hover:text-red-800 px-2 py-1 rounded hover:bg-red-50">Delete</button>
         </td>
       </tr>
-    `).join("");
+    `,
+      )
+      .join("");
   }
 
   function clearForm() {
@@ -563,7 +733,7 @@
 
   // --- Global Action Functions ---
   window.viewRow = function (oneType) {
-    const item = data.find(d => d.one_type === oneType);
+    const item = data.find((d) => d.one_type === oneType);
     if (!item) return;
 
     let html = "";
@@ -576,7 +746,7 @@
       one_bpay: "Required For All",
       one_depend: "Dependence",
       createdby: "Created By",
-      datecreated: "Date Created"
+      datecreated: "Date Created",
     };
 
     for (let key in item) {
@@ -605,8 +775,8 @@
     openModal("viewModal");
   };
 
-  window.editRow = async function(oneType) {
-    const item = data.find(d => d.one_type === oneType);
+  window.editRow = async function (oneType) {
+    const item = data.find((d) => d.one_type === oneType);
     if (!item) return;
 
     // Ensure dropdown data is loaded first
@@ -615,32 +785,36 @@
     }
 
     editingIndex = oneType;
-    
+
     // Find the matching dropdown item to get elmDesc
-    const matchingDropdownItem = dropdownData.find(d => d.PaymentType === item.one_type);
-    
+    const matchingDropdownItem = dropdownData.find(
+      (d) => d.PaymentType === item.one_type,
+    );
+
     // Set the visible description field with elmDesc or fallback to one_type
     descriptionSearch.value = matchingDropdownItem?.elmDesc || item.one_type;
-    
+
     // Set the hidden field and code input
     descriptionHidden.value = item.one_type;
     codeInput.value = item.one_type;
-    
+
     // Fill other form fields
     document.getElementById("function").value = item.one_perc || "";
     document.getElementById("standardAmount").value = item.one_std || "";
     document.getElementById("maximumValue").value = item.one_maxi || "";
     document.getElementById("requiredForAll").value = item.one_bpay || "";
     document.getElementById("dependence").value = item.one_depend || "";
-    
+
     // Show form and make fields readonly (not disabled, so values show)
     form.classList.remove("hidden");
     descriptionSearch.readOnly = true;
     codeInput.readOnly = true;
   };
-  
-  window.deleteRow = async function(oneType) {
-    const confirmed = await showConfirmModal("Are you sure you want to delete this record?");
+
+  window.deleteRow = async function (oneType) {
+    const confirmed = await showConfirmModal(
+      "Are you sure you want to delete this record?",
+    );
 
     if (confirmed) {
       deletePayElement(oneType)
@@ -648,7 +822,7 @@
           showSuccess("One-off payment type deleted successfully!");
           fetchOneOff();
         })
-        .catch(error => {
+        .catch((error) => {
           showError(error.message);
         });
     }
@@ -668,7 +842,7 @@
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
-    
+
     if (!descriptionHidden.value) {
       showError("Please select a description");
       return;
@@ -680,7 +854,7 @@
       one_std: document.getElementById("standardAmount").value.trim() || null,
       one_maxi: document.getElementById("maximumValue").value.trim() || null,
       one_bpay: document.getElementById("requiredForAll").value || null,
-      one_depend: document.getElementById("dependence").value || null
+      one_depend: document.getElementById("dependence").value || null,
     };
 
     try {
@@ -700,44 +874,50 @@
     }
   });
 
-  document.getElementById('closeSuccessModal').addEventListener('click', () => closeModal('successModal'));
-  document.getElementById('closeErrorModal').addEventListener('click', () => closeModal('errorModal'));
-  document.getElementById('closeViewModal').addEventListener('click', () => closeModal('viewModal'));
+  document
+    .getElementById("closeSuccessModal")
+    .addEventListener("click", () => closeModal("successModal"));
+  document
+    .getElementById("closeErrorModal")
+    .addEventListener("click", () => closeModal("errorModal"));
+  document
+    .getElementById("closeViewModal")
+    .addEventListener("click", () => closeModal("viewModal"));
 
-  document.getElementById('successModal').addEventListener('click', (e) => {
-    if (e.target === e.currentTarget) closeModal('successModal');
+  document.getElementById("successModal").addEventListener("click", (e) => {
+    if (e.target === e.currentTarget) closeModal("successModal");
   });
 
-  document.getElementById('errorModal').addEventListener('click', (e) => {
-    if (e.target === e.currentTarget) closeModal('errorModal');
+  document.getElementById("errorModal").addEventListener("click", (e) => {
+    if (e.target === e.currentTarget) closeModal("errorModal");
   });
 
-  document.getElementById('viewModal').addEventListener('click', (e) => {
-    if (e.target === e.currentTarget) closeModal('viewModal');
+  document.getElementById("viewModal").addEventListener("click", (e) => {
+    if (e.target === e.currentTarget) closeModal("viewModal");
   });
 
   //generate reports functionality
   function generateReport() {
     const now = new Date();
-    const dateStr = now.toLocaleDateString('en-GB', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
+    const dateStr = now.toLocaleDateString("en-GB", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
-    const timeStr = now.toLocaleTimeString('en-GB', {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true
+    const timeStr = now.toLocaleTimeString("en-GB", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
     });
-    
-    const printWindow = window.open('', '_blank');
-    
+
+    const printWindow = window.open("", "_blank");
+
     const formatCurrency = (amount) => {
-      if (!amount) return '-';
-      return new Intl.NumberFormat('en-NG', {
-        style: 'currency',
-        currency: 'NGN'
+      if (!amount) return "-";
+      return new Intl.NumberFormat("en-NG", {
+        style: "currency",
+        currency: "NGN",
       }).format(amount);
     };
 
@@ -885,8 +1065,8 @@
       <body>
         <div class="header-wrapper">
             <div class="header">
-                <h1>Nigerian Navy (Naval Headquarters)</h1>
-                <h2>CENTRAL PAY OFFICE, 23 POINT ROAD APAPA</h2>
+                <h1>DEFENSE SPACE ADMINISTRATION</h1>
+                <h2>NATIONAL SPACE MUSEUM, ABUJA</h2>
             </div>
         </div>
 
@@ -920,24 +1100,28 @@
             </tr>
           </thead>
           <tbody>
-            ${data.map((item, index) => `
+            ${data
+              .map(
+                (item, index) => `
             <tr>
               <td>${index + 1}</td>
                 <td>${item.one_type}</td>
-                <td>${item.description || 'N/A'}</td>
+                <td>${item.description || "N/A"}</td>
                 <td>${resolveName(item.one_perc, "functiontype")} (${item.one_perc})</td>
                 <td class="amount">${formatCurrency(item.one_std)}</td>
                 <td class="amount">${formatCurrency(item.one_maxi)}</td>
-                <td>${resolveName(item.one_depend, "elementtype")} (${item.one_depend || 'N/A'})</td>                     
+                <td>${resolveName(item.one_depend, "elementtype")} (${item.one_depend || "N/A"})</td>                     
                 <td>${item.one_bpay}</td>
             </tr>
-          `).join('')}
+          `,
+              )
+              .join("")}
           </tbody>
         </table>
       
         <div class="footer">
           <p>Total Records: ${data.length}</p>
-          <p>Generated by: ${localStorage.getItem('full_name') || 'System User'}</p>
+          <p>Generated by: ${localStorage.getItem("full_name") || "System User"}</p>
         </div>
       </body>
       </html>
@@ -946,17 +1130,19 @@
     printWindow.document.write(printContent);
     printWindow.document.close();
 
-    printWindow.onload = function() {
+    printWindow.onload = function () {
       printWindow.print();
     };
   }
 
   // Add event listener to generate report button
-  document.getElementById('generateReportBtn').addEventListener('click', generateReport);
+  document
+    .getElementById("generateReportBtn")
+    .addEventListener("click", generateReport);
 
   // Initialize
   (async function () {
-  await loadAllDropdowns();
-  await fetchOneOff();       
+    await loadAllDropdowns();
+    await fetchOneOff();
   })();
 </script>

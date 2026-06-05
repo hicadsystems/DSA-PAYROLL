@@ -1,15 +1,35 @@
 <style>
   @keyframes grow-up {
-    0% { height: 0; bottom: 0; }
-    100% { height: 100%; bottom: 0; }
+    0% {
+      height: 0;
+      bottom: 0;
+    }
+    100% {
+      height: 100%;
+      bottom: 0;
+    }
   }
   @keyframes grow-down {
-    0% { height: 0; top: 0; }
-    100% { height: 100%; top: 0; }
+    0% {
+      height: 0;
+      top: 0;
+    }
+    100% {
+      height: 100%;
+      top: 0;
+    }
   }
   @keyframes expand {
-    0% { width: 0; left: 50%; transform: translate(-50%, -50%); }
-    100% { width: 100%; left: 0; transform: translateY(-50%); }
+    0% {
+      width: 0;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    100% {
+      width: 100%;
+      left: 0;
+      transform: translateY(-50%);
+    }
   }
   .animate-grow-up {
     animation: grow-up 0.6s ease-in-out infinite alternate;
@@ -26,10 +46,11 @@
   }
 </style>
 
-
 <!-- Payslip Section -->
 <section class="items border rounded-lg m-6 max-w-lg mr-auto p-6 mx-auto">
-  <h2 class="text-xl text-center border-b font-bold text-blue-600 mb-4">Generate and Print Payslips</h2>
+  <h2 class="text-xl text-center border-b font-bold text-blue-600 mb-4">
+    Generate and Print Payslips
+  </h2>
 
   <form id="payslipForm" class="space-y-4">
     <!-- Radio selection -->
@@ -37,15 +58,15 @@
       <label class="block font-medium mb-2">Select People</label>
       <div class="flex space-x-4">
         <label class="flex text-sm items-center space-x-2">
-          <input type="radio" name="people" value="all" checked>
+          <input type="radio" name="people" value="all" checked />
           <span>All</span>
         </label>
         <label class="flex text-sm items-center space-x-2">
-          <input type="radio" name="people" value="specific">
+          <input type="radio" name="people" value="specific" />
           <span>Specific</span>
         </label>
         <label class="flex text-sm items-center space-x-2">
-          <input type="radio" name="people" value="individual">
+          <input type="radio" name="people" value="individual" />
           <span>Individual</span>
         </label>
       </div>
@@ -54,25 +75,43 @@
     <!-- Service Number Inputs - Side by Side -->
     <div class="grid grid-cols-2 gap-3">
       <div>
-        <label for="startNo" class="block text-sm font-medium mb-1">Start Service No</label>
-        <input type="text" id="startNo" name="startNo"
-          class="w-full border rounded px-3 py-2 focus:ring focus:ring-blue-300" disabled />
+        <label for="startNo" class="block text-sm font-medium mb-1"
+          >Start Service No</label
+        >
+        <input
+          type="text"
+          id="startNo"
+          name="startNo"
+          class="w-full border rounded px-3 py-2 focus:ring focus:ring-blue-300"
+          disabled
+        />
       </div>
 
       <div>
-        <label for="endNo" class="block text-sm font-medium mb-1">End Service No</label>
-        <input type="text" id="endNo" name="endNo"
-          class="w-full border rounded px-3 py-2 focus:ring focus:ring-blue-300" disabled />
+        <label for="endNo" class="block text-sm font-medium mb-1"
+          >End Service No</label
+        >
+        <input
+          type="text"
+          id="endNo"
+          name="endNo"
+          class="w-full border rounded px-3 py-2 focus:ring focus:ring-blue-300"
+          disabled
+        />
       </div>
     </div>
 
     <!-- Payroll Class -->
     <div>
-      <label for="payrollClass" class="block text-sm font-medium mb-1">Payroll Class</label>
-      <select id="payrollClass" name="payrollClass"
+      <label for="payrollClass" class="block text-sm font-medium mb-1"
+        >Payroll Class</label
+      >
+      <select
+        id="payrollClass"
+        name="payrollClass"
         class="w-full bg-transparent border border-blue-500 rounded px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        disabled>
-      </select>
+        disabled
+      ></select>
     </div>
 
     <!-- Output Format -->
@@ -80,11 +119,11 @@
       <label class="block font-medium mb-2">Output Format</label>
       <div class="flex space-x-4">
         <label class="flex text-sm items-center space-x-2">
-          <input type="radio" name="format" value="pdf" checked>
+          <input type="radio" name="format" value="pdf" checked />
           <span>PDF</span>
         </label>
         <label class="flex text-sm items-center space-x-2">
-          <input type="radio" name="format" value="excel">
+          <input type="radio" name="format" value="excel" />
           <span>Excel</span>
         </label>
       </div>
@@ -92,42 +131,67 @@
 
     <!-- Buttons -->
     <div class="flex gap-2 justify-end pt-2">
-      <button type="reset" id="clearBtn" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">
+      <button
+        type="reset"
+        id="clearBtn"
+        class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+      >
         Clear
       </button>
-      <button type="button" id="generateBtn" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+      <button
+        type="button"
+        id="generateBtn"
+        class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+      >
         Generate
       </button>
     </div>
   </form>
 </section>
 
-
 <!-- Loading Indicator -->
-<div id="loadingIndicator" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+<div
+  id="loadingIndicator"
+  class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+>
   <div class="bg-white rounded-lg shadow-lg w-80 p-6 text-center">
     <div class="relative w-10 h-10 mx-auto mb-4">
-      <div class="absolute left-1 w-[6px] bg-blue-600 rounded animate-grow-up"></div>
-      <div class="absolute right-1 w-[6px] bg-blue-600 rounded animate-grow-down [animation-delay:0.3s]"></div>
       <div
-        class="absolute top-1/2 left-1 h-[6px] bg-blue-600 rounded animate-expand [animation-delay:0.6s] -translate-y-1/2">
-      </div>
+        class="absolute left-1 w-[6px] bg-blue-600 rounded animate-grow-up"
+      ></div>
+      <div
+        class="absolute right-1 w-[6px] bg-blue-600 rounded animate-grow-down [animation-delay:0.3s]"
+      ></div>
+      <div
+        class="absolute top-1/2 left-1 h-[6px] bg-blue-600 rounded animate-expand [animation-delay:0.6s] -translate-y-1/2"
+      ></div>
     </div>
     <span class="text-gray-700">Generating payslips...</span>
   </div>
 </div>
 
 <!-- Confirmation Modal -->
-<div id="confirmModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+<div
+  id="confirmModal"
+  class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+>
   <div class="bg-white rounded-lg shadow-lg w-96 p-6">
     <h3 class="text-lg font-semibold mb-4">Confirm Payslip Generation</h3>
-    <p class="mb-6 text-gray-700">Do you want to continue and generate payslips?</p>
+    <p class="mb-6 text-gray-700">
+      Do you want to continue and generate payslips?
+    </p>
 
     <div class="flex justify-end space-x-2">
-      <button id="cancelBtn" class="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500">
+      <button
+        id="cancelBtn"
+        class="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500"
+      >
         Cancel
       </button>
-      <button id="continueBtn" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+      <button
+        id="continueBtn"
+        class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+      >
         Continue
       </button>
     </div>
@@ -135,47 +199,89 @@
 </div>
 
 <!-- Success Modal -->
-<div id="successModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+<div
+  id="successModal"
+  class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+>
   <div class="bg-white rounded-lg shadow-lg w-96 p-6 text-center">
     <h3 class="text-lg font-semibold text-green-600 mb-4">Success</h3>
-    <p class="mb-6 text-gray-700" id="successMessage">Payslips generated successfully!</p>
-    <button id="successOkBtn" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+    <p class="mb-6 text-gray-700" id="successMessage">
+      Payslips generated successfully!
+    </p>
+    <button
+      id="successOkBtn"
+      class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+    >
       OK
     </button>
   </div>
 </div>
 
 <!-- Error Modal -->
-<div id="errorModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+<div
+  id="errorModal"
+  class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+>
   <div class="bg-white rounded-lg shadow-lg w-96 p-6 text-center">
     <h3 class="text-lg font-semibold text-red-600 mb-4">Error</h3>
-    <p class="mb-6 text-gray-700" id="errorMessage">Please fill in Start and End Service Numbers.</p>
-    <button id="errorOkBtn" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">
+    <p class="mb-6 text-gray-700" id="errorMessage">
+      Please fill in Start and End Service Numbers.
+    </p>
+    <button
+      id="errorOkBtn"
+      class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+    >
       OK
     </button>
   </div>
 </div>
 
 <!-- Preview Modal -->
-<div id="previewModal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
-  <div class="bg-gray-50 rounded-lg shadow-lg w-full max-w-4xl max-h-[90vh] overflow-hidden">
-    <div class="sticky top-0 bg-navy border-b px-4 py-2 flex justify-between items-center">
+<div
+  id="previewModal"
+  class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4"
+>
+  <div
+    class="bg-gray-50 rounded-lg shadow-lg w-full max-w-4xl max-h-[90vh] overflow-hidden"
+  >
+    <div
+      class="sticky top-0 bg-navy border-b px-4 py-2 flex justify-between items-center"
+    >
       <h3 class="text-lg text-white font-semibold">Payslip Preview</h3>
       <button id="closePreviewBtn" class="text-white text-4xl">&times;</button>
     </div>
 
-    <div class="overflow-auto" style="max-height: calc(90vh - 120px); background: #d1d5db;">
-      <iframe id="previewIframe"
-              title="Payslip Preview"
-              style="width: 100%; min-height: 842px; border: none; background: #d1d5db; display: block;">
+    <div
+      class="overflow-auto"
+      style="max-height: calc(90vh - 120px); background: #d1d5db"
+    >
+      <iframe
+        id="previewIframe"
+        title="Payslip Preview"
+        style="
+          width: 100%;
+          min-height: 842px;
+          border: none;
+          background: #d1d5db;
+          display: block;
+        "
+      >
       </iframe>
     </div>
 
-    <div class="sticky bottom-0 bg-gray-50 border-t px-6 py-2 flex justify-end space-x-2">
-      <button id="cancelPreviewBtn" class="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500">
+    <div
+      class="sticky bottom-0 bg-gray-50 border-t px-6 py-2 flex justify-end space-x-2"
+    >
+      <button
+        id="cancelPreviewBtn"
+        class="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500"
+      >
         Cancel
       </button>
-      <button id="downloadPreviewBtn" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+      <button
+        id="downloadPreviewBtn"
+        class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+      >
         Download PDF
       </button>
     </div>
@@ -207,16 +313,16 @@
   // ── Load payroll classes ──────────────────────────────────────────
   async function loadPayrollClasses() {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       const response = await auth.fetchWithAuth(`/payslips/filter-options`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
       if (response.ok) {
         const result = await response.json();
         if (result.success && result.data.locations) {
           payrollClass.innerHTML = '<option value="">All Locations</option>';
-          result.data.locations.forEach(cls => {
-            const option = document.createElement('option');
+          result.data.locations.forEach((cls) => {
+            const option = document.createElement("option");
             option.value = cls.classcode;
             option.textContent = cls.classname || cls.classcode;
             payrollClass.appendChild(option);
@@ -224,7 +330,7 @@
         }
       }
     } catch (error) {
-      console.error('Error loading locations:', error);
+      console.error("Error loading locations:", error);
     }
   }
 
@@ -233,7 +339,10 @@
       const token = localStorage.getItem("token");
       const res = await auth.fetchWithAuth("/payslips/database", {
         method: "GET",
-        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` }
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
       });
       const data = await res.json();
       payrollClass.innerHTML = "";
@@ -248,21 +357,34 @@
   }
 
   function toggleInputs() {
-    const selectedValue = document.querySelector('input[name="people"]:checked').value;
-    if (selectedValue === 'all') {
-      startNo.disabled = true; endNo.disabled = true;
-      startNo.value = ''; endNo.value = '';
-    } else if (selectedValue === 'specific') {
-      startNo.disabled = false; endNo.disabled = false;
-    } else if (selectedValue === 'individual') {
-      startNo.disabled = false; endNo.disabled = true; endNo.value = '';
+    const selectedValue = document.querySelector(
+      'input[name="people"]:checked',
+    ).value;
+    if (selectedValue === "all") {
+      startNo.disabled = true;
+      endNo.disabled = true;
+      startNo.value = "";
+      endNo.value = "";
+    } else if (selectedValue === "specific") {
+      startNo.disabled = false;
+      endNo.disabled = false;
+    } else if (selectedValue === "individual") {
+      startNo.disabled = false;
+      endNo.disabled = true;
+      endNo.value = "";
     }
   }
 
   function updateFormatOptions() {
-    const selectedPeople = document.querySelector('input[name="people"]:checked').value;
-    const excelRadio = document.querySelector('input[name="format"][value="excel"]');
-    const pdfRadio = document.querySelector('input[name="format"][value="pdf"]');
+    const selectedPeople = document.querySelector(
+      'input[name="people"]:checked',
+    ).value;
+    const excelRadio = document.querySelector(
+      'input[name="format"][value="excel"]',
+    );
+    const pdfRadio = document.querySelector(
+      'input[name="format"][value="pdf"]',
+    );
     /*if (selectedPeople === 'individual') {
       excelRadio.disabled = true;
       excelRadio.parentElement.classList.add('opacity-50', 'cursor-not-allowed');
@@ -273,62 +395,89 @@
     }*/
   }
 
-  peopleRadios.forEach(radio => {
-    radio.addEventListener("change", () => { toggleInputs(); updateFormatOptions(); });
+  peopleRadios.forEach((radio) => {
+    radio.addEventListener("change", () => {
+      toggleInputs();
+      updateFormatOptions();
+    });
   });
 
   generateBtn.addEventListener("click", () => {
-    const selectedPeople = document.querySelector('input[name="people"]:checked').value;
-    if (selectedPeople === 'specific' && (!startNo.value || !endNo.value)) {
-      errorMessage.textContent = 'Please fill in both Start and End Service Numbers for range selection.';
-      errorModal.classList.remove("hidden"); return;
+    const selectedPeople = document.querySelector(
+      'input[name="people"]:checked',
+    ).value;
+    if (selectedPeople === "specific" && (!startNo.value || !endNo.value)) {
+      errorMessage.textContent =
+        "Please fill in both Start and End Service Numbers for range selection.";
+      errorModal.classList.remove("hidden");
+      return;
     }
-    if (selectedPeople === 'individual' && !startNo.value) {
-      errorMessage.textContent = 'Please enter a Service Number.';
-      errorModal.classList.remove("hidden"); return;
+    if (selectedPeople === "individual" && !startNo.value) {
+      errorMessage.textContent = "Please enter a Service Number.";
+      errorModal.classList.remove("hidden");
+      return;
     }
     confirmModal.classList.remove("hidden");
   });
 
-  cancelBtn.addEventListener("click", () => confirmModal.classList.add("hidden"));
+  cancelBtn.addEventListener("click", () =>
+    confirmModal.classList.add("hidden"),
+  );
 
   continueBtn.addEventListener("click", async () => {
     confirmModal.classList.add("hidden");
     loadingIndicator.classList.remove("hidden");
     generateBtn.disabled = true;
 
-    const selectedPeople = document.querySelector('input[name="people"]:checked').value;
+    const selectedPeople = document.querySelector(
+      'input[name="people"]:checked',
+    ).value;
     const payrollClassVal = document.getElementById("payrollClass").value;
     const format = document.querySelector('input[name="format"]:checked').value;
 
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       const params = new URLSearchParams();
 
-      if (selectedPeople === 'all') {
-        params.append('optall', '1'); params.append('empno1', ''); params.append('empno2', '');
-      } else if (selectedPeople === 'specific') {
-        params.append('optrange', '1'); params.append('empno1', startNo.value); params.append('empno2', endNo.value);
-      } else if (selectedPeople === 'individual') {
-        params.append('optindividual', '1'); params.append('empno1', startNo.value); params.append('empno2', '');
+      if (selectedPeople === "all") {
+        params.append("optall", "1");
+        params.append("empno1", "");
+        params.append("empno2", "");
+      } else if (selectedPeople === "specific") {
+        params.append("optrange", "1");
+        params.append("empno1", startNo.value);
+        params.append("empno2", endNo.value);
+      } else if (selectedPeople === "individual") {
+        params.append("optindividual", "1");
+        params.append("empno1", startNo.value);
+        params.append("empno2", "");
       }
 
-      params.append('branch', payrollClassVal);
-      params.append('wxdate', new Date().toISOString().split('T')[0]);
+      params.append("branch", payrollClassVal);
+      params.append("wxdate", new Date().toISOString().split("T")[0]);
 
-      const dataResponse = await auth.fetchWithAuth(`/payslips/generate?${params.toString()}`, {
-        method: 'GET',
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+      const dataResponse = await auth.fetchWithAuth(
+        `/payslips/generate?${params.toString()}`,
+        {
+          method: "GET",
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
 
       if (!dataResponse.ok) {
         const errorData = await dataResponse.json();
-        throw new Error(errorData.message || errorData.error || 'Failed to generate payslip data');
+        throw new Error(
+          errorData.message ||
+            errorData.error ||
+            "Failed to generate payslip data",
+        );
       }
 
       const result = await dataResponse.json();
       if (!result.success || !result.data || result.data.length === 0) {
-        throw new Error('No payslip data generated. Please check your selection.');
+        throw new Error(
+          "No payslip data generated. Please check your selection.",
+        );
       }
 
       loadingIndicator.classList.add("hidden");
@@ -336,18 +485,22 @@
 
       // Always show preview first; download happens from inside the modal
       showPreviewModal(result.data, format, token);
-
     } catch (error) {
       loadingIndicator.classList.add("hidden");
       generateBtn.disabled = false;
-      errorMessage.textContent = error.message || 'Failed to generate payslips. Please try again.';
+      errorMessage.textContent =
+        error.message || "Failed to generate payslips. Please try again.";
       errorModal.classList.remove("hidden");
-      console.error('Error:', error);
+      console.error("Error:", error);
     }
   });
 
-  successOkBtn.addEventListener("click", () => successModal.classList.add("hidden"));
-  errorOkBtn.addEventListener("click", () => errorModal.classList.add("hidden"));
+  successOkBtn.addEventListener("click", () =>
+    successModal.classList.add("hidden"),
+  );
+  errorOkBtn.addEventListener("click", () =>
+    errorModal.classList.add("hidden"),
+  );
 
   clearBtn.addEventListener("click", () => {
     document.querySelector('input[name="people"][value="all"]').checked = true;
@@ -360,34 +513,40 @@
 
   function showPreviewModal(payslipDataArray, format, token) {
     // Normalise: always work with an array
-    const dataArray = Array.isArray(payslipDataArray) ? payslipDataArray : [payslipDataArray];
+    const dataArray = Array.isArray(payslipDataArray)
+      ? payslipDataArray
+      : [payslipDataArray];
     window.currentPayslipData = dataArray;
     window.currentFormat = format;
     window.currentToken = token;
 
     // Update download button label to reflect format and count
-    const dlBtn = document.getElementById('downloadPreviewBtn');
+    const dlBtn = document.getElementById("downloadPreviewBtn");
     const count = dataArray.length;
-    dlBtn.textContent = count > 1
-      ? `Download ${count} Payslips (${format.toUpperCase()})`
-      : `Download PDF`;
+    dlBtn.textContent =
+      count > 1
+        ? `Download ${count} Payslips (${format.toUpperCase()})`
+        : `Download PDF`;
 
     // Attempt to load the logo as base64 so the watermark works
-    fetch('photos/logo.png')
-      .then(r => r.blob())
-      .then(blob => new Promise(resolve => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.readAsDataURL(blob);
-      }))
-      .catch(() => '')
-      .then(logoDataUrl => {
+    fetch("photos/logo.png")
+      .then((r) => r.blob())
+      .then(
+        (blob) =>
+          new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.readAsDataURL(blob);
+          }),
+      )
+      .catch(() => "")
+      .then((logoDataUrl) => {
         const html = buildExactPayslipHTML(dataArray, logoDataUrl);
-        const iframe = document.getElementById('previewIframe');
+        const iframe = document.getElementById("previewIframe");
 
         // Each A5 page is 794px + 24px gap + 32px top/bottom body padding
         const estimatedHeight = dataArray.length * 818 + 32;
-        iframe.style.height = estimatedHeight + 'px';
+        iframe.style.height = estimatedHeight + "px";
 
         // Write HTML directly into the iframe
         iframe.srcdoc = html;
@@ -397,43 +556,62 @@
           try {
             const body = iframe.contentDocument.body;
             if (body) {
-              iframe.style.height = Math.max(794, body.scrollHeight + 20) + 'px';
+              iframe.style.height =
+                Math.max(794, body.scrollHeight + 20) + "px";
             }
-          } catch (e) { /* cross-origin safety, ignore */ }
+          } catch (e) {
+            /* cross-origin safety, ignore */
+          }
         };
 
-        document.getElementById('previewModal').classList.remove('hidden');
+        document.getElementById("previewModal").classList.remove("hidden");
       });
   }
 
   // ── Helpers ──────────────────────────────────────────────────────
 
   function esc(s) {
-    if (s === null || s === undefined) return '';
+    if (s === null || s === undefined) return "";
     return String(s)
-      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
   }
 
   function fmt(n) {
-    return (parseFloat(n) || 0).toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return (parseFloat(n) || 0).toLocaleString("en-NG", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
   }
 
   function fmtDate(dateStr) {
-    if (!dateStr) return '';
+    if (!dateStr) return "";
     const d = new Date(dateStr);
-    return isNaN(d) ? dateStr : d.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
+    return isNaN(d)
+      ? dateStr
+      : d.toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "long",
+          year: "numeric",
+        });
   }
 
   function sumByType(earnings, type) {
-    return (earnings || []).filter(e => e.type === type).reduce((s, e) => s + (parseFloat(e.amount) || 0), 0);
+    return (earnings || [])
+      .filter((e) => e.type === type)
+      .reduce((s, e) => s + (parseFloat(e.amount) || 0), 0);
   }
 
   // ── Build the full A5 HTML document (exact replica of doc 2) ─────
   function buildExactPayslipHTML(employees, logoDataUrl) {
-    const logoUrl = logoDataUrl || 'photos/logo.png';
+    const logoUrl = logoDataUrl || "photos/logo.png";
     const payDate = fmtDate(new Date().toISOString());
-    const className = employees[0] && employees[0].payclass_name ? employees[0].payclass_name : '';
+    const className =
+      employees[0] && employees[0].payclass_name
+        ? employees[0].payclass_name
+        : "";
 
     const css = `
       @page { size: A5; margin: 10mm; margin-top: 0.2mm; margin-bottom: 0.2mm; }
@@ -617,57 +795,75 @@
       }
     `;
 
-    const pages = employees.map((emp, idx) => {
-      const earnings  = emp.earnings  || [];
-      const deductions = emp.deductions || [];
+    const pages = employees
+      .map((emp, idx) => {
+        const earnings = emp.earnings || [];
+        const deductions = emp.deductions || [];
 
-      const taxableRows = earnings
-        .filter(e => e.type === 'Taxable')
-        .map(e => `<tr><td>${esc(e.description)}</td><td class="amount">&#x20A6;${fmt(e.amount)}</td></tr>`)
-        .join('');
+        const taxableRows = earnings
+          .filter((e) => e.type === "Taxable")
+          .map(
+            (e) =>
+              `<tr><td>${esc(e.description)}</td><td class="amount">&#x20A6;${fmt(e.amount)}</td></tr>`,
+          )
+          .join("");
 
-      const nonTaxableRows = earnings
-        .filter(e => e.type === 'Non-Taxable')
-        .map(e => `<tr><td>${esc(e.description)}</td><td class="amount">&#x20A6;${fmt(e.amount)}</td></tr>`)
-        .join('');
+        const nonTaxableRows = earnings
+          .filter((e) => e.type === "Non-Taxable")
+          .map(
+            (e) =>
+              `<tr><td>${esc(e.description)}</td><td class="amount">&#x20A6;${fmt(e.amount)}</td></tr>`,
+          )
+          .join("");
 
-      const dedLeftRows = deductions.map(item =>
-        `<tr>
+        const dedLeftRows = deductions
+          .map(
+            (item) =>
+              `<tr>
           <td class="ded-desc">${esc(item.description)}</td>
           <td class="ded-amt">&#x20A6;${fmt(item.amount)}</td>
-        </tr>`
-      ).join('');
+        </tr>`,
+          )
+          .join("");
 
-      const dedRightRows = deductions.map(item => {
-        const lbal  = (item.is_loan && item.loan_balance) ? fmt(item.loan_balance) : '';
-        const osmth = (item.is_loan && item.outstanding_months && item.outstanding_months !== '-' && item.outstanding_months !== 0)
-          ? esc(String(item.outstanding_months)) : '';
-        const hasData = !!(lbal || osmth);
-        return `<div class="rz-row ${hasData ? 'rz-has-data' : 'rz-empty'}">
+        const dedRightRows = deductions
+          .map((item) => {
+            const lbal =
+              item.is_loan && item.loan_balance ? fmt(item.loan_balance) : "";
+            const osmth =
+              item.is_loan &&
+              item.outstanding_months &&
+              item.outstanding_months !== "-" &&
+              item.outstanding_months !== 0
+                ? esc(String(item.outstanding_months))
+                : "";
+            const hasData = !!(lbal || osmth);
+            return `<div class="rz-row ${hasData ? "rz-has-data" : "rz-empty"}">
           <span class="rz-lbal">${lbal}</span>
           <span class="rz-osmths">${osmth}</span>
         </div>`;
-      }).join('');
+          })
+          .join("");
 
-      const taxableTotal    = sumByType(earnings, 'Taxable');
-      const nonTaxableTotal = sumByType(earnings, 'Non-Taxable');
-      const totalEmolument  = taxableTotal + nonTaxableTotal;
+        const taxableTotal = sumByType(earnings, "Taxable");
+        const nonTaxableTotal = sumByType(earnings, "Non-Taxable");
+        const totalEmolument = taxableTotal + nonTaxableTotal;
 
-      const nsitfRow = emp.nsitfcode
-        ? `<div class="info-row"><span class="info-label">RSA (Pension):</span><span class="info-value">${esc(emp.nsitfcode)}</span></div>`
-        : '';
+        const nsitfRow = emp.nsitfcode
+          ? `<div class="info-row"><span class="info-label">RSA (Pension):</span><span class="info-value">${esc(emp.nsitfcode)}</span></div>`
+          : "";
 
-      const pageBreak = '';
+        const pageBreak = "";
 
-      return `
+        return `
       <div class="container">
 
         <!-- HEADER -->
         <div class="header-wrapper">
-          <div class="className">${emp.payclass ? esc(emp.payclass_name || '') : ''}</div>
+          <div class="className">${emp.payclass ? esc(emp.payclass_name || "") : ""}</div>
           <div class="header">
-            <h1>Nigerian Navy (Naval Headquarters)</h1>
-            <h2>CENTRAL PAY OFFICE, 23 POINT ROAD APAPA</h2>
+            <h1>DEFENSE SPACE ADMINISTRATION</h1>
+            <h2>NATIONAL SPACE MUSEUM, ABUJA</h2>
           </div>
         </div>
 
@@ -691,7 +887,7 @@
           </div>
           <div class="info-row">
             <span class="info-label">Grade:</span>
-            <span class="info-value">${esc(emp.gradelevel)}${emp.gradetype ? ' - ' + esc(emp.gradetype) : ''}</span>
+            <span class="info-value">${esc(emp.gradelevel)}${emp.gradetype ? " - " + esc(emp.gradetype) : ""}</span>
           </div>
           <div class="info-row">
             <span class="info-label">Department:</span>
@@ -703,7 +899,7 @@
           </div>
           <div class="info-row">
             <span class="info-label">Bank Account:</span>
-            <span class="info-value">${esc(emp.bank_account_number)}${emp.bank_name ? ' (' + esc(emp.bank_name) + ')' : ''}</span>
+            <span class="info-value">${esc(emp.bank_account_number)}${emp.bank_name ? " (" + esc(emp.bank_name) + ")" : ""}</span>
           </div>
           ${nsitfRow}
         </div>
@@ -770,7 +966,8 @@
 
       </div>
       ${pageBreak}`;
-    }).join('');
+      })
+      .join("");
 
     return `<!DOCTYPE html>
     <html>
@@ -784,24 +981,28 @@
 
   // ── Download payslips (unchanged) ────────────────────────────────
   async function downloadPayslips(data, format, token) {
-    const exportEndpoint = format === 'pdf' ? '/payslips/export/pdf' : '/payslips/export/excel';
+    const exportEndpoint =
+      format === "pdf" ? "/payslips/export/pdf" : "/payslips/export/excel";
 
     const exportResponse = await auth.fetchWithAuth(exportEndpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-      body: JSON.stringify({ data: data })
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ data: data }),
     });
 
-    if (!exportResponse.ok) throw new Error('Failed to generate file');
+    if (!exportResponse.ok) throw new Error("Failed to generate file");
 
     const blob = await exportResponse.blob();
     const url = window.URL.createObjectURL(blob);
 
-    if (format === 'pdf') window.open(url, '_blank');
+    if (format === "pdf") window.open(url, "_blank");
 
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
-    a.download = `payslips_${new Date().getTime()}.${format === 'pdf' ? 'pdf' : 'xlsx'}`;
+    a.download = `payslips_${new Date().getTime()}.${format === "pdf" ? "pdf" : "xlsx"}`;
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -809,40 +1010,51 @@
   }
 
   // ── Preview modal controls ────────────────────────────────────────
-  document.getElementById('closePreviewBtn').addEventListener('click', () => {
-    document.getElementById('previewModal').classList.add('hidden');
+  document.getElementById("closePreviewBtn").addEventListener("click", () => {
+    document.getElementById("previewModal").classList.add("hidden");
     // Clear iframe to free memory
-    document.getElementById('previewIframe').removeAttribute('srcdoc');
+    document.getElementById("previewIframe").removeAttribute("srcdoc");
   });
 
-  document.getElementById('cancelPreviewBtn').addEventListener('click', () => {
-    document.getElementById('previewModal').classList.add('hidden');
-    document.getElementById('previewIframe').removeAttribute('srcdoc');
+  document.getElementById("cancelPreviewBtn").addEventListener("click", () => {
+    document.getElementById("previewModal").classList.add("hidden");
+    document.getElementById("previewIframe").removeAttribute("srcdoc");
   });
 
-  document.getElementById('downloadPreviewBtn').addEventListener('click', async () => {
-    const dlBtn = document.getElementById('downloadPreviewBtn');
-    dlBtn.disabled = true;
-    dlBtn.textContent = 'Preparing…';
-    try {
-      await downloadPayslips(window.currentPayslipData, window.currentFormat || 'pdf', window.currentToken);
-      document.getElementById('previewModal').classList.add('hidden');
-      document.getElementById('previewIframe').removeAttribute('srcdoc');
-      const count = window.currentPayslipData.length;
-      successMessage.textContent = count > 1
-        ? `${count} payslips downloaded successfully!`
-        : 'Payslip downloaded successfully!';
-      successModal.classList.remove('hidden');
-    } catch (error) {
-      errorMessage.textContent = 'Failed to download payslip. Please try again.';
-      errorModal.classList.remove('hidden');
-    } finally {
-      dlBtn.disabled = false;
-      const fmt = window.currentFormat || 'pdf';
-      const count = (window.currentPayslipData || []).length;
-      dlBtn.textContent = count > 1 ? `Download ${count} Payslips (${fmt.toUpperCase()})` : 'Download PDF';
-    }
-  });
+  document
+    .getElementById("downloadPreviewBtn")
+    .addEventListener("click", async () => {
+      const dlBtn = document.getElementById("downloadPreviewBtn");
+      dlBtn.disabled = true;
+      dlBtn.textContent = "Preparing…";
+      try {
+        await downloadPayslips(
+          window.currentPayslipData,
+          window.currentFormat || "pdf",
+          window.currentToken,
+        );
+        document.getElementById("previewModal").classList.add("hidden");
+        document.getElementById("previewIframe").removeAttribute("srcdoc");
+        const count = window.currentPayslipData.length;
+        successMessage.textContent =
+          count > 1
+            ? `${count} payslips downloaded successfully!`
+            : "Payslip downloaded successfully!";
+        successModal.classList.remove("hidden");
+      } catch (error) {
+        errorMessage.textContent =
+          "Failed to download payslip. Please try again.";
+        errorModal.classList.remove("hidden");
+      } finally {
+        dlBtn.disabled = false;
+        const fmt = window.currentFormat || "pdf";
+        const count = (window.currentPayslipData || []).length;
+        dlBtn.textContent =
+          count > 1
+            ? `Download ${count} Payslips (${fmt.toUpperCase()})`
+            : "Download PDF";
+      }
+    });
 
   toggleInputs();
   updateFormatOptions();

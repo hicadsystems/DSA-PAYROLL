@@ -1,251 +1,256 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
-  <meta charset="utf-8">
-  <style>
-    @page { size: A4; margin: 0.2mm; background-color: #f8fbff; }
-    body { font-family: Helvetica, Arial, sans-serif; font-size: 8pt; }
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      @page {
+        size: A4;
+        margin: 0.2mm;
+        background-color: #f8fbff;
+      }
+      body {
+        font-family: Helvetica, Arial, sans-serif;
+        font-size: 8pt;
+      }
 
-    .header-wrapper {
+      .header-wrapper {
         display: flex;
         align-items: flex-start;
         margin-bottom: 8px;
         border-bottom: 2px solid #1a1a1a;
         padding-bottom: 5px;
-    }
+      }
 
-    .className {
+      .className {
         flex-shrink: 0;
         margin-right: 20px;
         align-self: center;
         font-size: 9pt;
-    }
+      }
 
-    .header {
+      .header {
         flex-grow: 1;
         text-align: center;
-    }
-    
-    .header h1 {
+      }
+
+      .header h1 {
         font-size: 13pt;
         font-weight: bold;
         margin-bottom: 2px;
         letter-spacing: 1.5px;
         color: #1e40af;
-        font-family: 'Libre Baskerville', Georgia, serif;
-    }
-    
-    .header h2 {
+        font-family: "Libre Baskerville", Georgia, serif;
+      }
+
+      .header h2 {
         font-size: 10pt;
         font-weight: normal;
         margin-top: 2px;
         color: #4a4a4a;
-        font-family: 'Libre Baskerville', Georgia, serif;
-    }
-
-    .header-info {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin: 10px 0;
-      font-size: 9pt;
-    }
-
-    .summary-box {
-      border-top: 1.5px solid #0070C0;
-      border-bottom: 1.5px solid #0070C0;
-      padding: 8px 0;
-      margin-bottom: 20px;
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-    }
-
-    .summary-item {
-      text-align: center;
-      padding: 0 15px;
-      background: none;
-      border: none;
-      border-right: 1px solid #ddd;
-      flex-grow: 1;
-    }
-
-    .summary-item:last-child {
-      border-right: none;
-    }
-
-    .summary-item .label {
-      font-size: 8px;
-      color: #666;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 2px;
-    }
-
-    .summary-item .value {
-      font-size: 13px;
-      font-weight: bold;
-      color: #1F4E78;
-    }
-
-    .summary-item.highlight .value {
-      color: #006100;
-      font-size: 14px;
-    }
-
-    .loan-group {
-      margin-bottom: 25px;
-    }
-
-    .loan-group.page-break {
-      page-break-before: always;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 20px;
-      font-size: 9px;
-    }
-
-    th {
-      color: #1e40af;
-      padding: 6px 2px;
-      text-align: left;
-      font-weight: bold;
-      font-size: 9px;
-      text-transform: uppercase;
-      letter-spacing: 0.3px;
-      border-bottom: 1px solid #0056A0;
-    }
-
-    td {
-      padding: 4px 2px;
-      border-bottom: 1px solid #e0e0e0;
-      vertical-align: middle;
-    }
-
-    tfoot {
-      display: table-row-group;
-      break-inside: avoid;
-      page-break-inside: avoid;
-    }
-
-    .text-right {
-      text-align: right;
-    }
-
-    .text-center {
-      text-align: center;
-    }
-
-    .currency {
-      font-family: 'Courier New', monospace;
-      text-align: right;
-      white-space: nowrap;
-      font-weight: 600;
-    }
-
-    .loan-type-header {
-      color: #1e40af;
-      font-weight: bold;
-      font-size: 11px;
-      margin: 10px 0 5px 0;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      width: 100%;
-      page-break-after: avoid;
-    }
-
-    .subtotal-row {
-      font-weight: bold;
-      border-top: 1.5px solid #1e40af;
-      border-bottom: 1.5px solid #1e40af;
-    }
-
-    .subtotal-row td {
-      padding: 8px 2px;
-      font-size: 10px;
-      border: none;
-    }
-
-    .grand-total-row {
-      font-weight: bold;
-      font-size: 11px;
-      border-top: 2px solid #1F4E78;
-      border-bottom: 2px solid #1F4E78;
-    }
-
-    .grand-total-row td {
-      padding: 12px 6px;
-      color: #1F4E78;
-    }
-
-    .footer {
-      padding-top: 10px;
-      border-top: 0.5px solid #1a1a1a;
-      text-align: center;
-      font-size: 8pt;
-      color: #64748b;
-      margin-top: 20px;
-    }
-
-    @media print {
-      body {
-        print-color-adjust: exact;
-        -webkit-print-color-adjust: exact;
+        font-family: "Libre Baskerville", Georgia, serif;
       }
+
+      .header-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 10px 0;
+        font-size: 9pt;
+      }
+
+      .summary-box {
+        border-top: 1.5px solid #0070c0;
+        border-bottom: 1.5px solid #0070c0;
+        padding: 8px 0;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+      }
+
+      .summary-item {
+        text-align: center;
+        padding: 0 15px;
+        background: none;
+        border: none;
+        border-right: 1px solid #ddd;
+        flex-grow: 1;
+      }
+
+      .summary-item:last-child {
+        border-right: none;
+      }
+
+      .summary-item .label {
+        font-size: 8px;
+        color: #666;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 2px;
+      }
+
+      .summary-item .value {
+        font-size: 13px;
+        font-weight: bold;
+        color: #1f4e78;
+      }
+
+      .summary-item.highlight .value {
+        color: #006100;
+        font-size: 14px;
+      }
+
+      .loan-group {
+        margin-bottom: 25px;
+      }
+
+      .loan-group.page-break {
+        page-break-before: always;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+        font-size: 9px;
+      }
+
+      th {
+        color: #1e40af;
+        padding: 6px 2px;
+        text-align: left;
+        font-weight: bold;
+        font-size: 9px;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        border-bottom: 1px solid #0056a0;
+      }
+
+      td {
+        padding: 4px 2px;
+        border-bottom: 1px solid #e0e0e0;
+        vertical-align: middle;
+      }
+
       tfoot {
         display: table-row-group;
+        break-inside: avoid;
+        page-break-inside: avoid;
       }
 
-      body::before {
+      .text-right {
+        text-align: right;
+      }
+
+      .text-center {
+        text-align: center;
+      }
+
+      .currency {
+        font-family: "Courier New", monospace;
+        text-align: right;
+        white-space: nowrap;
+        font-weight: 600;
+      }
+
+      .loan-type-header {
+        color: #1e40af;
+        font-weight: bold;
+        font-size: 11px;
+        margin: 10px 0 5px 0;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        width: 100%;
+        page-break-after: avoid;
+      }
+
+      .subtotal-row {
+        font-weight: bold;
+        border-top: 1.5px solid #1e40af;
+        border-bottom: 1.5px solid #1e40af;
+      }
+
+      .subtotal-row td {
+        padding: 8px 2px;
+        font-size: 10px;
+        border: none;
+      }
+
+      .grand-total-row {
+        font-weight: bold;
+        font-size: 11px;
+        border-top: 2px solid #1f4e78;
+        border-bottom: 2px solid #1f4e78;
+      }
+
+      .grand-total-row td {
+        padding: 12px 6px;
+        color: #1f4e78;
+      }
+
+      .footer {
+        padding-top: 10px;
+        border-top: 0.5px solid #1a1a1a;
+        text-align: center;
+        font-size: 8pt;
+        color: #64748b;
+        margin-top: 20px;
+      }
+
+      @media print {
+        body {
+          print-color-adjust: exact;
+          -webkit-print-color-adjust: exact;
+        }
+        tfoot {
+          display: table-row-group;
+        }
+
+        body::before {
           content: "";
           position: fixed;
           top: 0;
           left: 0;
           width: 100%;
           height: 100%;
-          background-image: url('{{{logoDataUrl}}}');
-          background-size: auto 100%;    /* 80% of height */
+          background-image: url("{{{logoDataUrl}}}");
+          background-size: auto 100%; /* 80% of height */
           background-repeat: no-repeat;
           background-position: center center;
           opacity: 0.02;
           z-index: -1;
           pointer-events: none;
+        }
       }
-    }
-  </style>
-</head>
-<body>
-  <div class="header-wrapper">
-      <div class="className">
-          {{className}}
-      </div>
+    </style>
+  </head>
+  <body>
+    <div class="header-wrapper">
+      <div class="className">{{className}}</div>
       <div class="header">
-          <h1>Nigerian Navy (Naval Headquarters)</h1>
-          <h2>CENTRAL PAY OFFICE, 23 POINT ROAD APAPA</h2>
+        <h1>DEFENSE SPACE ADMINISTRATION</h1>
+        <h2>NATIONAL SPACE MUSEUM, ABUJA</h2>
       </div>
-  </div>
+    </div>
 
-  <div class="header-info">
-    <div class="left">
-      <strong>LOAN ANALYSIS REPORT</strong>
+    <div class="header-info">
+      <div class="left">
+        <strong>LOAN ANALYSIS REPORT</strong>
+      </div>
+      <div class="center">
+        <span>PRODUCED ON</span>
+        <strong>{{formatDate reportDate}}</strong>
+        <span>AT</span>
+        <strong>{{formatTime reportDate}}</strong>
+      </div>
+      <div class="right">
+        <span>FOR PERIOD</span>
+        <strong>{{formatMonth month}} {{year}}</strong>
+      </div>
     </div>
-    <div class="center">
-      <span>PRODUCED ON</span> 
-      <strong>{{formatDate reportDate}}</strong> 
-      <span>AT</span> 
-      <strong>{{formatTime reportDate}}</strong>
-    </div>
-    <div class="right">
-      <span>FOR PERIOD</span> 
-      <strong>{{formatMonth month}} {{year}}</strong>
-    </div>
-  </div>
 
-  <!-- Loan Groups -->
-  {{#each groups}}
+    <!-- Loan Groups -->
+    {{#each groups}}
     <div class="loan-group{{#unless @first}} page-break{{/unless}}">
       <table>
         <thead>
@@ -257,75 +262,93 @@
             </td>
           </tr>
           <tr>
-            <th style="width: 12%;">SVC.No</th>
+            <th style="width: 12%">SVC.No</th>
             <th>Rank</th>
-            <th style="white-space: nowrap;">Full Name</th>
+            <th style="white-space: nowrap">Full Name</th>
             <th class="text-right">Loan Amount</th>
             <th class="text-right">This Month</th>
-            <th style="white-space: nowrap;" class="text-center">TERNOR</th>
+            <th style="white-space: nowrap" class="text-center">TERNOR</th>
           </tr>
         </thead>
         <tbody>
           {{#each this.loans}}
-            <tr>
-              <td>{{this.employee_id}}</td>
-              <td>{{this.Title}} {{this.title}}</td>
-              <td>{{this.fullname}}</td>            
-              <td class="currency">₦{{formatCurrency this.original_loan}}</td>
-              <td class="currency">₦{{formatCurrency this.this_month_payment}}</td>
-              <td class="text-center">{{this.months_remaining}}</td>
-            </tr>
+          <tr>
+            <td>{{this.employee_id}}</td>
+            <td>{{this.Title}} {{this.title}}</td>
+            <td>{{this.fullname}}</td>
+            <td class="currency">₦{{formatCurrency this.original_loan}}</td>
+            <td class="currency">
+              ₦{{formatCurrency this.this_month_payment}}
+            </td>
+            <td class="text-center">{{this.months_remaining}}</td>
+          </tr>
           {{/each}}
-          
+
           <!-- Subtotal Row -->
           <tr class="subtotal-row">
-            <td colspan="3"><strong>{{this.loan_description}}</strong> TOTAL</td>
-            <td class="currency"><strong>₦{{formatCurrency this.totals.original_loan}}</strong></td>
-            <td class="currency"><strong>₦{{formatCurrency this.totals.this_month_payment}}</strong></td>
+            <td colspan="3">
+              <strong>{{this.loan_description}}</strong> TOTAL
+            </td>
+            <td class="currency">
+              <strong>₦{{formatCurrency this.totals.original_loan}}</strong>
+            </td>
+            <td class="currency">
+              <strong
+                >₦{{formatCurrency this.totals.this_month_payment}}</strong
+              >
+            </td>
             <td></td>
           </tr>
         </tbody>
       </table>
     </div>
-  {{/each}}
+    {{/each}}
 
-  <!-- Grand Total -->
-  <table>
-    <tfoot>
-      <tr class="grand-total-row">
-        <td colspan="3" style="width: 65%;"><strong>GRAND TOTAL (ALL LOANS)</strong></td>
-        <td class="currency" style="width: 15%;"><strong>₦{{formatCurrency grandTotals.original_loan}}</strong></td>
-        <td class="currency" style="width: 15%;"><strong>₦{{formatCurrency grandTotals.this_month_payment}}</strong></td>
-        <td style="width: 5%;"></td>
-      </tr>
-    </tfoot>
-  </table>
+    <!-- Grand Total -->
+    <table>
+      <tfoot>
+        <tr class="grand-total-row">
+          <td colspan="3" style="width: 65%">
+            <strong>GRAND TOTAL (ALL LOANS)</strong>
+          </td>
+          <td class="currency" style="width: 15%">
+            <strong>₦{{formatCurrency grandTotals.original_loan}}</strong>
+          </td>
+          <td class="currency" style="width: 15%">
+            <strong>₦{{formatCurrency grandTotals.this_month_payment}}</strong>
+          </td>
+          <td style="width: 5%"></td>
+        </tr>
+      </tfoot>
+    </table>
 
-  <!-- Summary Statistics -->
-  <div class="summary-box">
-    <div class="summary-item">
-      <div class="label">Total Active Loans</div>
-      <div class="value">{{grandTotals.count}}</div>
-    </div>
-    
-    <div class="summary-item highlight">
-      <div class="label">Total Loan Amount</div>
-      <div class="value">₦{{formatCurrency grandTotals.original_loan}}</div>
-    </div>
-    
-    <div class="summary-item highlight">
-      <div class="label">This Month Payment</div>
-      <div class="value">₦{{formatCurrency grandTotals.this_month_payment}}</div>
-    </div>
-    
-    <div class="summary-item">
-      <div class="label">Loan Categories</div>
-      <div class="value">{{groups.length}}</div>
-    </div>
-  </div>
+    <!-- Summary Statistics -->
+    <div class="summary-box">
+      <div class="summary-item">
+        <div class="label">Total Active Loans</div>
+        <div class="value">{{grandTotals.count}}</div>
+      </div>
 
-  <div class="footer">
-    <p>All rights reserved &#xA9; Hicad Systems Limited.</p>
-  </div>
-</body>
+      <div class="summary-item highlight">
+        <div class="label">Total Loan Amount</div>
+        <div class="value">₦{{formatCurrency grandTotals.original_loan}}</div>
+      </div>
+
+      <div class="summary-item highlight">
+        <div class="label">This Month Payment</div>
+        <div class="value">
+          ₦{{formatCurrency grandTotals.this_month_payment}}
+        </div>
+      </div>
+
+      <div class="summary-item">
+        <div class="label">Loan Categories</div>
+        <div class="value">{{groups.length}}</div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <p>All rights reserved &#xA9; Hicad Systems Limited.</p>
+    </div>
+  </body>
 </html>

@@ -17,16 +17,16 @@
 //      This preserves backward compatibility with existing calls.
 // ============================================================================
 
-const pool = require('../../config/db');
+const pool = require("../../config/db");
 
 class NSITFReportService {
-
   async _getPeriod(year, month) {
     if (year && month) return { year: String(year), month: String(month) };
     const [rows] = await pool.query(
-      `SELECT ord AS year, mth AS month FROM py_stdrate WHERE type = 'BT05' LIMIT 1`
+      `SELECT ord AS year, mth AS month FROM py_stdrate WHERE type = 'BT05' LIMIT 1`,
     );
-    if (!rows || rows.length === 0) throw new Error("Current period (BT05) not found in py_stdrate");
+    if (!rows || rows.length === 0)
+      throw new Error("Current period (BT05) not found in py_stdrate");
     return { year: String(rows[0].year), month: String(rows[0].month) };
   }
 
@@ -34,7 +34,7 @@ class NSITFReportService {
   // NSITF REPORT
   //
   // filters.paymentCodes — string or array of payment type codes from frontend
-  //   e.g. 'PR309' or ['PR309','PR310']
+  //   e.g. 'PR306' or ['PR306','PR310']
   //   These are the specific deduction codes whose amtthismth + totpaidtodate
   //   should appear on the report.
   //
@@ -42,42 +42,52 @@ class NSITFReportService {
   // ==========================================================================
   async getNSITFReport(filters = {}) {
     const { year, month, pfaCode, summaryOnly, paymentCodes } = filters;
-    const isSummary = summaryOnly === true || summaryOnly === '1' || summaryOnly === 'true';
-    const period    = await this._getPeriod(year, month);
- 
+    const isSummary =
+      summaryOnly === true || summaryOnly === "1" || summaryOnly === "true";
+    const period = await this._getPeriod(year, month);
+
     // Normalise paymentCodes to an array (frontend may send string or array)
     const codes = paymentCodes
-      ? (Array.isArray(paymentCodes) ? paymentCodes : String(paymentCodes).split(',').map(s => s.trim())).filter(Boolean)
+      ? (Array.isArray(paymentCodes)
+          ? paymentCodes
+          : String(paymentCodes)
+              .split(",")
+              .map((s) => s.trim())
+        ).filter(Boolean)
       : [];
- 
+
     const hasCodes = codes.length > 0;
- 
+
     // ── Payment contribution subquery ────────────────────────────────────────
     // If the frontend supplied payment codes, aggregate amtthismth and
     // totpaidtodate from py_masterpayded for those codes, per employee.
     // This is a single derived table JOIN — one scan regardless of how many
     // codes are passed, using conditional SUM (same pattern as Report 6).
-    const paymentJoin = hasCodes ? `
+    const paymentJoin = hasCodes
+      ? `
       LEFT JOIN (
         SELECT
           his_empno,
           ROUND(SUM(amtthismth),    2) AS contribution_this_month,
           ROUND(SUM(totpaidtodate), 2) AS contribution_paid_todate
         FROM py_masterpayded
-        WHERE his_type IN (${codes.map(() => '?').join(',')})
+        WHERE his_type IN (${codes.map(() => "?").join(",")})
           AND amtthismth > 0
         GROUP BY his_empno
-      ) pd_nsitf ON pd_nsitf.his_empno = we.empl_id` : '';
- 
-    const paymentSelect = hasCodes ? `,
+      ) pd_nsitf ON pd_nsitf.his_empno = we.empl_id`
+      : "";
+
+    const paymentSelect = hasCodes
+      ? `,
           COALESCE(pd_nsitf.contribution_this_month,  0) AS contribution_this_month,
-          COALESCE(pd_nsitf.contribution_paid_todate, 0) AS contribution_paid_todate` : '';
- 
+          COALESCE(pd_nsitf.contribution_paid_todate, 0) AS contribution_paid_todate`
+      : "";
+
     if (isSummary) {
       // ── Summary: aggregate by PFA ─────────────────────────────────────────
       const params = [period.month, ...(hasCodes ? codes : [])];
       if (pfaCode) params.push(pfaCode);
- 
+
       const [rows] = await pool.query(
         `SELECT
            '${period.year}'  AS year,
@@ -89,9 +99,13 @@ class NSITFReportService {
            ROUND(AVG(mc.his_netmth), 2)            AS avg_net_pay,
            ROUND(MIN(mc.his_netmth), 2)            AS min_net_pay,
            ROUND(MAX(mc.his_netmth), 2)            AS max_net_pay
-           ${hasCodes ? `,
+           ${
+             hasCodes
+               ? `,
            ROUND(SUM(COALESCE(pd_nsitf.contribution_this_month,  0)), 2) AS total_contribution_this_month,
-           ROUND(SUM(COALESCE(pd_nsitf.contribution_paid_todate, 0)), 2) AS total_contribution_paid_todate` : ''}
+           ROUND(SUM(COALESCE(pd_nsitf.contribution_paid_todate, 0)), 2) AS total_contribution_paid_todate`
+               : ""
+           }
          FROM py_wkemployees we
          INNER JOIN py_mastercum mc
                  ON mc.his_empno = we.empl_id
@@ -101,19 +115,18 @@ class NSITFReportService {
          ${paymentJoin}
          WHERE he.pfacode   IS NOT NULL AND he.pfacode   != ''
            AND we.NSITFcode IS NOT NULL AND we.NSITFcode != ''
-           ${pfaCode ? 'AND he.pfacode = ?' : ''}
+           ${pfaCode ? "AND he.pfacode = ?" : ""}
          GROUP BY he.pfacode, pfa.pfadesc
          ORDER BY pfa.pfadesc, total_net_pay DESC`,
-        params
+        params,
       );
       return rows;
- 
     } else {
       // ── Detail: one row per employee ──────────────────────────────────────
       // Single query — no loop, no pagination, no COUNT pre-flight.
       const params = [period.month, ...(hasCodes ? codes : [])];
       if (pfaCode) params.push(pfaCode);
- 
+
       const [rows] = await pool.query(
         `SELECT
            '${period.year}'  AS year,
@@ -144,9 +157,9 @@ class NSITFReportService {
          ${paymentJoin}
          WHERE he.pfacode   IS NOT NULL AND he.pfacode   != ''
            AND we.NSITFcode IS NOT NULL AND we.NSITFcode != ''
-           ${pfaCode ? 'AND he.pfacode = ?' : ''}
-         ORDER BY ${pfaCode ? 'mc.his_netmth DESC' : 'pfa.pfadesc, mc.his_netmth DESC'}`,
-        params
+           ${pfaCode ? "AND he.pfacode = ?" : ""}
+         ORDER BY ${pfaCode ? "mc.his_netmth DESC" : "pfa.pfadesc, mc.his_netmth DESC"}`,
+        params,
       );
       return rows;
     }
@@ -163,7 +176,7 @@ class NSITFReportService {
        FROM py_pfa pfa
        LEFT JOIN hr_employees he ON he.pfacode = pfa.pfacode
        WHERE pfa.pfacode IS NOT NULL
-       ORDER BY pfa_code`
+       ORDER BY pfa_code`,
     );
     return rows;
   }
@@ -183,7 +196,7 @@ class NSITFReportService {
        LEFT JOIN py_elementType et ON et.PaymentType = mp.his_type
        WHERE LEFT(mp.his_type, 2) IN ('PR', 'PL')
          AND mp.amtthismth > 0
-       ORDER BY mp.his_type`
+       ORDER BY mp.his_type`,
     );
     return rows;
   }
@@ -194,7 +207,7 @@ class NSITFReportService {
   async getCurrentPeriod() {
     const [rows] = await pool.query(
       `SELECT ord AS year, mth AS month, pmth AS prev_month
-       FROM py_stdrate WHERE type = 'BT05' LIMIT 1`
+       FROM py_stdrate WHERE type = 'BT05' LIMIT 1`,
     );
     return rows[0];
   }

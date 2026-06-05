@@ -58,17 +58,20 @@
 </style>
 
 <section class="items border rounded-lg m-6 max-w-xl mx-auto">
-
   <!-- ── TABS ──────────────────────────────────────────────────── -->
   <div class="flex">
-    <button id="tab-payslip"
-      class="tab-btn flex-1 py-3 text-sm font-bold tracking-wide border-b-4 border-yellow-600 text-blue-500  transition-all"
-      onclick="window.switchTab('payslip')">
+    <button
+      id="tab-payslip"
+      class="tab-btn flex-1 py-3 text-sm font-bold tracking-wide border-b-4 border-yellow-600 text-blue-500 transition-all"
+      onclick="window.switchTab('payslip')"
+    >
       Payslip
     </button>
-    <button id="tab-salaryhistory"
+    <button
+      id="tab-salaryhistory"
       class="tab-btn flex-1 py-3 text-sm font-bold tracking-wide border-b-4 border-transparent text-gray-500 hover:text-gray-700 transition-all"
-      onclick="window.switchTab('salaryhistory')">
+      onclick="window.switchTab('salaryhistory')"
+    >
       Salary History
     </button>
   </div>
@@ -77,22 +80,26 @@
        TAB 1 — PAYSLIP
   ══════════════════════════════════════════════════════════════ -->
   <div id="pane-payslip" class="p-6 space-y-4">
-    <h2 class="text-xl text-center font-bold text-blue-600 border-b mb-2">Generate and Print Payslip History</h2>
+    <h2 class="text-xl text-center font-bold text-blue-600 border-b mb-2">
+      Generate and Print Payslip History
+    </h2>
 
     <form id="payslipForm" class="space-y-4">
-
       <!-- People -->
       <div>
         <label class="block font-medium mb-2 text-sm">Select People</label>
         <div class="flex space-x-4">
           <label class="flex text-sm items-center space-x-2">
-            <input type="radio" name="ps_people" value="all" checked> <span>All</span>
+            <input type="radio" name="ps_people" value="all" checked />
+            <span>All</span>
           </label>
           <label class="flex text-sm items-center space-x-2">
-            <input type="radio" name="ps_people" value="specific"> <span>Specific</span>
+            <input type="radio" name="ps_people" value="specific" />
+            <span>Specific</span>
           </label>
           <label class="flex text-sm items-center space-x-2">
-            <input type="radio" name="ps_people" value="individual"> <span>Individual</span>
+            <input type="radio" name="ps_people" value="individual" />
+            <span>Individual</span>
           </label>
         </div>
       </div>
@@ -101,13 +108,21 @@
       <div class="grid grid-cols-2 gap-3">
         <div>
           <label class="block text-sm font-medium mb-1">Start Service No</label>
-          <input type="text" id="ps_startNo" class="w-full border rounded px-3 py-2 focus:ring focus:ring-blue-300"
-            disabled />
+          <input
+            type="text"
+            id="ps_startNo"
+            class="w-full border rounded px-3 py-2 focus:ring focus:ring-blue-300"
+            disabled
+          />
         </div>
         <div>
           <label class="block text-sm font-medium mb-1">End Service No</label>
-          <input type="text" id="ps_endNo" class="w-full border rounded px-3 py-2 focus:ring focus:ring-blue-300"
-            disabled />
+          <input
+            type="text"
+            id="ps_endNo"
+            class="w-full border rounded px-3 py-2 focus:ring focus:ring-blue-300"
+            disabled
+          />
         </div>
       </div>
 
@@ -115,13 +130,22 @@
       <div>
         <label class="block text-sm font-medium mb-1">Payroll Class</label>
         <div class="grid grid-cols-3 gap-3">
-          <select id="ps_payrollClass"
-            class="w-full bg-transparent border border-blue-500 rounded px-3 py-2 focus:ring-2 focus:ring-blue-500">
-          </select>
-          <input type="number" id="ps_year" placeholder="Year" min="2000" max="2100"
-            class="w-full bg-transparent border border-blue-500 rounded px-3 py-2 focus:ring-2 focus:ring-blue-500" />
-          <select id="ps_month"
-            class="w-full bg-transparent border border-blue-500 rounded px-3 py-2 focus:ring-2 focus:ring-blue-500">
+          <select
+            id="ps_payrollClass"
+            class="w-full bg-transparent border border-blue-500 rounded px-3 py-2 focus:ring-2 focus:ring-blue-500"
+          ></select>
+          <input
+            type="number"
+            id="ps_year"
+            placeholder="Year"
+            min="2000"
+            max="2100"
+            class="w-full bg-transparent border border-blue-500 rounded px-3 py-2 focus:ring-2 focus:ring-blue-500"
+          />
+          <select
+            id="ps_month"
+            class="w-full bg-transparent border border-blue-500 rounded px-3 py-2 focus:ring-2 focus:ring-blue-500"
+          >
             <option value="">Month</option>
             <option value="01">January</option>
             <option value="02">February</option>
@@ -144,14 +168,20 @@
         <label class="block font-medium mb-2 text-sm">Output Format</label>
         <div class="flex space-x-4">
           <label class="flex text-sm items-center space-x-2">
-            <input type="radio" name="ps_format" value="pdf" checked> <span>PDF</span>
+            <input type="radio" name="ps_format" value="pdf" checked />
+            <span>PDF</span>
           </label>
           <label class="flex text-sm items-center space-x-2">
-            <input type="radio" name="ps_format" value="excel"> <span>Excel</span>
+            <input type="radio" name="ps_format" value="excel" />
+            <span>Excel</span>
           </label>
           <!-- IPPIS checkbox -->
           <div class="flex items-center space-x-2 pt-1">
-            <input type="checkbox" id="ps_ippis" class="w-4 h-4 accent-blue-600">
+            <input
+              type="checkbox"
+              id="ps_ippis"
+              class="w-4 h-4 accent-blue-600"
+            />
             <label for="ps_ippis" class="text-sm font-medium text-gray-700">
               IPPIS
             </label>
@@ -161,10 +191,20 @@
 
       <!-- Buttons -->
       <div class="flex gap-2 justify-end pt-2">
-        <button type="reset" id="ps_clearBtn"
-          class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">Clear</button>
-        <button type="button" id="ps_generateBtn"
-          class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Generate</button>
+        <button
+          type="reset"
+          id="ps_clearBtn"
+          class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+        >
+          Clear
+        </button>
+        <button
+          type="button"
+          id="ps_generateBtn"
+          class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+        >
+          Generate
+        </button>
       </div>
     </form>
   </div>
@@ -173,22 +213,26 @@
        TAB 2 — SALARY HISTORY
   ══════════════════════════════════════════════════════════════ -->
   <div id="pane-salaryhistory" class="p-6 space-y-4 hidden">
-    <h2 class="text-xl text-center font-bold text-blue-600 border-b mb-2">Generate and Print Salary History</h2>
+    <h2 class="text-xl text-center font-bold text-blue-600 border-b mb-2">
+      Generate and Print Salary History
+    </h2>
 
     <form id="shForm" class="space-y-4">
-
       <!-- People -->
       <div>
         <label class="block font-medium mb-2 text-sm">Select People</label>
         <div class="flex space-x-4">
           <label class="flex text-sm items-center space-x-2">
-            <input type="radio" name="sh_people" value="all" checked> <span>All</span>
+            <input type="radio" name="sh_people" value="all" checked />
+            <span>All</span>
           </label>
           <label class="flex text-sm items-center space-x-2">
-            <input type="radio" name="sh_people" value="specific"> <span>Specific</span>
+            <input type="radio" name="sh_people" value="specific" />
+            <span>Specific</span>
           </label>
           <label class="flex text-sm items-center space-x-2">
-            <input type="radio" name="sh_people" value="individual"> <span>Individual</span>
+            <input type="radio" name="sh_people" value="individual" />
+            <span>Individual</span>
           </label>
         </div>
       </div>
@@ -197,36 +241,52 @@
       <div class="grid grid-cols-2 gap-3">
         <div>
           <label class="block text-sm font-medium mb-1">Start Service No</label>
-          <input type="text" id="sh_startNo" class="w-full border rounded px-3 py-2 focus:ring focus:ring-blue-300"
-            disabled />
+          <input
+            type="text"
+            id="sh_startNo"
+            class="w-full border rounded px-3 py-2 focus:ring focus:ring-blue-300"
+            disabled
+          />
         </div>
         <div>
           <label class="block text-sm font-medium mb-1">End Service No</label>
-          <input type="text" id="sh_endNo" class="w-full border rounded px-3 py-2 focus:ring focus:ring-blue-300"
-            disabled />
+          <input
+            type="text"
+            id="sh_endNo"
+            class="w-full border rounded px-3 py-2 focus:ring focus:ring-blue-300"
+            disabled
+          />
         </div>
       </div>
 
       <!-- Payroll class -->
       <div class="hidden">
         <label class="block text-sm font-medium mb-1">Payroll Class</label>
-        <select id="sh_payrollClass"
-          class="w-full bg-transparent border border-blue-500 rounded px-3 py-2 focus:ring-2 focus:ring-blue-500">
-        </select>
+        <select
+          id="sh_payrollClass"
+          class="w-full bg-transparent border border-blue-500 rounded px-3 py-2 focus:ring-2 focus:ring-blue-500"
+        ></select>
       </div>
 
       <!-- From / To period -->
       <div>
         <div class="grid grid-cols-2 gap-3">
-
           <!-- From -->
           <div>
             <label class="block text-sm font-medium mb-1">From Period</label>
             <div class="grid grid-cols-2 gap-1">
-              <input type="number" id="sh_fromYear" placeholder="Year" min="2000" max="2100"
-                class="w-full bg-transparent border border-blue-500 rounded px-2 py-2 focus:ring-2 focus:ring-blue-500" />
-              <select id="sh_fromMonth"
-                class="w-full bg-transparent border border-blue-500 rounded px-2 py-2 focus:ring-2 focus:ring-blue-500">
+              <input
+                type="number"
+                id="sh_fromYear"
+                placeholder="Year"
+                min="2000"
+                max="2100"
+                class="w-full bg-transparent border border-blue-500 rounded px-2 py-2 focus:ring-2 focus:ring-blue-500"
+              />
+              <select
+                id="sh_fromMonth"
+                class="w-full bg-transparent border border-blue-500 rounded px-2 py-2 focus:ring-2 focus:ring-blue-500"
+              >
                 <option value="">Month</option>
                 <option value="01">January</option>
                 <option value="02">February</option>
@@ -248,10 +308,18 @@
           <div>
             <label class="block text-sm font-medium mb-1">To Period</label>
             <div class="grid grid-cols-2 gap-1">
-              <input type="number" id="sh_toYear" placeholder="Year" min="2000" max="2100"
-                class="w-full bg-transparent border border-blue-500 rounded px-2 py-2 focus:ring-2 focus:ring-blue-500" />
-              <select id="sh_toMonth"
-                class="w-full bg-transparent border border-blue-500 rounded px-2 py-2 focus:ring-2 focus:ring-blue-500">
+              <input
+                type="number"
+                id="sh_toYear"
+                placeholder="Year"
+                min="2000"
+                max="2100"
+                class="w-full bg-transparent border border-blue-500 rounded px-2 py-2 focus:ring-2 focus:ring-blue-500"
+              />
+              <select
+                id="sh_toMonth"
+                class="w-full bg-transparent border border-blue-500 rounded px-2 py-2 focus:ring-2 focus:ring-blue-500"
+              >
                 <option value="">Month</option>
                 <option value="01">January</option>
                 <option value="02">February</option>
@@ -268,7 +336,6 @@
               </select>
             </div>
           </div>
-
         </div>
       </div>
 
@@ -277,14 +344,20 @@
         <label class="block font-medium mb-2 text-sm">Output Format</label>
         <div class="flex space-x-4">
           <label class="flex text-sm items-center space-x-2">
-            <input type="radio" name="sh_format" value="pdf" checked> <span>PDF</span>
+            <input type="radio" name="sh_format" value="pdf" checked />
+            <span>PDF</span>
           </label>
           <label class="flex text-sm items-center space-x-2">
-            <input type="radio" name="sh_format" value="excel"> <span>Excel</span>
+            <input type="radio" name="sh_format" value="excel" />
+            <span>Excel</span>
           </label>
           <!-- IPPIS checkbox -->
           <div class="flex items-center space-x-2 pt-1">
-            <input type="checkbox" id="sh_ippis" class="w-4 h-4 accent-blue-600">
+            <input
+              type="checkbox"
+              id="sh_ippis"
+              class="w-4 h-4 accent-blue-600"
+            />
             <label for="sh_ippis" class="text-sm font-medium text-gray-700">
               IPPIS
             </label>
@@ -294,10 +367,20 @@
 
       <!-- Buttons -->
       <div class="flex gap-2 justify-end pt-2">
-        <button type="reset" id="sh_clearBtn"
-          class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">Clear</button>
-        <button type="button" id="sh_generateBtn"
-          class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Generate</button>
+        <button
+          type="reset"
+          id="sh_clearBtn"
+          class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+        >
+          Clear
+        </button>
+        <button
+          type="button"
+          id="sh_generateBtn"
+          class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+        >
+          Generate
+        </button>
       </div>
     </form>
   </div>
@@ -306,67 +389,136 @@
 <!-- ── SHARED MODALS ─────────────────────────────────────────────── -->
 
 <!-- Loading -->
-<div id="sharedLoadingModal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+<div
+  id="sharedLoadingModal"
+  class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50"
+>
   <div class="bg-white rounded-lg shadow-lg w-80 p-6 text-center">
     <div class="relative w-10 h-10 mx-auto mb-4">
-      <div class="absolute left-1 w-[6px] bg-blue-600 rounded animate-grow-up"></div>
-      <div class="absolute right-1 w-[6px] bg-blue-600 rounded animate-grow-down [animation-delay:0.3s]"></div>
       <div
-        class="absolute top-1/2 left-1 h-[6px] bg-blue-600 rounded animate-expand [animation-delay:0.6s] -translate-y-1/2">
-      </div>
+        class="absolute left-1 w-[6px] bg-blue-600 rounded animate-grow-up"
+      ></div>
+      <div
+        class="absolute right-1 w-[6px] bg-blue-600 rounded animate-grow-down [animation-delay:0.3s]"
+      ></div>
+      <div
+        class="absolute top-1/2 left-1 h-[6px] bg-blue-600 rounded animate-expand [animation-delay:0.6s] -translate-y-1/2"
+      ></div>
     </div>
     <p id="sharedLoadingText" class="text-gray-700">Generating...</p>
   </div>
 </div>
 
 <!-- Confirm -->
-<div id="sharedConfirmModal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+<div
+  id="sharedConfirmModal"
+  class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50"
+>
   <div class="bg-white rounded-lg shadow-lg w-96 p-6">
     <h3 class="text-lg font-semibold mb-4" id="sharedConfirmTitle">Confirm</h3>
-    <p class="mb-6 text-gray-700" id="sharedConfirmText">Do you want to continue?</p>
+    <p class="mb-6 text-gray-700" id="sharedConfirmText">
+      Do you want to continue?
+    </p>
     <div class="flex justify-end gap-2">
-      <button id="sharedCancelBtn" class="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500">Cancel</button>
-      <button id="sharedContinueBtn"
-        class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Continue</button>
+      <button
+        id="sharedCancelBtn"
+        class="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500"
+      >
+        Cancel
+      </button>
+      <button
+        id="sharedContinueBtn"
+        class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+      >
+        Continue
+      </button>
     </div>
   </div>
 </div>
 
 <!-- Success -->
-<div id="sharedSuccessModal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+<div
+  id="sharedSuccessModal"
+  class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50"
+>
   <div class="bg-white rounded-lg shadow-lg w-96 p-6 text-center">
     <h3 class="text-lg font-semibold text-green-600 mb-4">Success</h3>
     <p class="mb-6 text-gray-700" id="sharedSuccessMessage">Done!</p>
-    <button id="sharedSuccessOkBtn" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">OK</button>
+    <button
+      id="sharedSuccessOkBtn"
+      class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+    >
+      OK
+    </button>
   </div>
 </div>
 
 <!-- Error -->
-<div id="sharedErrorModal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+<div
+  id="sharedErrorModal"
+  class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50"
+>
   <div class="bg-white rounded-lg shadow-lg w-96 p-6 text-center">
     <h3 class="text-lg font-semibold text-red-600 mb-4">Error</h3>
     <p class="mb-6 text-gray-700" id="sharedErrorMessage">An error occurred.</p>
-    <button id="sharedErrorOkBtn" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">OK</button>
+    <button
+      id="sharedErrorOkBtn"
+      class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+    >
+      OK
+    </button>
   </div>
 </div>
 
 <!-- Preview -->
-<div id="sharedPreviewModal"
-  class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
-  <div class="bg-gray-50 rounded-lg shadow-lg w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col">
-    <div class="bg-blue-700 px-6 py-3 flex justify-between items-center flex-shrink-0">
-      <h3 class="text-lg font-semibold text-white" id="sharedPreviewTitle">Preview</h3>
-      <button id="sharedClosePreviewBtn" class="text-white hover:text-gray-200 text-2xl">&times;</button>
+<div
+  id="sharedPreviewModal"
+  class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4"
+>
+  <div
+    class="bg-gray-50 rounded-lg shadow-lg w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col"
+  >
+    <div
+      class="bg-blue-700 px-6 py-3 flex justify-between items-center flex-shrink-0"
+    >
+      <h3 class="text-lg font-semibold text-white" id="sharedPreviewTitle">
+        Preview
+      </h3>
+      <button
+        id="sharedClosePreviewBtn"
+        class="text-white hover:text-gray-200 text-2xl"
+      >
+        &times;
+      </button>
     </div>
-    <div class="overflow-auto flex-1" style="background: #d1d5db;">
-      <iframe id="sharedPreviewIframe" title="Preview"
-        style="width: 100%; min-height: 842px; border: none; background: #d1d5db; display: block;"></iframe>
+    <div class="overflow-auto flex-1" style="background: #d1d5db">
+      <iframe
+        id="sharedPreviewIframe"
+        title="Preview"
+        style="
+          width: 100%;
+          min-height: 842px;
+          border: none;
+          background: #d1d5db;
+          display: block;
+        "
+      ></iframe>
     </div>
-    <div class="bg-gray-50 border-t px-6 py-3 flex justify-end space-x-2 flex-shrink-0">
-      <button id="sharedCancelPreviewBtn"
-        class="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500">Cancel</button>
-      <button id="sharedDownloadPreviewBtn"
-        class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Download</button>
+    <div
+      class="bg-gray-50 border-t px-6 py-3 flex justify-end space-x-2 flex-shrink-0"
+    >
+      <button
+        id="sharedCancelPreviewBtn"
+        class="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500"
+      >
+        Cancel
+      </button>
+      <button
+        id="sharedDownloadPreviewBtn"
+        class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+      >
+        Download
+      </button>
     </div>
   </div>
 </div>
@@ -374,83 +526,103 @@
 <!-- ── SCRIPT ─────────────────────────────────────────────────────── -->
 <script>
   const auth = window.authService;
-  const token = () => localStorage.getItem('token');
+  const token = () => localStorage.getItem("token");
 
   // ── Shared modal refs ──────────────────────────────────────────────
-  const loadingModal = document.getElementById('sharedLoadingModal');
-  const loadingText = document.getElementById('sharedLoadingText');
-  const confirmModal = document.getElementById('sharedConfirmModal');
-  const confirmTitle = document.getElementById('sharedConfirmTitle');
-  const confirmText = document.getElementById('sharedConfirmText');
-  const continueBtn = document.getElementById('sharedContinueBtn');
-  const cancelBtn = document.getElementById('sharedCancelBtn');
-  const successModal = document.getElementById('sharedSuccessModal');
-  const successMessage = document.getElementById('sharedSuccessMessage');
-  const errorModal = document.getElementById('sharedErrorModal');
-  const errorMessage = document.getElementById('sharedErrorMessage');
-  const previewModal = document.getElementById('sharedPreviewModal');
-  const previewTitle = document.getElementById('sharedPreviewTitle');
-  const previewIframe = document.getElementById('sharedPreviewIframe');
-  const downloadBtn = document.getElementById('sharedDownloadPreviewBtn');
+  const loadingModal = document.getElementById("sharedLoadingModal");
+  const loadingText = document.getElementById("sharedLoadingText");
+  const confirmModal = document.getElementById("sharedConfirmModal");
+  const confirmTitle = document.getElementById("sharedConfirmTitle");
+  const confirmText = document.getElementById("sharedConfirmText");
+  const continueBtn = document.getElementById("sharedContinueBtn");
+  const cancelBtn = document.getElementById("sharedCancelBtn");
+  const successModal = document.getElementById("sharedSuccessModal");
+  const successMessage = document.getElementById("sharedSuccessMessage");
+  const errorModal = document.getElementById("sharedErrorModal");
+  const errorMessage = document.getElementById("sharedErrorMessage");
+  const previewModal = document.getElementById("sharedPreviewModal");
+  const previewTitle = document.getElementById("sharedPreviewTitle");
+  const previewIframe = document.getElementById("sharedPreviewIframe");
+  const downloadBtn = document.getElementById("sharedDownloadPreviewBtn");
 
   // ── Modal helpers ──────────────────────────────────────────────────
-  function showLoading(msg) { loadingText.textContent = msg || 'Generating...'; loadingModal.classList.remove('hidden'); }
-  function hideLoading() { loadingModal.classList.add('hidden'); }
-  function showError(msg) { errorMessage.textContent = msg; errorModal.classList.remove('hidden'); }
-  function showSuccess(msg) { successMessage.textContent = msg; successModal.classList.remove('hidden'); }
+  function showLoading(msg) {
+    loadingText.textContent = msg || "Generating...";
+    loadingModal.classList.remove("hidden");
+  }
+  function hideLoading() {
+    loadingModal.classList.add("hidden");
+  }
+  function showError(msg) {
+    errorMessage.textContent = msg;
+    errorModal.classList.remove("hidden");
+  }
+  function showSuccess(msg) {
+    successMessage.textContent = msg;
+    successModal.classList.remove("hidden");
+  }
 
-  document.getElementById('sharedErrorOkBtn').addEventListener('click', () => errorModal.classList.add('hidden'));
-  document.getElementById('sharedSuccessOkBtn').addEventListener('click', () => successModal.classList.add('hidden'));
-  cancelBtn.addEventListener('click', () => confirmModal.classList.add('hidden'));
-  document.getElementById('sharedClosePreviewBtn').addEventListener('click', closePreview);
-  document.getElementById('sharedCancelPreviewBtn').addEventListener('click', closePreview);
-  function closePreview() { previewModal.classList.add('hidden'); previewIframe.removeAttribute('srcdoc'); }
+  document
+    .getElementById("sharedErrorOkBtn")
+    .addEventListener("click", () => errorModal.classList.add("hidden"));
+  document
+    .getElementById("sharedSuccessOkBtn")
+    .addEventListener("click", () => successModal.classList.add("hidden"));
+  cancelBtn.addEventListener("click", () =>
+    confirmModal.classList.add("hidden"),
+  );
+  document
+    .getElementById("sharedClosePreviewBtn")
+    .addEventListener("click", closePreview);
+  document
+    .getElementById("sharedCancelPreviewBtn")
+    .addEventListener("click", closePreview);
+  function closePreview() {
+    previewModal.classList.add("hidden");
+    previewIframe.removeAttribute("srcdoc");
+  }
 
   // ── Tab switching ──────────────────────────────────────────────────
   window.switchTab = function (tab) {
-    ['payslip', 'salaryhistory'].forEach(t => {
+    ["payslip", "salaryhistory"].forEach((t) => {
       const btn = document.getElementById(`tab-${t}`);
       const pane = document.getElementById(`pane-${t}`);
       const active = t === tab;
-      btn.classList.toggle('border-yellow-600', active);
-      btn.classList.toggle('text-blue-500', active);
-      btn.classList.toggle('hover:text-gray-700', !active);
+      btn.classList.toggle("border-yellow-600", active);
+      btn.classList.toggle("text-blue-500", active);
+      btn.classList.toggle("hover:text-gray-700", !active);
       //btn.classList.toggle('bg-yellow-50', active);
-      btn.classList.toggle('border-transparent', !active);
-      btn.classList.toggle('text-gray-500', !active);
-      pane.classList.toggle('hidden', !active);
+      btn.classList.toggle("border-transparent", !active);
+      btn.classList.toggle("text-gray-500", !active);
+      pane.classList.toggle("hidden", !active);
     });
-  }
+  };
 
   // ── Shared payroll class loader ────────────────────────────────────
   async function loadPayrollClasses() {
     try {
-      const res = await auth.fetchWithAuth('/payslips/database', {
-        headers: { Authorization: `Bearer ${token()}` }
+      const res = await auth.fetchWithAuth("/payslips/database", {
+        headers: { Authorization: `Bearer ${token()}` },
       });
 
       if (!res.ok) return;
 
       const result = await res.json();
 
-      const classes = Array.isArray(result)
-        ? result
-        : result
-          ? [result]
-          : [];
+      const classes = Array.isArray(result) ? result : result ? [result] : [];
 
       const selectors = [
-        document.getElementById('ps_payrollClass'),
-        document.getElementById('sh_payrollClass')
+        document.getElementById("ps_payrollClass"),
+        document.getElementById("sh_payrollClass"),
       ];
 
-      selectors.forEach(sel => {
+      selectors.forEach((sel) => {
         if (!sel) return;
 
-        sel.innerHTML = '';
+        sel.innerHTML = "";
 
         classes.forEach((c, index) => {
-          const option = document.createElement('option');
+          const option = document.createElement("option");
 
           option.value = c.database || `class_${index}`;
           option.textContent = c.class_name || option.value;
@@ -462,35 +634,54 @@
           sel.selectedIndex = 0;
         }
       });
-
     } catch (e) {
-      console.error('loadPayrollClasses:', e);
+      console.error("loadPayrollClasses:", e);
     }
   }
 
   // ── Helper: month name from value ─────────────────────────────────
-  const MONTH_NAMES = ['', 'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'];
+  const MONTH_NAMES = [
+    "",
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
 
   // ══════════════════════════════════════════════════════════════════
   // TAB 1 — PAYSLIP LOGIC
   // ══════════════════════════════════════════════════════════════════
   (function () {
     const radios = document.querySelectorAll('input[name="ps_people"]');
-    const startNo = document.getElementById('ps_startNo');
-    const endNo = document.getElementById('ps_endNo');
-    const genBtn = document.getElementById('ps_generateBtn');
-    const clearBtn = document.getElementById('ps_clearBtn');
-    const ippisChk = document.getElementById('ps_ippis');
+    const startNo = document.getElementById("ps_startNo");
+    const endNo = document.getElementById("ps_endNo");
+    const genBtn = document.getElementById("ps_generateBtn");
+    const clearBtn = document.getElementById("ps_clearBtn");
+    const ippisChk = document.getElementById("ps_ippis");
 
     function toggleInputs() {
       const v = document.querySelector('input[name="ps_people"]:checked').value;
-      startNo.disabled = v === 'all';
-      endNo.disabled = v !== 'specific';
-      if (v === 'all') { startNo.value = ''; endNo.value = ''; }
-      if (v === 'individual') { endNo.value = ''; }
+      startNo.disabled = v === "all";
+      endNo.disabled = v !== "specific";
+      if (v === "all") {
+        startNo.value = "";
+        endNo.value = "";
+      }
+      if (v === "individual") {
+        endNo.value = "";
+      }
       // Excel disabled for individual
-      const excelRadio = document.querySelector('input[name="ps_format"][value="excel"]');
+      const excelRadio = document.querySelector(
+        'input[name="ps_format"][value="excel"]',
+      );
       /*if (v === 'individual') {
         excelRadio.disabled = true;
         excelRadio.parentElement.classList.add('opacity-50', 'cursor-not-allowed');
@@ -501,48 +692,52 @@
       }*/
     }
 
-    radios.forEach(r => r.addEventListener('change', toggleInputs));
+    radios.forEach((r) => r.addEventListener("change", toggleInputs));
     toggleInputs();
 
-    genBtn.addEventListener('click', () => {
+    genBtn.addEventListener("click", () => {
       const v = document.querySelector('input[name="ps_people"]:checked').value;
-      if (v === 'specific' && (!startNo.value || !endNo.value)) {
-        return showError('Please fill in both Start and End Service Numbers.');
+      if (v === "specific" && (!startNo.value || !endNo.value)) {
+        return showError("Please fill in both Start and End Service Numbers.");
       }
-      if (v === 'individual' && !startNo.value) {
-        return showError('Please enter a Service Number.');
+      if (v === "individual" && !startNo.value) {
+        return showError("Please enter a Service Number.");
       }
-      const yr = document.getElementById('ps_year').value;
-      const mo = document.getElementById('ps_month').value;
-      if (!yr || !mo) return showError('Please select both Year and Month.');
+      const yr = document.getElementById("ps_year").value;
+      const mo = document.getElementById("ps_month").value;
+      if (!yr || !mo) return showError("Please select both Year and Month.");
 
-      confirmTitle.textContent = 'Confirm Payslip Generation';
-      confirmText.textContent = 'Do you want to continue and generate payslips?';
-      confirmModal.classList.remove('hidden');
+      confirmTitle.textContent = "Confirm Payslip Generation";
+      confirmText.textContent =
+        "Do you want to continue and generate payslips?";
+      confirmModal.classList.remove("hidden");
 
       // Wire continue button for this context
       const handler = async () => {
-        continueBtn.removeEventListener('click', handler);
-        confirmModal.classList.add('hidden');
+        continueBtn.removeEventListener("click", handler);
+        confirmModal.classList.add("hidden");
         await runPayslipGeneration();
       };
-      continueBtn.addEventListener('click', handler);
+      continueBtn.addEventListener("click", handler);
     });
 
-    clearBtn.addEventListener('click', () => {
-      document.querySelector('input[name="ps_people"][value="all"]').checked = true;
+    clearBtn.addEventListener("click", () => {
+      document.querySelector('input[name="ps_people"][value="all"]').checked =
+        true;
       toggleInputs();
     });
 
     async function runPayslipGeneration() {
       const v = document.querySelector('input[name="ps_people"]:checked').value;
-      const fmt = document.querySelector('input[name="ps_format"]:checked').value;
-      const yr = document.getElementById('ps_year').value;
-      const mo = document.getElementById('ps_month').value;
-      const cls = document.getElementById('ps_payrollClass').value;
+      const fmt = document.querySelector(
+        'input[name="ps_format"]:checked',
+      ).value;
+      const yr = document.getElementById("ps_year").value;
+      const mo = document.getElementById("ps_month").value;
+      const cls = document.getElementById("ps_payrollClass").value;
       const useIppis = ippisChk.checked;
 
-      showLoading('Generating payslips...');
+      showLoading("Generating payslips...");
       genBtn.disabled = true;
 
       try {
@@ -552,42 +747,80 @@
           const body = {
             period,
             payrollClass: cls,
-            printRange: v !== 'all'
+            printRange: v !== "all",
           };
-          if (v === 'specific') { body.employeeFrom = startNo.value; body.employeeTo = endNo.value; }
-          if (v === 'individual') { body.employeeFrom = startNo.value; body.employeeTo = startNo.value; }
+          if (v === "specific") {
+            body.employeeFrom = startNo.value;
+            body.employeeTo = endNo.value;
+          }
+          if (v === "individual") {
+            body.employeeFrom = startNo.value;
+            body.employeeTo = startNo.value;
+          }
 
-          const res = await auth.fetchWithAuth('/consolidated/generate', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token()}` },
-            body: JSON.stringify(body)
+          const res = await auth.fetchWithAuth("/consolidated/generate", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token()}`,
+            },
+            body: JSON.stringify(body),
           });
           const result = await res.json();
-          hideLoading(); genBtn.disabled = false;
-          if (!result.success) return showError(result.error || 'Failed to generate consolidated payslips.');
-          showPreview(result.data, fmt, 'consolidated', `Consolidated Payslip — ${MONTH_NAMES[+mo]} ${yr}`);
+          hideLoading();
+          genBtn.disabled = false;
+          if (!result.success)
+            return showError(
+              result.error || "Failed to generate consolidated payslips.",
+            );
+          showPreview(
+            result.data,
+            fmt,
+            "consolidated",
+            `Consolidated Payslip — ${MONTH_NAMES[+mo]} ${yr}`,
+          );
         } else {
           // ── STANDARD NAVY path ─────────────────────────────────
           const params = new URLSearchParams();
-          if (v === 'all') { params.append('optall', '1'); params.append('empno1', ''); params.append('empno2', ''); }
-          if (v === 'specific') { params.append('optrange', '1'); params.append('empno1', startNo.value); params.append('empno2', endNo.value); }
-          if (v === 'individual') { params.append('optindividual', '1'); params.append('empno1', startNo.value); params.append('empno2', ''); }
-          params.append('branch', cls);
-          params.append('wxdate', new Date().toISOString().split('T')[0]);
-          params.append('year', yr);
-          params.append('month', mo);
+          if (v === "all") {
+            params.append("optall", "1");
+            params.append("empno1", "");
+            params.append("empno2", "");
+          }
+          if (v === "specific") {
+            params.append("optrange", "1");
+            params.append("empno1", startNo.value);
+            params.append("empno2", endNo.value);
+          }
+          if (v === "individual") {
+            params.append("optindividual", "1");
+            params.append("empno1", startNo.value);
+            params.append("empno2", "");
+          }
+          params.append("branch", cls);
+          params.append("wxdate", new Date().toISOString().split("T")[0]);
+          params.append("year", yr);
+          params.append("month", mo);
 
           const res = await auth.fetchWithAuth(`/payslips/generate?${params}`, {
-            headers: { Authorization: `Bearer ${token()}` }
+            headers: { Authorization: `Bearer ${token()}` },
           });
           const result = await res.json();
-          hideLoading(); genBtn.disabled = false;
-          if (!result.success || !result.data?.length) return showError('No payslip data generated.');
-          showPreview(result.data, fmt, 'payslip', `Payslip — ${MONTH_NAMES[+mo]} ${yr}`);
+          hideLoading();
+          genBtn.disabled = false;
+          if (!result.success || !result.data?.length)
+            return showError("No payslip data generated.");
+          showPreview(
+            result.data,
+            fmt,
+            "payslip",
+            `Payslip — ${MONTH_NAMES[+mo]} ${yr}`,
+          );
         }
       } catch (e) {
-        hideLoading(); genBtn.disabled = false;
-        showError(e.message || 'Failed to generate payslips.');
+        hideLoading();
+        genBtn.disabled = false;
+        showError(e.message || "Failed to generate payslips.");
       }
     }
   })();
@@ -597,69 +830,84 @@
   // ══════════════════════════════════════════════════════════════════
   (function () {
     const radios = document.querySelectorAll('input[name="sh_people"]');
-    const startNo = document.getElementById('sh_startNo');
-    const endNo = document.getElementById('sh_endNo');
-    const genBtn = document.getElementById('sh_generateBtn');
-    const clearBtn = document.getElementById('sh_clearBtn');
-    const ippisChk = document.getElementById('sh_ippis');
+    const startNo = document.getElementById("sh_startNo");
+    const endNo = document.getElementById("sh_endNo");
+    const genBtn = document.getElementById("sh_generateBtn");
+    const clearBtn = document.getElementById("sh_clearBtn");
+    const ippisChk = document.getElementById("sh_ippis");
 
     function toggleInputs() {
       const v = document.querySelector('input[name="sh_people"]:checked').value;
-      startNo.disabled = v === 'all';
-      endNo.disabled = v !== 'specific';
-      if (v === 'all') { startNo.value = ''; endNo.value = ''; }
-      if (v === 'individual') { endNo.value = ''; }
+      startNo.disabled = v === "all";
+      endNo.disabled = v !== "specific";
+      if (v === "all") {
+        startNo.value = "";
+        endNo.value = "";
+      }
+      if (v === "individual") {
+        endNo.value = "";
+      }
     }
 
-    radios.forEach(r => r.addEventListener('change', toggleInputs));
+    radios.forEach((r) => r.addEventListener("change", toggleInputs));
     toggleInputs();
 
-    genBtn.addEventListener('click', () => {
+    genBtn.addEventListener("click", () => {
       const v = document.querySelector('input[name="sh_people"]:checked').value;
-      const fromYr = document.getElementById('sh_fromYear').value;
-      const fromMo = document.getElementById('sh_fromMonth').value;
-      const toYr = document.getElementById('sh_toYear').value;
-      const toMo = document.getElementById('sh_toMonth').value;
+      const fromYr = document.getElementById("sh_fromYear").value;
+      const fromMo = document.getElementById("sh_fromMonth").value;
+      const toYr = document.getElementById("sh_toYear").value;
+      const toMo = document.getElementById("sh_toMonth").value;
 
-      if (v === 'specific' && (!startNo.value || !endNo.value))
-        return showError('Please fill in both Start and End Service Numbers.');
-      if (v === 'individual' && !startNo.value)
-        return showError('Please enter a Service Number.');
-      if (!fromYr || !fromMo) return showError('Please select a From period (Year and Month).');
-      if (!toYr || !toMo) return showError('Please select a To period (Year and Month).');
+      if (v === "specific" && (!startNo.value || !endNo.value))
+        return showError("Please fill in both Start and End Service Numbers.");
+      if (v === "individual" && !startNo.value)
+        return showError("Please enter a Service Number.");
+      if (!fromYr || !fromMo)
+        return showError("Please select a From period (Year and Month).");
+      if (!toYr || !toMo)
+        return showError("Please select a To period (Year and Month).");
 
       const fromPeriod = fromYr + fromMo;
       const toPeriod = toYr + toMo;
-      if (toPeriod < fromPeriod) return showError('To period must be after From period.');
+      if (toPeriod < fromPeriod)
+        return showError("To period must be after From period.");
 
       // Validate max 12 months
-      const months = (parseInt(toYr) - parseInt(fromYr)) * 12 + (parseInt(toMo) - parseInt(fromMo)) + 1;
-      if (months > 12) return showError('Date range cannot exceed 12 months.');
+      const months =
+        (parseInt(toYr) - parseInt(fromYr)) * 12 +
+        (parseInt(toMo) - parseInt(fromMo)) +
+        1;
+      if (months > 12) return showError("Date range cannot exceed 12 months.");
 
-      confirmTitle.textContent = 'Confirm Salary History Generation';
-      confirmText.textContent = 'Do you want to continue and generate salary history?';
-      confirmModal.classList.remove('hidden');
+      confirmTitle.textContent = "Confirm Salary History Generation";
+      confirmText.textContent =
+        "Do you want to continue and generate salary history?";
+      confirmModal.classList.remove("hidden");
 
       const handler = async () => {
-        continueBtn.removeEventListener('click', handler);
-        confirmModal.classList.add('hidden');
+        continueBtn.removeEventListener("click", handler);
+        confirmModal.classList.add("hidden");
         await runSalaryHistoryGeneration(fromPeriod, toPeriod);
       };
-      continueBtn.addEventListener('click', handler);
+      continueBtn.addEventListener("click", handler);
     });
 
-    clearBtn.addEventListener('click', () => {
-      document.querySelector('input[name="sh_people"][value="all"]').checked = true;
+    clearBtn.addEventListener("click", () => {
+      document.querySelector('input[name="sh_people"][value="all"]').checked =
+        true;
       toggleInputs();
     });
 
     async function runSalaryHistoryGeneration(fromPeriod, toPeriod) {
       const v = document.querySelector('input[name="sh_people"]:checked').value;
-      const fmt = document.querySelector('input[name="sh_format"]:checked').value;
-      const cls = document.getElementById('sh_payrollClass').value;
+      const fmt = document.querySelector(
+        'input[name="sh_format"]:checked',
+      ).value;
+      const cls = document.getElementById("sh_payrollClass").value;
       const useIppis = ippisChk.checked;
 
-      showLoading('Generating salary history...');
+      showLoading("Generating salary history...");
       genBtn.disabled = true;
 
       try {
@@ -667,28 +915,39 @@
           fromPeriod,
           toPeriod,
           payrollClass: cls,
-          useIppis: useIppis ? 'Y' : 'N',
-          printRange: v !== 'all'
+          useIppis: useIppis ? "Y" : "N",
+          printRange: v !== "all",
         };
-        if (v === 'specific') { body.empnoFrom = startNo.value; body.empnoTo = endNo.value; }
-        if (v === 'individual') { body.empnoFrom = startNo.value; body.empnoTo = startNo.value; }
+        if (v === "specific") {
+          body.empnoFrom = startNo.value;
+          body.empnoTo = endNo.value;
+        }
+        if (v === "individual") {
+          body.empnoFrom = startNo.value;
+          body.empnoTo = startNo.value;
+        }
 
-        const res = await auth.fetchWithAuth('/salary-history/generate', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token()}` },
-          body: JSON.stringify(body)
+        const res = await auth.fetchWithAuth("/salary-history/generate", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token()}`,
+          },
+          body: JSON.stringify(body),
         });
         const result = await res.json();
-        hideLoading(); genBtn.disabled = false;
+        hideLoading();
+        genBtn.disabled = false;
 
         if (!result.success || !result.data?.length)
-          return showError(result.error || 'No salary history data generated.');
+          return showError(result.error || "No salary history data generated.");
 
         const label = `Salary History — ${fromPeriod} to ${toPeriod}`;
-        showPreview(result.data, fmt, 'salaryhistory', label);
+        showPreview(result.data, fmt, "salaryhistory", label);
       } catch (e) {
-        hideLoading(); genBtn.disabled = false;
-        showError(e.message || 'Failed to generate salary history.');
+        hideLoading();
+        genBtn.disabled = false;
+        showError(e.message || "Failed to generate salary history.");
       }
     }
   })();
@@ -703,94 +962,126 @@
     previewTitle.textContent = title;
 
     const count = Array.isArray(data) ? data.length : 1;
-    downloadBtn.textContent = count > 1
-      ? `Download ${count} ${type === 'salaryhistory' ? 'Reports' : 'Payslips'} (${fmt.toUpperCase()})`
-      : `Download ${fmt.toUpperCase()}`;
+    downloadBtn.textContent =
+      count > 1
+        ? `Download ${count} ${type === "salaryhistory" ? "Reports" : "Payslips"} (${fmt.toUpperCase()})`
+        : `Download ${fmt.toUpperCase()}`;
 
-    fetch('photos/logo.png')
-      .then(r => r.blob())
-      .then(blob => new Promise(resolve => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.readAsDataURL(blob);
-      }))
-      .catch(() => '')
-      .then(logoDataUrl => {
-        if (type === 'salaryhistory') {
-          previewModal.querySelector('.bg-gray-50').style.maxWidth = '98vw';
+    fetch("photos/logo.png")
+      .then((r) => r.blob())
+      .then(
+        (blob) =>
+          new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.readAsDataURL(blob);
+          }),
+      )
+      .catch(() => "")
+      .then((logoDataUrl) => {
+        if (type === "salaryhistory") {
+          previewModal.querySelector(".bg-gray-50").style.maxWidth = "98vw";
         } else {
-          previewModal.querySelector('.bg-gray-50').style.maxWidth = '';
+          previewModal.querySelector(".bg-gray-50").style.maxWidth = "";
         }
 
         let html;
 
-        if (type === 'salaryhistory') {
-          html = buildSalaryHistoryHTML(Array.isArray(data) ? data : [data], logoDataUrl);
-        } else if (type === 'consolidated') {
+        if (type === "salaryhistory") {
+          html = buildSalaryHistoryHTML(
+            Array.isArray(data) ? data : [data],
+            logoDataUrl,
+          );
+        } else if (type === "consolidated") {
           // uses existing buildConsolidatedHTML from the consolidated script
-          html = buildConsolidatedHTML(Array.isArray(data) ? data : [data], logoDataUrl);
+          html = buildConsolidatedHTML(
+            Array.isArray(data) ? data : [data],
+            logoDataUrl,
+          );
         } else {
           // standard payslip
-          html = buildExactPayslipHTML(Array.isArray(data) ? data : [data], logoDataUrl);
+          html = buildExactPayslipHTML(
+            Array.isArray(data) ? data : [data],
+            logoDataUrl,
+          );
         }
 
         const arr = Array.isArray(data) ? data : [data];
-        const estH = type === 'salaryhistory'
-          ? arr.length * 700 + 48
-          : arr.length * 818 + 32;
+        const estH =
+          type === "salaryhistory"
+            ? arr.length * 700 + 48
+            : arr.length * 818 + 32;
 
-        if (type === 'salaryhistory') {
-          previewIframe.style.width = '100%';
-          previewIframe.style.minHeight = '700px';
+        if (type === "salaryhistory") {
+          previewIframe.style.width = "100%";
+          previewIframe.style.minHeight = "700px";
         }
-        previewIframe.style.height = estH + 'px';
+        previewIframe.style.height = estH + "px";
         previewIframe.srcdoc = html;
         previewIframe.onload = function () {
           try {
             const b = previewIframe.contentDocument.body;
-            if (b) previewIframe.style.height = Math.max(600, b.scrollHeight + 20) + 'px';
-          } catch (e) { }
+            if (b)
+              previewIframe.style.height =
+                Math.max(600, b.scrollHeight + 20) + "px";
+          } catch (e) {}
         };
-        previewModal.classList.remove('hidden');
+        previewModal.classList.remove("hidden");
       });
   }
 
   // ── Download handler ───────────────────────────────────────────────
-  downloadBtn.addEventListener('click', async () => {
+  downloadBtn.addEventListener("click", async () => {
     downloadBtn.disabled = true;
-    downloadBtn.textContent = 'Preparing…';
+    downloadBtn.textContent = "Preparing…";
     try {
       const { data, fmt, type } = _previewState;
       let endpoint;
-      if (type === 'salaryhistory') endpoint = fmt === 'pdf' ? '/salary-history/export/pdf' : '/salary-history/export/excel';
-      else if (type === 'consolidated') endpoint = fmt === 'pdf' ? '/consolidated/export/pdf' : '/consolidated/export/excel';
-      else endpoint = fmt === 'pdf' ? '/payslips/export/pdf' : '/payslips/export/excel';
+      if (type === "salaryhistory")
+        endpoint =
+          fmt === "pdf"
+            ? "/salary-history/export/pdf"
+            : "/salary-history/export/excel";
+      else if (type === "consolidated")
+        endpoint =
+          fmt === "pdf"
+            ? "/consolidated/export/pdf"
+            : "/consolidated/export/excel";
+      else
+        endpoint =
+          fmt === "pdf" ? "/payslips/export/pdf" : "/payslips/export/excel";
 
       const res = await auth.fetchWithAuth(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token()}` },
-        body: JSON.stringify({ data })
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token()}`,
+        },
+        body: JSON.stringify({ data }),
       });
-      if (!res.ok) throw new Error('Failed to generate file');
+      if (!res.ok) throw new Error("Failed to generate file");
       const blob = await res.blob();
       const url = window.URL.createObjectURL(blob);
-      if (fmt === 'pdf') window.open(url, '_blank');
-      const a = document.createElement('a');
+      if (fmt === "pdf") window.open(url, "_blank");
+      const a = document.createElement("a");
       a.href = url;
-      a.download = `${type}_${Date.now()}.${fmt === 'pdf' ? 'pdf' : 'xlsx'}`;
-      document.body.appendChild(a); a.click(); a.remove();
+      a.download = `${type}_${Date.now()}.${fmt === "pdf" ? "pdf" : "xlsx"}`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
       setTimeout(() => window.URL.revokeObjectURL(url), 100);
       closePreview();
-      showSuccess('Downloaded successfully!');
+      showSuccess("Downloaded successfully!");
     } catch (e) {
-      showError('Failed to download. Please try again.');
+      showError("Failed to download. Please try again.");
     } finally {
       downloadBtn.disabled = false;
       const { fmt, type, data } = _previewState;
       const count = Array.isArray(data) ? data.length : 1;
-      downloadBtn.textContent = count > 1
-        ? `Download ${count} ${type === 'salaryhistory' ? 'Reports' : 'Payslips'} (${fmt?.toUpperCase()})`
-        : `Download ${fmt?.toUpperCase()}`;
+      downloadBtn.textContent =
+        count > 1
+          ? `Download ${count} ${type === "salaryhistory" ? "Reports" : "Payslips"} (${fmt?.toUpperCase()})`
+          : `Download ${fmt?.toUpperCase()}`;
     }
   });
 
@@ -798,34 +1089,51 @@
   // SALARY HISTORY HTML BUILDER
   // ══════════════════════════════════════════════════════════════════
   function buildSalaryHistoryHTML(employees, logoDataUrl) {
-    const logoUrl = logoDataUrl || 'photos/logo.png';
+    const logoUrl = logoDataUrl || "photos/logo.png";
     const now = new Date();
-    const prodDate = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
-    const prodTime = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    const prodDate = now.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    });
+    const prodTime = now.toLocaleTimeString("en-GB", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    });
 
     function periodLabel(p) {
-      if (!p || p.length < 6) return p || '';
+      if (!p || p.length < 6) return p || "";
       const mo = parseInt(p.substring(4, 6));
-      return MONTH_NAMES[mo] ? MONTH_NAMES[mo].substring(0, 3) + ' ' + p.substring(0, 4) : p;
+      return MONTH_NAMES[mo]
+        ? MONTH_NAMES[mo].substring(0, 3) + " " + p.substring(0, 4)
+        : p;
     }
 
     function fmtAmt(n) {
       const v = parseFloat(n) || 0;
-      return v === 0 ? '' : v.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      return v === 0
+        ? ""
+        : v.toLocaleString("en-NG", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          });
     }
     function esc(s) {
-      if (s === null || s === undefined) return '';
+      if (s === null || s === undefined) return "";
       return String(s)
-        .replace(/&/g, '&amp;').replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
     }
 
     const firstEmp = employees[0] || {};
     const numCols = (firstEmp.periods || []).length;
     const manyCol = numCols >= 10;
-    const cellPad = manyCol ? '1px 1.5px' : '2.5px 4px';
-    const cellFontSize = manyCol ? '6pt' : '7pt';
-    const amtMinWidth = manyCol ? '50px' : 'auto';  
+    const cellPad = manyCol ? "1px 1.5px" : "2.5px 4px";
+    const cellFontSize = manyCol ? "6pt" : "7pt";
+    const amtMinWidth = manyCol ? "50px" : "auto";
 
     const css = `
     @page { size: A4 landscape; margin: 0.8mm; background-color: #f8fbff; }
@@ -882,12 +1190,12 @@
     thead th:first-child, tbody td:first-child { border-left: none; }
     thead th:last-child, tbody td:last-child { border-right: none; }
 
-    thead th { color: #1e40af; text-align: left; font-weight: bold; font-size: ${cellFontSize}; text-transform: uppercase; letter-spacing: 0.3px; white-space: ${manyCol ? 'normal' : 'nowrap'}; background: #e8f0fe; border-bottom: 1.5px solid #0056A0; }
+    thead th { color: #1e40af; text-align: left; font-weight: bold; font-size: ${cellFontSize}; text-transform: uppercase; letter-spacing: 0.3px; white-space: ${manyCol ? "normal" : "nowrap"}; background: #e8f0fe; border-bottom: 1.5px solid #0056A0; }
     thead th.amt { text-align: right; min-width: ${amtMinWidth}; }
 
     tbody td.desc { color: #4a4a4a; font-size: ${cellFontSize}; }
-    tbody td.amt { text-align: right; font-family: 'Courier New', monospace; font-weight: 600; white-space: ${manyCol ? 'normal' : 'nowrap'}; color: #1a1a1a; font-size: ${cellFontSize}; min-width: ${amtMinWidth}; }
-    tbody td.ded-amt { text-align: right; font-family: 'Courier New', monospace; font-weight: 600; white-space: ${manyCol ? 'normal' : 'nowrap'}; font-size: ${cellFontSize}; min-width: ${amtMinWidth}; }
+    tbody td.amt { text-align: right; font-family: 'Courier New', monospace; font-weight: 600; white-space: ${manyCol ? "normal" : "nowrap"}; color: #1a1a1a; font-size: ${cellFontSize}; min-width: ${amtMinWidth}; }
+    tbody td.ded-amt { text-align: right; font-family: 'Courier New', monospace; font-weight: 600; white-space: ${manyCol ? "normal" : "nowrap"}; font-size: ${cellFontSize}; min-width: ${amtMinWidth}; }
 
     tr.section-label td { background: #cfe2ff; color: #1e3a8a; font-weight: bold; font-size: 7pt; padding: 3px 4px; letter-spacing: 0.3px; text-transform: uppercase; white-space: nowrap; }
     tr.source-label td { color: #1a1a1a; font-weight: bold; font-size: 8pt; padding: 5px 4px 3px 4px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1.5px solid #1e40af; }
@@ -900,121 +1208,140 @@
     .footer { margin-top: 10px; padding-top: 6px; border-top: 1px solid #d0d0d0; text-align: center; font-size: 6.5pt; color: #6a6a6a; }
   `;
 
-    const pages = employees.map((emp) => {
-      const periods = emp.periods || [];
-      const rows = emp.rows || [];
-      const useIppis = !!emp.useIppis;
-      const numCols = periods.length;
+    const pages = employees
+      .map((emp) => {
+        const periods = emp.periods || [];
+        const rows = emp.rows || [];
+        const useIppis = !!emp.useIppis;
+        const numCols = periods.length;
 
-      const colHeaders = `
-      <th style="min-width:${manyCol ? '110px' : '140px'};">Description</th>
-      ${periods.map(p => `<th class="amt">${esc(periodLabel(p))}</th>`).join('')}
+        const colHeaders = `
+      <th style="min-width:${manyCol ? "110px" : "140px"};">Description</th>
+      ${periods.map((p) => `<th class="amt">${esc(periodLabel(p))}</th>`).join("")}
     `;
 
-      function colTotals(subset) {
-        const sums = new Array(numCols).fill(0);
-        subset.forEach(r => {
-          (r.amounts || []).forEach((a, i) => { sums[i] += parseFloat(a) || 0; });
-        });
-        return sums;
-      }
+        function colTotals(subset) {
+          const sums = new Array(numCols).fill(0);
+          subset.forEach((r) => {
+            (r.amounts || []).forEach((a, i) => {
+              sums[i] += parseFloat(a) || 0;
+            });
+          });
+          return sums;
+        }
 
-      function renderAmtCells(amounts) {
-        return new Array(numCols).fill(0).map((_, i) => {
-          const v = fmtAmt(amounts[i]);
-          return `<td class="amt">${v ? '&#x20A6;' + v : ''}</td>`;
-        }).join('');
-      }
+        function renderAmtCells(amounts) {
+          return new Array(numCols)
+            .fill(0)
+            .map((_, i) => {
+              const v = fmtAmt(amounts[i]);
+              return `<td class="amt">${v ? "&#x20A6;" + v : ""}</td>`;
+            })
+            .join("");
+        }
 
-      function renderDedAmtCells(amounts) {
-        return new Array(numCols).fill(0).map((_, i) => {
-          const v = fmtAmt(amounts[i]);
-          return `<td class="ded-amt">${v ? '(&#x20A6;' + v + ')' : ''}</td>`;
-        }).join('');
-      }
+        function renderDedAmtCells(amounts) {
+          return new Array(numCols)
+            .fill(0)
+            .map((_, i) => {
+              const v = fmtAmt(amounts[i]);
+              return `<td class="ded-amt">${v ? "(&#x20A6;" + v + ")" : ""}</td>`;
+            })
+            .join("");
+        }
 
-      function renderTotalCells(sums) {
-        return sums.map(s => `<td class="amt">${s !== 0 ? '&#x20A6;' + fmtAmt(s) : ''}</td>`).join('');
-      }
+        function renderTotalCells(sums) {
+          return sums
+            .map(
+              (s) =>
+                `<td class="amt">${s !== 0 ? "&#x20A6;" + fmtAmt(s) : ""}</td>`,
+            )
+            .join("");
+        }
 
-      let tableBody = '';
+        let tableBody = "";
 
-      if (!useIppis) {
-        const earnings = rows.filter(r => ['BP', 'PT'].includes(r.bpc));
-        const deductions = rows.filter(r => ['PR', 'OT'].includes(r.bpc));
-        const emolTotals = colTotals(earnings);
-        const dedTotals = colTotals(deductions);
-        const netTotals = emolTotals.map((v, i) => v - dedTotals[i]);
-
-        tableBody += `<tr class="section-label"><td colspan="${numCols + 1}">Earnings</td></tr>`;
-        earnings.forEach(r => {
-          tableBody += `<tr><td class="desc" style="white-space:nowrap;">${esc(r.description)}</td>${renderAmtCells(r.amounts)}</tr>`;
-        });
-        tableBody += `<tr class="total-row"><td><strong>Total Emolument</strong></td>${renderTotalCells(emolTotals)}</tr>`;
-
-        tableBody += `<tr class="section-label"><td colspan="${numCols + 1}">Deductions</td></tr>`;
-        deductions.forEach(r => {
-          tableBody += `<tr><td class="desc">${esc(r.description)}</td>${renderAmtCells(r.amounts)}</tr>`;
-        });
-        tableBody += `<tr class="total-row"><td><strong>Total Deduction</strong></td>${renderTotalCells(dedTotals)}</tr>`;
-
-        tableBody += `<tr class="net-row"><td><strong>NET</strong></td>${netTotals.map(s => `<td class="amt">${s !== 0 ? '&#x20A6;' + fmtAmt(s) : ''}</td>`).join('')}</tr>`;
-
-      } else {
-        ['IPPIS', 'NAVY'].forEach(src => {
-          const srcRows = rows.filter(r => r.source === src);
-          const earnings = srcRows.filter(r => ['BP', 'PT'].includes(r.bpc));
-          const deductions = srcRows.filter(r => ['PR', 'OT'].includes(r.bpc));
-          const taxable = srcRows.filter(r => r.bpc === 'BP');
-          const nonTaxable = srcRows.filter(r => r.bpc === 'PT');
+        if (!useIppis) {
+          const earnings = rows.filter((r) => ["BP", "PT"].includes(r.bpc));
+          const deductions = rows.filter((r) => ["PR", "OT"].includes(r.bpc));
           const emolTotals = colTotals(earnings);
           const dedTotals = colTotals(deductions);
-          const srcNetTotals = emolTotals.map((v, i) => v - dedTotals[i]);
+          const netTotals = emolTotals.map((v, i) => v - dedTotals[i]);
 
-          tableBody += `<tr class="source-label"><td colspan="${numCols + 1}">${src}</td></tr>`;
+          tableBody += `<tr class="section-label"><td colspan="${numCols + 1}">Earnings</td></tr>`;
+          earnings.forEach((r) => {
+            tableBody += `<tr><td class="desc" style="white-space:nowrap;">${esc(r.description)}</td>${renderAmtCells(r.amounts)}</tr>`;
+          });
+          tableBody += `<tr class="total-row"><td><strong>Total Emolument</strong></td>${renderTotalCells(emolTotals)}</tr>`;
 
-          if (taxable.length) {
-            tableBody += `<tr class="section-label"><td colspan="${numCols + 1}">Taxable Payment</td></tr>`;
-            taxable.forEach(r => {
-              tableBody += `<tr><td class="desc" style="white-space:nowrap;">${esc(r.description)}</td>${renderAmtCells(r.amounts)}</tr>`;
-            });
-          }
-          if (nonTaxable.length) {
-            tableBody += `<tr class="section-label"><td colspan="${numCols + 1}">Non-Taxable Payment</td></tr>`;
-            nonTaxable.forEach(r => {
-              tableBody += `<tr><td class="desc">${esc(r.description)}</td>${renderAmtCells(r.amounts)}</tr>`;
-            });
-          }
-          if (src === 'IPPIS') {
-            tableBody += `<tr class="total-row"><td><strong>Total Taxable Payment</strong></td>${renderTotalCells(emolTotals)}</tr>`;
-          }
-          if (deductions.length) {
-            tableBody += `<tr class="section-label"><td colspan="${numCols + 1}">Deductions</td></tr>`;
-            deductions.forEach(r => {
-              tableBody += `<tr><td class="desc">${esc(r.description)}</td>${renderDedAmtCells(r.amounts)}</tr>`;
-            });
-            //tableBody += `<tr class="total-row"><td><strong>${src} Total Deduction</strong></td>${renderTotalCells(dedTotals)}</tr>`;
-          }
-          tableBody += `<tr class="total-row"><td><strong>${src} Total</strong></td>${srcNetTotals.map(s => `<td class="amt">${s !== 0 ? '&#x20A6;' + fmtAmt(s) : ''}</td>`).join('')}</tr>`;
-        });
+          tableBody += `<tr class="section-label"><td colspan="${numCols + 1}">Deductions</td></tr>`;
+          deductions.forEach((r) => {
+            tableBody += `<tr><td class="desc">${esc(r.description)}</td>${renderAmtCells(r.amounts)}</tr>`;
+          });
+          tableBody += `<tr class="total-row"><td><strong>Total Deduction</strong></td>${renderTotalCells(dedTotals)}</tr>`;
 
-        const allEarnings = rows.filter(r => ['BP', 'PT'].includes(r.bpc));
-        const allDeductions = rows.filter(r => ['PR', 'OT'].includes(r.bpc));
-        const grandEmol = colTotals(allEarnings);
-        const grandDed = colTotals(allDeductions);
-        const grandNet = grandEmol.map((v, i) => v - grandDed[i]);
-        tableBody += `<tr class="net-row"><td><strong>NET(IPPIS + NAVY)</strong></td>${grandNet.map(s => `<td class="amt">${s !== 0 ? '&#x20A6;' + fmtAmt(s) : ''}</td>`).join('')}</tr>`;
-      }
+          tableBody += `<tr class="net-row"><td><strong>NET</strong></td>${netTotals.map((s) => `<td class="amt">${s !== 0 ? "&#x20A6;" + fmtAmt(s) : ""}</td>`).join("")}</tr>`;
+        } else {
+          ["IPPIS", "NAVY"].forEach((src) => {
+            const srcRows = rows.filter((r) => r.source === src);
+            const earnings = srcRows.filter((r) =>
+              ["BP", "PT"].includes(r.bpc),
+            );
+            const deductions = srcRows.filter((r) =>
+              ["PR", "OT"].includes(r.bpc),
+            );
+            const taxable = srcRows.filter((r) => r.bpc === "BP");
+            const nonTaxable = srcRows.filter((r) => r.bpc === "PT");
+            const emolTotals = colTotals(earnings);
+            const dedTotals = colTotals(deductions);
+            const srcNetTotals = emolTotals.map((v, i) => v - dedTotals[i]);
 
-    const pageWidth = manyCol ? '1250px' : '1050px';
-    return `
+            tableBody += `<tr class="source-label"><td colspan="${numCols + 1}">${src}</td></tr>`;
+
+            if (taxable.length) {
+              tableBody += `<tr class="section-label"><td colspan="${numCols + 1}">Taxable Payment</td></tr>`;
+              taxable.forEach((r) => {
+                tableBody += `<tr><td class="desc" style="white-space:nowrap;">${esc(r.description)}</td>${renderAmtCells(r.amounts)}</tr>`;
+              });
+            }
+            if (nonTaxable.length) {
+              tableBody += `<tr class="section-label"><td colspan="${numCols + 1}">Non-Taxable Payment</td></tr>`;
+              nonTaxable.forEach((r) => {
+                tableBody += `<tr><td class="desc">${esc(r.description)}</td>${renderAmtCells(r.amounts)}</tr>`;
+              });
+            }
+            if (src === "IPPIS") {
+              tableBody += `<tr class="total-row"><td><strong>Total Taxable Payment</strong></td>${renderTotalCells(emolTotals)}</tr>`;
+            }
+            if (deductions.length) {
+              tableBody += `<tr class="section-label"><td colspan="${numCols + 1}">Deductions</td></tr>`;
+              deductions.forEach((r) => {
+                tableBody += `<tr><td class="desc">${esc(r.description)}</td>${renderDedAmtCells(r.amounts)}</tr>`;
+              });
+              //tableBody += `<tr class="total-row"><td><strong>${src} Total Deduction</strong></td>${renderTotalCells(dedTotals)}</tr>`;
+            }
+            tableBody += `<tr class="total-row"><td><strong>${src} Total</strong></td>${srcNetTotals.map((s) => `<td class="amt">${s !== 0 ? "&#x20A6;" + fmtAmt(s) : ""}</td>`).join("")}</tr>`;
+          });
+
+          const allEarnings = rows.filter((r) => ["BP", "PT"].includes(r.bpc));
+          const allDeductions = rows.filter((r) =>
+            ["PR", "OT"].includes(r.bpc),
+          );
+          const grandEmol = colTotals(allEarnings);
+          const grandDed = colTotals(allDeductions);
+          const grandNet = grandEmol.map((v, i) => v - grandDed[i]);
+          tableBody += `<tr class="net-row"><td><strong>NET(IPPIS + NAVY)</strong></td>${grandNet.map((s) => `<td class="amt">${s !== 0 ? "&#x20A6;" + fmtAmt(s) : ""}</td>`).join("")}</tr>`;
+        }
+
+        const pageWidth = manyCol ? "1250px" : "1050px";
+        return `
     <div class="page" style="width:${pageWidth};">
 
       <div class="header-wrapper">
-        <div class="className">${esc(emp.payclass_name || emp.payclass || '')}</div>
+        <div class="className">${esc(emp.payclass_name || emp.payclass || "")}</div>
         <div class="header">
-          <h1>Nigerian Navy (Naval Headquarters)</h1>
-          <h2>CENTRAL PAY OFFICE, 23 POINT ROAD APAPA</h2>
+          <h1>DEFENSE SPACE ADMINISTRATION</h1>
+          <h2>NATIONAL SPACE MUSEUM, ABUJA</h2>
         </div>
       </div>
 
@@ -1037,7 +1364,8 @@
 
       <div class="footer"><p>All rights reserved &copy; Hicad Systems Limited.</p></div>
     </div>`;
-    }).join('');
+      })
+      .join("");
 
     return `<!DOCTYPE html><html><head><meta charset="UTF-8">
   <style>${css}</style></head><body>${pages}</body></html>`;
@@ -1045,30 +1373,47 @@
 
   // ── Build the full A5 HTML document (exact replica of doc 2) ─────
   function buildExactPayslipHTML(employees, logoDataUrl) {
-    const logoUrl = logoDataUrl || 'photos/logo.png';
+    const logoUrl = logoDataUrl || "photos/logo.png";
     const payDate = fmtDate(new Date().toISOString());
-    const selectedOption = document.getElementById('ps_payrollClass').options[document.getElementById('ps_payrollClass').selectedIndex];
-    const className = (selectedOption && selectedOption.text) ? selectedOption.text : '';
+    const selectedOption =
+      document.getElementById("ps_payrollClass").options[
+        document.getElementById("ps_payrollClass").selectedIndex
+      ];
+    const className =
+      selectedOption && selectedOption.text ? selectedOption.text : "";
 
     function esc(s) {
-      if (s === null || s === undefined) return '';
+      if (s === null || s === undefined) return "";
       return String(s)
-        .replace(/&/g, '&amp;').replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
     }
 
     function fmt(n) {
-      return (parseFloat(n) || 0).toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      return (parseFloat(n) || 0).toLocaleString("en-NG", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      });
     }
 
     function fmtDate(dateStr) {
-      if (!dateStr) return '';
+      if (!dateStr) return "";
       const d = new Date(dateStr);
-      return isNaN(d) ? dateStr : d.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
+      return isNaN(d)
+        ? dateStr
+        : d.toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "long",
+            year: "numeric",
+          });
     }
 
     function sumByType(earnings, type) {
-      return (earnings || []).filter(e => e.type === type).reduce((s, e) => s + (parseFloat(e.amount) || 0), 0);
+      return (earnings || [])
+        .filter((e) => e.type === type)
+        .reduce((s, e) => s + (parseFloat(e.amount) || 0), 0);
     }
 
     const css = `
@@ -1251,57 +1596,75 @@
       }
     `;
 
-    const pages = employees.map((emp, idx) => {
-      const earnings = emp.earnings || [];
-      const deductions = emp.deductions || [];
+    const pages = employees
+      .map((emp, idx) => {
+        const earnings = emp.earnings || [];
+        const deductions = emp.deductions || [];
 
-      const taxableRows = earnings
-        .filter(e => e.type === 'Taxable')
-        .map(e => `<tr><td>${esc(e.description)}</td><td class="amount">&#x20A6;${fmt(e.amount)}</td></tr>`)
-        .join('');
+        const taxableRows = earnings
+          .filter((e) => e.type === "Taxable")
+          .map(
+            (e) =>
+              `<tr><td>${esc(e.description)}</td><td class="amount">&#x20A6;${fmt(e.amount)}</td></tr>`,
+          )
+          .join("");
 
-      const nonTaxableRows = earnings
-        .filter(e => e.type === 'Non-Taxable')
-        .map(e => `<tr><td>${esc(e.description)}</td><td class="amount">&#x20A6;${fmt(e.amount)}</td></tr>`)
-        .join('');
+        const nonTaxableRows = earnings
+          .filter((e) => e.type === "Non-Taxable")
+          .map(
+            (e) =>
+              `<tr><td>${esc(e.description)}</td><td class="amount">&#x20A6;${fmt(e.amount)}</td></tr>`,
+          )
+          .join("");
 
-      const dedLeftRows = deductions.map(item =>
-        `<tr>
+        const dedLeftRows = deductions
+          .map(
+            (item) =>
+              `<tr>
           <td class="ded-desc">${esc(item.description)}</td>
           <td class="ded-amt">&#x20A6;${fmt(item.amount)}</td>
-        </tr>`
-      ).join('');
+        </tr>`,
+          )
+          .join("");
 
-      const dedRightRows = deductions.map(item => {
-        const lbal = (item.is_loan && item.loan_balance) ? fmt(item.loan_balance) : '';
-        const osmth = (item.is_loan && item.outstanding_months && item.outstanding_months !== '-' && item.outstanding_months !== 0)
-          ? esc(String(item.outstanding_months)) : '';
-        const hasData = !!(lbal || osmth);
-        return `<div class="rz-row ${hasData ? 'rz-has-data' : 'rz-empty'}">
+        const dedRightRows = deductions
+          .map((item) => {
+            const lbal =
+              item.is_loan && item.loan_balance ? fmt(item.loan_balance) : "";
+            const osmth =
+              item.is_loan &&
+              item.outstanding_months &&
+              item.outstanding_months !== "-" &&
+              item.outstanding_months !== 0
+                ? esc(String(item.outstanding_months))
+                : "";
+            const hasData = !!(lbal || osmth);
+            return `<div class="rz-row ${hasData ? "rz-has-data" : "rz-empty"}">
           <span class="rz-lbal">${lbal}</span>
           <span class="rz-osmths">${osmth}</span>
         </div>`;
-      }).join('');
+          })
+          .join("");
 
-      const taxableTotal = sumByType(earnings, 'Taxable');
-      const nonTaxableTotal = sumByType(earnings, 'Non-Taxable');
-      const totalEmolument = taxableTotal + nonTaxableTotal;
+        const taxableTotal = sumByType(earnings, "Taxable");
+        const nonTaxableTotal = sumByType(earnings, "Non-Taxable");
+        const totalEmolument = taxableTotal + nonTaxableTotal;
 
-      const nsitfRow = emp.nsitfcode
-        ? `<div class="info-row"><span class="info-label">RSA (Pension):</span><span class="info-value">${esc(emp.nsitfcode)}</span></div>`
-        : '';
+        const nsitfRow = emp.nsitfcode
+          ? `<div class="info-row"><span class="info-label">RSA (Pension):</span><span class="info-value">${esc(emp.nsitfcode)}</span></div>`
+          : "";
 
-      const pageBreak = '';
+        const pageBreak = "";
 
-      return `
+        return `
       <div class="container">
 
         <!-- HEADER -->
         <div class="header-wrapper">
-          <div class="className">${emp.payclass ? esc(emp.payclass_name || '') : ''}</div>
+          <div class="className">${emp.payclass ? esc(emp.payclass_name || "") : ""}</div>
           <div class="header">
-            <h1>Nigerian Navy (Naval Headquarters)</h1>
-            <h2>CENTRAL PAY OFFICE, 23 POINT ROAD APAPA</h2>
+            <h1>DEFENSE SPACE ADMINISTRATION</h1>
+            <h2>NATIONAL SPACE MUSEUM, ABUJA</h2>
           </div>
         </div>
 
@@ -1325,7 +1688,7 @@
           </div>
           <div class="info-row">
             <span class="info-label">Grade:</span>
-            <span class="info-value">${esc(emp.gradelevel)}${emp.gradetype ? ' - ' + esc(emp.gradetype) : ''}</span>
+            <span class="info-value">${esc(emp.gradelevel)}${emp.gradetype ? " - " + esc(emp.gradetype) : ""}</span>
           </div>
           <div class="info-row">
             <span class="info-label">Department:</span>
@@ -1337,7 +1700,7 @@
           </div>
           <div class="info-row">
             <span class="info-label">Bank Account:</span>
-            <span class="info-value">${esc(emp.bank_account_number)}${emp.bank_name ? ' (' + esc(emp.bank_name) + ')' : ''}</span>
+            <span class="info-value">${esc(emp.bank_account_number)}${emp.bank_name ? " (" + esc(emp.bank_name) + ")" : ""}</span>
           </div>
           ${nsitfRow}
         </div>
@@ -1404,7 +1767,8 @@
 
       </div>
       ${pageBreak}`;
-    }).join('');
+      })
+      .join("");
 
     return `<!DOCTYPE html>
     <html>
@@ -1418,42 +1782,67 @@
 
   // ── Consolidated Payslip Helpers ─────────────────//
   function esc(s) {
-    if (s == null) return '';
-    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    if (s == null) return "";
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
   }
   function fmt(n) {
-    return (parseFloat(n) || 0).toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return (parseFloat(n) || 0).toLocaleString("en-NG", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
   }
   function fmtDate(d) {
-    if (!d) return '';
+    if (!d) return "";
     const dt = new Date(d);
-    return isNaN(dt) ? d : dt.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
+    return isNaN(dt)
+      ? d
+      : dt.toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "long",
+          year: "numeric",
+        });
   }
 
   // ── Render one payment table (taxable / nontaxable) ────────────
   function renderPayTable(items) {
-    if (!items || !items.length) return '';
-    return items.map(item =>
-      `<tr><td>${esc(item.description)}</td><td class="amount">&#x20A6;${fmt(item.amount)}</td></tr>`
-    ).join('');
+    if (!items || !items.length) return "";
+    return items
+      .map(
+        (item) =>
+          `<tr><td>${esc(item.description)}</td><td class="amount">&#x20A6;${fmt(item.amount)}</td></tr>`,
+      )
+      .join("");
   }
 
   // ── Render deductions — left 70% table + right 30% L.Bal/Os.Mths zone ──
   function renderDedSection(items) {
-    if (!items || !items.length) return '';
-    const leftRows = items.map(item =>
-      `<tr><td class="ded-desc">${esc(item.description)}</td><td class="ded-amt">(&#x20A6;${fmt(item.amount)})</td></tr>`
-    ).join('');
-    const rightRows = items.map(item => {
-      const lbal = item.loan_balance ? fmt(item.loan_balance) : '';
-      const osmth = (item.outstanding_months && item.outstanding_months !== '-' && item.outstanding_months !== 0)
-        ? esc(String(item.outstanding_months)) : '';
-      const hasData = !!(lbal || osmth);
-      return `<div class="rz-row ${hasData ? 'rz-has-data' : 'rz-empty'}">
+    if (!items || !items.length) return "";
+    const leftRows = items
+      .map(
+        (item) =>
+          `<tr><td class="ded-desc">${esc(item.description)}</td><td class="ded-amt">(&#x20A6;${fmt(item.amount)})</td></tr>`,
+      )
+      .join("");
+    const rightRows = items
+      .map((item) => {
+        const lbal = item.loan_balance ? fmt(item.loan_balance) : "";
+        const osmth =
+          item.outstanding_months &&
+          item.outstanding_months !== "-" &&
+          item.outstanding_months !== 0
+            ? esc(String(item.outstanding_months))
+            : "";
+        const hasData = !!(lbal || osmth);
+        return `<div class="rz-row ${hasData ? "rz-has-data" : "rz-empty"}">
           <span class="rz-lbal">${lbal}</span>
           <span class="rz-osmths">${osmth}</span>
         </div>`;
-    }).join('');
+      })
+      .join("");
     return `<div class="full-row">
         <div class="left-zone">
           <table class="ded-table">
@@ -1469,10 +1858,10 @@
   function renderEmployee(emp, globals) {
     const nsitfRow = emp.nsitfcode
       ? `<div class="info-row"><span class="info-label">RSA (Pension):</span><span class="info-value">${esc(emp.nsitfcode)}</span></div>`
-      : '';
+      : "";
 
     // IPPIS block
-    let ippisHtml = '';
+    let ippisHtml = "";
     if (emp.ippis) {
       const ip = emp.ippis;
       ippisHtml += `<div class="source-row">
@@ -1494,7 +1883,7 @@
     }
 
     // NAVY block
-    let navyHtml = '';
+    let navyHtml = "";
     if (emp.navy) {
       const nv = emp.navy;
       navyHtml += `<div class="source-header">NAVY</div>`;
@@ -1516,8 +1905,8 @@
       <div class="header-wrapper">
         <div class="className">${esc(globals.className)}</div>
         <div class="header">
-          <h1>Nigerian Navy (Naval Headquarters)</h1>
-          <h2>CENTRAL PAY OFFICE, 23 POINT ROAD APAPA</h2>
+          <h1>DEFENSE SPACE ADMINISTRATION</h1>
+          <h2>NATIONAL SPACE MUSEUM, ABUJA</h2>
         </div>
       </div>
 
@@ -1534,7 +1923,7 @@
         <div class="info-row"><span class="info-label">Grade:</span><span class="info-value">${esc(emp.gradelevel)}</span></div>
         <div class="info-row"><span class="info-label">Department:</span><span class="info-value">${esc(emp.department)}</span></div>
         <div class="info-row"><span class="info-label">Branch:</span><span class="info-value">${esc(emp.factory)}</span></div>
-        <div class="info-row"><span class="info-label">Bank Account:</span><span class="info-value">${esc(emp.bank_account_number)}${emp.bank_name ? ' (' + esc(emp.bank_name) + ')' : ''}</span></div>
+        <div class="info-row"><span class="info-label">Bank Account:</span><span class="info-value">${esc(emp.bank_account_number)}${emp.bank_name ? " (" + esc(emp.bank_name) + ")" : ""}</span></div>
         ${nsitfRow}
       </div>
 
@@ -1551,10 +1940,14 @@
   }
 
   function buildConsolidatedHTML(employees, logoDataUrl) {
-    const logoUrl = logoDataUrl || 'photos/logo.png';
+    const logoUrl = logoDataUrl || "photos/logo.png";
     const payDate = fmtDate(new Date().toISOString());
-    const selectedOption = document.getElementById('ps_payrollClass').options[document.getElementById('ps_payrollClass').selectedIndex];
-    const className = (selectedOption && selectedOption.text) ? selectedOption.text : '';
+    const selectedOption =
+      document.getElementById("ps_payrollClass").options[
+        document.getElementById("ps_payrollClass").selectedIndex
+      ];
+    const className =
+      selectedOption && selectedOption.text ? selectedOption.text : "";
     const globals = { className, payDate };
 
     const css = `
@@ -1643,12 +2036,12 @@
         .footer p:first-child { font-weight:600; color:#4a4a4a; }
       `;
 
-    const body = employees.map(emp => renderEmployee(emp, globals)).join('');
+    const body = employees.map((emp) => renderEmployee(emp, globals)).join("");
 
     return `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>${css}</style></head><body>${body}</body></html>`;
   }
 
   // ── Init ───────────────────────────────────────────────────────────
   loadPayrollClasses();
-  window.switchTab('payslip');
+  window.switchTab("payslip");
 </script>

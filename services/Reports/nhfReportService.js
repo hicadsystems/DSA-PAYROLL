@@ -1,10 +1,9 @@
 // ============================================================================
 // services/Reports/NHFReportService.js============================================================================
 
-const pool = require('../../config/db');
+const pool = require("../../config/db");
 
 class NHFReportService {
-
   // ==========================================================================
   // INTERNAL: resolve period to scalar values (same pattern as reportServices)
   // ==========================================================================
@@ -13,7 +12,7 @@ class NHFReportService {
       return { year: String(year), month: String(month) };
     }
     const [rows] = await pool.query(
-      `SELECT ord AS year, mth AS month FROM py_stdrate WHERE type = 'BT05' LIMIT 1`
+      `SELECT ord AS year, mth AS month FROM py_stdrate WHERE type = 'BT05' LIMIT 1`,
     );
     if (!rows || rows.length === 0) {
       throw new Error("Current period (BT05) not found in py_stdrate");
@@ -26,8 +25,9 @@ class NHFReportService {
   // ==========================================================================
   async getNHFReport(filters = {}) {
     const { year, month, summaryOnly } = filters;
-    const isSummary = summaryOnly === true || summaryOnly === '1' || summaryOnly === 'true';
-    const period    = await this._getPeriod(year, month);
+    const isSummary =
+      summaryOnly === true || summaryOnly === "1" || summaryOnly === "true";
+    const period = await this._getPeriod(year, month);
 
     if (isSummary) {
       // ── Summary: one aggregate row ────────────────────────────────────────
@@ -50,12 +50,11 @@ class NHFReportService {
                  ON mc.his_empno = mp.his_empno
                 AND mc.his_type  = ?
          INNER JOIN py_wkemployees we ON we.empl_id = mp.his_empno
-         WHERE mp.his_type     = 'PR309'
+         WHERE mp.his_type     = 'PR306'
            AND mp.amtthismth   > 0`,
-        [period.month]
+        [period.month],
       );
       return rows;
-
     } else {
       // ── Detail: one row per employee ──────────────────────────────────────
       // BEFORE: COUNT query + loop of 40 paginated queries (41 round-trips,
@@ -65,7 +64,7 @@ class NHFReportService {
       // The DB is better at sorting and returning 4000 rows in one shot than
       // Node is at reassembling 40 paginated slices.
       //
-      // Drive the query from py_masterpayded (already filtered to PR309)
+      // Drive the query from py_masterpayded (already filtered to PR306)
       // rather than py_wkemployees — avoids a full employee table scan
       // before the NHF filter is applied.
       const [rows] = await pool.query(
@@ -95,10 +94,10 @@ class NHFReportService {
                                      AND mc.his_type  = ?
          LEFT  JOIN py_Title        tt ON tt.Titlecode  = we.Title
          LEFT  JOIN ac_costcentre   cc ON cc.unitcode   = we.Location
-         WHERE mp.his_type   = 'PR309'
+         WHERE mp.his_type   = 'PR306'
            AND mp.amtthismth > 0
          ORDER BY mp.amtthismth DESC`,
-        [period.month]
+        [period.month],
       );
       return rows;
     }
@@ -110,7 +109,7 @@ class NHFReportService {
   async getCurrentPeriod() {
     const [rows] = await pool.query(
       `SELECT ord AS year, mth AS month, pmth AS prev_month
-       FROM py_stdrate WHERE type = 'BT05' LIMIT 1`
+       FROM py_stdrate WHERE type = 'BT05' LIMIT 1`,
     );
     return rows[0];
   }

@@ -14,7 +14,7 @@ const BATCH_SIZE = 100;
 async function getPayrollPeriod() {
   try {
     const [rows] = await pool.query(
-      "SELECT ord, mth FROM py_stdrate WHERE type = 'BT05' LIMIT 1"
+      "SELECT ord, mth FROM py_stdrate WHERE type = 'BT05' LIMIT 1",
     );
     if (rows.length > 0) {
       const year = rows[0].ord;
@@ -46,7 +46,8 @@ async function getPayrollPeriod() {
 async function launchBrowser() {
   const fs = require("fs");
   const path = require("path");
-  const isProduction = process.env.NODE_ENV === "production" || process.platform === "linux";
+  const isProduction =
+    process.env.NODE_ENV === "production" || process.platform === "linux";
 
   if (isProduction) {
     const chromium = require("@sparticuz/chromium");
@@ -59,8 +60,8 @@ async function launchBrowser() {
       if (!fs.existsSync(d)) fs.mkdirSync(d, { recursive: true });
     });
     process.env.TMPDIR = tempDir;
-    process.env.TEMP   = tempDir;
-    process.env.TMP    = tempDir;
+    process.env.TEMP = tempDir;
+    process.env.TMP = tempDir;
     process.env.XDG_CACHE_HOME = tempDir;
 
     // Get Sparticuz executable path (extraction uses TMPDIR above)
@@ -86,30 +87,48 @@ async function launchBrowser() {
     }
 
     // --single-process breaks @font-face file loading — remove it
-    const filteredArgs = chromium.args.filter(a => a !== "--single-process" && a !== "--no-zygote");
+    const filteredArgs = chromium.args.filter(
+      (a) => a !== "--single-process" && a !== "--no-zygote",
+    );
     const launchArgs = [
-        ...filteredArgs,
-        "--disable-gpu",
-        "--disable-dev-shm-usage",
-        "--disable-setuid-sandbox",
-        "--no-sandbox",
-        "--allow-file-access-from-files",
-        "--disable-web-security",
-        `--user-data-dir=${tempDir}`,
-        `--disk-cache-dir=${tempDir}`,
-      ];
+      ...filteredArgs,
+      "--disable-gpu",
+      "--disable-dev-shm-usage",
+      "--disable-setuid-sandbox",
+      "--no-sandbox",
+      "--allow-file-access-from-files",
+      "--disable-web-security",
+      `--user-data-dir=${tempDir}`,
+      `--disk-cache-dir=${tempDir}`,
+    ];
     console.log("Chromium launch args:", JSON.stringify(launchArgs));
-    try { fs.appendFileSync("/home/hicadng/backend/font-debug.log", "[" + new Date().toISOString() + "] [LAUNCH] args: " + JSON.stringify(launchArgs) + "\n"); } catch(_) {}
+    try {
+      fs.appendFileSync(
+        "/home/hicadng/backend/font-debug.log",
+        "[" +
+          new Date().toISOString() +
+          "] [LAUNCH] args: " +
+          JSON.stringify(launchArgs) +
+          "\n",
+      );
+    } catch (_) {}
     // Remove --headless='shell' from args — shell mode has no font renderer
-    const finalArgs = launchArgs.filter(a => !a.startsWith("--headless"));
+    const finalArgs = launchArgs.filter((a) => !a.startsWith("--headless"));
     console.log("Final args (headless removed):", JSON.stringify(finalArgs));
-    try { require("fs").appendFileSync("/home/hicadng/backend/font-debug.log", "[" + new Date().toISOString() + "] [LAUNCH] headless arg removed, using headless:new\n"); } catch(_) {}
+    try {
+      require("fs").appendFileSync(
+        "/home/hicadng/backend/font-debug.log",
+        "[" +
+          new Date().toISOString() +
+          "] [LAUNCH] headless arg removed, using headless:new\n",
+      );
+    } catch (_) {}
 
     return puppeteer.launch({
       args: finalArgs,
       defaultViewport: chromium.defaultViewport,
       executablePath,
-      headless: "new",  // full headless — has font renderer
+      headless: "new", // full headless — has font renderer
       ignoreHTTPSErrors: true,
     });
   } else {
@@ -159,7 +178,7 @@ router.post("/generate-excel-report", verifyToken, async (req, res) => {
     // Handle summary report differently
     if (reportType === "summary") {
       const workbook = new ExcelJS.Workbook();
-      workbook.creator = "Nigerian Navy Central Pay Office";
+      workbook.creator = "Defense Space Administration";
       workbook.created = new Date();
 
       await generateSummaryExcel(workbook, payrollClass, classDescription);
@@ -306,14 +325,15 @@ router.post("/generate-excel-report", verifyToken, async (req, res) => {
         [specificType, specificType, specificType, specificType],
       );
       const desc = typeInfo[0]?.description;
-      specificTypeLabel = desc && desc !== specificType
-        ? `${specificType} - ${desc}`
-        : specificType;
+      specificTypeLabel =
+        desc && desc !== specificType
+          ? `${specificType} - ${desc}`
+          : specificType;
     }
 
     // Generate Excel
     const workbook = new ExcelJS.Workbook();
-    workbook.creator = "Nigerian Navy Central Pay Office";
+    workbook.creator = "Defense Space Administration";
     workbook.created = new Date();
 
     if (reportType === "bank") {
@@ -330,7 +350,12 @@ router.post("/generate-excel-report", verifyToken, async (req, res) => {
         classDescription,
       );
     } else if (reportType === "remittance") {
-      await generateRemittanceExcel(workbook, reportData, classDescription, specificTypeLabel);
+      await generateRemittanceExcel(
+        workbook,
+        reportData,
+        classDescription,
+        specificTypeLabel,
+      );
     }
 
     res.setHeader(
@@ -378,8 +403,14 @@ router.post("/generate-pdf-report", verifyToken, async (req, res) => {
 
     // Handle summary report
     if (reportType === "summary") {
-      const _isProdS = process.env.NODE_ENV === 'production' || process.platform === 'linux';
-      const html = await generateSummaryPDFHTML(payrollClass, classDescription, period, _isProdS);
+      const _isProdS =
+        process.env.NODE_ENV === "production" || process.platform === "linux";
+      const html = await generateSummaryPDFHTML(
+        payrollClass,
+        classDescription,
+        period,
+        _isProdS,
+      );
 
       let browser;
       try {
@@ -388,7 +419,8 @@ router.post("/generate-pdf-report", verifyToken, async (req, res) => {
         console.error("❌ Puppeteer launch failed:", err.message);
         return res.status(500).json({
           success: false,
-          message: "PDF generation unavailable. Please install puppeteer or @sparticuz/chromium.",
+          message:
+            "PDF generation unavailable. Please install puppeteer or @sparticuz/chromium.",
         });
       }
 
@@ -396,10 +428,17 @@ router.post("/generate-pdf-report", verifyToken, async (req, res) => {
 
       const fs = require("fs");
       const path = require("path");
-      const pdfLog = (m) => { const l = "[" + new Date().toISOString() + "] [PDF-SUMMARY] " + m + "\n"; console.log(m); try { fs.appendFileSync("/home/hicadng/backend/font-debug.log", l); } catch(_){} };
+      const pdfLog = (m) => {
+        const l =
+          "[" + new Date().toISOString() + "] [PDF-SUMMARY] " + m + "\n";
+        console.log(m);
+        try {
+          fs.appendFileSync("/home/hicadng/backend/font-debug.log", l);
+        } catch (_) {}
+      };
 
       pdfLog("HTML size: " + Buffer.byteLength(html, "utf8") + " bytes");
-      const _waitS = _isProdS ? 'networkidle0' : 'domcontentloaded';
+      const _waitS = _isProdS ? "networkidle0" : "domcontentloaded";
       await page.setContent(html, { waitUntil: _waitS, timeout: 60000 });
       pdfLog("setContent done, waitUntil: " + _waitS);
       pdfLog("Generating PDF...");
@@ -465,9 +504,10 @@ router.post("/generate-pdf-report", verifyToken, async (req, res) => {
         [specificType, specificType, specificType, specificType],
       );
       const desc = typeInfo[0]?.description;
-      specificTypeLabel = desc && desc !== specificType
-        ? `${specificType} - ${desc}`
-        : specificType;
+      specificTypeLabel =
+        desc && desc !== specificType
+          ? `${specificType} - ${desc}`
+          : specificType;
     }
 
     // Group data based on report type
@@ -566,8 +606,16 @@ router.post("/generate-pdf-report", verifyToken, async (req, res) => {
       });
     }
 
-    const _isProd = process.env.NODE_ENV === 'production' || process.platform === 'linux';
-    const html = generatePDFHTML(groups, reportType, classDescription, period, specificTypeLabel, _isProd);
+    const _isProd =
+      process.env.NODE_ENV === "production" || process.platform === "linux";
+    const html = generatePDFHTML(
+      groups,
+      reportType,
+      classDescription,
+      period,
+      specificTypeLabel,
+      _isProd,
+    );
 
     let browser;
     try {
@@ -576,17 +624,24 @@ router.post("/generate-pdf-report", verifyToken, async (req, res) => {
       console.error("❌ Puppeteer launch failed:", err.message);
       return res.status(500).json({
         success: false,
-        message: "PDF generation unavailable. Please install puppeteer or @sparticuz/chromium.",
+        message:
+          "PDF generation unavailable. Please install puppeteer or @sparticuz/chromium.",
       });
     }
 
     const page = await browser.newPage();
 
     const _fs2 = require("fs");
-    const pdfLog2 = (m) => { const l = "[" + new Date().toISOString() + "] [PDF-MAIN] " + m + "\n"; console.log(m); try { _fs2.appendFileSync("/home/hicadng/backend/font-debug.log", l); } catch(_){} };
+    const pdfLog2 = (m) => {
+      const l = "[" + new Date().toISOString() + "] [PDF-MAIN] " + m + "\n";
+      console.log(m);
+      try {
+        _fs2.appendFileSync("/home/hicadng/backend/font-debug.log", l);
+      } catch (_) {}
+    };
 
     pdfLog2("HTML size: " + Buffer.byteLength(html, "utf8") + " bytes");
-    const _wait2 = _isProd ? 'networkidle0' : 'domcontentloaded';
+    const _wait2 = _isProd ? "networkidle0" : "domcontentloaded";
     await page.setContent(html, { waitUntil: _wait2, timeout: 60000 });
     pdfLog2("setContent done, waitUntil: " + _wait2);
     pdfLog2("Generating PDF...");
@@ -682,12 +737,13 @@ async function generateBankGroupedExcel(
     const worksheet = workbook.addWorksheet(finalSheetName);
 
     worksheet.mergeCells("A1:F1");
-    worksheet.getCell("A1").value = "Nigerian Navy (Naval Headquarters)";
+    worksheet.getCell("A1").value = "DEFENSE SPACE ADMINISTRATION";
     worksheet.getCell("A1").font = { bold: true, size: 14 };
     worksheet.getCell("A1").alignment = { horizontal: "center" };
 
     worksheet.mergeCells("A2:F2");
-    worksheet.getCell("A2").value = `PAYMENTS BY BANK - DETAILED (ONE-OFF) - Payroll Class: ${classDescription}`;
+    worksheet.getCell("A2").value =
+      `PAYMENTS BY BANK - DETAILED (ONE-OFF) - Payroll Class: ${classDescription}`;
     worksheet.getCell("A2").font = { bold: true, size: 12 };
     worksheet.getCell("A2").alignment = { horizontal: "center" };
 
@@ -788,7 +844,7 @@ async function generateAnalysisGroupedExcel(workbook, data, classDescription) {
     );
 
     worksheet.mergeCells("A1:D1");
-    worksheet.getCell("A1").value = "Nigerian Navy (Naval Headquarters)";
+    worksheet.getCell("A1").value = "DEFENSE SPACE ADMINISTRATION";
     worksheet.getCell("A1").font = { bold: true, size: 14 };
     worksheet.getCell("A1").alignment = { horizontal: "center" };
 
@@ -854,7 +910,12 @@ async function generateAnalysisGroupedExcel(workbook, data, classDescription) {
 // ============================================
 // Helper: Generate Remittance Excel (grouped by bank-branch)
 // ============================================
-async function generateRemittanceExcel(workbook, data, classDescription, specificTypeLabel = null) {
+async function generateRemittanceExcel(
+  workbook,
+  data,
+  classDescription,
+  specificTypeLabel = null,
+) {
   // Group by bank-branch, aggregate net per employee within each group
   const bankGroupMap = {};
   data.forEach((record) => {
@@ -903,12 +964,13 @@ async function generateRemittanceExcel(workbook, data, classDescription, specifi
     const worksheet = workbook.addWorksheet(finalSheetName);
 
     worksheet.mergeCells("A1:E1");
-    worksheet.getCell("A1").value = "Nigerian Navy (Naval Headquarters)";
+    worksheet.getCell("A1").value = "DEFENSE SPACE ADMINISTRATION";
     worksheet.getCell("A1").font = { bold: true, size: 14 };
     worksheet.getCell("A1").alignment = { horizontal: "center" };
 
     worksheet.mergeCells("A2:E2");
-    worksheet.getCell("A2").value = `REMITTANCE ADVICE (ONE-OFF) - Payroll Class: ${classDescription}`;
+    worksheet.getCell("A2").value =
+      `REMITTANCE ADVICE (ONE-OFF) - Payroll Class: ${classDescription}`;
     worksheet.getCell("A2").font = { bold: true, size: 12 };
     worksheet.getCell("A2").alignment = { horizontal: "center" };
 
@@ -926,11 +988,21 @@ async function generateRemittanceExcel(workbook, data, classDescription, specifi
     if (specificTypeLabel) {
       worksheet.mergeCells("A4:E4");
       worksheet.getCell("A4").value = `Payment Type: ${specificTypeLabel}`;
-      worksheet.getCell("A4").font = { bold: true, size: 10, color: { argb: "FF0B2F6B" } };
+      worksheet.getCell("A4").font = {
+        bold: true,
+        size: 10,
+        color: { argb: "FF0B2F6B" },
+      };
       worksheet.getCell("A4").alignment = { horizontal: "center" };
     }
 
-    const headers = ["Svc No.", "Full Name", "Rank", "Net Payment", "Account Number"];
+    const headers = [
+      "Svc No.",
+      "Full Name",
+      "Rank",
+      "Net Payment",
+      "Account Number",
+    ];
     const headerRowNum = specificTypeLabel ? 6 : 5;
     const headerRow = worksheet.getRow(headerRowNum);
     headerRow.values = headers;
@@ -992,7 +1064,7 @@ async function generateSummaryExcel(workbook, payrollClass, classDescription) {
   const worksheet = workbook.addWorksheet("Summary");
 
   worksheet.mergeCells("A1:D1");
-  worksheet.getCell("A1").value = "Nigerian Navy (Naval Headquarters)";
+  worksheet.getCell("A1").value = "DEFENSE SPACE ADMINISTRATION";
   worksheet.getCell("A1").font = { bold: true, size: 14 };
   worksheet.getCell("A1").alignment = { horizontal: "center" };
 
@@ -1097,7 +1169,14 @@ function getLogoDataUrl() {
 // ============================================
 // Helper: Generate PDF HTML Template
 // ============================================
-function generatePDFHTML(groups, reportType, classDescription, period, specificTypeLabel = null, isProduction = false) {
+function generatePDFHTML(
+  groups,
+  reportType,
+  classDescription,
+  period,
+  specificTypeLabel = null,
+  isProduction = false,
+) {
   const now = new Date();
   const formatDate = (date) =>
     new Date(date).toLocaleDateString("en-GB", {
@@ -1227,13 +1306,17 @@ function generatePDFHTML(groups, reportType, classDescription, period, specificT
     <html>
     <head>
       <meta charset="UTF-8">
-      ${isProduction ? `<link rel="preconnect" href="https://fonts.googleapis.com">
+      ${
+        isProduction
+          ? `<link rel="preconnect" href="https://fonts.googleapis.com">
       <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-      <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Source+Sans+3:wght@400;600;700&family=Source+Code+Pro:wght@400;600;700&display=swap" rel="stylesheet">` : ""}
+      <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Source+Sans+3:wght@400;600;700&family=Source+Code+Pro:wght@400;600;700&display=swap" rel="stylesheet">`
+          : ""
+      }
 
       <style>
         @page { size: A4 portrait; margin: 10mm; background-color: #f8fbff; }
-        body { font-family: ${isProduction ? "'Source Sans 3', Helvetica, Arial" : 'Helvetica, Arial'}, sans-serif; font-size: 9pt; margin: 0; padding: 0; }
+        body { font-family: ${isProduction ? "'Source Sans 3', Helvetica, Arial" : "Helvetica, Arial"}, sans-serif; font-size: 9pt; margin: 0; padding: 0; }
 
         body::before {
           content: "";
@@ -1257,11 +1340,11 @@ function generatePDFHTML(groups, reportType, classDescription, period, specificT
         .header h1 {
           font-size: 13pt; font-weight: bold; margin: 0 0 2px 0;
           letter-spacing: 1.5px; color: #1e40af;
-          font-family: ${isProduction ? "'Libre Baskerville', Georgia" : 'Georgia'}, serif;
+          font-family: ${isProduction ? "'Libre Baskerville', Georgia" : "Georgia"}, serif;
         }
         .header h2 {
           font-size: 10pt; font-weight: normal; margin: 2px 0 0 0;
-          color: #4a4a4a; font-family: ${isProduction ? "'Libre Baskerville', Georgia" : 'Georgia'}, serif;
+          color: #4a4a4a; font-family: ${isProduction ? "'Libre Baskerville', Georgia" : "Georgia"}, serif;
         }
         .header-info {
           display: flex; justify-content: space-between; align-items: center;
@@ -1310,8 +1393,8 @@ function generatePDFHTML(groups, reportType, classDescription, period, specificT
       <div class="header-wrapper">
         <div class="className">${classDescription}</div>
         <div class="header">
-          <h1>Nigerian Navy (Naval Headquarters)</h1>
-          <h2>CENTRAL PAY OFFICE, 23 POINT ROAD APAPA</h2>
+          <h1>DEFENSE SPACE ADMINISTRATION</h1>
+          <h2>NATIONAL SPACE MUSEUM, ABUJA</h2>
         </div>
       </div>
 
@@ -1343,7 +1426,12 @@ function generatePDFHTML(groups, reportType, classDescription, period, specificT
 // ============================================
 // Helper: Generate Summary PDF HTML
 // ============================================
-async function generateSummaryPDFHTML(payrollClass, classDescription, period, isProduction = false) {
+async function generateSummaryPDFHTML(
+  payrollClass,
+  classDescription,
+  period,
+  isProduction = false,
+) {
   const [summaryData] = await pool.query(
     `SELECT 
       c.his_type as payment_type,
@@ -1372,13 +1460,17 @@ async function generateSummaryPDFHTML(payrollClass, classDescription, period, is
     <html>
     <head>
       <meta charset="UTF-8">
-      ${isProduction ? `<link rel="preconnect" href="https://fonts.googleapis.com">
+      ${
+        isProduction
+          ? `<link rel="preconnect" href="https://fonts.googleapis.com">
       <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-      <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Source+Sans+3:wght@400;600;700&family=Source+Code+Pro:wght@400;600;700&display=swap" rel="stylesheet">` : ""}
+      <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Source+Sans+3:wght@400;600;700&family=Source+Code+Pro:wght@400;600;700&display=swap" rel="stylesheet">`
+          : ""
+      }
 
       <style>
         @page { size: A4 portrait; margin: 10mm; background-color: #f8fbff; }
-        body { font-family: ${isProduction ? "'Source Sans 3', Helvetica, Arial" : 'Helvetica, Arial'}, sans-serif; font-size: 9pt; margin: 0; padding: 0; }
+        body { font-family: ${isProduction ? "'Source Sans 3', Helvetica, Arial" : "Helvetica, Arial"}, sans-serif; font-size: 9pt; margin: 0; padding: 0; }
 
         body::before {
           content: "";
@@ -1398,11 +1490,11 @@ async function generateSummaryPDFHTML(payrollClass, classDescription, period, is
         .header h1 {
           font-size: 13pt; font-weight: bold; margin: 0 0 2px 0;
           letter-spacing: 1.5px; color: #1e40af;
-          font-family: ${isProduction ? "'Libre Baskerville', Georgia" : 'Georgia'}, serif;
+          font-family: ${isProduction ? "'Libre Baskerville', Georgia" : "Georgia"}, serif;
         }
         .header h2 {
           font-size: 10pt; font-weight: normal; margin: 2px 0 0 0;
-          color: #4a4a4a; font-family: ${isProduction ? "'Libre Baskerville', Georgia" : 'Georgia'}, serif;
+          color: #4a4a4a; font-family: ${isProduction ? "'Libre Baskerville', Georgia" : "Georgia"}, serif;
         }
         .header-info {
           display: flex; justify-content: space-between; align-items: center;
@@ -1424,8 +1516,8 @@ async function generateSummaryPDFHTML(payrollClass, classDescription, period, is
       <div class="header-wrapper">
         <div class="className">${classDescription}</div>
         <div class="header">
-          <h1>Nigerian Navy (Naval Headquarters)</h1>
-          <h2>CENTRAL PAY OFFICE, 23 POINT ROAD APAPA</h2>
+          <h1>DEFENSE SPACE ADMINISTRATION</h1>
+          <h2>NATIONAL SPACE MUSEUM, ABUJA</h2>
         </div>
       </div>
 

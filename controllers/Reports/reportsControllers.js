@@ -660,14 +660,14 @@ class ReportController extends BaseReportController {
         // ════════════════════════════════════════════════════════════════════
         // HEADER BLOCK — mirrors .header-wrapper
         // ════════════════════════════════════════════════════════════════════
-        titleRow("Nigerian Navy (Naval Headquarters)", {
+        titleRow("DEFENSE SPACE ADMINISTRATION", {
           bold: true,
           size: 16,
           fg: BLUE,
           bg: WHITE,
           height: 28,
         });
-        titleRow("CENTRAL PAY OFFICE, 23 POINT ROAD APAPA", {
+        titleRow("NATIONAL SPACE MUSEUM, ABUJA", {
           bold: false,
           size: 11,
           fg: GREY_MID,

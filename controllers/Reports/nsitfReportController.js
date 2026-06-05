@@ -156,190 +156,349 @@ class NSITFReportController extends BaseReportController {
   // ==========================================================================
   async generateNSITFReportExcel(data, req, res, isSummary = false) {
     try {
-      if (!data || data.length === 0) throw new Error('No NSITF contribution this month');
- 
-      const exporter  = new GenericExcelExporter();
-      const period    = data.length > 0
-        ? { year: data[0].year, month: data[0].month }
-        : { year: new Date().getFullYear(), month: new Date().getMonth() + 1 };
+      if (!data || data.length === 0)
+        throw new Error("No NSITF contribution this month");
+
+      const exporter = new GenericExcelExporter();
+      const period =
+        data.length > 0
+          ? { year: data[0].year, month: data[0].month }
+          : {
+              year: new Date().getFullYear(),
+              month: new Date().getMonth() + 1,
+            };
       const className = await this.getDatabaseNameFromRequest(req);
- 
-      const hasContributions = data[0].hasOwnProperty('contribution_this_month')
-                            || data[0].hasOwnProperty('total_contribution_this_month');
- 
+
+      const hasContributions =
+        data[0].hasOwnProperty("contribution_this_month") ||
+        data[0].hasOwnProperty("total_contribution_this_month");
+
       if (isSummary) {
         const columns = [
-          { header: 'S/N',            key: 'sn',             width: 8,  align: 'center' },
-          { header: 'PFA Code',        key: 'pfa_code',       width: 15 },
-          { header: 'PFA Name',        key: 'pfa_name',       width: 35 },
-          { header: 'Record',          key: 'employee_count', width: 18, align: 'center' },
-          { header: 'Total Net Pay',   key: 'total_net_pay',  width: 20, align: 'right', numFmt: '₦#,##0.00' },
-          { header: 'Average Net Pay', key: 'avg_net_pay',    width: 20, align: 'right', numFmt: '₦#,##0.00' },
-          { header: 'Min Net Pay',     key: 'min_net_pay',    width: 18, align: 'right', numFmt: '₦#,##0.00' },
-          { header: 'Max Net Pay',     key: 'max_net_pay',    width: 18, align: 'right', numFmt: '₦#,##0.00' },
+          { header: "S/N", key: "sn", width: 8, align: "center" },
+          { header: "PFA Code", key: "pfa_code", width: 15 },
+          { header: "PFA Name", key: "pfa_name", width: 35 },
+          {
+            header: "Record",
+            key: "employee_count",
+            width: 18,
+            align: "center",
+          },
+          {
+            header: "Total Net Pay",
+            key: "total_net_pay",
+            width: 20,
+            align: "right",
+            numFmt: "₦#,##0.00",
+          },
+          {
+            header: "Average Net Pay",
+            key: "avg_net_pay",
+            width: 20,
+            align: "right",
+            numFmt: "₦#,##0.00",
+          },
+          {
+            header: "Min Net Pay",
+            key: "min_net_pay",
+            width: 18,
+            align: "right",
+            numFmt: "₦#,##0.00",
+          },
+          {
+            header: "Max Net Pay",
+            key: "max_net_pay",
+            width: 18,
+            align: "right",
+            numFmt: "₦#,##0.00",
+          },
         ];
         if (hasContributions) {
           columns.push(
-            { header: 'Contribution This Month',  key: 'total_contribution_this_month',  width: 24, align: 'right', numFmt: '₦#,##0.00' },
-            { header: 'Contribution Paid To Date', key: 'total_contribution_paid_todate', width: 24, align: 'right', numFmt: '₦#,##0.00' }
+            {
+              header: "Contribution This Month",
+              key: "total_contribution_this_month",
+              width: 24,
+              align: "right",
+              numFmt: "₦#,##0.00",
+            },
+            {
+              header: "Contribution Paid To Date",
+              key: "total_contribution_paid_todate",
+              width: 24,
+              align: "right",
+              numFmt: "₦#,##0.00",
+            },
           );
         }
- 
-        const dataWithSN     = data.map((item, idx) => ({ ...item, sn: idx + 1 }));
-        const totalEmployees = data.reduce((s, i) => s + parseInt(i.employee_count || 0), 0);
-        const totalNetPay    = data.reduce((s, i) => s + parseFloat(i.total_net_pay || 0), 0);
-        const totalsValues   = { 4: totalEmployees, 5: totalNetPay };
+
+        const dataWithSN = data.map((item, idx) => ({ ...item, sn: idx + 1 }));
+        const totalEmployees = data.reduce(
+          (s, i) => s + parseInt(i.employee_count || 0),
+          0,
+        );
+        const totalNetPay = data.reduce(
+          (s, i) => s + parseFloat(i.total_net_pay || 0),
+          0,
+        );
+        const totalsValues = { 4: totalEmployees, 5: totalNetPay };
         if (hasContributions) {
-          totalsValues[columns.length - 1] = data.reduce((s, i) => s + parseFloat(i.total_contribution_this_month  || 0), 0);
-          totalsValues[columns.length]     = data.reduce((s, i) => s + parseFloat(i.total_contribution_paid_todate || 0), 0);
+          totalsValues[columns.length - 1] = data.reduce(
+            (s, i) => s + parseFloat(i.total_contribution_this_month || 0),
+            0,
+          );
+          totalsValues[columns.length] = data.reduce(
+            (s, i) => s + parseFloat(i.total_contribution_paid_todate || 0),
+            0,
+          );
         }
- 
-        let subtitle = 'NSITF Summary Report';
-        if (data.length > 0) subtitle += ` - ${this.getMonthName(data[0].month)} ${data[0].year}`;
- 
+
+        let subtitle = "NSITF Summary Report";
+        if (data.length > 0)
+          subtitle += ` - ${this.getMonthName(data[0].month)} ${data[0].year}`;
+
         const workbook = await exporter.createWorkbook({
-          title: 'NIGERIAN NAVY - NSITF REPORT', subtitle, className,
-          columns, data: dataWithSN,
-          totals:    { label: 'GRAND TOTALS:', values: totalsValues },
-          sheetName: 'NSITF Summary',
+          title: "DSA - NSITF REPORT",
+          subtitle,
+          className,
+          columns,
+          data: dataWithSN,
+          totals: { label: "GRAND TOTALS:", values: totalsValues },
+          sheetName: "NSITF Summary",
         });
- 
-        await exporter.exportToResponse(workbook, res, 'nsitf_report_summary.xlsx');
- 
+
+        await exporter.exportToResponse(
+          workbook,
+          res,
+          "nsitf_report_summary.xlsx",
+        );
       } else {
         // Detailed — one sheet per PFA
         const workbook = new ExcelJS.Workbook();
-        workbook.creator = 'Payroll System';
+        workbook.creator = "Payroll System";
         workbook.created = new Date();
- 
+
         const sheetNameTracker = {};
-        const periodStr        = `${this.getMonthName(period.month)} ${period.year}`;
- 
+        const periodStr = `${this.getMonthName(period.month)} ${period.year}`;
+
         const columns = [
-          { header: 'S/N',            key: 'sn',             width: 8,  align: 'center' },
-          { header: 'Svc No.',        key: 'employee_id',    width: 15 },
-          { header: 'Rank',           key: 'Title',          width: 12 },
-          { header: 'Full Name',      key: 'full_name',      width: 35 },
-          { header: 'Date Employed',  key: 'date_employed',  width: 15 },
-          { header: 'NSITF Code',     key: 'nsitf_code',     width: 15 },
-          { header: 'Grade Type',     key: 'grade_type',     width: 12 },
-          { header: 'Grade Level',    key: 'grade_level',    width: 12 },
-          { header: 'Years in Level', key: 'years_in_level', width: 15, align: 'center' },
-          { header: 'Net Pay',        key: 'net_pay',        width: 18, align: 'right', numFmt: '₦#,##0.00' },
+          { header: "S/N", key: "sn", width: 8, align: "center" },
+          { header: "Svc No.", key: "employee_id", width: 15 },
+          { header: "Rank", key: "Title", width: 12 },
+          { header: "Full Name", key: "full_name", width: 35 },
+          { header: "Date Employed", key: "date_employed", width: 15 },
+          { header: "NSITF Code", key: "nsitf_code", width: 15 },
+          { header: "Grade Type", key: "grade_type", width: 12 },
+          { header: "Grade Level", key: "grade_level", width: 12 },
+          {
+            header: "Years in Level",
+            key: "years_in_level",
+            width: 15,
+            align: "center",
+          },
+          {
+            header: "Net Pay",
+            key: "net_pay",
+            width: 18,
+            align: "right",
+            numFmt: "₦#,##0.00",
+          },
         ];
         if (hasContributions) {
           columns.push(
-            { header: 'This Month',   key: 'contribution_this_month',  width: 18, align: 'right', numFmt: '₦#,##0.00' },
-            { header: 'Paid To Date', key: 'contribution_paid_todate', width: 18, align: 'right', numFmt: '₦#,##0.00' }
+            {
+              header: "This Month",
+              key: "contribution_this_month",
+              width: 18,
+              align: "right",
+              numFmt: "₦#,##0.00",
+            },
+            {
+              header: "Paid To Date",
+              key: "contribution_paid_todate",
+              width: 18,
+              align: "right",
+              numFmt: "₦#,##0.00",
+            },
           );
         }
- 
+
         // Group by PFA in JS
         const pfaGroups = new Map();
         for (const row of data) {
-          const key = `${row.pfa_code || 'Unknown'}_${row.pfa_name || 'Unknown'}`;
+          const key = `${row.pfa_code || "Unknown"}_${row.pfa_name || "Unknown"}`;
           if (!pfaGroups.has(key)) {
-            pfaGroups.set(key, { pfa_code: row.pfa_code || 'Unknown', pfa_name: row.pfa_name || 'Unknown', employees: [] });
+            pfaGroups.set(key, {
+              pfa_code: row.pfa_code || "Unknown",
+              pfa_name: row.pfa_name || "Unknown",
+              employees: [],
+            });
           }
           pfaGroups.get(key).employees.push(row);
         }
- 
+
         let globalSN = 1;
- 
+
         for (const pfaGroup of pfaGroups.values()) {
-          const sheetName = this._getUniqueSheetName(`${pfaGroup.pfa_code}-${pfaGroup.pfa_name}`, sheetNameTracker);
+          const sheetName = this._getUniqueSheetName(
+            `${pfaGroup.pfa_code}-${pfaGroup.pfa_name}`,
+            sheetNameTracker,
+          );
           const worksheet = workbook.addWorksheet(sheetName);
- 
-          columns.forEach((col, idx) => { worksheet.getColumn(idx + 1).width = col.width || 15; });
- 
+
+          columns.forEach((col, idx) => {
+            worksheet.getColumn(idx + 1).width = col.width || 15;
+          });
+
           let row = 1;
- 
+
           // Headers
           const addMergedRow = (value, font) => {
             worksheet.mergeCells(row, 1, row, columns.length);
-            Object.assign(worksheet.getCell(row, 1), { value, font, alignment: { horizontal: 'center', vertical: 'middle' } });
+            Object.assign(worksheet.getCell(row, 1), {
+              value,
+              font,
+              alignment: { horizontal: "center", vertical: "middle" },
+            });
             row++;
           };
- 
-          addMergedRow(exporter.config.company.name,              { size: 14, bold: true, color: { argb: exporter.config.colors.primary } });
-          addMergedRow('NIGERIAN NAVY - NSITF REPORT',            { size: 12, bold: true });
-          addMergedRow(`Class: ${className} | Period: ${periodStr}`, { size: 10, italic: true });
- 
+
+          addMergedRow(exporter.config.company.name, {
+            size: 14,
+            bold: true,
+            color: { argb: exporter.config.colors.primary },
+          });
+          addMergedRow("DSA - NSITF REPORT", { size: 12, bold: true });
+          addMergedRow(`Class: ${className} | Period: ${periodStr}`, {
+            size: 10,
+            italic: true,
+          });
+
           // PFA group header
           worksheet.mergeCells(row, 1, row, columns.length);
           Object.assign(worksheet.getCell(row, 1), {
             value: `PFA Code: ${pfaGroup.pfa_code} | PFA Name: ${pfaGroup.pfa_name} | Employees: ${pfaGroup.employees.length}`,
-            font:  { bold: true, size: 11, color: { argb: exporter.config.colors.primary } },
-            fill:  { type: 'pattern', pattern: 'solid', fgColor: { argb: 'E8E8E8' } },
-            alignment: { horizontal: 'left', vertical: 'middle' },
+            font: {
+              bold: true,
+              size: 11,
+              color: { argb: exporter.config.colors.primary },
+            },
+            fill: {
+              type: "pattern",
+              pattern: "solid",
+              fgColor: { argb: "E8E8E8" },
+            },
+            alignment: { horizontal: "left", vertical: "middle" },
           });
           row++;
           row++; // empty
- 
+
           // Column header row (frozen)
           const headerRowNum = row;
-          const headerRow    = worksheet.getRow(headerRowNum);
+          const headerRow = worksheet.getRow(headerRowNum);
           columns.forEach((col, idx) => {
             const cell = headerRow.getCell(idx + 1);
-            cell.value     = col.header;
-            cell.fill      = { type: 'pattern', pattern: 'solid', fgColor: { argb: exporter.config.colors.headerBg } };
-            cell.font      = { bold: true, color: { argb: exporter.config.colors.primary }, size: 10 };
-            cell.alignment = { horizontal: col.align || 'left', vertical: 'middle' };
-            cell.border    = { top: { style: 'thin', color: { argb: 'd1d5db' } }, bottom: { style: 'thin', color: { argb: 'd1d5db' } }, left: { style: 'thin', color: { argb: 'd1d5db' } }, right: { style: 'thin', color: { argb: 'd1d5db' } } };
+            cell.value = col.header;
+            cell.fill = {
+              type: "pattern",
+              pattern: "solid",
+              fgColor: { argb: exporter.config.colors.headerBg },
+            };
+            cell.font = {
+              bold: true,
+              color: { argb: exporter.config.colors.primary },
+              size: 10,
+            };
+            cell.alignment = {
+              horizontal: col.align || "left",
+              vertical: "middle",
+            };
+            cell.border = {
+              top: { style: "thin", color: { argb: "d1d5db" } },
+              bottom: { style: "thin", color: { argb: "d1d5db" } },
+              left: { style: "thin", color: { argb: "d1d5db" } },
+              right: { style: "thin", color: { argb: "d1d5db" } },
+            };
           });
           headerRow.height = 22;
           row++;
- 
+
           // Freeze columns A+B (S/N, Svc No.) and all rows up to the header
-          worksheet.views = [{
-            state:       'frozen',
-            xSplit:      2,
-            ySplit:      headerRowNum,
-            topLeftCell: `C${headerRowNum + 1}`,
-            activeCell:  `C${headerRowNum + 1}`,
-          }];
- 
+          worksheet.views = [
+            {
+              state: "frozen",
+              xSplit: 2,
+              ySplit: headerRowNum,
+              topLeftCell: `C${headerRowNum + 1}`,
+              activeCell: `C${headerRowNum + 1}`,
+            },
+          ];
+
           // Data rows
           pfaGroup.employees.forEach((emp, empIdx) => {
             const dataRow = worksheet.getRow(row);
-            const cells   = [
-              globalSN++, emp.employee_id, emp.Title, emp.full_name,
-              emp.date_employed, emp.nsitf_code, emp.grade_type,
-              emp.grade_level, emp.years_in_level,
+            const cells = [
+              globalSN++,
+              emp.employee_id,
+              emp.Title,
+              emp.full_name,
+              emp.date_employed,
+              emp.nsitf_code,
+              emp.grade_type,
+              emp.grade_level,
+              emp.years_in_level,
               parseFloat(emp.net_pay || 0),
             ];
             if (hasContributions) {
-              cells.push(parseFloat(emp.contribution_this_month  || 0));
+              cells.push(parseFloat(emp.contribution_this_month || 0));
               cells.push(parseFloat(emp.contribution_paid_todate || 0));
             }
- 
+
             cells.forEach((val, i) => {
               const cell = dataRow.getCell(i + 1);
               cell.value = val;
-              if (columns[i].numFmt)   cell.numFmt   = columns[i].numFmt;
-              if (columns[i].align)    cell.alignment = { horizontal: columns[i].align, vertical: 'middle' };
-              cell.border = { top: { style: 'thin', color: { argb: 'E5E7EB' } }, bottom: { style: 'thin', color: { argb: 'E5E7EB' } } };
-              if (empIdx % 2 === 0)    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: exporter.config.colors.altRow } };
+              if (columns[i].numFmt) cell.numFmt = columns[i].numFmt;
+              if (columns[i].align)
+                cell.alignment = {
+                  horizontal: columns[i].align,
+                  vertical: "middle",
+                };
+              cell.border = {
+                top: { style: "thin", color: { argb: "E5E7EB" } },
+                bottom: { style: "thin", color: { argb: "E5E7EB" } },
+              };
+              if (empIdx % 2 === 0)
+                cell.fill = {
+                  type: "pattern",
+                  pattern: "solid",
+                  fgColor: { argb: exporter.config.colors.altRow },
+                };
             });
- 
+
             dataRow.height = 18;
             row++;
           });
- 
+
           // Hide Net Pay column AFTER data is written — setting hidden before
           // writing causes ExcelJS to corrupt cell values in that column
           worksheet.getColumn(10).hidden = true;
         }
- 
-        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        res.setHeader('Content-Disposition', 'attachment; filename=nsitf_report_detailed.xlsx');
+
+        res.setHeader(
+          "Content-Type",
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        );
+        res.setHeader(
+          "Content-Disposition",
+          "attachment; filename=nsitf_report_detailed.xlsx",
+        );
         await workbook.xlsx.write(res);
         res.end();
       }
- 
     } catch (error) {
-      console.error('NSITF Report Export error:', error);
-      if (!res.headersSent) res.status(500).json({ success: false, error: error.message });
+      console.error("NSITF Report Export error:", error);
+      if (!res.headersSent)
+        res.status(500).json({ success: false, error: error.message });
     }
   }
 

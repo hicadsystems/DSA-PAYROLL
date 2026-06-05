@@ -1,298 +1,304 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
-  <meta charset="utf-8">
-  <style>
-    @page { size: A4; margin: 0.2mm; background-color: #f8fbff; }
-    body { font-family: Helvetica, Arial, sans-serif; font-size: 8pt; }
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      @page {
+        size: A4;
+        margin: 0.2mm;
+        background-color: #f8fbff;
+      }
+      body {
+        font-family: Helvetica, Arial, sans-serif;
+        font-size: 8pt;
+      }
 
-    body::before {
+      body::before {
         content: "";
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        background-image: url('{{{logoDataUrl}}}');
-        background-size: auto 100%;    /* 80% of height */
+        background-image: url("{{{logoDataUrl}}}");
+        background-size: auto 100%; /* 80% of height */
         background-repeat: no-repeat;
         background-position: center center;
         opacity: 0.02;
         z-index: -1;
         pointer-events: none;
-    }
+      }
 
-    .header-wrapper {
+      .header-wrapper {
         display: flex;
         align-items: flex-start;
         margin-bottom: 8px;
         border-bottom: 2px solid #1a1a1a;
         padding-bottom: 5px;
-    }
+      }
 
-    .className {
+      .className {
         flex-shrink: 0;
         margin-right: 20px;
         align-self: center;
         font-size: 9pt;
-    }
+      }
 
-    .header {
+      .header {
         flex-grow: 1;
         text-align: center;
-    }
-    
-    .header h1 {
+      }
+
+      .header h1 {
         font-size: 13pt;
         font-weight: bold;
         margin-bottom: 2px;
         letter-spacing: 1.5px;
         color: #1e40af;
-        font-family: 'Libre Baskerville', Georgia, serif;
-    }
-    
-    .header h2 {
+        font-family: "Libre Baskerville", Georgia, serif;
+      }
+
+      .header h2 {
         font-size: 10pt;
         font-weight: normal;
         margin-top: 2px;
         color: #4a4a4a;
-        font-family: 'Libre Baskerville', Georgia, serif;
-    }
-
-    .header-info {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin: 10px 0;
-      font-size: 9pt;
-    }
-
-    .period-info {
-      margin-top: 10px;
-      font-weight: bold;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 15px;
-      font-size: 7pt;
-    }
-
-    thead tr {
-      border-bottom: 1px solid #1e40af;
-    }
-
-    th {
-      padding: 12px 8px;
-      text-align: left;
-      font-weight: bold;
-      color: #1e40af;
-    }
-
-    td {
-      padding: 10px 8px;
-      border-bottom: 1px solid #e0e0e0;
-      vertical-align: middle;
-    }
-
-    tbody tr:hover {
-      background-color: #f9f9f9;
-    }
-
-    .text-right {
-      text-align: right;
-    }
-
-    .text-center {
-      text-align: center;
-    }
-
-    .currency {
-      font-family: 'Courier New', monospace;
-      text-align: right;
-      white-space: nowrap;
-      font-weight: 600;
-    }
-
-    .no-legcode {
-      color: #999;
-      font-style: italic;
-      font-size: 9pt;
-    }
-
-    .grand-total-row {
-      font-weight: bold;
-      font-size: 11pt;
-      border-top: 1px solid #1e40af;
-      border-bottom: 1px solid #1e40af;
-    }
-
-    .grand-total-row td {
-      padding: 12px 8px;
-      border-bottom: none;
-    }
-
-    .balance-status {
-      margin-top: 10px;
-      text-align: center;
-      font-weight: bold;
-      font-size: 12pt;
-    }
-
-    .balance-status.balanced {
-      color: #155724;
-    }
-
-    .balance-status.unbalanced {
-      color: #721c24;
-    }
-
-    .footer {
-      padding-top: 10px;
-      border-top: 0.5px solid #1a1a1a;
-      text-align: center;
-      font-size: 8pt;
-      color: #64748b;
-      margin-top: 20px;
-    }
-
-    .page-number {
-      position: fixed;
-      top: 5mm;
-      right: 10mm;
-      font-size: 10pt;
-      font-weight: bold;
-    }
-
-    @media print {
-      body {
-        print-color-adjust: exact;
-        -webkit-print-color-adjust: exact;
-      }
-      /* Ensure tfoot appears only once at the end */
-      tfoot {
-        display: table-row-group;
+        font-family: "Libre Baskerville", Georgia, serif;
       }
 
-      body::before {
+      .header-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 10px 0;
+        font-size: 9pt;
+      }
+
+      .period-info {
+        margin-top: 10px;
+        font-weight: bold;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+        font-size: 7pt;
+      }
+
+      thead tr {
+        border-bottom: 1px solid #1e40af;
+      }
+
+      th {
+        padding: 12px 8px;
+        text-align: left;
+        font-weight: bold;
+        color: #1e40af;
+      }
+
+      td {
+        padding: 10px 8px;
+        border-bottom: 1px solid #e0e0e0;
+        vertical-align: middle;
+      }
+
+      tbody tr:hover {
+        background-color: #f9f9f9;
+      }
+
+      .text-right {
+        text-align: right;
+      }
+
+      .text-center {
+        text-align: center;
+      }
+
+      .currency {
+        font-family: "Courier New", monospace;
+        text-align: right;
+        white-space: nowrap;
+        font-weight: 600;
+      }
+
+      .no-legcode {
+        color: #999;
+        font-style: italic;
+        font-size: 9pt;
+      }
+
+      .grand-total-row {
+        font-weight: bold;
+        font-size: 11pt;
+        border-top: 1px solid #1e40af;
+        border-bottom: 1px solid #1e40af;
+      }
+
+      .grand-total-row td {
+        padding: 12px 8px;
+        border-bottom: none;
+      }
+
+      .balance-status {
+        margin-top: 10px;
+        text-align: center;
+        font-weight: bold;
+        font-size: 12pt;
+      }
+
+      .balance-status.balanced {
+        color: #155724;
+      }
+
+      .balance-status.unbalanced {
+        color: #721c24;
+      }
+
+      .footer {
+        padding-top: 10px;
+        border-top: 0.5px solid #1a1a1a;
+        text-align: center;
+        font-size: 8pt;
+        color: #64748b;
+        margin-top: 20px;
+      }
+
+      .page-number {
+        position: fixed;
+        top: 5mm;
+        right: 10mm;
+        font-size: 10pt;
+        font-weight: bold;
+      }
+
+      @media print {
+        body {
+          print-color-adjust: exact;
+          -webkit-print-color-adjust: exact;
+        }
+        /* Ensure tfoot appears only once at the end */
+        tfoot {
+          display: table-row-group;
+        }
+
+        body::before {
           content: "";
           position: fixed;
           top: 0;
           left: 0;
           width: 100%;
           height: 100%;
-          background-image: url('{{{logoDataUrl}}}');
-          background-size: auto 100%;    /* 80% of height */
+          background-image: url("{{{logoDataUrl}}}");
+          background-size: auto 100%; /* 80% of height */
           background-repeat: no-repeat;
           background-position: center center;
           opacity: 0.02;
           z-index: -1;
           pointer-events: none;
+        }
       }
-    }
-  </style>
-</head>
-<body>
-
-  <div class="header-wrapper">
-      <div class="className">
-          {{className}}
-      </div>
+    </style>
+  </head>
+  <body>
+    <div class="header-wrapper">
+      <div class="className">{{className}}</div>
       <div class="header">
-          <h1>Nigerian Navy (Naval Headquarters)</h1>
-          <h2>CENTRAL PAY OFFICE, 23 POINT ROAD APAPA</h2>
+        <h1>DEFENSE SPACE ADMINISTRATION</h1>
+        <h2>NATIONAL SPACE MUSEUM, ABUJA</h2>
       </div>
-  </div>
+    </div>
 
-  <div class="header-info">
-    <div class="left">
-      <strong>PAYROLL CONTROL SHEET <!--| Recordcount = {{recordcount}}--></strong>
+    <div class="header-info">
+      <div class="left">
+        <strong
+          >PAYROLL CONTROL SHEET
+          <!--| Recordcount = {{recordcount}}--></strong
+        >
+      </div>
+      <div class="center">
+        <span>PRODUCED ON</span>
+        <strong>{{formatDate reportDate}}</strong>
+        <span>AT</span>
+        <strong>{{formatTime reportDate}}</strong>
+      </div>
+      <div class="right">
+        <span>FOR PERIOD</span>
+        <strong>{{period}}</strong>
+      </div>
     </div>
-    <div class="center">
-      <span>PRODUCED ON</span> 
-      <strong>{{formatDate reportDate}}</strong> 
-      <span>AT</span> 
-      <strong>{{formatTime reportDate}}</strong>
-    </div>
-    <div class="right">
-      <span>FOR PERIOD</span> 
-      <strong>{{period}}</strong>
-    </div>
-  </div>
 
-  <table>
-    <thead>
-      <tr>
-        <th style="width: 15%;">Payment Type</th>
-        <th style="width: 38%;">Payment Description</th>
-        <th style="width: 15%;" class="text-right">DR</th>
-        <th style="width: 15%;" class="text-right">CR</th>
-        <th style="width: 14%;">Ledger Code</th>
-      </tr>
-    </thead>
-    <tbody>
-      {{#each data}}
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 15%">Payment Type</th>
+          <th style="width: 38%">Payment Description</th>
+          <th style="width: 15%" class="text-right">DR</th>
+          <th style="width: 15%" class="text-right">CR</th>
+          <th style="width: 14%">Ledger Code</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each data}}
         <tr>
           <td><strong>{{this.payment_type}}</strong></td>
           <td>{{this.payment_description}}</td>
           <td class="currency">
-            {{#if (gt this.dr_amount 0)}}
-              ₦{{formatCurrency this.dr_amount}}
-            {{else}}
-              0.00
-            {{/if}}
+            {{#if (gt this.dr_amount 0)}} ₦{{formatCurrency this.dr_amount}}
+            {{else}} 0.00 {{/if}}
           </td>
           <td class="currency">
-            {{#if (gt this.cr_amount 0)}}
-              ₦{{formatCurrency this.cr_amount}}
-            {{else}}
-              0.00
-            {{/if}}
+            {{#if (gt this.cr_amount 0)}} ₦{{formatCurrency this.cr_amount}}
+            {{else}} 0.00 {{/if}}
           </td>
           <td>
-            {{#if this.ledger_code}}
-              {{this.ledger_code}}
-            {{else}}
-              <span class="no-legcode">No LegCode</span>
+            {{#if this.ledger_code}} {{this.ledger_code}} {{else}}
+            <span class="no-legcode">No LegCode</span>
             {{/if}}
           </td>
         </tr>
-      {{/each}}
-    </tbody>
-    <tfoot>
-      <tr class="grand-total-row">
-        <td colspan="2"><strong>Grand Total</strong></td>
-        <td class="currency"><strong>₦{{formatCurrency totals.dr_total}}</strong></td>
-        <td class="currency"><strong>₦{{formatCurrency totals.cr_total}}</strong></td>
-        <td></td>
-      </tr>
-    </tfoot>
-  </table>
+        {{/each}}
+      </tbody>
+      <tfoot>
+        <tr class="grand-total-row">
+          <td colspan="2"><strong>Grand Total</strong></td>
+          <td class="currency">
+            <strong>₦{{formatCurrency totals.dr_total}}</strong>
+          </td>
+          <td class="currency">
+            <strong>₦{{formatCurrency totals.cr_total}}</strong>
+          </td>
+          <td></td>
+        </tr>
+      </tfoot>
+    </table>
 
-  <div class="balance-status {{#if totals.balanced}}balanced{{else}}unbalanced{{/if}}">
-    {{#if totals.balanced}}
-      CONTROL SHEET BALANCED
-    {{else}}
-      WARNING: CONTROL SHEET NOT BALANCED
-      <br>
-      <small>Difference: ₦{{formatCurrency (subtract totals.dr_total totals.cr_total)}}</small>
-    {{/if}}
-  </div>
+    <div
+      class="balance-status {{#if totals.balanced}}balanced{{else}}unbalanced{{/if}}"
+    >
+      {{#if totals.balanced}} CONTROL SHEET BALANCED {{else}} WARNING: CONTROL
+      SHEET NOT BALANCED
+      <br />
+      <small
+        >Difference: ₦{{formatCurrency (subtract totals.dr_total
+        totals.cr_total)}}</small
+      >
+      {{/if}}
+    </div>
 
-  <div class="footer">
-    <p>All rights reserved &#xA9; Hicad Systems Limited.</p>
-  </div>
+    <div class="footer">
+      <p>All rights reserved &#xA9; Hicad Systems Limited.</p>
+    </div>
 
-  <script>
-  const auth = window.authService;
-    Handlebars.registerHelper('gt', function(a, b) {
-      return parseFloat(a) > parseFloat(b);
-    });
+    <script>
+      const auth = window.authService;
+      Handlebars.registerHelper("gt", function (a, b) {
+        return parseFloat(a) > parseFloat(b);
+      });
 
-    Handlebars.registerHelper('subtract', function(a, b) {
-      return Math.abs(parseFloat(a) - parseFloat(b));
-    });
-  </script>
-</body>
+      Handlebars.registerHelper("subtract", function (a, b) {
+        return Math.abs(parseFloat(a) - parseFloat(b));
+      });
+    </script>
+  </body>
 </html>

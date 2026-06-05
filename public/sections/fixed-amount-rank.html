@@ -2,186 +2,376 @@
   <div>
     <!-- Header -->
     <div class="px-6 py-2 flex flex-wrap gap-2 items-center justify-between">
-        <div class="flex items-center">
-            <h1 class="text-xl font-bold">Fixed Amount By Rank Management</h1>
-        </div>
-            <!-- Add Button -->
-        <div class="mb-2 gap-2 flex justify-end">
-            <button id="showFormBtn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">+ Add New</button>
-            <button id="generateReportBtn" class="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700">
-            <i class="fas fa-file-alt mr-2"></i>Generate Report</button>
-        </div>
+      <div class="flex items-center">
+        <h1 class="text-xl font-bold">Fixed Amount By Rank Management</h1>
+      </div>
+      <!-- Add Button -->
+      <div class="mb-2 gap-2 flex justify-end">
+        <button
+          id="showFormBtn"
+          class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+        >
+          + Add New
+        </button>
+        <button
+          id="generateReportBtn"
+          class="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700"
+        >
+          <i class="fas fa-file-alt mr-2"></i>Generate Report
+        </button>
+      </div>
     </div>
 
     <div class="p-6">
-        <!-- Hidden Form -->
-        <div id="rankAmountForm" class="hidden mb-2">
-            <!-- Description Section -->
-            <div class="mb-2">
-                <label class="block text-md font-bold text-gray-700 mb-2">Description or Type</label>
-                <select id="description" class="w-full lg:w-1/2 md:w-2/3 border-2 border-blue-500 bg-transparent rounded px-3 py-2 text-sm focus:border-blue-600 focus:outline-none">
-                    <option value="" disabled selected>Select Description / Type</option>
-                    <!-- populated-->
-                </select>
-            </div>
-
-            <!-- Rank Grid -->
-            <div class="mb-4">
-                <h3 class="text-sm lg:text-lg font-bold text-blue-700 mb-2">Set Fixed Amounts by Rank</h3>
-                
-                <!-- First Row -->
-                <div class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-4">
-                    <div class="flex flex-col">
-                        <label class="text-xs font-semibold text-gray-700 mb-1">Trainee</label>
-                        <input type="number" id="trainee" class="border border-gray-300 rounded px-2 py-1 text-xs focus:border-blue-500 focus:outline-none" placeholder="0">
-                    </div>
-                    <div class="flex flex-col">
-                        <label class="text-xs font-semibold text-gray-700 mb-1">OS</label>
-                        <input type="number" id="os" class="border border-gray-300 rounded px-2 py-1 text-xs focus:border-blue-500 focus:outline-none" placeholder="0">
-                    </div>
-                    <div class="flex flex-col">
-                        <label class="text-xs font-semibold text-gray-700 mb-1">SM</label>
-                        <input type="number" id="sm" class="border border-gray-300 rounded px-2 py-1 text-xs focus:border-blue-500 focus:outline-none" placeholder="0">
-                    </div>
-                    <div class="flex flex-col">
-                        <label class="text-xs font-semibold text-gray-700 mb-1">AB</label>
-                        <input type="number" id="ab" class="border border-gray-300 rounded px-2 py-1 text-xs focus:border-blue-500 focus:outline-none" placeholder="0">
-                    </div>
-                    <div class="flex flex-col">
-                        <label class="text-xs font-semibold text-gray-700 mb-1">LS</label>
-                        <input type="number" id="ls" class="border border-gray-300 rounded px-2 py-1 text-xs focus:border-blue-500 focus:outline-none" placeholder="0">
-                    </div>
-                    <div class="flex flex-col">
-                        <label class="text-xs font-semibold text-gray-700 mb-1">PO</label>
-                        <input type="number" id="po" class="border border-gray-300 rounded px-2 py-1 text-xs focus:border-blue-500 focus:outline-none" placeholder="0">
-                    </div>
-                </div>
-
-                <!-- Second Row -->
-                <div class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 border-b-2 pb-4">
-                    <div class="flex flex-col">
-                        <label class="text-xs font-semibold text-gray-700 mb-1">WO</label>
-                        <input type="number" id="wo" class="border border-gray-300 rounded px-2 py-1 text-xs focus:border-blue-500 focus:outline-none" placeholder="0">
-                    </div>
-                    <div class="flex flex-col">
-                        <label class="text-xs font-semibold text-gray-700 mb-1">MWO</label>
-                        <input type="number" id="mwo" class="border border-gray-300 rounded px-2 py-1 text-xs focus:border-blue-500 focus:outline-none" placeholder="0">
-                    </div>
-                    <div class="flex flex-col">
-                        <label class="text-xs font-semibold text-gray-700 mb-1">CADET</label>
-                        <input type="number" id="cadet" class="border border-gray-300 rounded px-2 py-1 text-xs focus:border-blue-500 focus:outline-none" placeholder="0">
-                    </div>
-                    <div class="flex flex-col">
-                        <label class="text-xs font-semibold text-gray-700 mb-1">NWO</label>
-                        <input type="number" id="nwo" class="border border-gray-300 rounded px-2 py-1 text-xs focus:border-blue-500 focus:outline-none" placeholder="0">
-                    </div>
-                    <div class="flex flex-col">
-                        <label class="text-xs font-semibold text-gray-700 mb-1"></label>
-                        <div class="border border-transparent rounded px-2 py-1 text-xs"></div>
-                    </div>
-                    <div class="flex flex-col">
-                        <label class="text-xs font-semibold text-gray-700 mb-1"></label>
-                        <div class="border border-transparent rounded px-2 py-1 text-xs"></div>
-                    </div>
-                </div>
-
-                <!-- Third Row -->
-                <div class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 pt-2 mb-4">
-                    <div class="flex flex-col">
-                        <label class="text-xs font-semibold text-gray-700 mb-1">MIDSHIPMAN</label>
-                        <input type="number" id="midshipman" class="border border-gray-300 rounded px-2 py-1 text-xs focus:border-blue-500 focus:outline-none" placeholder="0">
-                    </div>
-                    <div class="flex flex-col">
-                        <label class="text-xs font-semibold text-gray-700 mb-1">S/Lt</label>
-                        <input type="number" id="slt" class="border border-gray-300 rounded px-2 py-1 text-xs focus:border-blue-500 focus:outline-none" placeholder="0">
-                    </div>
-                    <div class="flex flex-col">
-                        <label class="text-xs font-semibold text-gray-700 mb-1">Lt</label>
-                        <input type="number" id="lt" class="border border-gray-300 rounded px-2 py-1 text-xs focus:border-blue-500 focus:outline-none" placeholder="0">
-                    </div>
-                    <div class="flex flex-col">
-                        <label class="text-xs font-semibold text-gray-700 mb-1">Lt/Cdr</label>
-                        <input type="number" id="ltcdr" class="border border-gray-300 rounded px-2 py-1 text-xs focus:border-blue-500 focus:outline-none" placeholder="0">
-                    </div>
-                    <div class="flex flex-col">
-                        <label class="text-xs font-semibold text-gray-700 mb-1">Cdr</label>
-                        <input type="number" id="cdr" class="border border-gray-300 rounded px-2 py-1 text-xs focus:border-blue-500 focus:outline-none" placeholder="0">
-                    </div>
-                    <div class="flex flex-col">
-                        <label class="text-xs font-semibold text-gray-700 mb-1">Capt</label>
-                        <input type="number" id="capt" class="border border-gray-300 rounded px-2 py-1 text-xs focus:border-blue-500 focus:outline-none" placeholder="0">
-                    </div>
-                </div>
-
-                <!-- Fourth Row -->
-                <div class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                    <div class="flex flex-col">
-                        <label class="text-xs font-semibold text-gray-700 mb-1">Cdre</label>
-                        <input type="number" id="cdre" class="border border-gray-300 rounded px-2 py-1 text-xs focus:border-blue-500 focus:outline-none" placeholder="0">
-                    </div>
-                    <div class="flex flex-col">
-                        <label class="text-xs font-semibold text-gray-700 mb-1">R/Adm</label>
-                        <input type="number" id="radm" class="border border-gray-300 rounded px-2 py-1 text-xs focus:border-blue-500 focus:outline-none" placeholder="0">
-                    </div>
-                    <div class="flex flex-col">
-                        <label class="text-xs font-semibold text-gray-700 mb-1">V/Adm</label>
-                        <input type="number" id="vadm" class="border border-gray-300 rounded px-2 py-1 text-xs focus:border-blue-500 focus:outline-none" placeholder="0">
-                    </div>
-                    <div class="flex flex-col">
-                        <label class="text-xs font-semibold text-gray-700 mb-1">Adm</label>
-                        <input type="number" id="adm" class="border border-gray-300 rounded px-2 py-1 text-xs focus:border-blue-500 focus:outline-none" placeholder="0">
-                    </div>
-                    <div class="flex flex-col">
-                        <label class="text-xs font-semibold text-gray-700 mb-1">Contract</label>
-                        <input type="number" id="contract" class="border border-gray-300 rounded px-2 py-1 text-xs focus:border-blue-500 focus:outline-none" placeholder="0">
-                    </div>
-                    <div class="flex flex-col">
-                        <label class="text-xs font-semibold text-gray-700 mb-1">Rtd Officers</label>
-                        <input type="number" id="rtdofficers" class="border border-gray-300 rounded px-2 py-1 text-xs focus:border-blue-500 focus:outline-none" placeholder="0">
-                    </div>
-                </div>
-            </div>
-
-            <!-- Form Buttons -->
-            <div class="flex justify-end gap-2">
-                <button id="saveBtn" class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700">Save</button>
-                <button id="cancelBtn" class="bg-gray-400 text-white px-6 py-2 rounded hover:bg-gray-500">Cancel</button>
-            </div>
+      <!-- Hidden Form -->
+      <div id="rankAmountForm" class="hidden mb-2">
+        <!-- Description Section -->
+        <div class="mb-2">
+          <label class="block text-md font-bold text-gray-700 mb-2"
+            >Description or Type</label
+          >
+          <select
+            id="description"
+            class="w-full lg:w-1/2 md:w-2/3 border-2 border-blue-500 bg-transparent rounded px-3 py-2 text-sm focus:border-blue-600 focus:outline-none"
+          >
+            <option value="" disabled selected>
+              Select Description / Type
+            </option>
+            <!-- populated-->
+          </select>
         </div>
 
-        <!-- Table -->
-        <div class="overflow-x-auto">
-            <table class="min-w-full border border-gray-200 rounded-lg text-sm">
-                <thead class="bg-blue-100 text-blue-900">
-                    <tr>
-                        <th class="border px-4 py-3 text-left">Code</th>
-                        <th class="border px-4 py-3 text-left">Description</th>
-                        <th class="border px-4 py-3 text-center">Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="rankAmountTable" class="text-center"></tbody>
-            </table>
+        <!-- Rank Grid -->
+        <div class="mb-4">
+          <h3 class="text-sm lg:text-lg font-bold text-blue-700 mb-2">
+            Set Fixed Amounts by Rank
+          </h3>
+
+          <!-- First Row -->
+          <div
+            class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-4"
+          >
+            <div class="flex flex-col">
+              <label class="text-xs font-semibold text-gray-700 mb-1"
+                >Trainee</label
+              >
+              <input
+                type="number"
+                id="trainee"
+                class="border border-gray-300 rounded px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
+                placeholder="0"
+              />
+            </div>
+            <div class="flex flex-col">
+              <label class="text-xs font-semibold text-gray-700 mb-1">OS</label>
+              <input
+                type="number"
+                id="os"
+                class="border border-gray-300 rounded px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
+                placeholder="0"
+              />
+            </div>
+            <div class="flex flex-col">
+              <label class="text-xs font-semibold text-gray-700 mb-1">SM</label>
+              <input
+                type="number"
+                id="sm"
+                class="border border-gray-300 rounded px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
+                placeholder="0"
+              />
+            </div>
+            <div class="flex flex-col">
+              <label class="text-xs font-semibold text-gray-700 mb-1">AB</label>
+              <input
+                type="number"
+                id="ab"
+                class="border border-gray-300 rounded px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
+                placeholder="0"
+              />
+            </div>
+            <div class="flex flex-col">
+              <label class="text-xs font-semibold text-gray-700 mb-1">LS</label>
+              <input
+                type="number"
+                id="ls"
+                class="border border-gray-300 rounded px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
+                placeholder="0"
+              />
+            </div>
+            <div class="flex flex-col">
+              <label class="text-xs font-semibold text-gray-700 mb-1">PO</label>
+              <input
+                type="number"
+                id="po"
+                class="border border-gray-300 rounded px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
+                placeholder="0"
+              />
+            </div>
+          </div>
+
+          <!-- Second Row -->
+          <div
+            class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 border-b-2 pb-4"
+          >
+            <div class="flex flex-col">
+              <label class="text-xs font-semibold text-gray-700 mb-1">WO</label>
+              <input
+                type="number"
+                id="wo"
+                class="border border-gray-300 rounded px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
+                placeholder="0"
+              />
+            </div>
+            <div class="flex flex-col">
+              <label class="text-xs font-semibold text-gray-700 mb-1"
+                >MWO</label
+              >
+              <input
+                type="number"
+                id="mwo"
+                class="border border-gray-300 rounded px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
+                placeholder="0"
+              />
+            </div>
+            <div class="flex flex-col">
+              <label class="text-xs font-semibold text-gray-700 mb-1"
+                >CADET</label
+              >
+              <input
+                type="number"
+                id="cadet"
+                class="border border-gray-300 rounded px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
+                placeholder="0"
+              />
+            </div>
+            <div class="flex flex-col">
+              <label class="text-xs font-semibold text-gray-700 mb-1"
+                >NWO</label
+              >
+              <input
+                type="number"
+                id="nwo"
+                class="border border-gray-300 rounded px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
+                placeholder="0"
+              />
+            </div>
+            <div class="flex flex-col">
+              <label class="text-xs font-semibold text-gray-700 mb-1"></label>
+              <div
+                class="border border-transparent rounded px-2 py-1 text-xs"
+              ></div>
+            </div>
+            <div class="flex flex-col">
+              <label class="text-xs font-semibold text-gray-700 mb-1"></label>
+              <div
+                class="border border-transparent rounded px-2 py-1 text-xs"
+              ></div>
+            </div>
+          </div>
+
+          <!-- Third Row -->
+          <div
+            class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 pt-2 mb-4"
+          >
+            <div class="flex flex-col">
+              <label class="text-xs font-semibold text-gray-700 mb-1"
+                >MIDSHIPMAN</label
+              >
+              <input
+                type="number"
+                id="midshipman"
+                class="border border-gray-300 rounded px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
+                placeholder="0"
+              />
+            </div>
+            <div class="flex flex-col">
+              <label class="text-xs font-semibold text-gray-700 mb-1"
+                >S/Lt</label
+              >
+              <input
+                type="number"
+                id="slt"
+                class="border border-gray-300 rounded px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
+                placeholder="0"
+              />
+            </div>
+            <div class="flex flex-col">
+              <label class="text-xs font-semibold text-gray-700 mb-1">Lt</label>
+              <input
+                type="number"
+                id="lt"
+                class="border border-gray-300 rounded px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
+                placeholder="0"
+              />
+            </div>
+            <div class="flex flex-col">
+              <label class="text-xs font-semibold text-gray-700 mb-1"
+                >Lt/Cdr</label
+              >
+              <input
+                type="number"
+                id="ltcdr"
+                class="border border-gray-300 rounded px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
+                placeholder="0"
+              />
+            </div>
+            <div class="flex flex-col">
+              <label class="text-xs font-semibold text-gray-700 mb-1"
+                >Cdr</label
+              >
+              <input
+                type="number"
+                id="cdr"
+                class="border border-gray-300 rounded px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
+                placeholder="0"
+              />
+            </div>
+            <div class="flex flex-col">
+              <label class="text-xs font-semibold text-gray-700 mb-1"
+                >Capt</label
+              >
+              <input
+                type="number"
+                id="capt"
+                class="border border-gray-300 rounded px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
+                placeholder="0"
+              />
+            </div>
+          </div>
+
+          <!-- Fourth Row -->
+          <div class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            <div class="flex flex-col">
+              <label class="text-xs font-semibold text-gray-700 mb-1"
+                >Cdre</label
+              >
+              <input
+                type="number"
+                id="cdre"
+                class="border border-gray-300 rounded px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
+                placeholder="0"
+              />
+            </div>
+            <div class="flex flex-col">
+              <label class="text-xs font-semibold text-gray-700 mb-1"
+                >R/Adm</label
+              >
+              <input
+                type="number"
+                id="radm"
+                class="border border-gray-300 rounded px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
+                placeholder="0"
+              />
+            </div>
+            <div class="flex flex-col">
+              <label class="text-xs font-semibold text-gray-700 mb-1"
+                >V/Adm</label
+              >
+              <input
+                type="number"
+                id="vadm"
+                class="border border-gray-300 rounded px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
+                placeholder="0"
+              />
+            </div>
+            <div class="flex flex-col">
+              <label class="text-xs font-semibold text-gray-700 mb-1"
+                >Adm</label
+              >
+              <input
+                type="number"
+                id="adm"
+                class="border border-gray-300 rounded px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
+                placeholder="0"
+              />
+            </div>
+            <div class="flex flex-col">
+              <label class="text-xs font-semibold text-gray-700 mb-1"
+                >Contract</label
+              >
+              <input
+                type="number"
+                id="contract"
+                class="border border-gray-300 rounded px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
+                placeholder="0"
+              />
+            </div>
+            <div class="flex flex-col">
+              <label class="text-xs font-semibold text-gray-700 mb-1"
+                >Rtd Officers</label
+              >
+              <input
+                type="number"
+                id="rtdofficers"
+                class="border border-gray-300 rounded px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
+                placeholder="0"
+              />
+            </div>
+          </div>
         </div>
+
+        <!-- Form Buttons -->
+        <div class="flex justify-end gap-2">
+          <button
+            id="saveBtn"
+            class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700"
+          >
+            Save
+          </button>
+          <button
+            id="cancelBtn"
+            class="bg-gray-400 text-white px-6 py-2 rounded hover:bg-gray-500"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="overflow-x-auto">
+        <table class="min-w-full border border-gray-200 rounded-lg text-sm">
+          <thead class="bg-blue-100 text-blue-900">
+            <tr>
+              <th class="border px-4 py-3 text-left">Code</th>
+              <th class="border px-4 py-3 text-left">Description</th>
+              <th class="border px-4 py-3 text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="rankAmountTable" class="text-center"></tbody>
+        </table>
+      </div>
 
       <!-- Pagination Controls -->
       <div class="mt-4 flex items-center justify-between">
         <div class="text-sm text-gray-600">
-          Showing <span id="startRecord">0</span> to <span id="endRecord">0</span> of <span id="totalRecords">0</span> records
+          Showing <span id="startRecord">0</span> to
+          <span id="endRecord">0</span> of
+          <span id="totalRecords">0</span> records
         </div>
         <div class="flex items-center space-x-2">
-          <select id="recordsPerPage" class="border border-gray-300 rounded px-2 py-1 text-sm">
+          <select
+            id="recordsPerPage"
+            class="border border-gray-300 rounded px-2 py-1 text-sm"
+          >
             <option value="10">10 per page</option>
             <option value="25">25 per page</option>
             <option value="50">50 per page</option>
             <option value="100">100 per page</option>
           </select>
-          <button id="prevPage" class="px-3 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 disabled:opacity-50">
+          <button
+            id="prevPage"
+            class="px-3 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 disabled:opacity-50"
+          >
             Previous
           </button>
           <span class="text-sm">
-            Page <span id="currentPage">1</span> of <span id="totalPages">1</span>
+            Page <span id="currentPage">1</span> of
+            <span id="totalPages">1</span>
           </span>
-          <button id="nextPage" class="px-3 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 disabled:opacity-50">
+          <button
+            id="nextPage"
+            class="px-3 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 disabled:opacity-50"
+          >
             Next
           </button>
         </div>
@@ -191,546 +381,631 @@
 </div>
 
 <!-- Success Modal -->
-<div id="successModal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+<div
+  id="successModal"
+  class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+>
   <div class="bg-white p-6 rounded-lg shadow-xl max-w-md w-full mx-4">
     <h3 class="text-lg font-semibold mb-2 text-green-600">Success!</h3>
     <p class="mb-4 text-gray-700">Your changes have been saved successfully!</p>
-    <button id="closeSuccessModal" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">OK</button>
+    <button
+      id="closeSuccessModal"
+      class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+    >
+      OK
+    </button>
   </div>
 </div>
 
 <!-- View Modal -->
-<div id="viewModal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-  <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-4xl mx-4 max-h-screen overflow-y-auto">
-  <div class="flex justify-between items-center mb-4">
-      <h3 class="text-lg font-semibold text-blue-600">Fixed Amount by Rank Details</h3>
+<div
+  id="viewModal"
+  class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+>
+  <div
+    class="bg-white p-6 rounded-lg shadow-xl w-full max-w-4xl mx-4 max-h-screen overflow-y-auto"
+  >
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-lg font-semibold text-blue-600">
+        Fixed Amount by Rank Details
+      </h3>
       <button id="closeViewModal" class="text-gray-400 hover:text-gray-600">
-          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-          </svg>
+        <svg
+          class="h-6 w-6"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M6 18L18 6M6 6l12 12"
+          ></path>
+        </svg>
       </button>
-  </div>
-  <div id="viewContent"></div>
+    </div>
+    <div id="viewContent"></div>
   </div>
 </div>
 
 <!-- Alert Modal -->
-<div id="alertModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
+<div
+  id="alertModal"
+  class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50"
+>
   <div class="bg-white rounded-lg shadow-xl max-w-sm w-full p-6 text-center">
-    <h3 id="alertTitle" class="text-lg font-semibold text-gray-800 mb-2">Alert!</h3>
+    <h3 id="alertTitle" class="text-lg font-semibold text-gray-800 mb-2">
+      Alert!
+    </h3>
     <p id="alertMessage" class="text-gray-600 mb-4"></p>
-    <button id="alertOkBtn" 
-      class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+    <button
+      id="alertOkBtn"
+      class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+    >
       OK
     </button>
   </div>
 </div>
 
 <!-- Confirm Delete Modal -->
-<div id="sectionConfirmModal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+<div
+  id="sectionConfirmModal"
+  class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+>
   <div class="bg-white p-6 rounded-lg shadow-xl max-w-md w-full mx-4">
     <h3 class="text-lg font-semibold text-yellow-600 mb-2">Confirm Delete</h3>
-    <p id="confirmMessage" class="mb-4 text-gray-700">Are you sure you want to delete this section command?</p>
+    <p id="confirmMessage" class="mb-4 text-gray-700">
+      Are you sure you want to delete this section command?
+    </p>
     <div class="flex justify-end gap-2">
-      <button id="cancelSectionDelete" class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500">Cancel</button>
-      <button id="sectionConfirmAction" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Delete</button>
+      <button
+        id="cancelSectionDelete"
+        class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
+      >
+        Cancel
+      </button>
+      <button
+        id="sectionConfirmAction"
+        class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+      >
+        Delete
+      </button>
     </div>
   </div>
 </div>
 
-
 <script>
   const auth = window.authService;
-(function () {
-let editingIndex = null;
-let data = [];
-let elementTypeData = [];
-let originalData = null;
+  (function () {
+    let editingIndex = null;
+    let data = [];
+    let elementTypeData = [];
+    let originalData = null;
 
-let currentPage = 1;
-let recordsPerPage = 10;
-let filteredData = []; // Store filtered results from search
-let currentSearchTerm = ""; // Store current search term
+    let currentPage = 1;
+    let recordsPerPage = 10;
+    let filteredData = []; // Store filtered results from search
+    let currentSearchTerm = ""; // Store current search term
 
+    const form = document.getElementById("rankAmountForm");
+    const showFormBtn = document.getElementById("showFormBtn");
+    const saveBtn = document.getElementById("saveBtn");
+    const cancelBtn = document.getElementById("cancelBtn");
+    const tableBody = document.getElementById("rankAmountTable");
 
-const form = document.getElementById("rankAmountForm");
-const showFormBtn = document.getElementById("showFormBtn");
-const saveBtn = document.getElementById("saveBtn");
-const cancelBtn = document.getElementById("cancelBtn");
-const tableBody = document.getElementById("rankAmountTable");
+    // Pagination elements
+    const prevPageBtn = document.getElementById("prevPage");
+    const nextPageBtn = document.getElementById("nextPage");
+    const currentPageSpan = document.getElementById("currentPage");
+    const totalPagesSpan = document.getElementById("totalPages");
+    const recordsPerPageSelect = document.getElementById("recordsPerPage");
+    const startRecordSpan = document.getElementById("startRecord");
+    const endRecordSpan = document.getElementById("endRecord");
+    const totalRecordsSpan = document.getElementById("totalRecords");
 
-// Pagination elements
-const prevPageBtn = document.getElementById('prevPage');
-const nextPageBtn = document.getElementById('nextPage');
-const currentPageSpan = document.getElementById('currentPage');
-const totalPagesSpan = document.getElementById('totalPages');
-const recordsPerPageSelect = document.getElementById('recordsPerPage');
-const startRecordSpan = document.getElementById('startRecord');
-const endRecordSpan = document.getElementById('endRecord');
-const totalRecordsSpan = document.getElementById('totalRecords');
-
-async function loadDropdown(endpoint, elementId, valueField, textField, placeholder) {
-  try {
-    const token = localStorage.getItem('token');
-    const response = await auth.fetchWithAuth(`/reference/${endpoint}`, {   
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}` 
+    async function loadDropdown(
+      endpoint,
+      elementId,
+      valueField,
+      textField,
+      placeholder,
+    ) {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await auth.fetchWithAuth(`/reference/${endpoint}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const data = await response.json();
+        const dropdown = document.getElementById(elementId);
+        if (!dropdown) return;
+        dropdown.innerHTML = `<option value="">${placeholder}</option>`;
+        data.forEach((item) => {
+          const option = document.createElement("option");
+          option.value = item[valueField];
+          option.textContent = item[textField];
+          dropdown.appendChild(option);
+        });
+        return data;
+      } catch (err) {
+        console.error(`Failed to load ${endpoint}:`, err);
+        return [];
       }
-    });
-    const data = await response.json();
-    const dropdown = document.getElementById(elementId);
-    if (!dropdown) return;
-    dropdown.innerHTML = `<option value="">${placeholder}</option>`;
-    data.forEach(item => {
-      const option = document.createElement("option");
-      option.value = item[valueField];
-      option.textContent = item[textField];
-      dropdown.appendChild(option);
-    });
-    return data;
-  } catch (err) {
-    console.error(`Failed to load ${endpoint}:`, err);
-    return [];
-  }
-}
+    }
 
-async function loadAllDropdowns() {
-  try {
-    console.log("Loading dropdowns...");
-    elementTypeData = await loadDropdown(
-      "elementType", 
-      "description", 
-      "PaymentType", 
-      "elmDesc", 
-      "Select Element Type"
-    );
-    console.log("Dropdown data loaded:", elementTypeData);
-  } catch (err) {
-    console.error("Error loading dropdowns:", err);
-  }
-}
+    async function loadAllDropdowns() {
+      try {
+        console.log("Loading dropdowns...");
+        elementTypeData = await loadDropdown(
+          "elementType",
+          "description",
+          "PaymentType",
+          "elmDesc",
+          "Select Element Type",
+        );
+        console.log("Dropdown data loaded:", elementTypeData);
+      } catch (err) {
+        console.error("Error loading dropdowns:", err);
+      }
+    }
 
-// Helper function to get elmDesc from PaymentType
-function getElmDesc(paymentType) {
-  const element = elementTypeData.find(item => item.PaymentType === paymentType);
-  return element ? element.elmDesc : paymentType;
-}
+    // Helper function to get elmDesc from PaymentType
+    function getElmDesc(paymentType) {
+      const element = elementTypeData.find(
+        (item) => item.PaymentType === paymentType,
+      );
+      return element ? element.elmDesc : paymentType;
+    }
 
-const rankFields = [
-  'trainee', 'os', 'sm', 'ab', 'ls', 'po', 'wo', 'mwo', 'cadet', 'nwo',
-  'midshipman', 'slt', 'lt', 'ltcdr', 'cdr', 'capt', 'cdre', 'radm', 'vadm', 'adm', 'contract', 'rtdofficers'
-];
+    const rankFields = [
+      "trainee",
+      "os",
+      "sm",
+      "ab",
+      "ls",
+      "po",
+      "wo",
+      "mwo",
+      "cadet",
+      "nwo",
+      "midshipman",
+      "slt",
+      "lt",
+      "ltcdr",
+      "cdr",
+      "capt",
+      "cdre",
+      "radm",
+      "vadm",
+      "adm",
+      "contract",
+      "rtdofficers",
+    ];
 
-// Map frontend rank fields -> backend DB columns
-const rankFieldMap = {
-  trainee: "one_amount01",
-  os: "one_amount02",
-  sm: "one_amount03",
-  ab: "one_amount04",
-  ls: "one_amount05",
-  po: "one_amount06",
-  wo: "one_amount07",
-  mwo: "one_amount08",
-  cadet: "one_amount09",
-  nwo: "one_amount10",
-  midshipman: "one_amount11",
-  slt: "one_amount12",
-  lt: "one_amount13",
-  ltcdr: "one_amount14",
-  cdr: "one_amount15",
-  capt: "one_amount16",
-  cdre: "one_amount17",
-  radm: "one_amount18",
-  vadm: "one_amount19",
-  adm: "one_amount20",
-  contract: "one_amount21",
-  rtdofficers: "one_amount22"
-};
-
-// Reusable Confirm Modal
-function showConfirmModal(message = "Are you sure?") {
-  return new Promise((resolve) => {
-    const modal = document.getElementById("sectionConfirmModal");
-    const msg = document.getElementById("confirmMessage");
-    const cancelBtn = document.getElementById("cancelSectionDelete");
-    const confirmBtn = document.getElementById("sectionConfirmAction");
-
-    msg.textContent = message;
-    modal.classList.remove("hidden");
-
-    // Remove old listeners
-    cancelBtn.onclick = () => {
-      modal.classList.add("hidden");
-      resolve(false);
+    // Map frontend rank fields -> backend DB columns
+    const rankFieldMap = {
+      trainee: "one_amount01",
+      os: "one_amount02",
+      sm: "one_amount03",
+      ab: "one_amount04",
+      ls: "one_amount05",
+      po: "one_amount06",
+      wo: "one_amount07",
+      mwo: "one_amount08",
+      cadet: "one_amount09",
+      nwo: "one_amount10",
+      midshipman: "one_amount11",
+      slt: "one_amount12",
+      lt: "one_amount13",
+      ltcdr: "one_amount14",
+      cdr: "one_amount15",
+      capt: "one_amount16",
+      cdre: "one_amount17",
+      radm: "one_amount18",
+      vadm: "one_amount19",
+      adm: "one_amount20",
+      contract: "one_amount21",
+      rtdofficers: "one_amount22",
     };
 
-    confirmBtn.onclick = () => {
-      modal.classList.add("hidden");
-      resolve(true);
-    };
+    // Reusable Confirm Modal
+    function showConfirmModal(message = "Are you sure?") {
+      return new Promise((resolve) => {
+        const modal = document.getElementById("sectionConfirmModal");
+        const msg = document.getElementById("confirmMessage");
+        const cancelBtn = document.getElementById("cancelSectionDelete");
+        const confirmBtn = document.getElementById("sectionConfirmAction");
 
-    modal.onclick = (e) => {
-      if (e.target.id === "sectionConfirmModal") {
+        msg.textContent = message;
+        modal.classList.remove("hidden");
+
+        // Remove old listeners
+        cancelBtn.onclick = () => {
+          modal.classList.add("hidden");
+          resolve(false);
+        };
+
+        confirmBtn.onclick = () => {
+          modal.classList.add("hidden");
+          resolve(true);
+        };
+
+        modal.onclick = (e) => {
+          if (e.target.id === "sectionConfirmModal") {
+            modal.classList.add("hidden");
+            resolve(false);
+          }
+        };
+      });
+    }
+
+    function showAlert(message, title = "Alert") {
+      const modal = document.getElementById("alertModal");
+      const msg = document.getElementById("alertMessage");
+      const ttl = document.getElementById("alertTitle");
+      const okBtn = document.getElementById("alertOkBtn");
+
+      ttl.textContent = title;
+      msg.textContent = message;
+
+      modal.classList.remove("hidden");
+
+      okBtn.onclick = () => {
         modal.classList.add("hidden");
-        resolve(false);
-      }
-    };
-  });
-}
-
-function showAlert(message, title = "Alert") {
-  const modal = document.getElementById("alertModal");
-  const msg = document.getElementById("alertMessage");
-  const ttl = document.getElementById("alertTitle");
-  const okBtn = document.getElementById("alertOkBtn");
-
-  ttl.textContent = title;
-  msg.textContent = message;
-
-  modal.classList.remove("hidden");
-
-  okBtn.onclick = () => {
-    modal.classList.add("hidden");
-  };
-}
-
-// Transform DB → frontend
-function transformFromBackend(item) {
-  const ranks = {};
-  rankFields.forEach(rank => {
-    ranks[rank] = item[rankFieldMap[rank]] || 0;
-  });
-  return {
-    one_type: item.one_type,
-    createdby: item.createdby,
-    datecreated: item.datecreated,
-    ranks
-  };
-}
-
-// Transform frontend → DB
-function transformToBackend(item) {
-  const payload = {
-    one_type: item.one_type,
-  };
-  rankFields.forEach(rank => {
-    payload[rankFieldMap[rank]] = item.ranks[rank] || 0;
-  });
-  return payload;
-}
-
-// Add new
-showFormBtn.addEventListener("click", () => {
-    form.classList.remove("hidden");
-    editingIndex = null;
-    document.getElementById('description').disabled = false;
-    clearForm();
-});
-
-//validations
-async function checkDuplicate(input, field, excludeType = null) {
-  const value = input.value.trim();
-  if (!value) {
-    input.setCustomValidity("");
-    input.reportValidity();
-    return;
-  }
-
-  // If editing, check if this field value has actually changed
-  if (originalData && originalData[field] === value) {
-    input.setCustomValidity(""); // Clear any existing validation message
-    input.reportValidity();
-    return; // Skip duplicate check if value hasn't changed
-  }
-
-  try {
-    const token = localStorage.getItem("token");
-    
-    // Build URL with optional excludeType parameter
-    let url = `/rank/check/${field}/${encodeURIComponent(value)}`;
-    if (excludeType) {
-      url += `?exclude=${excludeType}`;
+      };
     }
-    
-    const res = await auth.fetchWithAuth(url, {
-      headers: { "Authorization": `Bearer ${token}` }
+
+    // Transform DB → frontend
+    function transformFromBackend(item) {
+      const ranks = {};
+      rankFields.forEach((rank) => {
+        ranks[rank] = item[rankFieldMap[rank]] || 0;
+      });
+      return {
+        one_type: item.one_type,
+        createdby: item.createdby,
+        datecreated: item.datecreated,
+        ranks,
+      };
+    }
+
+    // Transform frontend → DB
+    function transformToBackend(item) {
+      const payload = {
+        one_type: item.one_type,
+      };
+      rankFields.forEach((rank) => {
+        payload[rankFieldMap[rank]] = item.ranks[rank] || 0;
+      });
+      return payload;
+    }
+
+    // Add new
+    showFormBtn.addEventListener("click", () => {
+      form.classList.remove("hidden");
+      editingIndex = null;
+      document.getElementById("description").disabled = false;
+      clearForm();
     });
 
-    if (!res.ok) {
-      console.error(`HTTP ${res.status}: ${res.statusText}`);
-      return;
-    }
-
-    const data = await res.json();
-    if (data.exists) {
-      input.setCustomValidity(`⚠️ This ${field} already exists.`);
-    } else {
-      input.setCustomValidity("");
-    }
-    input.reportValidity();
-  } catch (err) {
-    console.error(`Error checking ${field}:`, err);
-    input.setCustomValidity("");
-    input.reportValidity();
-  }
-}
-
-document.getElementById("description")?.addEventListener("blur", function () {
-    checkDuplicate(this, "one_type");
-});
-
-
-//  helper: get token
-function getToken() {
-  return localStorage.getItem("token");
-}
-
-//  Load from API
-async function loadData(preservePfa = false) {
-  try {
-    // Load dropdowns first
-    await loadAllDropdowns();
-
-    const res = await auth.fetchWithAuth("/rank", {
-      headers: { "Authorization": `Bearer ${getToken()}`}
-    });
-
-    const result = await res.json();
-
-    if (result.success && Array.isArray(result.data)) {
-      data = result.data.map(transformFromBackend);
-    } else if (Array.isArray(result)) {
-      data = result.map(transformFromBackend);
-    } else if (Array.isArray(result.data)) {
-      data = result.data.map(transformFromBackend);
-    } else {
-      data = [];
-    }
-
-    if (preservePfa) {
-      // Reapply the current search filter
-      applySearch(currentSearchTerm);
-      
-      // Validate current page is still valid
-      const totalPages = Math.ceil(filteredData.length / recordsPerPage) || 1;
-      if (currentPage > totalPages) {
-        currentPage = totalPages;
+    //validations
+    async function checkDuplicate(input, field, excludeType = null) {
+      const value = input.value.trim();
+      if (!value) {
+        input.setCustomValidity("");
+        input.reportValidity();
+        return;
       }
-    } else {
-      // Fresh load - reset everything
-      filteredData = [...data];
-      currentPage = 1;
-      currentSearchTerm = "";
+
+      // If editing, check if this field value has actually changed
+      if (originalData && originalData[field] === value) {
+        input.setCustomValidity(""); // Clear any existing validation message
+        input.reportValidity();
+        return; // Skip duplicate check if value hasn't changed
+      }
+
+      try {
+        const token = localStorage.getItem("token");
+
+        // Build URL with optional excludeType parameter
+        let url = `/rank/check/${field}/${encodeURIComponent(value)}`;
+        if (excludeType) {
+          url += `?exclude=${excludeType}`;
+        }
+
+        const res = await auth.fetchWithAuth(url, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (!res.ok) {
+          console.error(`HTTP ${res.status}: ${res.statusText}`);
+          return;
+        }
+
+        const data = await res.json();
+        if (data.exists) {
+          input.setCustomValidity(`⚠️ This ${field} already exists.`);
+        } else {
+          input.setCustomValidity("");
+        }
+        input.reportValidity();
+      } catch (err) {
+        console.error(`Error checking ${field}:`, err);
+        input.setCustomValidity("");
+        input.reportValidity();
+      }
     }
-    
-    renderWithPagination();
 
-  } catch (err) {
-    console.error("Error loading:", err);
-  }
-}
+    document
+      .getElementById("description")
+      ?.addEventListener("blur", function () {
+        checkDuplicate(this, "one_type");
+      });
 
-// View row
-window.viewRow = function(index) {
-  const item = filteredData[index];
-  let html = `
+    //  helper: get token
+    function getToken() {
+      return localStorage.getItem("token");
+    }
+
+    //  Load from API
+    async function loadData(preservePfa = false) {
+      try {
+        // Load dropdowns first
+        await loadAllDropdowns();
+
+        const res = await auth.fetchWithAuth("/rank", {
+          headers: { Authorization: `Bearer ${getToken()}` },
+        });
+
+        const result = await res.json();
+
+        if (result.success && Array.isArray(result.data)) {
+          data = result.data.map(transformFromBackend);
+        } else if (Array.isArray(result)) {
+          data = result.map(transformFromBackend);
+        } else if (Array.isArray(result.data)) {
+          data = result.data.map(transformFromBackend);
+        } else {
+          data = [];
+        }
+
+        if (preservePfa) {
+          // Reapply the current search filter
+          applySearch(currentSearchTerm);
+
+          // Validate current page is still valid
+          const totalPages =
+            Math.ceil(filteredData.length / recordsPerPage) || 1;
+          if (currentPage > totalPages) {
+            currentPage = totalPages;
+          }
+        } else {
+          // Fresh load - reset everything
+          filteredData = [...data];
+          currentPage = 1;
+          currentSearchTerm = "";
+        }
+
+        renderWithPagination();
+      } catch (err) {
+        console.error("Error loading:", err);
+      }
+    }
+
+    // View row
+    window.viewRow = function (index) {
+      const item = filteredData[index];
+      let html = `
     <div class="mb-4">
       <h4 class="text-lg font-semibold">Description: ${getElmDesc(item.one_type)} (${item.one_type})</h4>
     </div>
     <div class="border-2 border-gray-300 rounded-lg p-4 bg-gray-50">
     <div class="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
   `;
-  
-  for (let rank in item.ranks) {
-    const displayRank = rank.charAt(0).toUpperCase() + rank.slice(1);
-    const amount = new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN" }).format(item.ranks[rank]);
-    html += `
+
+      for (let rank in item.ranks) {
+        const displayRank = rank.charAt(0).toUpperCase() + rank.slice(1);
+        const amount = new Intl.NumberFormat("en-NG", {
+          style: "currency",
+          currency: "NGN",
+        }).format(item.ranks[rank]);
+        html += `
       <div class="flex justify-between bg-white p-2 rounded border">
         <span class="font-medium">${displayRank}</span>
         <span class="text-blue-600 font-semibold">${amount}</span>
       </div>
     `;
-  }
-  html += `</div></div>`;
-  document.getElementById("viewContent").innerHTML = html;
-  document.getElementById("viewModal").classList.remove("hidden");
-};
+      }
+      html += `</div></div>`;
+      document.getElementById("viewContent").innerHTML = html;
+      document.getElementById("viewModal").classList.remove("hidden");
+    };
 
-// Edit row
-window.editRow = async function(index) {
-  const item = filteredData[index];
+    // Edit row
+    window.editRow = async function (index) {
+      const item = filteredData[index];
 
-  // Store original values for comparison
-  originalData = {
-    one_type: item.one_type
-  };
+      // Store original values for comparison
+      originalData = {
+        one_type: item.one_type,
+      };
 
-  // Wait for dropdowns to load before setting values
-  await loadAllDropdowns();
+      // Wait for dropdowns to load before setting values
+      await loadAllDropdowns();
 
-  // Set the select dropdown value
-  const descriptionSelect = document.getElementById("description");
-  descriptionSelect.value = item.one_type;
-  descriptionSelect.disabled = true;
+      // Set the select dropdown value
+      const descriptionSelect = document.getElementById("description");
+      descriptionSelect.value = item.one_type;
+      descriptionSelect.disabled = true;
 
-  // Set all rank field values
-  rankFields.forEach(rank => {
-    document.getElementById(rank).value = item.ranks[rank] || 0;
-  });
-
-  editingIndex = index;
-  form.classList.remove("hidden");
-};
-
-//  Delete
-window.deleteRow = async function(index) {
-  const confirmed = await showConfirmModal("Are you sure you want to delete this record?");
-  const item = filteredData[index];
-
-  if(confirmed){
-    try {
-      await auth.fetchWithAuth(`/rank/${item.one_type}`, {
-        method: "DELETE",
-        headers: { "Authorization": `Bearer ${getToken()}` }
+      // Set all rank field values
+      rankFields.forEach((rank) => {
+        document.getElementById(rank).value = item.ranks[rank] || 0;
       });
-      openModal("Record deleted sucessfully", "successModal");
-      await loadData(true);
-     // renderTable();
-    } catch (err) {
-      console.error("Delete failed", err);
-      showAlert("Error deleting record.");
+
+      editingIndex = index;
+      form.classList.remove("hidden");
+    };
+
+    //  Delete
+    window.deleteRow = async function (index) {
+      const confirmed = await showConfirmModal(
+        "Are you sure you want to delete this record?",
+      );
+      const item = filteredData[index];
+
+      if (confirmed) {
+        try {
+          await auth.fetchWithAuth(`/rank/${item.one_type}`, {
+            method: "DELETE",
+            headers: { Authorization: `Bearer ${getToken()}` },
+          });
+          openModal("Record deleted sucessfully", "successModal");
+          await loadData(true);
+          // renderTable();
+        } catch (err) {
+          console.error("Delete failed", err);
+          showAlert("Error deleting record.");
+        }
+      }
+    };
+
+    saveBtn.addEventListener("click", async () => {
+      const one_type = document.getElementById("description").value.trim();
+      if (!one_type) {
+        showAlert("Please enter a description / type");
+        return;
+      }
+
+      // check for duplicates
+      const one_typeInput = document.getElementById("description");
+
+      // Get current one_type for editing
+      const currentOne_type = editingIndex;
+
+      //perform duplicate checks only for changed fields
+      await checkDuplicate(one_typeInput, "one_type", currentOne_type);
+
+      //check if any validation error exists
+      if (!one_typeInput.checkValidity()) {
+        showAlert("Please fix the validation errors before saving.");
+        return;
+      }
+
+      const ranks = {};
+      rankFields.forEach((rank) => {
+        ranks[rank] = parseFloat(document.getElementById(rank).value) || 0;
+      });
+
+      const item = { one_type, ranks };
+      const payload = transformToBackend(item);
+
+      try {
+        if (editingIndex !== null) {
+          //UPDATE
+          const current = filteredData[editingIndex];
+          const res = await auth.fetchWithAuth(`/rank/${current.one_type}`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${getToken()}`,
+            },
+            body: JSON.stringify(payload),
+          });
+
+          if (!res.ok) throw new Error("Update failed");
+
+          // keep frontend copy
+          // data[editingIndex] = { one_type, ranks, createdDate: current.createdDate };
+        } else {
+          // CREATE
+          const res = await auth.fetchWithAuth("/rank/payrank", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${getToken()}`,
+            },
+            body: JSON.stringify(payload),
+          });
+
+          if (!res.ok) throw new Error("Create failed");
+
+          //add to frontend list
+          //   data.push({
+          //   one_type,
+          // ranks,
+          //createdDate: new Date().toISOString().split("T")[0]
+          //});
+        }
+
+        // renderTable();
+        await loadData(true);
+        form.classList.add("hidden");
+        clearForm();
+        openModal("Record Saved Sucessfully");
+        editingIndex = null;
+        originalData = null;
+      } catch (err) {
+        console.error("Save failed:", err);
+        showAlert("Save failed, check console.");
+      }
+    });
+
+    // --- Pagination Event Listeners---
+
+    // --- FRONTEND PAGINATION FUNCTIONS ---
+    function getPaginationData() {
+      const totalRecords = filteredData.length;
+      const totalPages = Math.ceil(totalRecords / recordsPerPage) || 1;
+      const startIndex = (currentPage - 1) * recordsPerPage;
+      const endIndex = startIndex + recordsPerPage;
+      const currentData = filteredData.slice(startIndex, endIndex);
+      const startRecord = totalRecords === 0 ? 0 : startIndex + 1;
+      const endRecord = Math.min(endIndex, totalRecords);
+
+      return {
+        totalRecords,
+        totalPages,
+        currentData,
+        startRecord,
+        endRecord,
+        startIndex,
+      };
     }
-  }
-};
 
-saveBtn.addEventListener("click", async () => {
-  const one_type = document.getElementById("description").value.trim();
-  if (!one_type) {
-    showAlert("Please enter a description / type");
-    return;
-  }
+    prevPageBtn.addEventListener("click", () => {
+      if (currentPage > 1) {
+        currentPage--;
+        renderWithPagination();
+      }
+    });
 
-  // check for duplicates
-  const one_typeInput = document.getElementById("description");
+    nextPageBtn.addEventListener("click", () => {
+      const { totalPages } = getPaginationData();
+      if (currentPage < totalPages) {
+        currentPage++;
+        renderWithPagination();
+      }
+    });
 
-  // Get current one_type for editing
-  const currentOne_type = editingIndex;
+    recordsPerPageSelect.addEventListener("change", (e) => {
+      recordsPerPage = parseInt(e.target.value);
+      currentPage = 1; // Reset to first page
+      renderWithPagination();
+    });
 
-  //perform duplicate checks only for changed fields
-  await checkDuplicate(one_typeInput, 'one_type', currentOne_type);
+    // UI helpers
+    function renderTable() {
+      const { currentData, startIndex } = getPaginationData();
 
-  //check if any validation error exists
-  if(!one_typeInput.checkValidity()){
-    showAlert("Please fix the validation errors before saving.");
-    return;
-  }
-
-  const ranks = {};
-  rankFields.forEach(rank => {
-    ranks[rank] = parseFloat(document.getElementById(rank).value) || 0;
-  });
-
-  const item = { one_type, ranks };
-  const payload = transformToBackend(item);
-
-  try {
-    if (editingIndex !== null) {
-      //UPDATE
-      const current = filteredData[editingIndex];
-      const res = await auth.fetchWithAuth(`/rank/${current.one_type}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${getToken()}`
-        },
-        body: JSON.stringify(payload)
-      });
-
-      if (!res.ok) throw new Error("Update failed");
-
-      // keep frontend copy
-     // data[editingIndex] = { one_type, ranks, createdDate: current.createdDate };
-
-    } else {
-      // CREATE
-      const res = await auth.fetchWithAuth("/rank/payrank", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${getToken()}`
-        },
-        body: JSON.stringify(payload)
-      });
-
-      if (!res.ok) throw new Error("Create failed");
-
-      //add to frontend list
-   //   data.push({
-     //   one_type,
-       // ranks,
-        //createdDate: new Date().toISOString().split("T")[0]
-      //});
-    }
-
-   // renderTable();
-    await loadData(true);
-    form.classList.add("hidden");
-    clearForm();
-    openModal("Record Saved Sucessfully");
-    editingIndex = null;
-    originalData =null;
-
-  } catch (err) {
-    console.error("Save failed:", err);
-    showAlert("Save failed, check console.");
-  }
-});
-
-// --- Pagination Event Listeners---
-
-// --- FRONTEND PAGINATION FUNCTIONS ---
-function getPaginationData() {
-  const totalRecords = filteredData.length;
-  const totalPages = Math.ceil(totalRecords / recordsPerPage) || 1;
-  const startIndex = (currentPage - 1) * recordsPerPage;
-  const endIndex = startIndex + recordsPerPage;
-  const currentData = filteredData.slice(startIndex, endIndex);
-  const startRecord = totalRecords === 0 ? 0 : startIndex + 1;
-  const endRecord = Math.min(endIndex, totalRecords);
-
-  return { totalRecords, totalPages, currentData, startRecord, endRecord, startIndex };
-}
-
-prevPageBtn.addEventListener('click', () => {
-  if (currentPage > 1) {
-    currentPage--;
-    renderWithPagination();
-  }
-});
-
-nextPageBtn.addEventListener('click', () => {
-  const { totalPages } = getPaginationData();
-  if (currentPage < totalPages) {
-    currentPage++;
-    renderWithPagination();
-  }
-});
-
-recordsPerPageSelect.addEventListener('change', (e) => {
-  recordsPerPage = parseInt(e.target.value);
-  currentPage = 1; // Reset to first page
-  renderWithPagination();
-});
-
-// UI helpers
-function renderTable() {
-  const {currentData, startIndex} = getPaginationData();
-
-  tableBody.innerHTML = currentData.map((item, index) => {
-    const absoluteIndex = startIndex + index;
-    return `
+      tableBody.innerHTML = currentData
+        .map((item, index) => {
+          const absoluteIndex = startIndex + index;
+          return `
     <tr class="hover:bg-gray-50">
       <td class="border px-4 py-2 text-left">${item.one_type}</td>
       <td class="border px-4 py-2 text-left">${getElmDesc(item.one_type)}</td>
@@ -741,139 +1016,153 @@ function renderTable() {
       </td>
     </tr>
   `;
-  }).join("");
-}
+        })
+        .join("");
+    }
 
-function updatePaginationUI() {
-  const { totalRecords, totalPages, startRecord, endRecord } = getPaginationData();
-  
-  currentPageSpan.textContent = currentPage;
-  totalPagesSpan.textContent = totalPages;
-  startRecordSpan.textContent = startRecord;
-  endRecordSpan.textContent = endRecord;
-  totalRecordsSpan.textContent = totalRecords;
+    function updatePaginationUI() {
+      const { totalRecords, totalPages, startRecord, endRecord } =
+        getPaginationData();
 
-  prevPageBtn.disabled = currentPage <= 1;
-  nextPageBtn.disabled = currentPage >= totalPages;
-}
+      currentPageSpan.textContent = currentPage;
+      totalPagesSpan.textContent = totalPages;
+      startRecordSpan.textContent = startRecord;
+      endRecordSpan.textContent = endRecord;
+      totalRecordsSpan.textContent = totalRecords;
 
-function renderWithPagination() {
-  renderTable();
-  updatePaginationUI();
-}
+      prevPageBtn.disabled = currentPage <= 1;
+      nextPageBtn.disabled = currentPage >= totalPages;
+    }
 
-// cancel button
-cancelBtn.addEventListener("click", () => {
-  form.classList.add("hidden");
-  editingIndex = null;
-  clearForm();
-});
+    function renderWithPagination() {
+      renderTable();
+      updatePaginationUI();
+    }
 
-// Helpers
-function clearForm() {
-  document.getElementById("description").value = "";
-  rankFields.forEach(rank => {
-    document.getElementById(rank).value = "";
-  });
-}
-
-
-// Search functionality
-function applySearch(searchTerm) {
-  currentSearchTerm = searchTerm.toLowerCase().trim();
-  
-  if (!currentSearchTerm) {
-    filteredData = [...data];
-  } else {
-    filteredData = data.filter(item => {
-      const elmDesc = getElmDesc(item.one_type).toLowerCase();
-      return elmDesc.includes(currentSearchTerm);
+    // cancel button
+    cancelBtn.addEventListener("click", () => {
+      form.classList.add("hidden");
+      editingIndex = null;
+      clearForm();
     });
-  }
-  
-  currentPage = 1;
-}
 
-// Search input handler
-const searchInput = document.getElementById('searchInput');
-if (searchInput) {
-  searchInput.addEventListener('input', (e) => {
-    applySearch(e.target.value);
-    renderWithPagination();
-  });
-}
+    // Helpers
+    function clearForm() {
+      document.getElementById("description").value = "";
+      rankFields.forEach((rank) => {
+        document.getElementById(rank).value = "";
+      });
+    }
 
-function openModal(message, modalId = "successModal") {
-  const modal = document.getElementById(modalId);
-  if (!modal) {
-    console.error("Modal not found:", modalId);
-    return;
-  }
+    // Search functionality
+    function applySearch(searchTerm) {
+      currentSearchTerm = searchTerm.toLowerCase().trim();
 
-  // Optional: update the message if there's a <p id="successMessage">
-  const msg = modal.querySelector("p");
-  if (msg) msg.textContent = message;
+      if (!currentSearchTerm) {
+        filteredData = [...data];
+      } else {
+        filteredData = data.filter((item) => {
+          const elmDesc = getElmDesc(item.one_type).toLowerCase();
+          return elmDesc.includes(currentSearchTerm);
+        });
+      }
 
-  modal.classList.remove("hidden");
+      currentPage = 1;
+    }
 
-  // Auto-close after 2 seconds or add close button handler
-  setTimeout(() => modal.classList.add("hidden"), 2000);
-}
+    // Search input handler
+    const searchInput = document.getElementById("searchInput");
+    if (searchInput) {
+      searchInput.addEventListener("input", (e) => {
+        applySearch(e.target.value);
+        renderWithPagination();
+      });
+    }
 
-function closeModal(id) {
-  document.getElementById(id).classList.add("hidden");
-}
+    function openModal(message, modalId = "successModal") {
+      const modal = document.getElementById(modalId);
+      if (!modal) {
+        console.error("Modal not found:", modalId);
+        return;
+      }
 
-document.getElementById("closeSuccessModal").addEventListener("click", () => closeModal("successModal"));
+      // Optional: update the message if there's a <p id="successMessage">
+      const msg = modal.querySelector("p");
+      if (msg) msg.textContent = message;
 
-document.getElementById("closeViewModal").addEventListener("click", () => closeModal("viewModal"));
+      modal.classList.remove("hidden");
 
-// Force uppercase as user types 
-["description"].forEach(id => {
-  const el = document.getElementById(id);
-  el.addEventListener("input", () => {
-    el.value = el.value.toUpperCase();
-  });
-});
+      // Auto-close after 2 seconds or add close button handler
+      setTimeout(() => modal.classList.add("hidden"), 2000);
+    }
 
-//generate report functionality
-function generateReport() {
-  const now = new Date();
-  const dateStr = now.toLocaleDateString('en-GB', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-  });
-  const timeStr = now.toLocaleTimeString('en-GB', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true
-  });
-  
-  const generatedBy = localStorage.getItem('full_name') || 'System User';
-  
-  const printWindow = window.open('', '_blank');
+    function closeModal(id) {
+      document.getElementById(id).classList.add("hidden");
+    }
 
-  // Group ranks by category
-  const rankGroups = {
-      'Non-Commissioned Officers': ['trainee', 'os', 'sm', 'ab', 'ls', 'po', 'wo', 'mwo'],
-      'Cadets': ['cadet', 'nwo', 'midshipman'],
-      'Junior Officers': ['slt', 'lt', 'ltcdr'],
-      'Senior Officers': ['cdr', 'capt', 'cdre'],
-      'Flag Officers': ['radm', 'vadm', 'adm'],
-      'Special Categories': ['contract', 'rtdofficers']
-  };
+    document
+      .getElementById("closeSuccessModal")
+      .addEventListener("click", () => closeModal("successModal"));
 
-  const formatCurrency = (amount) => {
-      if (!amount) return '-';
-      return new Intl.NumberFormat('en-NG', {
+    document
+      .getElementById("closeViewModal")
+      .addEventListener("click", () => closeModal("viewModal"));
+
+    // Force uppercase as user types
+    ["description"].forEach((id) => {
+      const el = document.getElementById(id);
+      el.addEventListener("input", () => {
+        el.value = el.value.toUpperCase();
+      });
+    });
+
+    //generate report functionality
+    function generateReport() {
+      const now = new Date();
+      const dateStr = now.toLocaleDateString("en-GB", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+      const timeStr = now.toLocaleTimeString("en-GB", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      });
+
+      const generatedBy = localStorage.getItem("full_name") || "System User";
+
+      const printWindow = window.open("", "_blank");
+
+      // Group ranks by category
+      const rankGroups = {
+        "Non-Commissioned Officers": [
+          "trainee",
+          "os",
+          "sm",
+          "ab",
+          "ls",
+          "po",
+          "wo",
+          "mwo",
+        ],
+        Cadets: ["cadet", "nwo", "midshipman"],
+        "Junior Officers": ["slt", "lt", "ltcdr"],
+        "Senior Officers": ["cdr", "capt", "cdre"],
+        "Flag Officers": ["radm", "vadm", "adm"],
+        "Special Categories": ["contract", "rtdofficers"],
+      };
+
+      const formatCurrency = (amount) => {
+        if (!amount) return "-";
+        return new Intl.NumberFormat("en-NG", {
           minimumFractionDigits: 2,
-          maximumFractionDigits: 2
-      }).format(amount);
-  };
+          maximumFractionDigits: 2,
+        }).format(amount);
+      };
 
-  const printContent = `
+      const printContent = `
       <!DOCTYPE html>
       <html>
       <head>
@@ -1044,8 +1333,8 @@ function generateReport() {
       <body>
           <div class="header-wrapper">
               <div class="header">
-                  <h1>Nigerian Navy (Naval Headquarters)</h1>
-                  <h2>CENTRAL PAY OFFICE, 23 POINT ROAD APAPA</h2>
+                  <h1>DEFENSE SPACE ADMINISTRATION</h1>
+                  <h2>NATIONAL SPACE MUSEUM, ABUJA</h2>
               </div>
           </div>
 
@@ -1065,13 +1354,17 @@ function generateReport() {
               </div>
           </div>
 
-          ${data.map(item => `
+          ${data
+            .map(
+              (item) => `
               <div class="element-section">
                   <div class="element-title">
                     ${item.one_type} - ${getElmDesc(item.one_type)}
                   </div>
                   
-                  ${Object.entries(rankGroups).map(([groupName, ranks]) => `
+                  ${Object.entries(rankGroups)
+                    .map(
+                      ([groupName, ranks]) => `
                       <div class="rank-group">
                           <div class="group-title">${groupName}</div>
                           <table class="rank-table">
@@ -1082,18 +1375,26 @@ function generateReport() {
                                   </tr>
                               </thead>
                               <tbody>
-                                  ${ranks.map(rank => `
+                                  ${ranks
+                                    .map(
+                                      (rank) => `
                                       <tr>
                                           <td>${rank.toUpperCase()}</td>
                                           <td class="amount">${formatCurrency(item.ranks[rank])}</td>
                                       </tr>
-                                  `).join('')}
+                                  `,
+                                    )
+                                    .join("")}
                               </tbody>
                           </table>
                       </div>
-                  `).join('')}
+                  `,
+                    )
+                    .join("")}
               </div>
-          `).join('')}
+          `,
+            )
+            .join("")}
 
           <div class="footer">
               <p>Generated by: <strong>${generatedBy}</strong></p>
@@ -1103,20 +1404,21 @@ function generateReport() {
       </html>
   `;
 
-  printWindow.document.write(printContent);
-  printWindow.document.close();
+      printWindow.document.write(printContent);
+      printWindow.document.close();
 
-  printWindow.onload = function() {
-      printWindow.print();
-  };
-}
+      printWindow.onload = function () {
+        printWindow.print();
+      };
+    }
 
-// Add event listener to generate report button
-document.getElementById('generateReportBtn').addEventListener('click', generateReport);
+    // Add event listener to generate report button
+    document
+      .getElementById("generateReportBtn")
+      .addEventListener("click", generateReport);
 
-
-// load on page ready
-loadData();
-loadAllDropdowns();
-})();
+    // load on page ready
+    loadData();
+    loadAllDropdowns();
+  })();
 </script>

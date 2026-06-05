@@ -5,8 +5,8 @@ const ExcelJS = require("exceljs");
 // ============================================
 const EXCEL_CONFIG = {
   company: {
-    name: "Nigerian Navy (Naval Headquarters)",
-    address: "CENTRAL PAY OFFICE, 23 POINT ROAD APAPA",
+    name: "DEFENSE SPACE ADMINISTRATION",
+    address: "NATIONAL SPACE MUSEUM, ABUJA",
   },
   colors: {
     primary: "1e40af", // Blue for headers
@@ -235,7 +235,8 @@ class GenericExcelExporter {
           value = col.transform(value, item);
         }
 
-        cell.value = (value === 0 || value === null || value === undefined) ? null : value;
+        cell.value =
+          value === 0 || value === null || value === undefined ? null : value;
         cell.alignment = {
           horizontal: col.align || "left",
           vertical: "middle",

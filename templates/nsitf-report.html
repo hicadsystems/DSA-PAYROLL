@@ -1,225 +1,17 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-
-<head>
-  <meta charset="utf-8">
-  <style>
-    @page {
-      size: A4 landscape;
-      margin: 0.2mm;
-      background-color: #f8fbff;
-    }
-
-    body {
-      font-family: Helvetica, Arial, sans-serif;
-      font-size: 8pt;
-    }
-
-    body::before {
-      content: "";
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-image: url('{{{logoDataUrl}}}');
-      background-size: auto 100%;
-      background-repeat: no-repeat;
-      background-position: center center;
-      opacity: 0.02;
-      z-index: -1;
-      pointer-events: none;
-    }
-
-    .header-wrapper {
-      display: flex;
-      align-items: flex-start;
-      margin-bottom: 8px;
-      border-bottom: 2px solid #1a1a1a;
-      padding-bottom: 5px;
-    }
-
-    .className {
-      flex-shrink: 0;
-      margin-right: 20px;
-      align-self: center;
-      font-size: 9pt;
-    }
-
-    .header {
-      flex-grow: 1;
-      text-align: center;
-    }
-
-    .header h1 {
-      font-size: 13pt;
-      font-weight: bold;
-      margin-bottom: 2px;
-      letter-spacing: 1.5px;
-      color: #1e40af;
-      font-family: 'Libre Baskerville', Georgia, serif;
-    }
-
-    .header h2 {
-      font-size: 10pt;
-      font-weight: normal;
-      margin-top: 2px;
-      color: #4a4a4a;
-      font-family: 'Libre Baskerville', Georgia, serif;
-    }
-
-    .header-info {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin: 10px 0;
-      font-size: 9pt;
-    }
-
-    .summary-box {
-      border-top: 1.5px solid #0070C0;
-      border-bottom: 1.5px solid #0070C0;
-      padding: 8px 0;
-      margin-bottom: 20px;
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-    }
-
-    .summary-item {
-      text-align: center;
-      padding: 0 15px;
-      background: none;
-      border: none;
-      border-right: 1px solid #ddd;
-      flex-grow: 1;
-    }
-
-    .summary-item:last-child {
-      border-right: none;
-    }
-
-    .summary-item .label {
-      font-size: 8px;
-      color: #666;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 2px;
-    }
-
-    .summary-item .value {
-      font-size: 13px;
-      font-weight: bold;
-      color: #1F4E78;
-    }
-
-    .summary-item.highlight .value {
-      color: #006100;
-      font-size: 14px;
-    }
-
-    .pfa-group {
-      margin-bottom: 25px;
-    }
-
-    .pfa-group.page-break {
-      page-break-before: always;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 20px;
-      font-size: 9px;
-    }
-
-    thead {
-      display: table-header-group;
-    }
-
-    th {
-      color: #1e40af;
-      padding: 10px 6px;
-      text-align: left;
-      font-weight: bold;
-      font-size: 7px;
-      text-transform: uppercase;
-      letter-spacing: 0.3px;
-      border-bottom: 1px solid #0056A0;
-    }
-
-    td {
-      padding: 8px 6px;
-      border: none;
-      vertical-align: middle;
-    }
-
-    .text-right {
-      text-align: right;
-    }
-
-    .text-center {
-      text-align: center;
-    }
-
-    .currency {
-      font-family: 'Courier New', monospace;
-      text-align: right;
-      white-space: nowrap;
-      font-weight: 600;
-    }
-
-    .pfa-header {
-      color: #1e40af;
-      font-weight: bold;
-      font-size: 11px;
-      margin: 10px 0 5px 0;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      page-break-after: avoid;
-    }
-
-    .subtotal-row {
-      font-weight: bold;
-      border-top: 1.5px solid #1e40af;
-      border-bottom: 1.5px solid #1e40af;
-    }
-
-    .subtotal-row td {
-      padding: 10px 6px;
-      font-size: 10px;
-      border: none;
-    }
-
-    .grand-total-row {
-      font-weight: bold;
-      font-size: 11px;
-      border-top: 1px solid #1F4E78;
-      border-bottom: 1px solid #1F4E78;
-    }
-
-    .grand-total-row td {
-      padding: 12px 6px;
-      color: #1F4E78;
-    }
-
-    .footer {
-      padding-top: 10px;
-      border-top: 0.5px solid #1a1a1a;
-      text-align: center;
-      font-size: 8pt;
-      color: #64748b;
-      margin-top: 20px;
-    }
-
-    @media print {
-      body {
-        print-color-adjust: exact;
-        -webkit-print-color-adjust: exact;
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      @page {
+        size: A4 landscape;
+        margin: 0.2mm;
+        background-color: #f8fbff;
       }
 
-      thead {
-        display: table-header-group;
+      body {
+        font-family: Helvetica, Arial, sans-serif;
+        font-size: 8pt;
       }
 
       body::before {
@@ -229,7 +21,7 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background-image: url('{{{logoDataUrl}}}');
+        background-image: url("{{{logoDataUrl}}}");
         background-size: auto 100%;
         background-repeat: no-repeat;
         background-position: center center;
@@ -237,193 +29,442 @@
         z-index: -1;
         pointer-events: none;
       }
-    }
-  </style>
-</head>
 
-<body>
+      .header-wrapper {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 8px;
+        border-bottom: 2px solid #1a1a1a;
+        padding-bottom: 5px;
+      }
 
-  <div class="header-wrapper">
-    <div class="className">{{className}}</div>
-    <div class="header">
-      <h1>Nigerian Navy (Naval Headquarters)</h1>
-      <h2>CENTRAL PAY OFFICE, 23 POINT ROAD APAPA</h2>
+      .className {
+        flex-shrink: 0;
+        margin-right: 20px;
+        align-self: center;
+        font-size: 9pt;
+      }
+
+      .header {
+        flex-grow: 1;
+        text-align: center;
+      }
+
+      .header h1 {
+        font-size: 13pt;
+        font-weight: bold;
+        margin-bottom: 2px;
+        letter-spacing: 1.5px;
+        color: #1e40af;
+        font-family: "Libre Baskerville", Georgia, serif;
+      }
+
+      .header h2 {
+        font-size: 10pt;
+        font-weight: normal;
+        margin-top: 2px;
+        color: #4a4a4a;
+        font-family: "Libre Baskerville", Georgia, serif;
+      }
+
+      .header-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 10px 0;
+        font-size: 9pt;
+      }
+
+      .summary-box {
+        border-top: 1.5px solid #0070c0;
+        border-bottom: 1.5px solid #0070c0;
+        padding: 8px 0;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+      }
+
+      .summary-item {
+        text-align: center;
+        padding: 0 15px;
+        background: none;
+        border: none;
+        border-right: 1px solid #ddd;
+        flex-grow: 1;
+      }
+
+      .summary-item:last-child {
+        border-right: none;
+      }
+
+      .summary-item .label {
+        font-size: 8px;
+        color: #666;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 2px;
+      }
+
+      .summary-item .value {
+        font-size: 13px;
+        font-weight: bold;
+        color: #1f4e78;
+      }
+
+      .summary-item.highlight .value {
+        color: #006100;
+        font-size: 14px;
+      }
+
+      .pfa-group {
+        margin-bottom: 25px;
+      }
+
+      .pfa-group.page-break {
+        page-break-before: always;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+        font-size: 9px;
+      }
+
+      thead {
+        display: table-header-group;
+      }
+
+      th {
+        color: #1e40af;
+        padding: 10px 6px;
+        text-align: left;
+        font-weight: bold;
+        font-size: 7px;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        border-bottom: 1px solid #0056a0;
+      }
+
+      td {
+        padding: 8px 6px;
+        border: none;
+        vertical-align: middle;
+      }
+
+      .text-right {
+        text-align: right;
+      }
+
+      .text-center {
+        text-align: center;
+      }
+
+      .currency {
+        font-family: "Courier New", monospace;
+        text-align: right;
+        white-space: nowrap;
+        font-weight: 600;
+      }
+
+      .pfa-header {
+        color: #1e40af;
+        font-weight: bold;
+        font-size: 11px;
+        margin: 10px 0 5px 0;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        page-break-after: avoid;
+      }
+
+      .subtotal-row {
+        font-weight: bold;
+        border-top: 1.5px solid #1e40af;
+        border-bottom: 1.5px solid #1e40af;
+      }
+
+      .subtotal-row td {
+        padding: 10px 6px;
+        font-size: 10px;
+        border: none;
+      }
+
+      .grand-total-row {
+        font-weight: bold;
+        font-size: 11px;
+        border-top: 1px solid #1f4e78;
+        border-bottom: 1px solid #1f4e78;
+      }
+
+      .grand-total-row td {
+        padding: 12px 6px;
+        color: #1f4e78;
+      }
+
+      .footer {
+        padding-top: 10px;
+        border-top: 0.5px solid #1a1a1a;
+        text-align: center;
+        font-size: 8pt;
+        color: #64748b;
+        margin-top: 20px;
+      }
+
+      @media print {
+        body {
+          print-color-adjust: exact;
+          -webkit-print-color-adjust: exact;
+        }
+
+        thead {
+          display: table-header-group;
+        }
+
+        body::before {
+          content: "";
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background-image: url("{{{logoDataUrl}}}");
+          background-size: auto 100%;
+          background-repeat: no-repeat;
+          background-position: center center;
+          opacity: 0.02;
+          z-index: -1;
+          pointer-events: none;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="header-wrapper">
+      <div class="className">{{className}}</div>
+      <div class="header">
+        <h1>DEFENSE SPACE ADMINISTRATION</h1>
+        <h2>NATIONAL SPACE MUSEUM, ABUJA</h2>
+      </div>
     </div>
-  </div>
 
-  <div class="header-info">
-    <div class="left"><strong>PENSION FUND SCHEME</strong></div>
-    <div class="center">
-      <span>PRODUCED ON</span>
-      <strong>{{formatDate reportDate}}</strong>
-      <span>AT</span>
-      <strong>{{formatTime reportDate}}</strong>
+    <div class="header-info">
+      <div class="left"><strong>PENSION FUND SCHEME</strong></div>
+      <div class="center">
+        <span>PRODUCED ON</span>
+        <strong>{{formatDate reportDate}}</strong>
+        <span>AT</span>
+        <strong>{{formatTime reportDate}}</strong>
+      </div>
+      <div class="right"><span>As At</span> <strong>{{period}}</strong></div>
     </div>
-    <div class="right">
-      <span>As At</span> <strong>{{period}}</strong>
-    </div>
-  </div>
 
-  {{#if isSummary}}
-  <!-- ═══════════════════════════════════════════════════════
+    {{#if isSummary}}
+    <!-- ═══════════════════════════════════════════════════════
        SUMMARY VIEW — BY PFA
   ═══════════════════════════════════════════════════════ -->
-  <table>
-    <thead>
-      <tr>
-        <th style="width: 10%;">PFA Code</th>
-        <th style="width: 28%;">PFA Name</th>
-        <th style="width: 8%;" class="text-right">Tot. Personnel</th>
-        <th style="width: 12%;" class="text-right">Total Net Pay</th>
-        <th style="width: 12%;" class="text-right">Avg Net Pay</th>
-        <th style="width: 8%;" class="text-right">Min</th>
-        {{#if hasContributions}}
-        <th style="width: 12%;" class="text-right">This Month</th>
-        <th style="width: 12%;" class="text-right">Paid To Date</th>
-        {{/if}}
-      </tr>
-    </thead>
-    <tbody>
-      {{#each data}}
-      <tr>
-        <td>{{this.pfa_code}}</td>
-        <td><strong>{{this.pfa_name}}</strong></td>
-        <td class="text-right">{{this.employee_count}}</td>
-        <td class="currency">₦{{formatCurrency this.total_net_pay}}</td>
-        <td class="currency">₦{{formatCurrency this.avg_net_pay}}</td>
-        <td class="currency">₦{{formatCurrency this.min_net_pay}}</td>
-        {{#if ../hasContributions}}
-        <td class="currency">₦{{formatCurrency this.total_contribution_this_month}}</td>
-        <td class="currency">₦{{formatCurrency this.total_contribution_paid_todate}}</td>
-        {{/if}}
-      </tr>
-      {{/each}}
-
-      <tr class="grand-total-row">
-        <td colspan="2"><strong>GRAND TOTALS</strong></td>
-        <td class="text-right"><strong>{{summary.totalEmployees}}</strong></td>
-        <td class="currency"><strong>₦{{formatCurrency summary.totalNetPay}}</strong></td>
-        <td colspan="2"></td>
-        {{#if hasContributions}}
-        <td class="currency"><strong>₦{{formatCurrency summary.totalContributionThisMonth}}</strong></td>
-        <td class="currency"><strong>₦{{formatCurrency summary.totalContributionPaidTodate}}</strong></td>
-        {{/if}}
-      </tr>
-    </tbody>
-  </table>
-
-  {{else}}
-  <!-- ═══════════════════════════════════════════════════════
-       DETAILED VIEW — GROUPED BY PFA
-  ═══════════════════════════════════════════════════════ -->
-  {{#each (groupBy data 'pfa_name')}}
-  <div class="pfa-group{{#unless @first}} page-break{{/unless}}">
     <table>
       <thead>
-        <tr class="pfa-header">
-          <td colspan="{{#if ../hasContributions}}12{{else}}10{{/if}}">
-            <strong>PFA: {{this.key}} ({{this.values.length}} Personnel)</strong>
-          </td>
-        </tr>
         <tr>
-          <th style="width: 7%;">File No.</th>
-          <th style="width: 5%;">Rank</th>
-          <th>Full Name</th>
-          <th style="width: 9%;">Date Of 1st Appt.</th>
-          <th>RSA(Pension) Code</th>
-          <th>Grade Type</th>
-          <th style="width: 5%;">Grd Lvl</th>
-          <th style="width: 6%;">State</th>
-          <th style="width: 3%;">Sex</th>
-          <th style="width: 8%;">PFA Code</th>
-          {{#if ../hasContributions}}
-          <th style="width: 9%;" class="text-right">This Month</th>
-          <th style="width: 9%;" class="text-right">Paid To Date</th>
+          <th style="width: 10%">PFA Code</th>
+          <th style="width: 28%">PFA Name</th>
+          <th style="width: 8%" class="text-right">Tot. Personnel</th>
+          <th style="width: 12%" class="text-right">Total Net Pay</th>
+          <th style="width: 12%" class="text-right">Avg Net Pay</th>
+          <th style="width: 8%" class="text-right">Min</th>
+          {{#if hasContributions}}
+          <th style="width: 12%" class="text-right">This Month</th>
+          <th style="width: 12%" class="text-right">Paid To Date</th>
           {{/if}}
         </tr>
       </thead>
       <tbody>
-        {{#each this.values}}
+        {{#each data}}
         <tr>
-          <td>{{this.employee_id}}</td>
-          <td>{{this.title}}{{this.Title}}</td>
-          <td style="white-space: nowrap;">{{this.full_name}}</td>
-          <td class="text-center">{{this.date_employed}}</td>
-          <td class="text-center" style="white-space: nowrap;">{{this.nsitf_code}}</td>
-          <td class="text-center" style="white-space: nowrap;">{{this.grade_type}}</td>
-          <td class="text-center">{{this.grade_level}}0{{this.years_in_level}}</td>
-          <td class="text-center">{{this.state}}</td>
-          <td class="text-center">{{this.Sex}}</td>
-          <td class="text-center">{{this.pfa_code}}</td>
-          {{#if ../../hasContributions}}
-          <td class="currency">₦{{formatCurrency this.contribution_this_month}}</td>
-          <td class="currency">₦{{formatCurrency this.contribution_paid_todate}}</td>
+          <td>{{this.pfa_code}}</td>
+          <td><strong>{{this.pfa_name}}</strong></td>
+          <td class="text-right">{{this.employee_count}}</td>
+          <td class="currency">₦{{formatCurrency this.total_net_pay}}</td>
+          <td class="currency">₦{{formatCurrency this.avg_net_pay}}</td>
+          <td class="currency">₦{{formatCurrency this.min_net_pay}}</td>
+          {{#if ../hasContributions}}
+          <td class="currency">
+            ₦{{formatCurrency this.total_contribution_this_month}}
+          </td>
+          <td class="currency">
+            ₦{{formatCurrency this.total_contribution_paid_todate}}
+          </td>
           {{/if}}
         </tr>
         {{/each}}
 
-        {{#if ../hasContributions}}
-        <tr class="subtotal-row">
-          <td colspan="10"><strong>Sub-Total — {{this.key}}</strong></td>
-          <td class="currency"><strong>₦{{formatCurrency (sum this.values 'contribution_this_month')}}</strong></td>
-          <td class="currency"><strong>₦{{formatCurrency (sum this.values 'contribution_paid_todate')}}</strong></td>
+        <tr class="grand-total-row">
+          <td colspan="2"><strong>GRAND TOTALS</strong></td>
+          <td class="text-right">
+            <strong>{{summary.totalEmployees}}</strong>
+          </td>
+          <td class="currency">
+            <strong>₦{{formatCurrency summary.totalNetPay}}</strong>
+          </td>
+          <td colspan="2"></td>
+          {{#if hasContributions}}
+          <td class="currency">
+            <strong
+              >₦{{formatCurrency summary.totalContributionThisMonth}}</strong
+            >
+          </td>
+          <td class="currency">
+            <strong
+              >₦{{formatCurrency summary.totalContributionPaidTodate}}</strong
+            >
+          </td>
+          {{/if}}
         </tr>
-        {{/if}}
       </tbody>
     </table>
-  </div>
-  {{/each}}
 
-  {{/if}}
+    {{else}}
+    <!-- ═══════════════════════════════════════════════════════
+       DETAILED VIEW — GROUPED BY PFA
+  ═══════════════════════════════════════════════════════ -->
+    {{#each (groupBy data 'pfa_name')}}
+    <div class="pfa-group{{#unless @first}} page-break{{/unless}}">
+      <table>
+        <thead>
+          <tr class="pfa-header">
+            <td colspan="{{#if ../hasContributions}}12{{else}}10{{/if}}">
+              <strong
+                >PFA: {{this.key}} ({{this.values.length}} Personnel)</strong
+              >
+            </td>
+          </tr>
+          <tr>
+            <th style="width: 7%">File No.</th>
+            <th style="width: 5%">Rank</th>
+            <th>Full Name</th>
+            <th style="width: 9%">Date Of 1st Appt.</th>
+            <th>RSA(Pension) Code</th>
+            <th>Grade Type</th>
+            <th style="width: 5%">Grd Lvl</th>
+            <th style="width: 6%">State</th>
+            <th style="width: 3%">Sex</th>
+            <th style="width: 8%">PFA Code</th>
+            {{#if ../hasContributions}}
+            <th style="width: 9%" class="text-right">This Month</th>
+            <th style="width: 9%" class="text-right">Paid To Date</th>
+            {{/if}}
+          </tr>
+        </thead>
+        <tbody>
+          {{#each this.values}}
+          <tr>
+            <td>{{this.employee_id}}</td>
+            <td>{{this.title}}{{this.Title}}</td>
+            <td style="white-space: nowrap">{{this.full_name}}</td>
+            <td class="text-center">{{this.date_employed}}</td>
+            <td class="text-center" style="white-space: nowrap">
+              {{this.nsitf_code}}
+            </td>
+            <td class="text-center" style="white-space: nowrap">
+              {{this.grade_type}}
+            </td>
+            <td class="text-center">
+              {{this.grade_level}}0{{this.years_in_level}}
+            </td>
+            <td class="text-center">{{this.state}}</td>
+            <td class="text-center">{{this.Sex}}</td>
+            <td class="text-center">{{this.pfa_code}}</td>
+            {{#if ../../hasContributions}}
+            <td class="currency">
+              ₦{{formatCurrency this.contribution_this_month}}
+            </td>
+            <td class="currency">
+              ₦{{formatCurrency this.contribution_paid_todate}}
+            </td>
+            {{/if}}
+          </tr>
+          {{/each}} {{#if ../hasContributions}}
+          <tr class="subtotal-row">
+            <td colspan="10"><strong>Sub-Total — {{this.key}}</strong></td>
+            <td class="currency">
+              <strong
+                >₦{{formatCurrency (sum this.values
+                'contribution_this_month')}}</strong
+              >
+            </td>
+            <td class="currency">
+              <strong
+                >₦{{formatCurrency (sum this.values
+                'contribution_paid_todate')}}</strong
+              >
+            </td>
+          </tr>
+          {{/if}}
+        </tbody>
+      </table>
+    </div>
+    {{/each}} {{/if}}
 
-  <!-- Summary Statistics -->
-  <div class="summary-box">
-    <div class="summary-item">
-      <div class="label">Total Personnel</div>
-      <div class="value">{{summary.totalEmployees}}</div>
+    <!-- Summary Statistics -->
+    <div class="summary-box">
+      <div class="summary-item">
+        <div class="label">Total Personnel</div>
+        <div class="value">{{summary.totalEmployees}}</div>
+      </div>
+      {{#if summary.pfaCount}}
+      <div class="summary-item">
+        <div class="label">PFA Count</div>
+        <div class="value">{{summary.pfaCount}}</div>
+      </div>
+      {{/if}} {{#if hasContributions}}
+      <div class="summary-item highlight">
+        <div class="label">Total This Month</div>
+        <div class="value">
+          ₦{{formatCurrency summary.totalContributionThisMonth}}
+        </div>
+      </div>
+      <div class="summary-item highlight">
+        <div class="label">Total Paid To Date</div>
+        <div class="value">
+          ₦{{formatCurrency summary.totalContributionPaidTodate}}
+        </div>
+      </div>
+      {{/if}}
     </div>
-    {{#if summary.pfaCount}}
-    <div class="summary-item">
-      <div class="label">PFA Count</div>
-      <div class="value">{{summary.pfaCount}}</div>
-    </div>
-    {{/if}}
-    {{#if hasContributions}}
-    <div class="summary-item highlight">
-      <div class="label">Total This Month</div>
-      <div class="value">₦{{formatCurrency summary.totalContributionThisMonth}}</div>
-    </div>
-    <div class="summary-item highlight">
-      <div class="label">Total Paid To Date</div>
-      <div class="value">₦{{formatCurrency summary.totalContributionPaidTodate}}</div>
-    </div>
-    {{/if}}
-  </div>
 
-  <div class="footer">
-    <p>All rights reserved &#xA9; Hicad Systems Limited.</p>
-  </div>
+    <div class="footer">
+      <p>All rights reserved &#xA9; Hicad Systems Limited.</p>
+    </div>
 
-  <script>
-    Handlebars.registerHelper('groupBy', function (array, property) {
-      if (!array || !Array.isArray(array)) return [];
-      const groups = {};
-      array.forEach(item => {
-        const key = item[property] || 'Unknown';
-        if (!groups[key]) groups[key] = [];
-        groups[key].push(item);
+    <script>
+      Handlebars.registerHelper("groupBy", function (array, property) {
+        if (!array || !Array.isArray(array)) return [];
+        const groups = {};
+        array.forEach((item) => {
+          const key = item[property] || "Unknown";
+          if (!groups[key]) groups[key] = [];
+          groups[key].push(item);
+        });
+        return Object.keys(groups)
+          .sort()
+          .map((key) => ({ key, values: groups[key] }));
       });
-      return Object.keys(groups).sort().map(key => ({ key, values: groups[key] }));
-    });
 
-    Handlebars.registerHelper('sum', function (array, property) {
-      if (!array || !Array.isArray(array)) return 0;
-      return array.reduce((s, item) => s + (parseFloat(item[property]) || 0), 0);
-    });
+      Handlebars.registerHelper("sum", function (array, property) {
+        if (!array || !Array.isArray(array)) return 0;
+        return array.reduce(
+          (s, item) => s + (parseFloat(item[property]) || 0),
+          0,
+        );
+      });
 
-    Handlebars.registerHelper('gt', function (a, b) { return parseFloat(a) > parseFloat(b); });
-    Handlebars.registerHelper('eq', function (a, b) { return a === b; });
-  </script>
-</body>
-
+      Handlebars.registerHelper("gt", function (a, b) {
+        return parseFloat(a) > parseFloat(b);
+      });
+      Handlebars.registerHelper("eq", function (a, b) {
+        return a === b;
+      });
+    </script>
+  </body>
 </html>

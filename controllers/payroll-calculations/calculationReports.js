@@ -1,52 +1,69 @@
-const pool = require('../../config/db');
-const ExcelJS = require('exceljs');
-const PDFDocument = require('pdfkit');
+const pool = require("../../config/db");
+const ExcelJS = require("exceljs");
+const PDFDocument = require("pdfkit");
 
 // ============================================
 // CONFIGURATION
 // ============================================
 const CONFIG = {
   company: {
-    name: 'Nigerian Navy (Naval Headquarters)',
-    address: 'CENTRAL PAY OFFICE, 23 POINT ROAD APAPA',
+    name: "DEFENSE SPACE ADMINISTRATION",
+    address: "NATIONAL SPACE MUSEUM, ABUJA",
     //phone: '+234 XXX XXX XXXX',
     //email: 'hr@company.com'
   },
   colors: {
-    primary: '1F4E79',
-    secondary: '2E75B6',
-    header: 'D6DCE5',
-    altRow: 'F2F2F2'
-  }
+    primary: "1F4E79",
+    secondary: "2E75B6",
+    header: "D6DCE5",
+    altRow: "F2F2F2",
+  },
 };
 
 // ============================================
 // EXISTING HELPER FUNCTIONS
 // ============================================
 async function checkCalculationsComplete() {
-  const [bt05] = await pool.query("SELECT sun FROM py_stdrate WHERE type='BT05' LIMIT 1");
+  const [bt05] = await pool.query(
+    "SELECT sun FROM py_stdrate WHERE type='BT05' LIMIT 1",
+  );
   if (!bt05.length || bt05[0].sun < 999) {
-    throw new Error('Payroll calculations must be completed first');
+    throw new Error("Payroll calculations must be completed first");
   }
   return bt05[0];
 }
 
 async function getCurrentPeriod() {
-  const [period] = await pool.query("SELECT ord as year, mth as month FROM py_stdrate WHERE type='BT05' LIMIT 1");
+  const [period] = await pool.query(
+    "SELECT ord as year, mth as month FROM py_stdrate WHERE type='BT05' LIMIT 1",
+  );
   return period[0] || {};
 }
 
 function getMonthName(month) {
-  const months = ['', 'January', 'February', 'March', 'April', 'May', 'June',
-                  'July', 'August', 'September', 'October', 'November', 'December'];
+  const months = [
+    "",
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
   return months[month] || month;
 }
 
 function formatMoney(amount) {
   const num = parseFloat(amount);
-  const parts = num.toFixed(2).split('.');
-  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-  return parts.join('.');
+  const parts = num.toFixed(2).split(".");
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return parts.join(".");
 }
 
 // ============================================
@@ -58,9 +75,9 @@ exports.exportReport = async (req, res) => {
     const { reportType, format } = req.params;
     const period = await getCurrentPeriod();
 
-    if (format === 'excel') {
+    if (format === "excel") {
       return await generateExcelReport(req, res, reportType, period);
-    } else if (format === 'pdf') {
+    } else if (format === "pdf") {
       return await generatePDFReport(req, res, reportType, period);
     } else {
       throw new Error('Invalid format. Use "excel" or "pdf"');
@@ -75,52 +92,57 @@ exports.exportReport = async (req, res) => {
 // ============================================
 async function generateExcelReport(req, res, reportType, period) {
   try {
-
     const workbook = new ExcelJS.Workbook();
-    workbook.creator = 'Payroll System';
+    workbook.creator = "Payroll System";
     workbook.created = new Date();
 
     switch (reportType) {
-      case 'allowances':
+      case "allowances":
         await createAllowancesExcel(workbook, period);
         break;
-      case 'controlsheet':
+      case "controlsheet":
         await createControlSheetExcel(workbook, period);
         break;
-      case 'bank':
+      case "bank":
         await createBankExcel(workbook, period);
         break;
-      case 'deductions':
+      case "deductions":
         await createDeductionsExcel(workbook, period);
         break;
-      case 'tax':
+      case "tax":
         await createTaxExcel(workbook, period);
         break;
-      case 'department':
+      case "department":
         await createDepartmentExcel(workbook, period);
         break;
-      case 'grade':
+      case "grade":
         await createGradeExcel(workbook, period);
         break;
-      case 'exceptions':
+      case "exceptions":
         await createExceptionsExcel(workbook, period);
         break;
-      case 'summary':
+      case "summary":
         await createSummaryExcel(workbook, period);
         break;
       default:
-        throw new Error('Invalid report type');
+        throw new Error("Invalid report type");
     }
 
-    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    res.setHeader('Content-Disposition', `attachment; filename=${reportType}_report_${period.year}_${period.month}.xlsx`);
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    );
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename=${reportType}_report_${period.year}_${period.month}.xlsx`,
+    );
 
     await workbook.xlsx.write(res);
     res.end();
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
-};
+}
 
 // ============================================
 // EXCEL HELPER FUNCTIONS
@@ -130,20 +152,24 @@ function addExcelHeader(ws, title, period, columnCount) {
   ws.mergeCells(2, 1, 2, columnCount);
   ws.mergeCells(3, 1, 3, columnCount);
 
-  const companyCell = ws.getCell('A1');
+  const companyCell = ws.getCell("A1");
   companyCell.value = CONFIG.company.name;
-  companyCell.font = { size: 16, bold: true, color: { argb: CONFIG.colors.primary } };
-  companyCell.alignment = { horizontal: 'center' };
+  companyCell.font = {
+    size: 16,
+    bold: true,
+    color: { argb: CONFIG.colors.primary },
+  };
+  companyCell.alignment = { horizontal: "center" };
 
-  const titleCell = ws.getCell('A2');
+  const titleCell = ws.getCell("A2");
   titleCell.value = title;
   titleCell.font = { size: 12, bold: true };
-  titleCell.alignment = { horizontal: 'center' };
+  titleCell.alignment = { horizontal: "center" };
 
-  const periodCell = ws.getCell('A3');
+  const periodCell = ws.getCell("A3");
   periodCell.value = `Period: ${getMonthName(period.month)} ${period.year}`;
   periodCell.font = { size: 10, italic: true };
-  periodCell.alignment = { horizontal: 'center' };
+  periodCell.alignment = { horizontal: "center" };
 
   return 5; // Starting row for data
 }
@@ -151,14 +177,18 @@ function addExcelHeader(ws, title, period, columnCount) {
 function styleHeaderRow(ws, row, columnCount) {
   for (let i = 1; i <= columnCount; i++) {
     const cell = ws.getRow(row).getCell(i);
-    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: CONFIG.colors.primary } };
-    cell.font = { bold: true, color: { argb: 'FFFFFF' }, size: 10 };
-    cell.alignment = { horizontal: 'center', vertical: 'middle' };
+    cell.fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: CONFIG.colors.primary },
+    };
+    cell.font = { bold: true, color: { argb: "FFFFFF" }, size: 10 };
+    cell.alignment = { horizontal: "center", vertical: "middle" };
     cell.border = {
-      top: { style: 'thin' },
-      left: { style: 'thin' },
-      bottom: { style: 'thin' },
-      right: { style: 'thin' }
+      top: { style: "thin" },
+      left: { style: "thin" },
+      bottom: { style: "thin" },
+      right: { style: "thin" },
     };
   }
   ws.getRow(row).height = 22;
@@ -169,18 +199,24 @@ function addDataRows(ws, data, columns, startRow) {
     const row = ws.getRow(startRow + idx);
     columns.forEach((col, colIdx) => {
       const cell = row.getCell(colIdx + 1);
-      cell.value = col.transform ? col.transform(item[col.key], item) : item[col.key];
-      cell.alignment = { horizontal: col.align || 'left', vertical: 'middle' };
+      cell.value = col.transform
+        ? col.transform(item[col.key], item)
+        : item[col.key];
+      cell.alignment = { horizontal: col.align || "left", vertical: "middle" };
       if (col.numFmt) cell.numFmt = col.numFmt;
       cell.border = {
-        top: { style: 'thin', color: { argb: 'DDDDDD' } },
-        bottom: { style: 'thin', color: { argb: 'DDDDDD' } }
+        top: { style: "thin", color: { argb: "DDDDDD" } },
+        bottom: { style: "thin", color: { argb: "DDDDDD" } },
       };
     });
     // Alternate row colors
     if (idx % 2 === 0) {
       for (let i = 1; i <= columns.length; i++) {
-        row.getCell(i).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: CONFIG.colors.altRow } };
+        row.getCell(i).fill = {
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: CONFIG.colors.altRow },
+        };
       }
     }
   });
@@ -189,19 +225,26 @@ function addDataRows(ws, data, columns, startRow) {
 
 function addTotalsRow(ws, row, totals, columnCount) {
   const totalRow = ws.getRow(row);
-  totalRow.getCell(1).value = 'TOTALS:';
+  totalRow.getCell(1).value = "TOTALS:";
   totalRow.getCell(1).font = { bold: true };
-  
+
   Object.entries(totals).forEach(([colIdx, value]) => {
     const cell = totalRow.getCell(parseInt(colIdx));
     cell.value = value;
     cell.font = { bold: true };
-    cell.numFmt = '#,##0.00';
+    cell.numFmt = "#,##0.00";
   });
 
   for (let i = 1; i <= columnCount; i++) {
-    totalRow.getCell(i).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: CONFIG.colors.header } };
-    totalRow.getCell(i).border = { top: { style: 'medium' }, bottom: { style: 'medium' } };
+    totalRow.getCell(i).fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: CONFIG.colors.header },
+    };
+    totalRow.getCell(i).border = {
+      top: { style: "medium" },
+      bottom: { style: "medium" },
+    };
   }
 }
 
@@ -225,33 +268,69 @@ async function createAllowancesExcel(workbook, period) {
     ORDER BY total_amount DESC
   `);
 
-  const ws = workbook.addWorksheet('Allowances Summary', {
-    pageSetup: { paperSize: 9, orientation: 'landscape' }
+  const ws = workbook.addWorksheet("Allowances Summary", {
+    pageSetup: { paperSize: 9, orientation: "landscape" },
   });
 
   const columns = [
-    { header: 'S/N', key: 'sn', width: 6, align: 'center' },
-    { header: 'Code', key: 'his_type', width: 10 },
-    { header: 'Allowance Name', key: 'allowance_name', width: 30 },
-    { header: 'Employees', key: 'employee_count', width: 12, align: 'center' },
-    { header: 'Total (₦)', key: 'total_amount', width: 15, align: 'right', numFmt: '#,##0.00' },
-    { header: 'Average (₦)', key: 'average_amount', width: 15, align: 'right', numFmt: '#,##0.00' },
-    { header: 'Min (₦)', key: 'min_amount', width: 12, align: 'right', numFmt: '#,##0.00' },
-    { header: 'Max (₦)', key: 'max_amount', width: 12, align: 'right', numFmt: '#,##0.00' }
+    { header: "S/N", key: "sn", width: 6, align: "center" },
+    { header: "Code", key: "his_type", width: 10 },
+    { header: "Allowance Name", key: "allowance_name", width: 30 },
+    { header: "Employees", key: "employee_count", width: 12, align: "center" },
+    {
+      header: "Total (₦)",
+      key: "total_amount",
+      width: 15,
+      align: "right",
+      numFmt: "#,##0.00",
+    },
+    {
+      header: "Average (₦)",
+      key: "average_amount",
+      width: 15,
+      align: "right",
+      numFmt: "#,##0.00",
+    },
+    {
+      header: "Min (₦)",
+      key: "min_amount",
+      width: 12,
+      align: "right",
+      numFmt: "#,##0.00",
+    },
+    {
+      header: "Max (₦)",
+      key: "max_amount",
+      width: 12,
+      align: "right",
+      numFmt: "#,##0.00",
+    },
   ];
 
-  columns.forEach((col, idx) => { ws.getColumn(idx + 1).width = col.width; });
+  columns.forEach((col, idx) => {
+    ws.getColumn(idx + 1).width = col.width;
+  });
 
-  const startRow = addExcelHeader(ws, 'ALLOWANCES SUMMARY REPORT', period, columns.length);
+  const startRow = addExcelHeader(
+    ws,
+    "ALLOWANCES SUMMARY REPORT",
+    period,
+    columns.length,
+  );
 
   const headerRow = ws.getRow(startRow);
-  columns.forEach((col, idx) => { headerRow.getCell(idx + 1).value = col.header; });
+  columns.forEach((col, idx) => {
+    headerRow.getCell(idx + 1).value = col.header;
+  });
   styleHeaderRow(ws, startRow, columns.length);
 
   const dataWithSN = data.map((item, idx) => ({ ...item, sn: idx + 1 }));
   const endRow = addDataRows(ws, dataWithSN, columns, startRow + 1);
 
-  const totalAllowances = data.reduce((sum, d) => sum + parseFloat(d.total_amount || 0), 0);
+  const totalAllowances = data.reduce(
+    (sum, d) => sum + parseFloat(d.total_amount || 0),
+    0,
+  );
   addTotalsRow(ws, endRow + 1, { 5: totalAllowances }, columns.length);
 }
 
@@ -259,7 +338,8 @@ async function createAllowancesExcel(workbook, period) {
 // BANK REPORT EXCEL
 // ============================================
 async function createBankExcel(workbook, period) {
-  const [data] = await pool.query(`
+  const [data] = await pool.query(
+    `
     SELECT 
       mc.his_empno AS employee_id,
       CONCAT(we.Surname, ' ', IFNULL(we.OtherName, '')) AS full_name,
@@ -272,30 +352,47 @@ async function createBankExcel(workbook, period) {
     INNER JOIN py_wkemployees we ON we.empl_id = mc.his_empno
     WHERE mc.his_type = ?
     ORDER BY we.bankcode, we.Surname
-  `, [period.month]);
+  `,
+    [period.month],
+  );
 
-  const ws = workbook.addWorksheet('Bank Schedule', {
-    pageSetup: { paperSize: 9, orientation: 'landscape' }
+  const ws = workbook.addWorksheet("Bank Schedule", {
+    pageSetup: { paperSize: 9, orientation: "landscape" },
   });
 
   const columns = [
-    { header: 'S/N', key: 'sn', width: 6, align: 'center' },
-    { header: 'Svc No.', key: 'employee_id', width: 12 },
-    { header: 'Full Name', key: 'full_name', width: 30 },
-    { header: 'Bank Code', key: 'bankcode', width: 12 },
-    { header: 'Branch', key: 'bankbranch', width: 15 },
-    { header: 'Account Number', key: 'bankacnumber', width: 18 },
-    { header: 'Net Pay (₦)', key: 'net_pay', width: 15, align: 'right', numFmt: '#,##0.00' }
+    { header: "S/N", key: "sn", width: 6, align: "center" },
+    { header: "Svc No.", key: "employee_id", width: 12 },
+    { header: "Full Name", key: "full_name", width: 30 },
+    { header: "Bank Code", key: "bankcode", width: 12 },
+    { header: "Branch", key: "bankbranch", width: 15 },
+    { header: "Account Number", key: "bankacnumber", width: 18 },
+    {
+      header: "Net Pay (₦)",
+      key: "net_pay",
+      width: 15,
+      align: "right",
+      numFmt: "#,##0.00",
+    },
   ];
 
   // Set column widths
-  columns.forEach((col, idx) => { ws.getColumn(idx + 1).width = col.width; });
+  columns.forEach((col, idx) => {
+    ws.getColumn(idx + 1).width = col.width;
+  });
 
-  const startRow = addExcelHeader(ws, 'BANK PAYMENT SCHEDULE', period, columns.length);
+  const startRow = addExcelHeader(
+    ws,
+    "BANK PAYMENT SCHEDULE",
+    period,
+    columns.length,
+  );
 
   // Add headers
   const headerRow = ws.getRow(startRow);
-  columns.forEach((col, idx) => { headerRow.getCell(idx + 1).value = col.header; });
+  columns.forEach((col, idx) => {
+    headerRow.getCell(idx + 1).value = col.header;
+  });
   styleHeaderRow(ws, startRow, columns.length);
 
   // Add serial numbers and data
@@ -331,33 +428,69 @@ async function createDeductionsExcel(workbook, period) {
     ORDER BY total_amount DESC
   `);
 
-  const ws = workbook.addWorksheet('Deductions Summary', {
-    pageSetup: { paperSize: 9, orientation: 'landscape' }
+  const ws = workbook.addWorksheet("Deductions Summary", {
+    pageSetup: { paperSize: 9, orientation: "landscape" },
   });
 
   const columns = [
-    { header: 'S/N', key: 'sn', width: 6, align: 'center' },
-    { header: 'Code', key: 'his_type', width: 10 },
-    { header: 'Deduction Name', key: 'deduction_name', width: 30 },
-    { header: 'Employees', key: 'employee_count', width: 12, align: 'center' },
-    { header: 'Total (₦)', key: 'total_amount', width: 15, align: 'right', numFmt: '#,##0.00' },
-    { header: 'Average (₦)', key: 'average_amount', width: 15, align: 'right', numFmt: '#,##0.00' },
-    { header: 'Min (₦)', key: 'min_amount', width: 12, align: 'right', numFmt: '#,##0.00' },
-    { header: 'Max (₦)', key: 'max_amount', width: 12, align: 'right', numFmt: '#,##0.00' }
+    { header: "S/N", key: "sn", width: 6, align: "center" },
+    { header: "Code", key: "his_type", width: 10 },
+    { header: "Deduction Name", key: "deduction_name", width: 30 },
+    { header: "Employees", key: "employee_count", width: 12, align: "center" },
+    {
+      header: "Total (₦)",
+      key: "total_amount",
+      width: 15,
+      align: "right",
+      numFmt: "#,##0.00",
+    },
+    {
+      header: "Average (₦)",
+      key: "average_amount",
+      width: 15,
+      align: "right",
+      numFmt: "#,##0.00",
+    },
+    {
+      header: "Min (₦)",
+      key: "min_amount",
+      width: 12,
+      align: "right",
+      numFmt: "#,##0.00",
+    },
+    {
+      header: "Max (₦)",
+      key: "max_amount",
+      width: 12,
+      align: "right",
+      numFmt: "#,##0.00",
+    },
   ];
 
-  columns.forEach((col, idx) => { ws.getColumn(idx + 1).width = col.width; });
+  columns.forEach((col, idx) => {
+    ws.getColumn(idx + 1).width = col.width;
+  });
 
-  const startRow = addExcelHeader(ws, 'DEDUCTIONS SUMMARY REPORT', period, columns.length);
+  const startRow = addExcelHeader(
+    ws,
+    "DEDUCTIONS SUMMARY REPORT",
+    period,
+    columns.length,
+  );
 
   const headerRow = ws.getRow(startRow);
-  columns.forEach((col, idx) => { headerRow.getCell(idx + 1).value = col.header; });
+  columns.forEach((col, idx) => {
+    headerRow.getCell(idx + 1).value = col.header;
+  });
   styleHeaderRow(ws, startRow, columns.length);
 
   const dataWithSN = data.map((item, idx) => ({ ...item, sn: idx + 1 }));
   const endRow = addDataRows(ws, dataWithSN, columns, startRow + 1);
 
-  const totalDeductions = data.reduce((sum, d) => sum + parseFloat(d.total_amount || 0), 0);
+  const totalDeductions = data.reduce(
+    (sum, d) => sum + parseFloat(d.total_amount || 0),
+    0,
+  );
   addTotalsRow(ws, endRow + 1, { 5: totalDeductions }, columns.length);
 }
 
@@ -365,7 +498,8 @@ async function createDeductionsExcel(workbook, period) {
 // TAX REPORT EXCEL
 // ============================================
 async function createTaxExcel(workbook, period) {
-  const [data] = await pool.query(`
+  const [data] = await pool.query(
+    `
     SELECT 
       mc.his_empno as employee_id,
       CONCAT(we.Surname, ' ', IFNULL(we.OtherName, '')) AS full_name,
@@ -379,30 +513,71 @@ async function createTaxExcel(workbook, period) {
     INNER JOIN py_wkemployees we ON we.empl_id = mc.his_empno
     WHERE mc.his_type = ?
     ORDER BY mc.his_taxmth DESC
-  `, [period.month]);
+  `,
+    [period.month],
+  );
 
-  const ws = workbook.addWorksheet('PAYE Tax Report', {
-    pageSetup: { paperSize: 9, orientation: 'landscape' }
+  const ws = workbook.addWorksheet("PAYE Tax Report", {
+    pageSetup: { paperSize: 9, orientation: "landscape" },
   });
 
   const columns = [
-    { header: 'S/N', key: 'sn', width: 6, align: 'center' },
-    { header: 'Emp ID', key: 'employee_id', width: 10 },
-    { header: 'Full Name', key: 'full_name', width: 28 },
-    { header: 'Grade', key: 'gradelevel', width: 10, align: 'center' },
-    { header: 'Gross Pay (₦)', key: 'gross_pay', width: 14, align: 'right', numFmt: '#,##0.00' },
-    { header: 'Tax Free (₦)', key: 'tax_free_pay', width: 14, align: 'right', numFmt: '#,##0.00' },
-    { header: 'Taxable (₦)', key: 'taxable_income', width: 14, align: 'right', numFmt: '#,##0.00' },
-    { header: 'PAYE (₦)', key: 'tax_deducted', width: 12, align: 'right', numFmt: '#,##0.00' },
-    { header: 'Cum. Tax (₦)', key: 'cumulative_tax', width: 14, align: 'right', numFmt: '#,##0.00' }
+    { header: "S/N", key: "sn", width: 6, align: "center" },
+    { header: "Emp ID", key: "employee_id", width: 10 },
+    { header: "Full Name", key: "full_name", width: 28 },
+    { header: "Grade", key: "gradelevel", width: 10, align: "center" },
+    {
+      header: "Gross Pay (₦)",
+      key: "gross_pay",
+      width: 14,
+      align: "right",
+      numFmt: "#,##0.00",
+    },
+    {
+      header: "Tax Free (₦)",
+      key: "tax_free_pay",
+      width: 14,
+      align: "right",
+      numFmt: "#,##0.00",
+    },
+    {
+      header: "Taxable (₦)",
+      key: "taxable_income",
+      width: 14,
+      align: "right",
+      numFmt: "#,##0.00",
+    },
+    {
+      header: "PAYE (₦)",
+      key: "tax_deducted",
+      width: 12,
+      align: "right",
+      numFmt: "#,##0.00",
+    },
+    {
+      header: "Cum. Tax (₦)",
+      key: "cumulative_tax",
+      width: 14,
+      align: "right",
+      numFmt: "#,##0.00",
+    },
   ];
 
-  columns.forEach((col, idx) => { ws.getColumn(idx + 1).width = col.width; });
+  columns.forEach((col, idx) => {
+    ws.getColumn(idx + 1).width = col.width;
+  });
 
-  const startRow = addExcelHeader(ws, 'PAYE TAX SCHEDULE', period, columns.length);
+  const startRow = addExcelHeader(
+    ws,
+    "PAYE TAX SCHEDULE",
+    period,
+    columns.length,
+  );
 
   const headerRow = ws.getRow(startRow);
-  columns.forEach((col, idx) => { headerRow.getCell(idx + 1).value = col.header; });
+  columns.forEach((col, idx) => {
+    headerRow.getCell(idx + 1).value = col.header;
+  });
   styleHeaderRow(ws, startRow, columns.length);
 
   const dataWithSN = data.map((item, idx) => ({ ...item, sn: idx + 1 }));
@@ -411,7 +586,7 @@ async function createTaxExcel(workbook, period) {
   const totals = {
     5: data.reduce((sum, d) => sum + parseFloat(d.gross_pay || 0), 0),
     7: data.reduce((sum, d) => sum + parseFloat(d.taxable_income || 0), 0),
-    8: data.reduce((sum, d) => sum + parseFloat(d.tax_deducted || 0), 0)
+    8: data.reduce((sum, d) => sum + parseFloat(d.tax_deducted || 0), 0),
   };
   addTotalsRow(ws, endRow + 1, totals, columns.length);
 }
@@ -420,7 +595,8 @@ async function createTaxExcel(workbook, period) {
 // DEPARTMENT REPORT EXCEL
 // ============================================
 async function createDepartmentExcel(workbook, period) {
-  const [data] = await pool.query(`
+  const [data] = await pool.query(
+    `
     SELECT 
       we.Location as department,
       COUNT(DISTINCT mc.his_empno) as employee_count,
@@ -433,32 +609,76 @@ async function createDepartmentExcel(workbook, period) {
     WHERE mc.his_type = ?
     GROUP BY we.Location
     ORDER BY total_net DESC
-  `, [period.month]);
+  `,
+    [period.month],
+  );
 
-  const ws = workbook.addWorksheet('Department Summary', {
-    pageSetup: { paperSize: 9, orientation: 'landscape' }
+  const ws = workbook.addWorksheet("Department Summary", {
+    pageSetup: { paperSize: 9, orientation: "landscape" },
   });
 
-  const totalNet = data.reduce((sum, d) => sum + parseFloat(d.total_net || 0), 0);
+  const totalNet = data.reduce(
+    (sum, d) => sum + parseFloat(d.total_net || 0),
+    0,
+  );
 
   const columns = [
-    { header: 'S/N', key: 'sn', width: 6, align: 'center' },
-    { header: 'Department/Location', key: 'department', width: 25 },
-    { header: 'Employees', key: 'employee_count', width: 12, align: 'center' },
-    { header: 'Gross Pay (₦)', key: 'total_gross', width: 16, align: 'right', numFmt: '#,##0.00' },
-    { header: 'Tax (₦)', key: 'total_tax', width: 14, align: 'right', numFmt: '#,##0.00' },
-    { header: 'Net Pay (₦)', key: 'total_net', width: 16, align: 'right', numFmt: '#,##0.00' },
-    { header: 'Avg Net (₦)', key: 'average_net', width: 14, align: 'right', numFmt: '#,##0.00' },
-    { header: '% of Total', key: 'percentage', width: 10, align: 'center',
-      transform: (_, item) => ((parseFloat(item.total_net) / totalNet) * 100).toFixed(1) + '%' }
+    { header: "S/N", key: "sn", width: 6, align: "center" },
+    { header: "Department/Location", key: "department", width: 25 },
+    { header: "Employees", key: "employee_count", width: 12, align: "center" },
+    {
+      header: "Gross Pay (₦)",
+      key: "total_gross",
+      width: 16,
+      align: "right",
+      numFmt: "#,##0.00",
+    },
+    {
+      header: "Tax (₦)",
+      key: "total_tax",
+      width: 14,
+      align: "right",
+      numFmt: "#,##0.00",
+    },
+    {
+      header: "Net Pay (₦)",
+      key: "total_net",
+      width: 16,
+      align: "right",
+      numFmt: "#,##0.00",
+    },
+    {
+      header: "Avg Net (₦)",
+      key: "average_net",
+      width: 14,
+      align: "right",
+      numFmt: "#,##0.00",
+    },
+    {
+      header: "% of Total",
+      key: "percentage",
+      width: 10,
+      align: "center",
+      transform: (_, item) =>
+        ((parseFloat(item.total_net) / totalNet) * 100).toFixed(1) + "%",
+    },
   ];
 
-  columns.forEach((col, idx) => { ws.getColumn(idx + 1).width = col.width; });
+  columns.forEach((col, idx) => {
+    ws.getColumn(idx + 1).width = col.width;
+  });
 
-  const startRow = addExcelHeader(ws, 'DEPARTMENTAL PAYROLL SUMMARY', period, columns.length);
+  const startRow = addExcelHeader(
+    ws,
+    "DEPARTMENTAL PAYROLL SUMMARY",
+    period,
+    columns.length,
+  );
 
   const headerRow = ws.getRow(startRow);
-  columns.forEach((col, idx) => { headerRow.getCell(idx + 1).value = col.header; });
+  columns.forEach((col, idx) => {
+    headerRow.getCell(idx + 1).value = col.header;
+  });
   styleHeaderRow(ws, startRow, columns.length);
 
   const dataWithSN = data.map((item, idx) => ({ ...item, sn: idx + 1 }));
@@ -468,7 +688,7 @@ async function createDepartmentExcel(workbook, period) {
     3: data.reduce((sum, d) => sum + parseInt(d.employee_count || 0), 0),
     4: data.reduce((sum, d) => sum + parseFloat(d.total_gross || 0), 0),
     5: data.reduce((sum, d) => sum + parseFloat(d.total_tax || 0), 0),
-    6: totalNet
+    6: totalNet,
   };
   addTotalsRow(ws, endRow + 1, totals, columns.length);
 }
@@ -477,7 +697,8 @@ async function createDepartmentExcel(workbook, period) {
 // GRADE REPORT EXCEL
 // ============================================
 async function createGradeExcel(workbook, period) {
-  const [data] = await pool.query(`
+  const [data] = await pool.query(
+    `
     SELECT 
       we.gradelevel as grade,
       we.gradetype,
@@ -491,29 +712,64 @@ async function createGradeExcel(workbook, period) {
     WHERE mc.his_type = ?
     GROUP BY we.gradelevel, we.gradetype
     ORDER BY we.gradelevel
-  `, [period.month]);
+  `,
+    [period.month],
+  );
 
-  const ws = workbook.addWorksheet('Grade Summary', {
-    pageSetup: { paperSize: 9, orientation: 'landscape' }
+  const ws = workbook.addWorksheet("Grade Summary", {
+    pageSetup: { paperSize: 9, orientation: "landscape" },
   });
 
   const columns = [
-    { header: 'S/N', key: 'sn', width: 6, align: 'center' },
-    { header: 'Grade Level', key: 'grade', width: 12 },
-    { header: 'Grade Type', key: 'gradetype', width: 15 },
-    { header: 'Employees', key: 'employee_count', width: 12, align: 'center' },
-    { header: 'Gross Pay (₦)', key: 'total_gross', width: 16, align: 'right', numFmt: '#,##0.00' },
-    { header: 'Tax (₦)', key: 'total_tax', width: 14, align: 'right', numFmt: '#,##0.00' },
-    { header: 'Net Pay (₦)', key: 'total_net', width: 16, align: 'right', numFmt: '#,##0.00' },
-    { header: 'Avg Net (₦)', key: 'average_net', width: 14, align: 'right', numFmt: '#,##0.00' }
+    { header: "S/N", key: "sn", width: 6, align: "center" },
+    { header: "Grade Level", key: "grade", width: 12 },
+    { header: "Grade Type", key: "gradetype", width: 15 },
+    { header: "Employees", key: "employee_count", width: 12, align: "center" },
+    {
+      header: "Gross Pay (₦)",
+      key: "total_gross",
+      width: 16,
+      align: "right",
+      numFmt: "#,##0.00",
+    },
+    {
+      header: "Tax (₦)",
+      key: "total_tax",
+      width: 14,
+      align: "right",
+      numFmt: "#,##0.00",
+    },
+    {
+      header: "Net Pay (₦)",
+      key: "total_net",
+      width: 16,
+      align: "right",
+      numFmt: "#,##0.00",
+    },
+    {
+      header: "Avg Net (₦)",
+      key: "average_net",
+      width: 14,
+      align: "right",
+      numFmt: "#,##0.00",
+    },
   ];
 
-  columns.forEach((col, idx) => { ws.getColumn(idx + 1).width = col.width; });
+  columns.forEach((col, idx) => {
+    ws.getColumn(idx + 1).width = col.width;
+  });
 
-  const startRow = addExcelHeader(ws, 'GRADE-WISE PAYROLL SUMMARY', period, columns.length);
+  const startRow = addExcelHeader(
+    ws,
+    "GRADE-WISE PAYROLL SUMMARY",
+    period,
+    columns.length,
+  );
 
   const headerRow = ws.getRow(startRow);
-  columns.forEach((col, idx) => { headerRow.getCell(idx + 1).value = col.header; });
+  columns.forEach((col, idx) => {
+    headerRow.getCell(idx + 1).value = col.header;
+  });
   styleHeaderRow(ws, startRow, columns.length);
 
   const dataWithSN = data.map((item, idx) => ({ ...item, sn: idx + 1 }));
@@ -523,7 +779,7 @@ async function createGradeExcel(workbook, period) {
     4: data.reduce((sum, d) => sum + parseInt(d.employee_count || 0), 0),
     5: data.reduce((sum, d) => sum + parseFloat(d.total_gross || 0), 0),
     6: data.reduce((sum, d) => sum + parseFloat(d.total_tax || 0), 0),
-    7: data.reduce((sum, d) => sum + parseFloat(d.total_net || 0), 0)
+    7: data.reduce((sum, d) => sum + parseFloat(d.total_net || 0), 0),
   };
   addTotalsRow(ws, endRow + 1, totals, columns.length);
 }
@@ -532,7 +788,8 @@ async function createGradeExcel(workbook, period) {
 // EXCEPTIONS REPORT EXCEL
 // ============================================
 async function createExceptionsExcel(workbook, period) {
-  const [data] = await pool.query(`
+  const [data] = await pool.query(
+    `
     SELECT 
       mc.his_empno as employee_id,
       CONCAT(we.Surname, ' ', IFNULL(we.OtherName, '')) AS full_name,
@@ -551,28 +808,51 @@ async function createExceptionsExcel(workbook, period) {
     WHERE mc.his_type = ?
       AND (mc.his_netmth <= 0 OR mc.his_grossmth <= 0 OR mc.his_netmth < mc.his_grossmth OR mc.his_taxmth < 0)
     ORDER BY exception_type, full_name
-  `, [period.month]);
+  `,
+    [period.month],
+  );
 
-  const ws = workbook.addWorksheet('Exceptions Report', {
-    pageSetup: { paperSize: 9, orientation: 'landscape' }
+  const ws = workbook.addWorksheet("Exceptions Report", {
+    pageSetup: { paperSize: 9, orientation: "landscape" },
   });
 
   const columns = [
-    { header: 'S/N', key: 'sn', width: 12, align: 'center' },
-    { header: 'Svc No.', key: 'employee_id', width: 12 },
-    { header: 'Full Name', key: 'full_name', width: 28 },
-    { header: 'Grade', key: 'gradelevel', width: 10, align: 'center' },
-    { header: 'Gross Pay (₦)', key: 'gross_pay', width: 14, align: 'right', numFmt: '#,##0.00' },
-    { header: 'Net Pay (₦)', key: 'net_pay', width: 14, align: 'right', numFmt: '#,##0.00' },
-    { header: 'Exception Type', key: 'exception_type', width: 22 }
+    { header: "S/N", key: "sn", width: 12, align: "center" },
+    { header: "Svc No.", key: "employee_id", width: 12 },
+    { header: "Full Name", key: "full_name", width: 28 },
+    { header: "Grade", key: "gradelevel", width: 10, align: "center" },
+    {
+      header: "Gross Pay (₦)",
+      key: "gross_pay",
+      width: 14,
+      align: "right",
+      numFmt: "#,##0.00",
+    },
+    {
+      header: "Net Pay (₦)",
+      key: "net_pay",
+      width: 14,
+      align: "right",
+      numFmt: "#,##0.00",
+    },
+    { header: "Exception Type", key: "exception_type", width: 22 },
   ];
 
-  columns.forEach((col, idx) => { ws.getColumn(idx + 1).width = col.width; });
+  columns.forEach((col, idx) => {
+    ws.getColumn(idx + 1).width = col.width;
+  });
 
-  const startRow = addExcelHeader(ws, 'PAYROLL EXCEPTIONS REPORT', period, columns.length);
+  const startRow = addExcelHeader(
+    ws,
+    "PAYROLL EXCEPTIONS REPORT",
+    period,
+    columns.length,
+  );
 
   const headerRow = ws.getRow(startRow);
-  columns.forEach((col, idx) => { headerRow.getCell(idx + 1).value = col.header; });
+  columns.forEach((col, idx) => {
+    headerRow.getCell(idx + 1).value = col.header;
+  });
   styleHeaderRow(ws, startRow, columns.length);
 
   const dataWithSN = data.map((item, idx) => ({ ...item, sn: idx + 1 }));
@@ -580,7 +860,7 @@ async function createExceptionsExcel(workbook, period) {
 
   // Summary by exception type
   const summaryRow = startRow + data.length + 3;
-  ws.getCell(`A${summaryRow}`).value = 'Summary by Exception Type:';
+  ws.getCell(`A${summaryRow}`).value = "Summary by Exception Type:";
   ws.getCell(`A${summaryRow}`).font = { bold: true };
 
   const exceptionCounts = data.reduce((acc, d) => {
@@ -601,7 +881,8 @@ async function createExceptionsExcel(workbook, period) {
 // ============================================
 async function createSummaryExcel(workbook, period) {
   // Get summary data
-  const [[summary]] = await pool.query(`
+  const [[summary]] = await pool.query(
+    `
     SELECT 
       COUNT(DISTINCT his_empno) AS total_employees,
       ROUND(SUM(his_grossmth), 2) AS total_gross,
@@ -609,7 +890,9 @@ async function createSummaryExcel(workbook, period) {
       ROUND(COALESCE(SUM(his_netmth), 0), 2) AS total_net,
       ROUND(AVG(his_netmth), 2) AS average_net_pay
     FROM py_mastercum WHERE his_type = ?
-  `, [period.month]);
+  `,
+    [period.month],
+  );
 
   const [[payded]] = await pool.query(`
     SELECT 
@@ -618,21 +901,21 @@ async function createSummaryExcel(workbook, period) {
     FROM py_masterpayded
   `);
 
-  const ws = workbook.addWorksheet('Payroll Summary', {
-    pageSetup: { paperSize: 9, orientation: 'portrait' }
+  const ws = workbook.addWorksheet("Payroll Summary", {
+    pageSetup: { paperSize: 9, orientation: "portrait" },
   });
 
-  addExcelHeader(ws, 'PAYROLL SUMMARY REPORT', period, 4);
+  addExcelHeader(ws, "PAYROLL SUMMARY REPORT", period, 4);
 
   // Summary cards
   const summaryData = [
-    ['Total Employees', summary.total_employees],
-    ['Total Gross Pay', formatMoney(summary.total_gross)],
-    ['Total Allowances', formatMoney(payded.total_allowances)],
-    ['Total Deductions', formatMoney(payded.total_deductions)],
-    ['Total Tax (PAYE)', formatMoney(summary.total_tax)],
-    ['Total Net Pay', formatMoney(summary.total_net)],
-    ['Average Net Pay', formatMoney(summary.average_net_pay)]
+    ["Total Employees", summary.total_employees],
+    ["Total Gross Pay", formatMoney(summary.total_gross)],
+    ["Total Allowances", formatMoney(payded.total_allowances)],
+    ["Total Deductions", formatMoney(payded.total_deductions)],
+    ["Total Tax (PAYE)", formatMoney(summary.total_tax)],
+    ["Total Net Pay", formatMoney(summary.total_net)],
+    ["Average Net Pay", formatMoney(summary.average_net_pay)],
   ];
 
   let row = 6;
@@ -640,8 +923,10 @@ async function createSummaryExcel(workbook, period) {
     ws.getCell(`B${row}`).value = label;
     ws.getCell(`B${row}`).font = { bold: true };
     ws.getCell(`C${row}`).value = value;
-    ws.getCell(`C${row}`).alignment = { horizontal: 'right' };
-    ws.getCell(`C${row}`).border = { bottom: { style: 'thin', color: { argb: 'DDDDDD' } } };
+    ws.getCell(`C${row}`).alignment = { horizontal: "right" };
+    ws.getCell(`C${row}`).border = {
+      bottom: { style: "thin", color: { argb: "DDDDDD" } },
+    };
     row++;
   });
 
@@ -693,59 +978,92 @@ async function createControlSheetExcel(workbook, period) {
     ORDER BY sort_order, ts.type1
   `);
 
-  const ws = workbook.addWorksheet('Control Sheet', {
-    pageSetup: { paperSize: 9, orientation: 'landscape' }
+  const ws = workbook.addWorksheet("Control Sheet", {
+    pageSetup: { paperSize: 9, orientation: "landscape" },
   });
 
   const columns = [
-    { header: 'S/N', key: 'sn', width: 12, align: 'center' },
-    { header: 'Code', key: 'payment_type', width: 12 },
-    { header: 'Description', key: 'payment_description', width: 35 },
-    { header: 'Ledger Code', key: 'ledger_code', width: 15 },
-    { header: 'DR/CR', key: 'dr_cr_indicator', width: 8, align: 'center' },
-    { header: 'Debit (₦)', key: 'dr_amount', width: 15, align: 'right', numFmt: '#,##0.00' },
-    { header: 'Credit (₦)', key: 'cr_amount', width: 15, align: 'right', numFmt: '#,##0.00' }
+    { header: "S/N", key: "sn", width: 12, align: "center" },
+    { header: "Code", key: "payment_type", width: 12 },
+    { header: "Description", key: "payment_description", width: 35 },
+    { header: "Ledger Code", key: "ledger_code", width: 15 },
+    { header: "DR/CR", key: "dr_cr_indicator", width: 8, align: "center" },
+    {
+      header: "Debit (₦)",
+      key: "dr_amount",
+      width: 15,
+      align: "right",
+      numFmt: "#,##0.00",
+    },
+    {
+      header: "Credit (₦)",
+      key: "cr_amount",
+      width: 15,
+      align: "right",
+      numFmt: "#,##0.00",
+    },
   ];
 
-  columns.forEach((col, idx) => { ws.getColumn(idx + 1).width = col.width; });
+  columns.forEach((col, idx) => {
+    ws.getColumn(idx + 1).width = col.width;
+  });
 
-  const startRow = addExcelHeader(ws, 'PAYROLL CONTROL SHEET', period, columns.length);
+  const startRow = addExcelHeader(
+    ws,
+    "PAYROLL CONTROL SHEET",
+    period,
+    columns.length,
+  );
 
   const headerRow = ws.getRow(startRow);
-  columns.forEach((col, idx) => { headerRow.getCell(idx + 1).value = col.header; });
+  columns.forEach((col, idx) => {
+    headerRow.getCell(idx + 1).value = col.header;
+  });
   styleHeaderRow(ws, startRow, columns.length);
 
   const dataWithSN = data.map((item, idx) => ({ ...item, sn: idx + 1 }));
   const endRow = addDataRows(ws, dataWithSN, columns, startRow + 1);
 
-  const totalDR = data.reduce((sum, d) => sum + parseFloat(d.dr_amount || 0), 0);
-  const totalCR = data.reduce((sum, d) => sum + parseFloat(d.cr_amount || 0), 0);
-  
+  const totalDR = data.reduce(
+    (sum, d) => sum + parseFloat(d.dr_amount || 0),
+    0,
+  );
+  const totalCR = data.reduce(
+    (sum, d) => sum + parseFloat(d.cr_amount || 0),
+    0,
+  );
+
   addTotalsRow(ws, endRow + 1, { 6: totalDR, 7: totalCR }, columns.length);
 
   // Variance check
   const variance = Math.abs(totalDR - totalCR);
   const varianceRow = ws.getRow(endRow + 3);
-  varianceRow.getCell(1).value = 'VARIANCE:';
+  varianceRow.getCell(1).value = "VARIANCE:";
   varianceRow.getCell(1).font = { bold: true };
-  varianceRow.getCell(2).value = variance < 0.01 ? 'BALANCED' : formatMoney(variance);
-  varianceRow.getCell(2).font = { bold: true, color: { argb: variance < 0.01 ? '70AD47' : 'FF0000' } };
+  varianceRow.getCell(2).value =
+    variance < 0.01 ? "BALANCED" : formatMoney(variance);
+  varianceRow.getCell(2).font = {
+    bold: true,
+    color: { argb: variance < 0.01 ? "70AD47" : "FF0000" },
+  };
 }
-
-
 
 // Helper function to check if calculations are complete
 async function checkCalculationsComplete() {
-  const [bt05] = await pool.query("SELECT sun FROM py_stdrate WHERE type='BT05' LIMIT 1");
+  const [bt05] = await pool.query(
+    "SELECT sun FROM py_stdrate WHERE type='BT05' LIMIT 1",
+  );
   if (!bt05.length || bt05[0].sun < 999) {
-    throw new Error('Payroll calculations must be completed first');
+    throw new Error("Payroll calculations must be completed first");
   }
   return bt05[0];
 }
 
 // Get current period info
 async function getCurrentPeriod() {
-  const [period] = await pool.query("SELECT ord as year, mth as month FROM py_stdrate WHERE type='BT05' LIMIT 1");
+  const [period] = await pool.query(
+    "SELECT ord as year, mth as month FROM py_stdrate WHERE type='BT05' LIMIT 1",
+  );
   return period[0] || {};
 }
 
@@ -792,8 +1110,8 @@ exports.getPayrollSummary = async (req, res) => {
       success: true,
       data: {
         period: { month: period.month },
-        summary: summary[0]
-      }
+        summary: summary[0],
+      },
     });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
@@ -828,8 +1146,8 @@ exports.getBankReport = async (req, res) => {
     const byBank = {};
     let grandTotal = 0;
 
-    bankData.forEach(row => {
-      const bank = row.bankcode || 'UNASSIGNED';
+    bankData.forEach((row) => {
+      const bank = row.bankcode || "UNASSIGNED";
       if (!byBank[bank]) {
         byBank[bank] = { employees: [], total: 0, count: 0 };
       }
@@ -845,8 +1163,8 @@ exports.getBankReport = async (req, res) => {
         period: { year: period.year, month: period.month },
         byBank,
         grandTotal,
-        totalEmployees: bankData.length
-      }
+        totalEmployees: bankData.length,
+      },
     });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
@@ -878,7 +1196,10 @@ exports.getDeductionsSummary = async (req, res) => {
 
     const [deductions] = await pool.query(query);
 
-    const totalDeductions = deductions.reduce((sum, d) => sum + parseFloat(d.total_amount), 0);
+    const totalDeductions = deductions.reduce(
+      (sum, d) => sum + parseFloat(d.total_amount),
+      0,
+    );
 
     res.json({
       success: true,
@@ -886,8 +1207,8 @@ exports.getDeductionsSummary = async (req, res) => {
         period: { year: period.year, month: period.month },
         deductions,
         totalDeductions,
-        deductionCount: deductions.length
-      }
+        deductionCount: deductions.length,
+      },
     });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
@@ -920,10 +1241,20 @@ exports.getTaxReport = async (req, res) => {
 
     const summary = {
       totalEmployees: taxData.length,
-      totalTaxCollected: taxData.reduce((sum, t) => sum + parseFloat(t.tax_deducted), 0),
-      totalTaxableIncome: taxData.reduce((sum, t) => sum + parseFloat(t.taxable_income), 0),
-      totalGrossPay: taxData.reduce((sum, t) => sum + parseFloat(t.gross_pay), 0),
-      employeesWithTax: taxData.filter(t => parseFloat(t.tax_deducted) > 0).length
+      totalTaxCollected: taxData.reduce(
+        (sum, t) => sum + parseFloat(t.tax_deducted),
+        0,
+      ),
+      totalTaxableIncome: taxData.reduce(
+        (sum, t) => sum + parseFloat(t.taxable_income),
+        0,
+      ),
+      totalGrossPay: taxData.reduce(
+        (sum, t) => sum + parseFloat(t.gross_pay),
+        0,
+      ),
+      employeesWithTax: taxData.filter((t) => parseFloat(t.tax_deducted) > 0)
+        .length,
     };
 
     res.json({
@@ -931,8 +1262,8 @@ exports.getTaxReport = async (req, res) => {
       data: {
         period: { year: period.year, month: period.month },
         taxData,
-        summary
-      }
+        summary,
+      },
     });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
@@ -962,7 +1293,10 @@ exports.getDepartmentSummary = async (req, res) => {
 
     const [departments] = await pool.query(query, [period.month]);
 
-    const grandTotal = departments.reduce((sum, d) => sum + parseFloat(d.total_net), 0);
+    const grandTotal = departments.reduce(
+      (sum, d) => sum + parseFloat(d.total_net),
+      0,
+    );
 
     res.json({
       success: true,
@@ -970,8 +1304,8 @@ exports.getDepartmentSummary = async (req, res) => {
         period: { year: period.year, month: period.month },
         departments,
         grandTotal,
-        departmentCount: departments.length
-      }
+        departmentCount: departments.length,
+      },
     });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
@@ -1002,7 +1336,10 @@ exports.getGradeSummary = async (req, res) => {
 
     const [grades] = await pool.query(query, [period.month]);
 
-    const grandTotal = grades.reduce((sum, g) => sum + parseFloat(g.total_net), 0);
+    const grandTotal = grades.reduce(
+      (sum, g) => sum + parseFloat(g.total_net),
+      0,
+    );
 
     res.json({
       success: true,
@@ -1010,8 +1347,8 @@ exports.getGradeSummary = async (req, res) => {
         period: { year: period.year, month: period.month },
         grades,
         grandTotal,
-        gradeCount: grades.length
-      }
+        gradeCount: grades.length,
+      },
     });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
@@ -1053,7 +1390,7 @@ exports.getExceptionReport = async (req, res) => {
     const [exceptions] = await pool.query(query, [period.month]);
 
     const byType = {};
-    exceptions.forEach(ex => {
+    exceptions.forEach((ex) => {
       if (!byType[ex.exception_type]) {
         byType[ex.exception_type] = [];
       }
@@ -1066,8 +1403,8 @@ exports.getExceptionReport = async (req, res) => {
         period: { year: period.year, month: period.month },
         exceptions,
         byType,
-        totalExceptions: exceptions.length
-      }
+        totalExceptions: exceptions.length,
+      },
     });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
@@ -1099,7 +1436,10 @@ exports.getAllowancesSummary = async (req, res) => {
 
     const [allowances] = await pool.query(query);
 
-    const totalAllowances = allowances.reduce((sum, a) => sum + parseFloat(a.total_amount), 0);
+    const totalAllowances = allowances.reduce(
+      (sum, a) => sum + parseFloat(a.total_amount),
+      0,
+    );
 
     res.json({
       success: true,
@@ -1107,8 +1447,8 @@ exports.getAllowancesSummary = async (req, res) => {
         period: { year: period.year, month: period.month },
         allowances,
         totalAllowances,
-        allowanceCount: allowances.length
-      }
+        allowanceCount: allowances.length,
+      },
     });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
@@ -1171,8 +1511,14 @@ exports.getControlSheet = async (req, res) => {
     const [controlData] = await pool.query(query);
 
     // Calculate totals
-    const totalDR = controlData.reduce((sum, row) => sum + parseFloat(row.dr_amount || 0), 0);
-    const totalCR = controlData.reduce((sum, row) => sum + parseFloat(row.cr_amount || 0), 0);
+    const totalDR = controlData.reduce(
+      (sum, row) => sum + parseFloat(row.dr_amount || 0),
+      0,
+    );
+    const totalCR = controlData.reduce(
+      (sum, row) => sum + parseFloat(row.cr_amount || 0),
+      0,
+    );
     const variance = Math.abs(totalDR - totalCR);
 
     // Group by category
@@ -1182,22 +1528,22 @@ exports.getControlSheet = async (req, res) => {
       fringe_benefits: [],
       deductions: [],
       loans: [],
-      payments: []
+      payments: [],
     };
 
-    controlData.forEach(row => {
+    controlData.forEach((row) => {
       const prefix = row.payment_type.substring(0, 2);
-      if (prefix === 'BP' || prefix === 'BT') {
+      if (prefix === "BP" || prefix === "BT") {
         byCategory.basic_salary.push(row);
-      } else if (prefix === 'PT') {
+      } else if (prefix === "PT") {
         byCategory.allowances.push(row);
-      } else if (prefix === 'FP') {
+      } else if (prefix === "FP") {
         byCategory.fringe_benefits.push(row);
-      } else if (prefix === 'PR') {
+      } else if (prefix === "PR") {
         byCategory.deductions.push(row);
-      } else if (prefix === 'PL') {
+      } else if (prefix === "PL") {
         byCategory.loans.push(row);
-      } else if (prefix === 'PY') {
+      } else if (prefix === "PY") {
         byCategory.payments.push(row);
       }
     });
@@ -1212,9 +1558,9 @@ exports.getControlSheet = async (req, res) => {
           totalDR,
           totalCR,
           variance,
-          isBalanced: variance < 0.01
-        }
-      }
+          isBalanced: variance < 0.01,
+        },
+      },
     });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
@@ -1225,16 +1571,15 @@ exports.getControlSheet = async (req, res) => {
 function getColumnsForReport(reportType) {
   const columns = {
     bank: [
-      { header: 'Svc No.', key: 'employee_id', width: 15 },
-      { header: 'Full Name', key: 'full_name', width: 30 },
-      { header: 'Bank Code', key: 'bankcode', width: 15 },
-      { header: 'Account Number', key: 'bankacnumber', width: 20 },
-      { header: 'Net Pay', key: 'net_pay', width: 15 }
+      { header: "Svc No.", key: "employee_id", width: 15 },
+      { header: "Full Name", key: "full_name", width: 30 },
+      { header: "Bank Code", key: "bankcode", width: 15 },
+      { header: "Account Number", key: "bankacnumber", width: 20 },
+      { header: "Net Pay", key: "net_pay", width: 15 },
     ],
     // ... other report columns
   };
   return columns[reportType] || [];
 }
-
 
 module.exports = exports;

@@ -1,134 +1,133 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
+  <head>
+    <meta charset="UTF-8" />
+    <style>
+      @page {
+        size: A5;
+        margin: 10mm;
+        margin-top: 0.2mm;
+        margin-bottom: 0.2mm;
+        background-color: #f8fbff;
+      }
 
-<head>
-  <meta charset="UTF-8">
-  <style>
-    @page {
-      size: A5;
-      margin: 10mm;
-      margin-top: 0.2mm;
-      margin-bottom: 0.2mm;
-      background-color: #f8fbff;
-    }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+      html,
+      body {
+        font-family: "Helvetica", "Arial", sans-serif;
+        font-size: 7pt;
+        color: #1a1a1a;
+        line-height: 1.2;
+        background-color: transparent;
+        position: relative;
+      }
 
-    html,
-    body {
-      font-family: 'Helvetica', 'Arial', sans-serif;
-      font-size: 7pt;
-      color: #1a1a1a;
-      line-height: 1.2;
-      background-color: transparent;
-      position: relative;
-    }
+      body::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url("{{{logoDataUrl}}}");
+        background-size: auto 100%;
+        background-repeat: no-repeat;
+        background-position: center center;
+        opacity: 0.02;
+        z-index: -1;
+        pointer-events: none;
+      }
 
-    body::before {
-      content: "";
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-image: url('{{{logoDataUrl}}}');
-      background-size: auto 100%;
-      background-repeat: no-repeat;
-      background-position: center center;
-      opacity: 0.02;
-      z-index: -1;
-      pointer-events: none;
-    }
+      .container {
+        width: 100%;
+        padding: 10px;
+        page-break-after: always;
+      }
 
-    .container {
-      width: 100%;
-      padding: 10px;
-      page-break-after: always;
-    }
+      .container:last-child {
+        page-break-after: auto;
+      }
 
-    .container:last-child {
-      page-break-after: auto;
-    }
+      /* ── HEADER ── */
+      .header-wrapper {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 8px;
+        border-bottom: 2px solid #1a1a1a;
+        padding-bottom: 5px;
+      }
 
-    /* ── HEADER ── */
-    .header-wrapper {
-      display: flex;
-      align-items: flex-start;
-      margin-bottom: 8px;
-      border-bottom: 2px solid #1a1a1a;
-      padding-bottom: 5px;
-    }
+      .className {
+        flex-shrink: 0;
+        margin-right: 20px;
+        align-self: center;
+        font-size: 9pt;
+      }
 
-    .className {
-      flex-shrink: 0;
-      margin-right: 20px;
-      align-self: center;
-      font-size: 9pt;
-    }
+      .header {
+        flex-grow: 1;
+        text-align: center;
+      }
 
-    .header {
-      flex-grow: 1;
-      text-align: center;
-    }
+      .header h1 {
+        font-size: 13pt;
+        font-weight: bold;
+        margin-bottom: 2px;
+        letter-spacing: 1.5px;
+        color: #1e40af;
+        font-family: "Libre Baskerville", Georgia, serif;
+      }
 
-    .header h1 {
-      font-size: 13pt;
-      font-weight: bold;
-      margin-bottom: 2px;
-      letter-spacing: 1.5px;
-      color: #1e40af;
-      font-family: 'Libre Baskerville', Georgia, serif;
-    }
+      .header h2 {
+        font-size: 10pt;
+        font-weight: normal;
+        margin-top: 2px;
+        color: #4a4a4a;
+        font-family: "Libre Baskerville", Georgia, serif;
+      }
 
-    .header h2 {
-      font-size: 10pt;
-      font-weight: normal;
-      margin-top: 2px;
-      color: #4a4a4a;
-      font-family: 'Libre Baskerville', Georgia, serif;
-    }
+      /* ── PAY PERIOD — full width, 3 columns ── */
+      .pay-period {
+        width: 100%;
+        margin: 3px 0;
+        font-size: 7pt;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #fafafa;
+      }
 
-    /* ── PAY PERIOD — full width, 3 columns ── */
-    .pay-period {
-      width: 100%;
-      margin: 3px 0;
-      font-size: 7pt;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background-color: #fafafa;
-    }
+      .pp-left,
+      .pp-right {
+        color: #4a4a4a;
+        white-space: nowrap;
+      }
 
-    .pp-left,
-    .pp-right {
-      color: #4a4a4a;
-      white-space: nowrap;
-    }
+      .pp-left strong,
+      .pp-right strong {
+        color: #1a1a1a;
+      }
 
-    .pp-left strong,
-    .pp-right strong {
-      color: #1a1a1a;
-    }
+      .pp-center {
+        flex-grow: 1;
+        text-align: center;
+        font-size: 7pt;
+        font-weight: bold;
+        color: #1a1a1a;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        padding: 0 5px;
+        white-space: nowrap;
+        font-family: "Times New Roman", Times, serif;
+        font-style: italic;
+      }
 
-    .pp-center {
-      flex-grow: 1;
-      text-align: center;
-      font-size: 7pt;
-      font-weight: bold;
-      color: #1a1a1a;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      padding: 0 5px;
-      white-space: nowrap;
-      font-family: "Times New Roman", Times, serif;
-      font-style: italic;
-    }
-
-    /* ══════════════════════════════════════════════════
+      /* ══════════════════════════════════════════════════
      * LAYOUT PRINCIPLE
      * All content lives in a single left-to-right flow.
      * The page is mentally split:
@@ -140,539 +139,543 @@
      * Deduction rows span 100% using a 4-col table.
      * ══════════════════════════════════════════════════ */
 
-    /* ── SECTION HEADERS — left-aligned, 70% wide ── */
-    .section-header {
-      font-size: 8pt;
-      font-weight: bold;
-      margin-top: 3px;
-      margin-bottom: 4px;
-      padding: 2px 5px;
-      color: #1e40af;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      width: 70%;
-    }
+      /* ── SECTION HEADERS — left-aligned, 70% wide ── */
+      .section-header {
+        font-size: 8pt;
+        font-weight: bold;
+        margin-top: 3px;
+        margin-bottom: 4px;
+        padding: 2px 5px;
+        color: #1e40af;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        width: 70%;
+      }
 
-    .source-header {
-      font-size: 8.5pt;
-      font-weight: bold;
-      margin-top: 6px;
-      margin-bottom: 2px;
-      padding: 3px 6px;
-      color: #1e40af;
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      width: 70%;
-      text-align: center;
-      border-bottom: 1.5px solid #1e40af;
-    }
+      .source-header {
+        font-size: 8.5pt;
+        font-weight: bold;
+        margin-top: 6px;
+        margin-bottom: 2px;
+        padding: 3px 6px;
+        color: #1e40af;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        width: 70%;
+        text-align: center;
+        border-bottom: 1.5px solid #1e40af;
+      }
 
-    /* ── EMPLOYEE INFO — 70% wide, left ── */
-    .employee-info {
-      margin-bottom: 6px;
-      padding: 2px 6px;
-      background-color: #fafafa;
-      border: 1px solid #d0d0d0;
-      width: 70%;
-    }
+      /* ── EMPLOYEE INFO — 70% wide, left ── */
+      .employee-info {
+        margin-bottom: 6px;
+        padding: 2px 6px;
+        background-color: #fafafa;
+        border: 1px solid #d0d0d0;
+        width: 70%;
+      }
 
-    .info-row {
-      display: flex;
-      padding: 2px 0;
-      font-size: 7pt;
-      border-bottom: 1px solid #f0f0f0;
-    }
+      .info-row {
+        display: flex;
+        padding: 2px 0;
+        font-size: 7pt;
+        border-bottom: 1px solid #f0f0f0;
+      }
 
-    .info-row:last-child {
-      border-bottom: none;
-    }
+      .info-row:last-child {
+        border-bottom: none;
+      }
 
-    .info-label {
-      font-weight: 600;
-      min-width: 85px;
-      flex-shrink: 0;
-      color: #1a1a1a;
-    }
+      .info-label {
+        font-weight: 600;
+        min-width: 85px;
+        flex-shrink: 0;
+        color: #1a1a1a;
+      }
 
-    .info-value {
-      flex-grow: 1;
-      color: #4a4a4a;
-    }
+      .info-value {
+        flex-grow: 1;
+        color: #4a4a4a;
+      }
 
-    /* ── REGULAR TABLE (taxable / nontaxable) — 70% wide ── */
-    .items-table {
-      width: 70%;
-      border-collapse: collapse;
-      margin-bottom: 0;
-    }
+      /* ── REGULAR TABLE (taxable / nontaxable) — 70% wide ── */
+      .items-table {
+        width: 70%;
+        border-collapse: collapse;
+        margin-bottom: 0;
+      }
 
-    .items-table tbody tr {
-      border-bottom: 1px solid #f0f0f0;
-    }
+      .items-table tbody tr {
+        border-bottom: 1px solid #f0f0f0;
+      }
 
-    .items-table tbody td {
-      padding: 1px 4px;
-      font-size: 7pt;
-      vertical-align: middle;
-      color: #4a4a4a;
-    }
+      .items-table tbody td {
+        padding: 1px 4px;
+        font-size: 7pt;
+        vertical-align: middle;
+        color: #4a4a4a;
+      }
 
-    .items-table tbody td.amount {
-      text-align: right;
-      white-space: nowrap;
-      font-family: 'Courier New', monospace;
-      color: #1a1a1a;
-      font-weight: 700;
-      font-size: 7.5pt;
-      padding-right: 8px;
-      width: 90px;
-    }
+      .items-table tbody td.amount {
+        text-align: right;
+        white-space: nowrap;
+        font-family: "Courier New", monospace;
+        color: #1a1a1a;
+        font-weight: 700;
+        font-size: 7.5pt;
+        padding-right: 8px;
+        width: 90px;
+      }
 
-    /* ── IPPIS/NAVY SOURCE HEADER ROW
+      /* ── IPPIS/NAVY SOURCE HEADER ROW
          Source header stays 70% wide.
          L.Bal / Os.Mths labels appear to its right. ── */
-    .source-row {
-      width: 100%;
-      display: flex;
-      align-items: flex-end;
-      margin-top: 6px;
-    }
-
-    .source-row .sr-header {
-      width: 70%;
-      flex-shrink: 0;
-      font-size: 8.5pt;
-      font-weight: bold;
-      padding: 3px 6px;
-      color: #1e40af;
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      text-align: center;
-      border-bottom: 1.5px solid #1e40af;
-    }
-
-    .source-row .sr-labels {
-      width: 30%;
-      flex-shrink: 0;
-      display: flex;
-      justify-content: space-between;
-      padding: 0 4px 3px 12px;
-    }
-
-    .sr-lbl {
-      font-size: 7pt;
-      font-weight: 600;
-      color: #4a4a4a;
-    }
-
-    /* ── DEDUCTION TABLE — full 100% width, 4 columns ── */
-    .ded-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 0;
-    }
-
-    .ded-table tbody tr {
-      border: none;
-    }
-
-    .ded-table td.ded-desc,
-    .ded-table td.ded-amt {
-      border-bottom: 1px solid #f0f0f0;
-    }
-
-    .ded-table td.ded-lbal:empty,
-    .ded-table td.ded-osmth:empty {
-      border-bottom: none;
-    }
-
-    .ded-table td.ded-lbal:not(:empty),
-    .ded-table td.ded-osmth:not(:empty) {
-      border-bottom: 1px solid #f0f0f0;
-    }
-
-    /* col widths via colgroup */
-    .ded-table col.col-desc {
-      width: auto;
-    }
-
-    .ded-table col.col-amt {
-      width: 90px;
-    }
-
-    .ded-table col.col-lbal {
-      width: 80px;
-    }
-
-    .ded-table col.col-osmth {
-      width: 52px;
-    }
-
-    .ded-table td {
-      padding: 1px 4px;
-      font-size: 7pt;
-      vertical-align: middle;
-    }
-
-    .ded-table td.ded-desc {
-      color: #4a4a4a;
-    }
-
-    .ded-table td.ded-amt {
-      text-align: right;
-      white-space: nowrap;
-      font-family: 'Courier New', monospace;
-      color: #1a1a1a;
-      font-weight: 700;
-      font-size: 7.5pt;
-      padding-right: 8px;
-    }
-
-    .ded-table td.ded-lbal {
-      text-align: left;
-      white-space: nowrap;
-      font-family: 'Courier New', monospace;
-      font-size: 7pt;
-      font-weight: 600;
-      color: #1a1a1a;
-      padding-left: 12px;
-    }
-
-    .ded-table td.ded-osmth {
-      text-align: right;
-      white-space: nowrap;
-      font-family: 'Courier New', monospace;
-      font-size: 7pt;
-      font-weight: 600;
-      color: #7c3aed;
-    }
-
-    /* Collapse lbal/osmth columns when empty */
-    .ded-table td.ded-lbal:empty,
-    .ded-table td.ded-osmth:empty {
-      padding: 0;
-      width: 0;
-      overflow: hidden;
-    }
-
-    /* ── TOTAL / NET-PAY ROWS — 70% wide, left ── */
-    .total-row {
-      background-color: #f5f5f5;
-      border-top: 1px solid #d0d0d0;
-      border-bottom: 1px solid #d0d0d0;
-      padding: 2px 6px;
-      display: flex;
-      justify-content: space-between;
-      font-size: 8pt;
-      font-weight: 600;
-      width: 70%;
-    }
-
-    .total-row .label {
-      text-transform: uppercase;
-      color: #1a1a1a;
-    }
-
-    .total-row .amount {
-      text-align: right;
-      min-width: 90px;
-      font-family: 'Courier New', monospace;
-      color: #1a1a1a;
-      font-weight: 700;
-    }
-
-    /* ── NET PAY — wrapper is relative so stamp can anchor to it ── */
-    .net-pay-wrapper {
-      position: relative;
-      width: 100%;
-      margin: 4px 0;
-    }
-
-    .net-pay {
-      background-color: #f0f0f0;
-      border: 2px solid #1a1a1a;
-      padding: 5px 6px;
-      display: flex;
-      justify-content: space-between;
-      font-size: 9pt;
-      font-weight: bold;
-      width: 70%;
-    }
-
-    .net-pay .label {
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .net-pay .amount {
-      text-align: right;
-      min-width: 80px;
-      font-family: 'Courier New', monospace;
-      font-weight: 800;
-    }
-
-    /* ── STAMP — positioned to the right of the net-pay box, tilted 30° ── */
-    .stamp-box {
-      position: absolute;
-      left: calc(70% - 39px);
-      top: 150%;
-      transform: translateY(-50%) rotate(-15deg);
-      transform-origin: center center;
-      width: 195px;
-      height: 145px;
-      object-fit: contain;
-      opacity: 0.5;
-    }
-
-    .stamp-date-text {
-      position: absolute;
-      font-family: 'Caveat', cursive;
-      font-size: 7pt;
-      font-weight: 600;
-      color: #1a4080;
-      left: calc(70% + 52px);
-      top: calc(150% + 19px);
-      transform: translateY(-50%) rotate(-15deg);
-      transform-origin: center center;
-      white-space: nowrap;
-      pointer-events: none;
-    }
-
-    /* ── FOOTER ── */
-    .footer {
-      margin-top: 3px;
-      padding-top: 1px;
-      border-top: 2px solid #d0d0d0;
-      text-align: center;
-      font-size: 6pt;
-      color: #6a6a6a;
-    }
-
-    .footer p {
-      margin: 1px 0;
-    }
-
-    .footer p:first-child {
-      font-weight: 600;
-      color: #4a4a4a;
-    }
-
-    @media print {
-      body {
-        print-color-adjust: exact;
-        -webkit-print-color-adjust: exact;
+      .source-row {
+        width: 100%;
+        display: flex;
+        align-items: flex-end;
+        margin-top: 6px;
       }
 
-      body::before {
-        position: fixed;
-        display: block;
+      .source-row .sr-header {
+        width: 70%;
+        flex-shrink: 0;
+        font-size: 8.5pt;
+        font-weight: bold;
+        padding: 3px 6px;
+        color: #1e40af;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        text-align: center;
+        border-bottom: 1.5px solid #1e40af;
       }
-    }
-  </style>
-</head>
 
-<body>
-  {{#each employees}}
-  <div class="container">
+      .source-row .sr-labels {
+        width: 30%;
+        flex-shrink: 0;
+        display: flex;
+        justify-content: space-between;
+        padding: 0 4px 3px 12px;
+      }
 
-    <!-- HEADER -->
-    <div class="header-wrapper">
-      <div class="className">{{../className}}</div>
-      <div class="header">
-        <h1>Nigerian Navy (Naval Headquarters)</h1>
-        <h2>CENTRAL PAY OFFICE, 23 POINT ROAD APAPA</h2>
-      </div>
-    </div>
+      .sr-lbl {
+        font-size: 7pt;
+        font-weight: 600;
+        color: #4a4a4a;
+      }
 
-    <!-- PAY PERIOD -->
-    <div class="pay-period">
-      <span class="pp-left"><strong>Pay Period:</strong> {{payroll_month}} {{payroll_year}}</span>
-      <span class="pp-center">{{surname}} {{othername}}'S PAYSLIP</span>
-      <span class="pp-right"><strong>Produced On:</strong> {{formatDate ../payDate}}</span>
-    </div>
+      /* ── DEDUCTION TABLE — full 100% width, 4 columns ── */
+      .ded-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 0;
+      }
 
-    <!-- EMPLOYEE INFO -->
-    <div class="section-header">Official Profile</div>
-    <div class="employee-info">
-      <div class="info-row">
-        <span class="info-label">Service No:</span>
-        <span class="info-value">{{employee_id}}</span>
+      .ded-table tbody tr {
+        border: none;
+      }
+
+      .ded-table td.ded-desc,
+      .ded-table td.ded-amt {
+        border-bottom: 1px solid #f0f0f0;
+      }
+
+      .ded-table td.ded-lbal:empty,
+      .ded-table td.ded-osmth:empty {
+        border-bottom: none;
+      }
+
+      .ded-table td.ded-lbal:not(:empty),
+      .ded-table td.ded-osmth:not(:empty) {
+        border-bottom: 1px solid #f0f0f0;
+      }
+
+      /* col widths via colgroup */
+      .ded-table col.col-desc {
+        width: auto;
+      }
+
+      .ded-table col.col-amt {
+        width: 90px;
+      }
+
+      .ded-table col.col-lbal {
+        width: 80px;
+      }
+
+      .ded-table col.col-osmth {
+        width: 52px;
+      }
+
+      .ded-table td {
+        padding: 1px 4px;
+        font-size: 7pt;
+        vertical-align: middle;
+      }
+
+      .ded-table td.ded-desc {
+        color: #4a4a4a;
+      }
+
+      .ded-table td.ded-amt {
+        text-align: right;
+        white-space: nowrap;
+        font-family: "Courier New", monospace;
+        color: #1a1a1a;
+        font-weight: 700;
+        font-size: 7.5pt;
+        padding-right: 8px;
+      }
+
+      .ded-table td.ded-lbal {
+        text-align: left;
+        white-space: nowrap;
+        font-family: "Courier New", monospace;
+        font-size: 7pt;
+        font-weight: 600;
+        color: #1a1a1a;
+        padding-left: 12px;
+      }
+
+      .ded-table td.ded-osmth {
+        text-align: right;
+        white-space: nowrap;
+        font-family: "Courier New", monospace;
+        font-size: 7pt;
+        font-weight: 600;
+        color: #7c3aed;
+      }
+
+      /* Collapse lbal/osmth columns when empty */
+      .ded-table td.ded-lbal:empty,
+      .ded-table td.ded-osmth:empty {
+        padding: 0;
+        width: 0;
+        overflow: hidden;
+      }
+
+      /* ── TOTAL / NET-PAY ROWS — 70% wide, left ── */
+      .total-row {
+        background-color: #f5f5f5;
+        border-top: 1px solid #d0d0d0;
+        border-bottom: 1px solid #d0d0d0;
+        padding: 2px 6px;
+        display: flex;
+        justify-content: space-between;
+        font-size: 8pt;
+        font-weight: 600;
+        width: 70%;
+      }
+
+      .total-row .label {
+        text-transform: uppercase;
+        color: #1a1a1a;
+      }
+
+      .total-row .amount {
+        text-align: right;
+        min-width: 90px;
+        font-family: "Courier New", monospace;
+        color: #1a1a1a;
+        font-weight: 700;
+      }
+
+      /* ── NET PAY — wrapper is relative so stamp can anchor to it ── */
+      .net-pay-wrapper {
+        position: relative;
+        width: 100%;
+        margin: 4px 0;
+      }
+
+      .net-pay {
+        background-color: #f0f0f0;
+        border: 2px solid #1a1a1a;
+        padding: 5px 6px;
+        display: flex;
+        justify-content: space-between;
+        font-size: 9pt;
+        font-weight: bold;
+        width: 70%;
+      }
+
+      .net-pay .label {
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      .net-pay .amount {
+        text-align: right;
+        min-width: 80px;
+        font-family: "Courier New", monospace;
+        font-weight: 800;
+      }
+
+      /* ── STAMP — positioned to the right of the net-pay box, tilted 30° ── */
+      .stamp-box {
+        position: absolute;
+        left: calc(70% - 39px);
+        top: 150%;
+        transform: translateY(-50%) rotate(-15deg);
+        transform-origin: center center;
+        width: 195px;
+        height: 145px;
+        object-fit: contain;
+        opacity: 0.5;
+      }
+
+      .stamp-date-text {
+        position: absolute;
+        font-family: "Caveat", cursive;
+        font-size: 7pt;
+        font-weight: 600;
+        color: #1a4080;
+        left: calc(70% + 52px);
+        top: calc(150% + 19px);
+        transform: translateY(-50%) rotate(-15deg);
+        transform-origin: center center;
+        white-space: nowrap;
+        pointer-events: none;
+      }
+
+      /* ── FOOTER ── */
+      .footer {
+        margin-top: 3px;
+        padding-top: 1px;
+        border-top: 2px solid #d0d0d0;
+        text-align: center;
+        font-size: 6pt;
+        color: #6a6a6a;
+      }
+
+      .footer p {
+        margin: 1px 0;
+      }
+
+      .footer p:first-child {
+        font-weight: 600;
+        color: #4a4a4a;
+      }
+
+      @media print {
+        body {
+          print-color-adjust: exact;
+          -webkit-print-color-adjust: exact;
+        }
+
+        body::before {
+          position: fixed;
+          display: block;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    {{#each employees}}
+    <div class="container">
+      <!-- HEADER -->
+      <div class="header-wrapper">
+        <div class="className">{{../className}}</div>
+        <div class="header">
+          <h1>DEFENSE SPACE ADMINISTRATION</h1>
+          <h2>NATIONAL SPACE MUSEUM, ABUJA</h2>
+        </div>
       </div>
-      <div class="info-row">
-        <span class="info-label">Grade:</span>
-        <span class="info-value">{{gradelevel}}</span>
+
+      <!-- PAY PERIOD -->
+      <div class="pay-period">
+        <span class="pp-left"
+          ><strong>Pay Period:</strong> {{payroll_month}} {{payroll_year}}</span
+        >
+        <span class="pp-center">{{surname}} {{othername}}'S PAYSLIP</span>
+        <span class="pp-right"
+          ><strong>Produced On:</strong> {{formatDate ../payDate}}</span
+        >
       </div>
-      <div class="info-row">
-        <span class="info-label">Department:</span>
-        <span class="info-value">{{department}}</span>
+
+      <!-- EMPLOYEE INFO -->
+      <div class="section-header">Official Profile</div>
+      <div class="employee-info">
+        <div class="info-row">
+          <span class="info-label">Service No:</span>
+          <span class="info-value">{{employee_id}}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Grade:</span>
+          <span class="info-value">{{gradelevel}}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Department:</span>
+          <span class="info-value">{{department}}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Branch:</span>
+          <span class="info-value">{{factory}}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Bank Account:</span>
+          <span class="info-value"
+            >{{bank_account_number}}{{#if bank_name}}
+            ({{bank_name}}){{/if}}</span
+          >
+        </div>
+        {{#if nsitfcode}}
+        <div class="info-row">
+          <span class="info-label">RSA (Pension):</span>
+          <span class="info-value">{{nsitfcode}}</span>
+        </div>
+        {{/if}}
       </div>
-      <div class="info-row">
-        <span class="info-label">Branch:</span>
-        <span class="info-value">{{factory}}</span>
+
+      <!-- ════════════ IPPIS ════════════ -->
+      {{#if ippis}}
+
+      <!-- IPPIS header + L.Bal / Os.Mths labels on same line -->
+      <div class="source-row">
+        <div class="sr-header">IPPIS</div>
+        <div class="sr-labels">
+          <span class="sr-lbl">₦L.Bal</span>
+          <span class="sr-lbl">Os.Mths</span>
+        </div>
       </div>
-      <div class="info-row">
-        <span class="info-label">Bank Account:</span>
-        <span class="info-value">{{bank_account_number}}{{#if bank_name}} ({{bank_name}}){{/if}}</span>
-      </div>
-      {{#if nsitfcode}}
-      <div class="info-row">
-        <span class="info-label">RSA (Pension):</span>
-        <span class="info-value">{{nsitfcode}}</span>
+
+      {{#if ippis.taxable}}
+      <div class="section-header">Taxable Payment</div>
+      <table class="items-table">
+        <tbody>
+          {{#each ippis.taxable}}
+          <tr>
+            <td>{{description}}</td>
+            <td class="amount">₦{{formatCurrency amount}}</td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+      {{/if}} {{#if ippis.nontaxable}}
+      <div class="section-header">Non-Taxable Payment</div>
+      <table class="items-table">
+        <tbody>
+          {{#each ippis.nontaxable}}
+          <tr>
+            <td>{{description}}</td>
+            <td class="amount">₦{{formatCurrency amount}}</td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+      {{/if}} {{#if ippis.deductions}}
+      <div class="section-header">Deductions</div>
+      <table class="ded-table">
+        <colgroup>
+          <col class="col-desc" />
+          <col class="col-amt" />
+          <col class="col-lbal" />
+          <col class="col-osmth" />
+        </colgroup>
+        <tbody>
+          {{#each ippis.deductions}}
+          <tr>
+            <td class="ded-desc">{{description}}</td>
+            <td class="ded-amt">(₦{{formatCurrency amount}})</td>
+            <td class="ded-lbal">
+              {{#if loan_balance}}{{formatCurrency loan_balance}}{{/if}}
+            </td>
+            <td class="ded-osmth">
+              {{#if outstanding_months}}{{#unless (eq outstanding_months
+              "-")}}{{outstanding_months}}{{/unless}}{{/if}}
+            </td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+      {{/if}}
+
+      <div class="total-row">
+        <span class="label">IPPIS Total</span>
+        <span class="amount">₦{{formatCurrency ippis.net}}</span>
       </div>
       {{/if}}
-    </div>
 
-    <!-- ════════════ IPPIS ════════════ -->
-    {{#if ippis}}
+      <!-- ════════════ NAVY ════════════ -->
+      {{#if navy}}
+      <div class="source-header">NAVY</div>
 
-    <!-- IPPIS header + L.Bal / Os.Mths labels on same line -->
-    <div class="source-row">
-      <div class="sr-header">IPPIS</div>
-      <div class="sr-labels">
-        <span class="sr-lbl">₦L.Bal</span>
-        <span class="sr-lbl">Os.Mths</span>
-      </div>
-    </div>
-
-    {{#if ippis.taxable}}
-    <div class="section-header">Taxable Payment</div>
-    <table class="items-table">
-      <tbody>
-        {{#each ippis.taxable}}
-        <tr>
-          <td>{{description}}</td>
-          <td class="amount">₦{{formatCurrency amount}}</td>
-        </tr>
-        {{/each}}
-      </tbody>
-    </table>
-    {{/if}}
-
-    {{#if ippis.nontaxable}}
-    <div class="section-header">Non-Taxable Payment</div>
-    <table class="items-table">
-      <tbody>
-        {{#each ippis.nontaxable}}
-        <tr>
-          <td>{{description}}</td>
-          <td class="amount">₦{{formatCurrency amount}}</td>
-        </tr>
-        {{/each}}
-      </tbody>
-    </table>
-    {{/if}}
-
-    {{#if ippis.deductions}}
-    <div class="section-header">Deductions</div>
-    <table class="ded-table">
-      <colgroup>
-        <col class="col-desc">
-        <col class="col-amt">
-        <col class="col-lbal">
-        <col class="col-osmth">
-      </colgroup>
-      <tbody>
-        {{#each ippis.deductions}}
-        <tr>
-          <td class="ded-desc">{{description}}</td>
-          <td class="ded-amt">(₦{{formatCurrency amount}})</td>
-          <td class="ded-lbal">{{#if loan_balance}}{{formatCurrency loan_balance}}{{/if}}</td>
-          <td class="ded-osmth">{{#if outstanding_months}}{{#unless (eq outstanding_months
-            "-")}}{{outstanding_months}}{{/unless}}{{/if}}</td>
-        </tr>
-        {{/each}}
-      </tbody>
-    </table>
-    {{/if}}
-
-    <div class="total-row">
-      <span class="label">IPPIS Total</span>
-      <span class="amount">₦{{formatCurrency ippis.net}}</span>
-    </div>
-    {{/if}}
-
-    <!-- ════════════ NAVY ════════════ -->
-    {{#if navy}}
-    <div class="source-header">NAVY</div>
-
-    {{#if navy.taxable}}
-    <div class="section-header">Taxable Payment</div>
-    <table class="items-table">
-      <tbody>
-        {{#each navy.taxable}}
-        <tr>
-          <td>{{description}}</td>
-          <td class="amount">₦{{formatCurrency amount}}</td>
-        </tr>
-        {{/each}}
-      </tbody>
-    </table>
-    {{/if}}
-
-    {{#if navy.nontaxable}}
-    <div class="section-header">Non-Taxable Payment</div>
-    <table class="items-table">
-      <tbody>
-        {{#each navy.nontaxable}}
-        <tr>
-          <td>{{description}}</td>
-          <td class="amount">₦{{formatCurrency amount}}</td>
-        </tr>
-        {{/each}}
-      </tbody>
-    </table>
-    {{/if}}
-
-    {{#if navy.deductions}}
-    <div class="section-header">Deductions</div>
-    <table class="ded-table">
-      <colgroup>
-        <col class="col-desc">
-        <col class="col-amt">
-        <col class="col-lbal">
-        <col class="col-osmth">
-      </colgroup>
-      <tbody>
-        {{#each navy.deductions}}
-        <tr>
-          <td class="ded-desc">{{description}}</td>
-          <td class="ded-amt">(₦{{formatCurrency amount}})</td>
-          <td class="ded-lbal">{{#if loan_balance}}{{formatCurrency loan_balance}}{{/if}}</td>
-          <td class="ded-osmth">{{#if outstanding_months}}{{#unless (eq outstanding_months
-            "-")}}{{outstanding_months}}{{/unless}}{{/if}}</td>
-        </tr>
-        {{/each}}
-      </tbody>
-    </table>
-    {{/if}}
-
-    <div class="total-row">
-      <span class="label">NAVY Total</span>
-      <span class="amount">₦{{formatCurrency navy.net}}</span>
-    </div>
-    {{/if}}
-
-    <!-- NET PAY + STAMP (stamp anchored to this wrapper) -->
-    <div class="net-pay-wrapper">
-      <div class="net-pay">
-        <span class="label">Net Payment This Month</span>
-        <span class="amount">₦{{formatCurrency net_pay}}</span>
-      </div>
-
-      <!-- STAMP -->
-      {{#if ../showStamp}}
-      <img class="stamp-box" src="{{{stampDataUrl}}}" alt="Official Stamp" />
-      <span class="stamp-date-text">{{formatDate ../payDate}}</span>
+      {{#if navy.taxable}}
+      <div class="section-header">Taxable Payment</div>
+      <table class="items-table">
+        <tbody>
+          {{#each navy.taxable}}
+          <tr>
+            <td>{{description}}</td>
+            <td class="amount">₦{{formatCurrency amount}}</td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+      {{/if}} {{#if navy.nontaxable}}
+      <div class="section-header">Non-Taxable Payment</div>
+      <table class="items-table">
+        <tbody>
+          {{#each navy.nontaxable}}
+          <tr>
+            <td>{{description}}</td>
+            <td class="amount">₦{{formatCurrency amount}}</td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+      {{/if}} {{#if navy.deductions}}
+      <div class="section-header">Deductions</div>
+      <table class="ded-table">
+        <colgroup>
+          <col class="col-desc" />
+          <col class="col-amt" />
+          <col class="col-lbal" />
+          <col class="col-osmth" />
+        </colgroup>
+        <tbody>
+          {{#each navy.deductions}}
+          <tr>
+            <td class="ded-desc">{{description}}</td>
+            <td class="ded-amt">(₦{{formatCurrency amount}})</td>
+            <td class="ded-lbal">
+              {{#if loan_balance}}{{formatCurrency loan_balance}}{{/if}}
+            </td>
+            <td class="ded-osmth">
+              {{#if outstanding_months}}{{#unless (eq outstanding_months
+              "-")}}{{outstanding_months}}{{/unless}}{{/if}}
+            </td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
       {{/if}}
+
+      <div class="total-row">
+        <span class="label">NAVY Total</span>
+        <span class="amount">₦{{formatCurrency navy.net}}</span>
+      </div>
+      {{/if}}
+
+      <!-- NET PAY + STAMP (stamp anchored to this wrapper) -->
+      <div class="net-pay-wrapper">
+        <div class="net-pay">
+          <span class="label">Net Payment This Month</span>
+          <span class="amount">₦{{formatCurrency net_pay}}</span>
+        </div>
+
+        <!-- STAMP -->
+        {{#if ../showStamp}}
+        <img class="stamp-box" src="{{{stampDataUrl}}}" alt="Official Stamp" />
+        <span class="stamp-date-text">{{formatDate ../payDate}}</span>
+        {{/if}}
+      </div>
+
+      <!-- FOOTER -->
+      <div class="footer">
+        <p>All rights reserved &#xA9; Hicad Systems Limited.</p>
+      </div>
     </div>
-
-    <!-- FOOTER -->
-    <div class="footer">
-      <p>All rights reserved &#xA9; Hicad Systems Limited.</p>
-    </div>
-
-  </div>
-  {{/each}}
-</body>
-
+    {{/each}}
+  </body>
 </html>

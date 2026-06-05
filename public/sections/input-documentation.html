@@ -78,28 +78,42 @@
 
 <!-- Input Documentation Section -->
 <div class="p-6">
-
   <!-- Add New Button -->
   <div class="mb-4 flex flex-wrap gap-2 items-center justify-between">
-    <h3 class="text-xl font-semibold text-gray-800 mb-4">Input Documentation Form</h3>
+    <h3 class="text-xl font-semibold text-gray-800 mb-4">
+      Input Documentation Form
+    </h3>
 
     <div class="flex flex-wrap gap-2 justify-end">
-      <button type="button" id="printAllBtn"
-        class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg shadow">
+      <button
+        type="button"
+        id="printAllBtn"
+        class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg shadow"
+      >
         <i class="fa-solid fa-print mr-2"></i>
         Print All
       </button>
-      <button type="button" id="printOptionsBtn"
-        class="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg shadow">
+      <button
+        type="button"
+        id="printOptionsBtn"
+        class="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg shadow"
+      >
         <i class="fa-solid fa-print mr-2"></i>
         Print Options
       </button>
-      <button type="button" id="uploadBtn"
-        class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg shadow">
+      <button
+        type="button"
+        id="uploadBtn"
+        class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg shadow"
+      >
         <i class="fa-solid fa-file-upload mr-2"></i>
         Upload
       </button>
-      <button type="button" id="addNewBtn" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow">
+      <button
+        type="button"
+        id="addNewBtn"
+        class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow"
+      >
         + Add New
       </button>
     </div>
@@ -110,14 +124,28 @@
     <h4 class="text-lg font-semibold text-yellow-600 mb-4">Add New Record</h4>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div class="dropdown-container">
-        <label for="newName" class="block text-sm font-medium text-gray-700">Select Name</label>
+        <label for="newName" class="block text-sm font-medium text-gray-700"
+          >Select Name</label
+        >
         <div class="relative">
-          <input type="text" id="newName" placeholder="Search employee..."
-            class="w-full border border-gray-300 rounded-lg px-4 py-2 pr-10 focus:ring-2 focus:ring-blue-500" />
-          <svg class="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none"
-            fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          <input
+            type="text"
+            id="newName"
+            placeholder="Search employee..."
+            class="w-full border border-gray-300 rounded-lg px-4 py-2 pr-10 focus:ring-2 focus:ring-blue-500"
+          />
+          <svg
+            class="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
           </svg>
         </div>
         <input type="hidden" id="newNameId" />
@@ -126,14 +154,24 @@
         </div>
       </div>
       <div>
-        <label for="newYear" class="block text-sm font-medium text-gray-700">Year</label>
-        <input id="newYear" type="text" placeholder="Enter year"
-          class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500" />
+        <label for="newYear" class="block text-sm font-medium text-gray-700"
+          >Year</label
+        >
+        <input
+          id="newYear"
+          type="text"
+          placeholder="Enter year"
+          class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500"
+        />
       </div>
       <div>
-        <label for="newMonth" class="block text-sm font-medium text-gray-700">Month</label>
-        <select id="newMonth"
-          class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+        <label for="newMonth" class="block text-sm font-medium text-gray-700"
+          >Month</label
+        >
+        <select
+          id="newMonth"
+          class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500"
+        >
           <option value="">-- Select Month --</option>
           <option value="1">January</option>
           <option value="2">February</option>
@@ -150,25 +188,43 @@
         </select>
       </div>
       <div>
-        <label for="newRef" class="block text-sm font-medium text-gray-700">Reference No</label>
-        <input id="newRef" type="text" placeholder="Enter reference"
-          class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500" />
+        <label for="newRef" class="block text-sm font-medium text-gray-700"
+          >Reference No</label
+        >
+        <input
+          id="newRef"
+          type="text"
+          placeholder="Enter reference"
+          class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500"
+        />
       </div>
       <div>
-        <label for="newComments" class="block text-sm font-medium text-gray-700">Comments</label>
-        <input id="newComments" type="text" placeholder="Enter comments"
-          class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500" />
+        <label for="newComments" class="block text-sm font-medium text-gray-700"
+          >Comments</label
+        >
+        <input
+          id="newComments"
+          type="text"
+          placeholder="Enter comments"
+          class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500"
+        />
       </div>
     </div>
 
     <!-- Add New Action Buttons -->
     <div class="flex justify-end space-x-4 pt-4">
-      <button type="button" id="saveNewBtn"
-        class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg shadow">
+      <button
+        type="button"
+        id="saveNewBtn"
+        class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg shadow"
+      >
         Save
       </button>
-      <button type="button" id="cancelNewBtn"
-        class="px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg shadow">
+      <button
+        type="button"
+        id="cancelNewBtn"
+        class="px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg shadow"
+      >
         Cancel
       </button>
     </div>
@@ -177,18 +233,32 @@
   <form id="inputDocForm" class="space-y-4">
     <!-- Name Dropdown - Conditionally Visible -->
     <div class="dropdown-container" id="mainSelectContainer">
-      <label for="docName" class="block text-sm font-medium text-gray-700">Select Name</label>
+      <label for="docName" class="block text-sm font-medium text-gray-700"
+        >Select Name</label
+      >
       <div class="relative w-full lg:w-1/2 md:w-1/2">
-        <input type="text" id="docName" placeholder="Search employee..."
-          class="w-full border border-gray-300 rounded-lg px-4 py-2 pr-10 focus:ring-2 focus:ring-blue-500" />
-        <svg class="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none"
-          fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        <input
+          type="text"
+          id="docName"
+          placeholder="Search employee..."
+          class="w-full border border-gray-300 rounded-lg px-4 py-2 pr-10 focus:ring-2 focus:ring-blue-500"
+        />
+        <svg
+          class="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+          />
         </svg>
       </div>
       <input type="hidden" id="docNameId" />
-      <div id="docNameDropdown" class="dropdown-list hidden" style="width: 50%;">
+      <div id="docNameDropdown" class="dropdown-list hidden" style="width: 50%">
         <div id="docNameDropdownItems"></div>
       </div>
     </div>
@@ -197,14 +267,27 @@
     <div id="formFields" class="hidden">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label for="docYear" class="block text-sm font-medium text-gray-700">Year</label>
-          <input id="docYear" type="text" placeholder="Year"
-            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500" readonly />
+          <label for="docYear" class="block text-sm font-medium text-gray-700"
+            >Year</label
+          >
+          <input
+            id="docYear"
+            type="text"
+            placeholder="Year"
+            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500"
+            readonly
+          />
         </div>
         <div>
-          <label for="docMonth" class="block text-sm font-medium text-gray-700">Month</label>
-          <select id="docMonth" placeholder="Month"
-            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500" disabled>
+          <label for="docMonth" class="block text-sm font-medium text-gray-700"
+            >Month</label
+          >
+          <select
+            id="docMonth"
+            placeholder="Month"
+            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500"
+            disabled
+          >
             <option value="">-- Select Month --</option>
             <option value="1">January</option>
             <option value="2">February</option>
@@ -221,43 +304,74 @@
           </select>
         </div>
         <div>
-          <label for="docRef" class="block text-sm font-medium text-gray-700">Reference No</label>
-          <input id="docRef" type="text" placeholder="Reference No"
-            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500" readonly />
+          <label for="docRef" class="block text-sm font-medium text-gray-700"
+            >Reference No</label
+          >
+          <input
+            id="docRef"
+            type="text"
+            placeholder="Reference No"
+            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500"
+            readonly
+          />
         </div>
         <div>
-          <label for="docComments" class="block text-sm font-medium text-gray-700">Comments</label>
-          <input id="docComments" type="text" placeholder="Comments"
-            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500" readonly />
+          <label
+            for="docComments"
+            class="block text-sm font-medium text-gray-700"
+            >Comments</label
+          >
+          <input
+            id="docComments"
+            type="text"
+            placeholder="Comments"
+            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500"
+            readonly
+          />
         </div>
       </div>
 
       <!-- Action Buttons -->
       <div class="flex justify-end space-x-2 pt-4">
         <div id="viewButtons" class="flex space-x-4">
-          <button type="button" id="clearBtn"
-            class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg shadow">
+          <button
+            type="button"
+            id="clearBtn"
+            class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg shadow"
+          >
             Close
           </button>
-          <button type="button" id="printBtn"
-            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow">
+          <button
+            type="button"
+            id="printBtn"
+            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow"
+          >
             <i class="fa-solid fa-print mr-2"></i>
             Print
           </button>
-          <button type="button" id="editBtn"
-            class="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg shadow">
+          <button
+            type="button"
+            id="editBtn"
+            class="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg shadow"
+          >
             Edit
           </button>
         </div>
 
         <!-- Edit Mode Buttons -->
         <div id="editButtons" class="hidden flex space-x-4">
-          <button type="button" id="saveBtn"
-            class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg shadow">
+          <button
+            type="button"
+            id="saveBtn"
+            class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg shadow"
+          >
             Save
           </button>
-          <button type="button" id="cancelEditBtn"
-            class="px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg shadow">
+          <button
+            type="button"
+            id="cancelEditBtn"
+            class="px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg shadow"
+          >
             Cancel
           </button>
         </div>
@@ -269,7 +383,10 @@
 <!-- =====================================================================
      UPLOAD MODAL (pattern copied from batch upload doc)
      ===================================================================== -->
-<div id="uploadModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+<div
+  id="uploadModal"
+  class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+>
   <div class="bg-white rounded-xl shadow-lg p-6 max-w-lg w-full mx-4">
     <!-- Modal Header -->
     <div class="flex items-center justify-between mb-5 border-b pb-3">
@@ -277,56 +394,102 @@
         <i class="fa-solid fa-file-upload mr-2"></i>Batch Upload Documentation
       </h2>
       <button id="closeUploadModal" class="text-gray-400 hover:text-gray-600">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        <svg
+          class="w-6 h-6"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M6 18L18 6M6 6l12 12"
+          />
         </svg>
       </button>
     </div>
 
     <!-- Download Template -->
-    <div class="mb-5 p-3 bg-blue-50 border border-blue-200 rounded-lg flex items-center justify-between">
-      <span class="text-sm text-blue-700 font-medium">Download the required Excel template first</span>
-      <button id="downloadTemplateBtn"
-        class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg shadow flex items-center gap-2">
+    <div
+      class="mb-5 p-3 bg-blue-50 border border-blue-200 rounded-lg flex items-center justify-between"
+    >
+      <span class="text-sm text-blue-700 font-medium"
+        >Download the required Excel template first</span
+      >
+      <button
+        id="downloadTemplateBtn"
+        class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg shadow flex items-center gap-2"
+      >
         <i class="fa-solid fa-download"></i> Template
       </button>
     </div>
 
     <!-- Drop Zone -->
-    <div id="dropZone"
+    <div
+      id="dropZone"
       class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center cursor-pointer hover:border-purple-400 hover:bg-purple-50 transition-colors mb-4"
-      onclick="document.getElementById('batchFileInput').click()">
+      onclick="document.getElementById('batchFileInput').click()"
+    >
       <i class="fa-solid fa-cloud-arrow-up text-4xl text-gray-400 mb-3"></i>
       <p class="text-gray-600 font-medium">Drag & drop your file here</p>
       <p class="text-gray-400 text-sm mt-1">or click to browse</p>
       <p class="text-gray-400 text-xs mt-2">.xlsx, .xls, .csv — max 10MB</p>
-      <input type="file" id="batchFileInput" accept=".xlsx,.xls,.csv" class="hidden" />
+      <input
+        type="file"
+        id="batchFileInput"
+        accept=".xlsx,.xls,.csv"
+        class="hidden"
+      />
     </div>
 
     <!-- Selected File Display -->
-    <div id="selectedFileDisplay"
-      class="hidden mb-4 p-3 bg-gray-50 border border-gray-200 rounded-lg flex items-center justify-between">
+    <div
+      id="selectedFileDisplay"
+      class="hidden mb-4 p-3 bg-gray-50 border border-gray-200 rounded-lg flex items-center justify-between"
+    >
       <div class="flex items-center gap-2">
         <i class="fa-solid fa-file-excel text-green-600"></i>
-        <span id="selectedFileName" class="text-sm text-gray-700 font-medium truncate max-w-xs"></span>
+        <span
+          id="selectedFileName"
+          class="text-sm text-gray-700 font-medium truncate max-w-xs"
+        ></span>
       </div>
       <button id="clearFileBtn" class="text-gray-400 hover:text-red-500 ml-2">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        <svg
+          class="w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M6 18L18 6M6 6l12 12"
+          />
         </svg>
       </button>
     </div>
 
     <!-- Upload Result Summary -->
-    <div id="uploadResult" class="hidden mb-4 p-4 rounded-lg border text-sm"></div>
+    <div
+      id="uploadResult"
+      class="hidden mb-4 p-4 rounded-lg border text-sm"
+    ></div>
 
     <!-- Modal Action Buttons -->
     <div class="flex justify-end gap-3 pt-2">
-      <button id="cancelUploadBtn" class="px-5 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg font-medium">
+      <button
+        id="cancelUploadBtn"
+        class="px-5 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg font-medium"
+      >
         Close
       </button>
-      <button id="submitUploadBtn"
-        class="px-5 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+      <button
+        id="submitUploadBtn"
+        class="px-5 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+      >
         <i class="fa-solid fa-upload"></i> Upload
       </button>
     </div>
@@ -336,34 +499,71 @@
 <!-- =====================================================================
      PRINT OPTIONS MODAL
      ===================================================================== -->
-<div id="printOptionsModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+<div
+  id="printOptionsModal"
+  class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+>
   <div class="bg-white rounded-xl shadow-lg p-6 max-w-md w-full mx-4">
     <!-- Modal Header -->
     <div class="flex items-center justify-between mb-5 border-b pb-3">
       <h2 class="text-xl font-bold text-yellow-700">
         <i class="fa-solid fa-print mr-2"></i>Print Options
       </h2>
-      <button id="closePrintOptionsModal" class="text-gray-400 hover:text-gray-600">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      <button
+        id="closePrintOptionsModal"
+        class="text-gray-400 hover:text-gray-600"
+      >
+        <svg
+          class="w-6 h-6"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M6 18L18 6M6 6l12 12"
+          />
         </svg>
       </button>
     </div>
 
     <!-- Print filter type selector -->
     <div class="mb-5">
-      <label class="block text-sm font-medium text-gray-700 mb-2">Print By</label>
+      <label class="block text-sm font-medium text-gray-700 mb-2"
+        >Print By</label
+      >
       <div class="flex gap-3">
         <label class="flex items-center gap-2 cursor-pointer">
-          <input type="radio" name="printFilter" value="range" id="printByRange" checked class="accent-yellow-600" />
+          <input
+            type="radio"
+            name="printFilter"
+            value="range"
+            id="printByRange"
+            checked
+            class="accent-yellow-600"
+          />
           <span class="text-sm text-gray-700">Svc. No. Range</span>
         </label>
         <label class="flex items-center gap-2 cursor-pointer">
-          <input type="radio" name="printFilter" value="signal" id="printBySignal" class="accent-yellow-600" />
+          <input
+            type="radio"
+            name="printFilter"
+            value="signal"
+            id="printBySignal"
+            class="accent-yellow-600"
+          />
           <span class="text-sm text-gray-700">Signal / Reference</span>
         </label>
         <label class="flex items-center gap-2 cursor-pointer">
-          <input type="radio" name="printFilter" value="period" id="printByPeriod" class="accent-yellow-600" />
+          <input
+            type="radio"
+            name="printFilter"
+            value="period"
+            id="printByPeriod"
+            class="accent-yellow-600"
+          />
           <span class="text-sm text-gray-700">Period</span>
         </label>
       </div>
@@ -373,25 +573,43 @@
     <div id="panelRange" class="print-panel space-y-3">
       <div class="grid grid-cols-2 gap-3">
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">From Svc. No.</label>
-          <input type="text" id="printRangeFrom" placeholder="e.g. NN001"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-yellow-400" />
+          <label class="block text-sm font-medium text-gray-700 mb-1"
+            >From Svc. No.</label
+          >
+          <input
+            type="text"
+            id="printRangeFrom"
+            placeholder="e.g. NN001"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-yellow-400"
+          />
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">To Svc. No.</label>
-          <input type="text" id="printRangeTo" placeholder="e.g. NN050"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-yellow-400" />
+          <label class="block text-sm font-medium text-gray-700 mb-1"
+            >To Svc. No.</label
+          >
+          <input
+            type="text"
+            id="printRangeTo"
+            placeholder="e.g. NN050"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-yellow-400"
+          />
         </div>
       </div>
-      <p class="text-xs text-gray-400">Leave blank to include all service numbers.</p>
+      <p class="text-xs text-gray-400">
+        Leave blank to include all service numbers.
+      </p>
     </div>
 
     <!-- Signal Panel -->
     <div id="panelSignal" class="print-panel hidden space-y-3">
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Select Signal / Reference No.</label>
-        <select id="printSignalSelect"
-          class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-yellow-400">
+        <label class="block text-sm font-medium text-gray-700 mb-1"
+          >Select Signal / Reference No.</label
+        >
+        <select
+          id="printSignalSelect"
+          class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-yellow-400"
+        >
           <option value="">-- Select Signal --</option>
         </select>
       </div>
@@ -401,30 +619,48 @@
     <div id="panelPeriod" class="print-panel hidden space-y-3">
       <div class="grid grid-cols-2 gap-3">
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">From Period <span
-              class="text-gray-400">(YYYYMM)</span></label>
-          <input type="text" id="printPeriodFrom" placeholder="e.g. 202501" maxlength="6"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-yellow-400" />
+          <label class="block text-sm font-medium text-gray-700 mb-1"
+            >From Period <span class="text-gray-400">(YYYYMM)</span></label
+          >
+          <input
+            type="text"
+            id="printPeriodFrom"
+            placeholder="e.g. 202501"
+            maxlength="6"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-yellow-400"
+          />
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">To Period <span
-              class="text-gray-400">(YYYYMM)</span></label>
-          <input type="text" id="printPeriodTo" placeholder="e.g. 202512" maxlength="6"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-yellow-400" />
+          <label class="block text-sm font-medium text-gray-700 mb-1"
+            >To Period <span class="text-gray-400">(YYYYMM)</span></label
+          >
+          <input
+            type="text"
+            id="printPeriodTo"
+            placeholder="e.g. 202512"
+            maxlength="6"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-yellow-400"
+          />
         </div>
       </div>
-      <p class="text-xs text-gray-400">6-digit format — YYYYMM (e.g. 202501 = January 2025). Leave "To" blank to match
-        from period onwards.</p>
+      <p class="text-xs text-gray-400">
+        6-digit format — YYYYMM (e.g. 202501 = January 2025). Leave "To" blank
+        to match from period onwards.
+      </p>
     </div>
 
     <!-- Modal Action Buttons -->
     <div class="flex justify-end gap-3 pt-5 border-t mt-5">
-      <button id="cancelPrintOptionsBtn"
-        class="px-5 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg font-medium">
+      <button
+        id="cancelPrintOptionsBtn"
+        class="px-5 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg font-medium"
+      >
         Cancel
       </button>
-      <button id="confirmPrintOptionsBtn"
-        class="px-5 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg font-medium flex items-center gap-2">
+      <button
+        id="confirmPrintOptionsBtn"
+        class="px-5 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg font-medium flex items-center gap-2"
+      >
         <i class="fa-solid fa-print"></i> Print
       </button>
     </div>
@@ -432,29 +668,59 @@
 </div>
 
 <!-- Success Modal -->
-<div id="successModal"
-  class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm hidden flex items-center justify-center z-50">
+<div
+  id="successModal"
+  class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm hidden flex items-center justify-center z-50"
+>
   <div class="bg-white rounded-lg p-8 max-w-sm w-full mx-4 text-center">
     <div id="loadingSpinner" class="flex justify-center mb-4">
       <div class="relative w-10 h-10">
-        <div class="absolute left-1 w-[6px] bg-blue-600 rounded animate-grow-up"></div>
-        <div class="absolute right-1 w-[6px] bg-blue-600 rounded animate-grow-down [animation-delay:0.3s]"></div>
         <div
-          class="absolute top-1/2 left-1 h-[6px] bg-blue-600 rounded animate-expand [animation-delay:0.6s] -translate-y-1/2">
-        </div>
+          class="absolute left-1 w-[6px] bg-blue-600 rounded animate-grow-up"
+        ></div>
+        <div
+          class="absolute right-1 w-[6px] bg-blue-600 rounded animate-grow-down [animation-delay:0.3s]"
+        ></div>
+        <div
+          class="absolute top-1/2 left-1 h-[6px] bg-blue-600 rounded animate-expand [animation-delay:0.6s] -translate-y-1/2"
+        ></div>
       </div>
     </div>
     <div id="successTick" class="hidden flex justify-center mb-4">
-      <div class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
-        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+      <div
+        class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center"
+      >
+        <svg
+          class="w-6 h-6 text-white"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M5 13l4 4L19 7"
+          ></path>
         </svg>
       </div>
     </div>
     <div id="errorIcon" class="hidden flex justify-center mb-4">
-      <div class="w-10 h-10 bg-red-500 rounded-full flex items-center justify-center">
-        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      <div
+        class="w-10 h-10 bg-red-500 rounded-full flex items-center justify-center"
+      >
+        <svg
+          class="w-6 h-6 text-white"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M6 18L18 6M6 6l12 12"
+          ></path>
         </svg>
       </div>
     </div>
@@ -462,23 +728,54 @@
   </div>
 </div>
 
-
 <!-- Preview Modal -->
-<div id="docPreviewModal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
-  <div class="bg-gray-50 rounded-lg shadow-lg w-full max-w-full max-h-[90vh] overflow-hidden flex flex-col">
-    <div class="sticky top-0 px-6 py-3 flex justify-between items-center bg-[#1e3a5f]">
-      <h3 id="docPreviewTitle" class="text-lg font-semibold text-white">Documentation Preview</h3>
-      <button id="docClosePreviewBtn" class="text-white hover:text-gray-200 text-2xl leading-none">&times;</button>
+<div
+  id="docPreviewModal"
+  class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4"
+>
+  <div
+    class="bg-gray-50 rounded-lg shadow-lg w-full max-w-full max-h-[90vh] overflow-hidden flex flex-col"
+  >
+    <div
+      class="sticky top-0 px-6 py-3 flex justify-between items-center bg-[#1e3a5f]"
+    >
+      <h3 id="docPreviewTitle" class="text-lg font-semibold text-white">
+        Documentation Preview
+      </h3>
+      <button
+        id="docClosePreviewBtn"
+        class="text-white hover:text-gray-200 text-2xl leading-none"
+      >
+        &times;
+      </button>
     </div>
-    <div class="overflow-auto flex-1" style="background: #d1d5db;">
-      <iframe id="docPreviewIframe" title="Documentation Preview"
-        style="width: 100%; height: 842px; min-height: 842px; border: none; background: #f8fbff; display: block;"></iframe>
+    <div class="overflow-auto flex-1" style="background: #d1d5db">
+      <iframe
+        id="docPreviewIframe"
+        title="Documentation Preview"
+        style="
+          width: 100%;
+          height: 842px;
+          min-height: 842px;
+          border: none;
+          background: #f8fbff;
+          display: block;
+        "
+      ></iframe>
     </div>
-    <div class="sticky bottom-0 bg-gray-50 border-t px-6 py-3 flex justify-end space-x-2">
-      <button id="docCancelPreviewBtn"
-        class="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500">Cancel</button>
-      <button id="docDownloadPreviewBtn"
-        class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center gap-2">
+    <div
+      class="sticky bottom-0 bg-gray-50 border-t px-6 py-3 flex justify-end space-x-2"
+    >
+      <button
+        id="docCancelPreviewBtn"
+        class="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500"
+      >
+        Cancel
+      </button>
+      <button
+        id="docDownloadPreviewBtn"
+        class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center gap-2"
+      >
         <i class="fa-solid fa-file-arrow-down"></i> Download
       </button>
     </div>
@@ -488,11 +785,11 @@
 <script>
   const auth = window.authService;
   (function () {
-    const API_BASE = '/documentation';
-    const BATCH_API_BASE = '/batchdocumentation';
+    const API_BASE = "/documentation";
+    const BATCH_API_BASE = "/batchdocumentation";
 
     function getAuthToken() {
-      return localStorage.getItem('token');
+      return localStorage.getItem("token");
     }
 
     let isEditing = false;
@@ -503,15 +800,26 @@
     let currentRecordId = null;
 
     const monthMap = {
-      '1': 'January', '2': 'February', '3': 'March', '4': 'April',
-      '5': 'May', '6': 'June', '7': 'July', '8': 'August',
-      '9': 'September', '10': 'October', '11': 'November', '12': 'December'
+      1: "January",
+      2: "February",
+      3: "March",
+      4: "April",
+      5: "May",
+      6: "June",
+      7: "July",
+      8: "August",
+      9: "September",
+      10: "October",
+      11: "November",
+      12: "December",
     };
 
     const docNameInput = document.getElementById("docName");
     const docNameId = document.getElementById("docNameId");
     const docNameDropdown = document.getElementById("docNameDropdown");
-    const docNameDropdownItems = document.getElementById("docNameDropdownItems");
+    const docNameDropdownItems = document.getElementById(
+      "docNameDropdownItems",
+    );
     const mainSelectContainer = document.getElementById("mainSelectContainer");
 
     const formFields = document.getElementById("formFields");
@@ -529,7 +837,9 @@
     const newNameInput = document.getElementById("newName");
     const newNameId = document.getElementById("newNameId");
     const newNameDropdown = document.getElementById("newNameDropdown");
-    const newNameDropdownItems = document.getElementById("newNameDropdownItems");
+    const newNameDropdownItems = document.getElementById(
+      "newNameDropdownItems",
+    );
 
     const docYear = document.getElementById("docYear");
     const docMonth = document.getElementById("docMonth");
@@ -541,9 +851,9 @@
     async function fetchEmployees() {
       try {
         const token = getAuthToken();
-        const response = await auth.fetchWithAuth('/regno/employees', {
-          method: 'GET',
-          headers: { 'Authorization': `Bearer ${token}` }
+        const response = await auth.fetchWithAuth("/regno/employees", {
+          method: "GET",
+          headers: { Authorization: `Bearer ${token}` },
         });
         const result = await response.json();
 
@@ -553,7 +863,7 @@
           renderEmployeeDropdown(allEmployees, newNameDropdownItems);
         }
       } catch (error) {
-        console.error('Error fetching employees:', error);
+        console.error("Error fetching employees:", error);
       }
     }
 
@@ -561,13 +871,13 @@
       try {
         const token = getAuthToken();
         const response = await auth.fetchWithAuth(API_BASE, {
-          method: 'GET',
-          headers: { 'Authorization': `Bearer ${token}` }
+          method: "GET",
+          headers: { Authorization: `Bearer ${token}` },
         });
         allDocumentation = await response.json();
         populateSignalDropdown();
       } catch (error) {
-        console.error('Error fetching documentation:', error);
+        console.error("Error fetching documentation:", error);
       }
     }
 
@@ -577,8 +887,8 @@
         const encodedId = encodeURIComponent(doc_numb);
 
         const response = await auth.fetchWithAuth(`${API_BASE}/${encodedId}`, {
-          method: 'GET',
-          headers: { 'Authorization': `Bearer ${token}` }
+          method: "GET",
+          headers: { Authorization: `Bearer ${token}` },
         });
         const data = await response.json();
 
@@ -591,9 +901,8 @@
           currentPickerRecords = null;
           fillForm(records[0]);
         }
-
       } catch (error) {
-        console.error('Error loading documentation:', error);
+        console.error("Error loading documentation:", error);
       }
     }
 
@@ -601,26 +910,26 @@
       try {
         const token = getAuthToken();
         const response = await auth.fetchWithAuth(`${API_BASE}/create`, {
-          method: 'POST',
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify(data)
+          body: JSON.stringify(data),
         });
         const result = await response.json();
 
         if (response.ok) {
-          showSuccessModal('Record created successfully!');
+          showSuccessModal("Record created successfully!");
           await fetchDocumentation();
           return true;
         } else {
-          showError(result.error || 'Failed to create record');
+          showError(result.error || "Failed to create record");
           return false;
         }
       } catch (error) {
-        console.error('Error creating documentation:', error);
-        showError('Error creating record');
+        console.error("Error creating documentation:", error);
+        showError("Error creating record");
         return false;
       }
     }
@@ -629,24 +938,24 @@
       try {
         const token = getAuthToken();
         const response = await auth.fetchWithAuth(`${API_BASE}/${id}`, {
-          method: 'PUT',
+          method: "PUT",
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify(data)
+          body: JSON.stringify(data),
         });
         const result = await response.json();
         if (response.ok) {
-          showSuccessModal('Record updated successfully!');
+          showSuccessModal("Record updated successfully!");
           await fetchDocumentation();
           return true;
         } else {
-          showError(result.error || 'Failed to update record');
+          showError(result.error || "Failed to update record");
           return false;
         }
       } catch (error) {
-        showError('Error updating record');
+        showError("Error updating record");
         return false;
       }
     }
@@ -654,36 +963,37 @@
     // ─── UI ────────────────────────────────────────────────────────────────────
 
     function renderEmployeeDropdown(employees, containerElement) {
-      containerElement.innerHTML = '';
+      containerElement.innerHTML = "";
 
       let filteredEmployees = employees;
       if (containerElement === docNameDropdownItems) {
-        filteredEmployees = employees.filter(emp =>
-          allDocumentation.some(doc => doc.doc_numb === emp.Empl_ID)
+        filteredEmployees = employees.filter((emp) =>
+          allDocumentation.some((doc) => doc.doc_numb === emp.Empl_ID),
         );
       }
 
-      filteredEmployees.forEach(emp => {
-        const div = document.createElement('div');
-        div.className = 'dropdown-item px-3 py-2 hover:bg-blue-50 cursor-pointer border-b border-gray-100';
-        div.setAttribute('data-value', emp.Empl_ID);
+      filteredEmployees.forEach((emp) => {
+        const div = document.createElement("div");
+        div.className =
+          "dropdown-item px-3 py-2 hover:bg-blue-50 cursor-pointer border-b border-gray-100";
+        div.setAttribute("data-value", emp.Empl_ID);
         div.innerHTML = `
           <span class="font-semibold text-blue-600">${emp.Empl_ID}</span> - ${emp.Surname} ${emp.OtherName}
         `;
 
-        div.addEventListener('click', function () {
-          const value = this.getAttribute('data-value');
+        div.addEventListener("click", function () {
+          const value = this.getAttribute("data-value");
           const text = this.textContent.trim();
 
           if (containerElement === docNameDropdownItems) {
             docNameInput.value = text;
             docNameId.value = value;
-            docNameDropdown.classList.add('hidden');
+            docNameDropdown.classList.add("hidden");
             loadDocumentation(value);
           } else {
             newNameInput.value = text;
             newNameId.value = value;
-            newNameDropdown.classList.add('hidden');
+            newNameDropdown.classList.add("hidden");
           }
         });
 
@@ -693,15 +1003,15 @@
 
     function fillForm(record) {
       currentRecordId = record.id;
-      docYear.value = record.doc_year || '';
-      docMonth.value = String(parseInt(record.doc_month || '0', 10)) || '';
-      docRef.value = record.doc_ref || '';
-      docComments.value = record.doc_remark || '';
+      docYear.value = record.doc_year || "";
+      docMonth.value = String(parseInt(record.doc_month || "0", 10)) || "";
+      docRef.value = record.doc_ref || "";
+      docComments.value = record.doc_remark || "";
 
-      docNameId.dataset.currentRef = record.doc_ref || '';
+      docNameId.dataset.currentRef = record.doc_ref || "";
 
       const picker = document.getElementById("recordPickerList");
-      if (picker) picker.style.display = 'none';
+      if (picker) picker.style.display = "none";
 
       formFields.classList.remove("hidden");
       setViewMode();
@@ -720,9 +1030,11 @@
       const picker = document.createElement("div");
       picker.id = "recordPickerList";
 
-      const inputWidth = mainSelectContainer.querySelector('.relative').offsetWidth;
-      picker.style.width = inputWidth + 'px';
-      picker.className = "mt-4 border border-gray-200 rounded-lg overflow-hidden";
+      const inputWidth =
+        mainSelectContainer.querySelector(".relative").offsetWidth;
+      picker.style.width = inputWidth + "px";
+      picker.className =
+        "mt-4 border border-gray-200 rounded-lg overflow-hidden";
 
       picker.innerHTML = `
         <div class="bg-blue-50 px-4 py-2 border-b border-gray-200 flex items-center justify-between">
@@ -735,46 +1047,54 @@
           </button>
         </div>
         <div class="divide-y divide-gray-100">
-          ${records.map((rec, i) => `
+          ${records
+            .map(
+              (rec, i) => `
             <div
               class="flex items-center justify-between px-4 py-3 hover:bg-blue-50 cursor-pointer transition-colors record-pick-item"
               data-index="${i}">
               <div class="text-sm">
-                <span class="font-semibold text-gray-800">${rec.doc_ref || '—'}</span>
+                <span class="font-semibold text-gray-800">${rec.doc_ref || "—"}</span>
                 <span class="text-gray-500 ml-3">
-                  ${monthMap[String(parseInt(rec.doc_month || '0', 10))] || rec.doc_month || '—'} ${rec.doc_year || ''}
+                  ${monthMap[String(parseInt(rec.doc_month || "0", 10))] || rec.doc_month || "—"} ${rec.doc_year || ""}
                 </span>
               </div>
-              <div class="text-xs text-gray-400 truncate max-w-xs">${rec.doc_remark || ''}</div>
+              <div class="text-xs text-gray-400 truncate max-w-xs">${rec.doc_remark || ""}</div>
               <i class="fas fa-chevron-right text-gray-400 text-xs ml-4"></i>
             </div>
-          `).join('')}
+          `,
+            )
+            .join("")}
         </div>
       `;
 
       mainSelectContainer.insertAdjacentElement("afterend", picker);
 
-      document.getElementById("printPersonRecordsBtn").addEventListener("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        printPersonRecords(records);
-      });
+      document
+        .getElementById("printPersonRecordsBtn")
+        .addEventListener("click", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          printPersonRecords(records);
+        });
 
-      picker.querySelectorAll(".record-pick-item").forEach(item => {
+      picker.querySelectorAll(".record-pick-item").forEach((item) => {
         item.addEventListener("click", function (e) {
           e.stopPropagation();
           const index = parseInt(this.dataset.index);
-          picker.style.display = 'none';
+          picker.style.display = "none";
           fillForm(records[index]);
         });
       });
     }
 
     function filterDropdown(searchText, dropdownItems) {
-      const items = dropdownItems.querySelectorAll('.dropdown-item');
-      items.forEach(item => {
+      const items = dropdownItems.querySelectorAll(".dropdown-item");
+      items.forEach((item) => {
         const text = item.textContent.toLowerCase();
-        item.style.display = text.includes(searchText.toLowerCase()) ? 'block' : 'none';
+        item.style.display = text.includes(searchText.toLowerCase())
+          ? "block"
+          : "none";
       });
     }
 
@@ -788,7 +1108,7 @@
       docRef.readOnly = true;
       docComments.readOnly = true;
 
-      [docYear, docMonth, docRef, docComments].forEach(field => {
+      [docYear, docMonth, docRef, docComments].forEach((field) => {
         field.classList.remove("bg-yellow-50", "border-yellow-300");
       });
     }
@@ -800,7 +1120,7 @@
         year: docYear.value,
         month: docMonth.value,
         ref: docRef.value,
-        comments: docComments.value
+        comments: docComments.value,
       };
 
       viewButtons.classList.add("hidden");
@@ -811,7 +1131,7 @@
       docRef.readOnly = false;
       docComments.readOnly = false;
 
-      [docYear, docMonth, docRef, docComments].forEach(field => {
+      [docYear, docMonth, docRef, docComments].forEach((field) => {
         field.classList.add("bg-yellow-50", "border-yellow-300");
       });
     }
@@ -821,7 +1141,7 @@
         doc_year: docYear.value,
         doc_month: docMonth.value,
         doc_ref: docRef.value,
-        doc_remark: docComments.value
+        doc_remark: docComments.value,
       };
 
       const success = await updateDocumentation(currentRecordId, data);
@@ -849,7 +1169,7 @@
 
         const picker = document.getElementById("recordPickerList");
         if (picker) {
-          picker.style.display = 'block';
+          picker.style.display = "block";
         } else {
           showRecordPicker(currentPickerRecords);
         }
@@ -884,12 +1204,13 @@
         return;
       }
 
-      const existingRecord = allDocumentation.find(doc =>
-        doc.doc_numb === doc_numb &&
-        doc.doc_year === doc_year &&
-        doc.doc_month === doc_month &&
-        doc.doc_ref === doc_ref &&
-        (doc.doc_remark || '') === (doc_remark || '')
+      const existingRecord = allDocumentation.find(
+        (doc) =>
+          doc.doc_numb === doc_numb &&
+          doc.doc_year === doc_year &&
+          doc.doc_month === doc_month &&
+          doc.doc_ref === doc_ref &&
+          (doc.doc_remark || "") === (doc_remark || ""),
       );
 
       if (existingRecord) {
@@ -955,14 +1276,28 @@
         return;
       }
 
-      const selectedEmployee = allEmployees.find(e => e.Empl_ID === docNameId.value);
+      const selectedEmployee = allEmployees.find(
+        (e) => e.Empl_ID === docNameId.value,
+      );
       if (!selectedEmployee) return;
 
       const now = new Date();
-      const dateStr = now.toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-      const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: true });
-      const generatedBy = localStorage.getItem('full_name') || 'System User';
-      const monthLabel = monthMap[String(parseInt(docMonth.value || '0', 10))] || docMonth.value || '';
+      const dateStr = now.toLocaleDateString("en-GB", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+      const timeStr = now.toLocaleTimeString("en-GB", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      });
+      const generatedBy = localStorage.getItem("full_name") || "System User";
+      const monthLabel =
+        monthMap[String(parseInt(docMonth.value || "0", 10))] ||
+        docMonth.value ||
+        "";
 
       const singleHtml = `<!DOCTYPE html><html><head><meta charset="utf-8">
         <title>Documentation - ${selectedEmployee.Surname} ${selectedEmployee.OtherName}</title>
@@ -989,8 +1324,8 @@
         </style></head><body>
         <div class="page"><div class="page-content">
           <div class="header-wrapper"><div class="header">
-            <h1>Nigerian Navy (Naval Headquarters)</h1>
-            <h2>CENTRAL PAY OFFICE, 23 POINT ROAD APAPA</h2>
+            <h1>DEFENSE SPACE ADMINISTRATION</h1>
+            <h2>NATIONAL SPACE MUSEUM, ABUJA</h2>
           </div></div>
           <div class="header-info">
             <div><strong>DOCUMENTATION RECORD</strong></div>
@@ -1012,24 +1347,41 @@
         </div></div>
         </body></html>`;
 
-      openPreviewModal('Documentation Record — ' + selectedEmployee.Surname + ' ' + selectedEmployee.OtherName, singleHtml);
+      openPreviewModal(
+        "Documentation Record — " +
+          selectedEmployee.Surname +
+          " " +
+          selectedEmployee.OtherName,
+        singleHtml,
+      );
     }
 
     function printPersonRecords(records) {
-      const employee = allEmployees.find(e => e.Empl_ID === docNameId.value);
+      const employee = allEmployees.find((e) => e.Empl_ID === docNameId.value);
       if (!employee) return;
 
       const now = new Date();
-      const dateStr = now.toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-      const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: true });
-      const generatedBy = localStorage.getItem('full_name') || 'System User';
+      const dateStr = now.toLocaleDateString("en-GB", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+      const timeStr = now.toLocaleTimeString("en-GB", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      });
+      const generatedBy = localStorage.getItem("full_name") || "System User";
 
-      const rowsArray = records.map(rec => `<tr>
-          <td>${rec.doc_year || ''}</td>
-          <td>${monthMap[String(parseInt(rec.doc_month || '0', 10))] || rec.doc_month || ''}</td>
-          <td>${rec.doc_ref || ''}</td>
-          <td>${rec.doc_remark || ''}</td>
-        </tr>`);
+      const rowsArray = records.map(
+        (rec) => `<tr>
+          <td>${rec.doc_year || ""}</td>
+          <td>${monthMap[String(parseInt(rec.doc_month || "0", 10))] || rec.doc_month || ""}</td>
+          <td>${rec.doc_ref || ""}</td>
+          <td>${rec.doc_remark || ""}</td>
+        </tr>`,
+      );
 
       const personHtml = `<!DOCTYPE html><html><head><meta charset="utf-8">
         <title>Documentation - ${employee.Surname} ${employee.OtherName}</title>
@@ -1063,7 +1415,7 @@
           const ROWS_PER_PAGE = 30;
           const allRows = ${JSON.stringify(rowsArray)};
           const empId   = ${JSON.stringify(employee.Empl_ID)};
-          const empName = ${JSON.stringify(employee.Surname + ' ' + employee.OtherName)};
+          const empName = ${JSON.stringify(employee.Surname + " " + employee.OtherName)};
           const recCount = ${JSON.stringify(String(records.length))};
           const dateStr = ${JSON.stringify(dateStr)};
           const timeStr = ${JSON.stringify(timeStr)};
@@ -1089,8 +1441,8 @@
             html += \`<div class="page"><div class="page-content">
               \${isFirst
                 ? \`<div class="header-wrapper"><div class="header">
-                    <h1>Nigerian Navy (Naval Headquarters)</h1>
-                    <h2>CENTRAL PAY OFFICE, 23 POINT ROAD APAPA</h2>
+                    <h1>DEFENSE SPACE ADMINISTRATION</h1>
+                    <h2>NATIONAL SPACE MUSEUM, ABUJA</h2>
                   </div></div>
                   <div class="header-info">
                     <div><strong>DOCUMENTATION RECORDS</strong></div>
@@ -1098,7 +1450,7 @@
                     <div><strong>\${recCount}</strong> RECORDS</div>
                   </div>
                   <div class="employee-info"><strong>Service No:</strong> \${empId} &nbsp;&nbsp; <strong>Name:</strong> \${empName}</div>\`
-                : \`<div class="cont-header">Nigerian Navy — \${empName} — Documentation (continued)</div>\`
+                : \`<div class="cont-header">DSA — \${empName} — Documentation (continued)</div>\`
               }
               \${tableHtml(pageRows)}
               \${isLast ? \`<div class="footer"><p>Generated by: \${generatedBy}</p><p>All rights reserved &copy; Hicad Systems Limited.</p></div>\` : ''}
@@ -1108,7 +1460,10 @@
         <\/script>
         </body></html>`;
 
-      openPreviewModal('Documentation — ' + employee.Surname + ' ' + employee.OtherName, personHtml);
+      openPreviewModal(
+        "Documentation — " + employee.Surname + " " + employee.OtherName,
+        personHtml,
+      );
     }
 
     function printAll() {
@@ -1118,38 +1473,57 @@
       }
 
       const now = new Date();
-      const dateStr = now.toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-      const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: true });
-      const generatedBy = localStorage.getItem('full_name') || 'System User';
+      const dateStr = now.toLocaleDateString("en-GB", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+      const timeStr = now.toLocaleTimeString("en-GB", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      });
+      const generatedBy = localStorage.getItem("full_name") || "System User";
 
-      const rowsArray = allDocumentation.map(doc => {
-        const employee = allEmployees.find(e => e.Empl_ID === doc.doc_numb);
-        const empName = employee ? `${employee.Surname} ${employee.OtherName}` : 'N/A';
-        const monthValue = monthMap[String(parseInt(doc.doc_month || '0', 10))] || doc.doc_month || '';
+      const rowsArray = allDocumentation.map((doc) => {
+        const employee = allEmployees.find((e) => e.Empl_ID === doc.doc_numb);
+        const empName = employee
+          ? `${employee.Surname} ${employee.OtherName}`
+          : "N/A";
+        const monthValue =
+          monthMap[String(parseInt(doc.doc_month || "0", 10))] ||
+          doc.doc_month ||
+          "";
         return `<tr>
             <td><strong>${doc.doc_numb}</strong></td>
             <td style="white-space: nowrap;"><strong>${empName}</strong></td>
-            <td>${doc.doc_year || ''}</td>
+            <td>${doc.doc_year || ""}</td>
             <td>${monthValue}</td>
-            <td>${doc.doc_ref || ''}</td>
-            <td>${doc.doc_remark || ''}</td>
+            <td>${doc.doc_ref || ""}</td>
+            <td>${doc.doc_remark || ""}</td>
           </tr>`;
       });
 
-      openPrintWindow('All Documentation Records', allDocumentation.length, rowsArray, generatedBy);
+      openPrintWindow(
+        "All Documentation Records",
+        allDocumentation.length,
+        rowsArray,
+        generatedBy,
+      );
     }
 
     // ─── PRINT OPTIONS ─────────────────────────────────────────────────────────
 
     function populateSignalDropdown() {
-      const signalSelect = document.getElementById('printSignalSelect');
-      const uniqueSignals = [...new Set(
-        allDocumentation.map(d => d.doc_ref).filter(Boolean)
-      )].sort();
+      const signalSelect = document.getElementById("printSignalSelect");
+      const uniqueSignals = [
+        ...new Set(allDocumentation.map((d) => d.doc_ref).filter(Boolean)),
+      ].sort();
 
       signalSelect.innerHTML = '<option value="">-- Select Signal --</option>';
-      uniqueSignals.forEach(sig => {
-        const opt = document.createElement('option');
+      uniqueSignals.forEach((sig) => {
+        const opt = document.createElement("option");
         opt.value = sig;
         opt.textContent = sig;
         signalSelect.appendChild(opt);
@@ -1157,36 +1531,48 @@
     }
 
     function openPrintOptionsModal() {
-      document.getElementById('printOptionsModal').classList.remove('hidden');
+      document.getElementById("printOptionsModal").classList.remove("hidden");
     }
 
     function closePrintOptionsModal() {
-      document.getElementById('printOptionsModal').classList.add('hidden');
+      document.getElementById("printOptionsModal").classList.add("hidden");
       // reset to default panel
-      document.getElementById('printByRange').checked = true;
-      showPrintPanel('range');
-      document.getElementById('printRangeFrom').value = '';
-      document.getElementById('printRangeTo').value = '';
-      document.getElementById('printPeriodFrom').value = '';
-      document.getElementById('printPeriodTo').value = '';
-      document.getElementById('printSignalSelect').value = '';
+      document.getElementById("printByRange").checked = true;
+      showPrintPanel("range");
+      document.getElementById("printRangeFrom").value = "";
+      document.getElementById("printRangeTo").value = "";
+      document.getElementById("printPeriodFrom").value = "";
+      document.getElementById("printPeriodTo").value = "";
+      document.getElementById("printSignalSelect").value = "";
     }
 
     function showPrintPanel(type) {
-      document.querySelectorAll('.print-panel').forEach(p => p.classList.add('hidden'));
-      document.getElementById('panel' + type.charAt(0).toUpperCase() + type.slice(1)).classList.remove('hidden');
+      document
+        .querySelectorAll(".print-panel")
+        .forEach((p) => p.classList.add("hidden"));
+      document
+        .getElementById("panel" + type.charAt(0).toUpperCase() + type.slice(1))
+        .classList.remove("hidden");
     }
 
     function executePrintOptions() {
-      const filterType = document.querySelector('input[name="printFilter"]:checked').value;
+      const filterType = document.querySelector(
+        'input[name="printFilter"]:checked',
+      ).value;
       let filtered = [];
 
-      if (filterType === 'range') {
-        const from = document.getElementById('printRangeFrom').value.trim().toUpperCase();
-        const to = document.getElementById('printRangeTo').value.trim().toUpperCase();
+      if (filterType === "range") {
+        const from = document
+          .getElementById("printRangeFrom")
+          .value.trim()
+          .toUpperCase();
+        const to = document
+          .getElementById("printRangeTo")
+          .value.trim()
+          .toUpperCase();
 
-        filtered = allDocumentation.filter(doc => {
-          const id = (doc.doc_numb || '').toUpperCase();
+        filtered = allDocumentation.filter((doc) => {
+          const id = (doc.doc_numb || "").toUpperCase();
           if (from && to) return id >= from && id <= to;
           if (from) return id >= from;
           if (to) return id <= to;
@@ -1194,32 +1580,34 @@
         });
 
         if (filtered.length === 0) {
-          showError('No records found for the specified Svc. No. range.');
+          showError("No records found for the specified Svc. No. range.");
           return;
         }
-
-      } else if (filterType === 'signal') {
-        const signal = document.getElementById('printSignalSelect').value;
+      } else if (filterType === "signal") {
+        const signal = document.getElementById("printSignalSelect").value;
         if (!signal) {
-          showError('Please select a signal / reference number.');
+          showError("Please select a signal / reference number.");
           return;
         }
-        filtered = allDocumentation.filter(doc => doc.doc_ref === signal);
+        filtered = allDocumentation.filter((doc) => doc.doc_ref === signal);
         if (filtered.length === 0) {
-          showError('No records found for the selected signal.');
+          showError("No records found for the selected signal.");
           return;
         }
-
-      } else if (filterType === 'period') {
-        const periodFrom = document.getElementById('printPeriodFrom').value.trim();
-        const periodTo = document.getElementById('printPeriodTo').value.trim();
+      } else if (filterType === "period") {
+        const periodFrom = document
+          .getElementById("printPeriodFrom")
+          .value.trim();
+        const periodTo = document.getElementById("printPeriodTo").value.trim();
 
         if (!periodFrom || periodFrom.length !== 6) {
-          showError('Please enter a valid From Period (e.g. 202501).');
+          showError("Please enter a valid From Period (e.g. 202501).");
           return;
         }
         if (periodTo && periodTo.length !== 6) {
-          showError('Please enter a valid To Period (e.g. 202512), or leave it blank.');
+          showError(
+            "Please enter a valid To Period (e.g. 202512), or leave it blank.",
+          );
           return;
         }
 
@@ -1231,15 +1619,18 @@
           return;
         }
 
-        filtered = allDocumentation.filter(doc => {
-          const docYear = String(doc.doc_year || '').padStart(4, '0');
-          const docMonth = String(parseInt(doc.doc_month || '0', 10)).padStart(2, '0');
+        filtered = allDocumentation.filter((doc) => {
+          const docYear = String(doc.doc_year || "").padStart(4, "0");
+          const docMonth = String(parseInt(doc.doc_month || "0", 10)).padStart(
+            2,
+            "0",
+          );
           const docPeriodNum = parseInt(docYear + docMonth, 10);
           return docPeriodNum >= fromNum && docPeriodNum <= toNum;
         });
 
         if (filtered.length === 0) {
-          showError('No records found for the specified period range.');
+          showError("No records found for the specified period range.");
           return;
         }
       }
@@ -1247,33 +1638,61 @@
       closePrintOptionsModal();
 
       const now = new Date();
-      const dateStr = now.toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-      const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: true });
-      const generatedBy = localStorage.getItem('full_name') || 'System User';
+      const dateStr = now.toLocaleDateString("en-GB", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+      const timeStr = now.toLocaleTimeString("en-GB", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      });
+      const generatedBy = localStorage.getItem("full_name") || "System User";
 
-      const rowsArray = filtered.map(doc => {
-        const employee = allEmployees.find(e => e.Empl_ID === doc.doc_numb);
-        const empName = employee ? `${employee.Surname} ${employee.OtherName}` : 'N/A';
-        const monthValue = monthMap[String(parseInt(doc.doc_month || '0', 10))] || doc.doc_month || '';
+      const rowsArray = filtered.map((doc) => {
+        const employee = allEmployees.find((e) => e.Empl_ID === doc.doc_numb);
+        const empName = employee
+          ? `${employee.Surname} ${employee.OtherName}`
+          : "N/A";
+        const monthValue =
+          monthMap[String(parseInt(doc.doc_month || "0", 10))] ||
+          doc.doc_month ||
+          "";
         return `<tr>
             <td><strong>${doc.doc_numb}</strong></td>
             <td style="white-space: nowrap;"><strong>${empName}</strong></td>
-            <td>${doc.doc_year || ''}</td>
+            <td>${doc.doc_year || ""}</td>
             <td>${monthValue}</td>
-            <td>${doc.doc_ref || ''}</td>
-            <td>${doc.doc_remark || ''}</td>
+            <td>${doc.doc_ref || ""}</td>
+            <td>${doc.doc_remark || ""}</td>
           </tr>`;
       });
 
-      openPrintWindow('Documentation Records', filtered.length, rowsArray, generatedBy);
+      openPrintWindow(
+        "Documentation Records",
+        filtered.length,
+        rowsArray,
+        generatedBy,
+      );
     }
 
     // ─── SHARED HTML BUILDER ──────────────────────────────────────────────────
 
     function buildDocHtml(title, count, rowsArray, generatedBy) {
       const now = new Date();
-      const dateStr = now.toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-      const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: true });
+      const dateStr = now.toLocaleDateString("en-GB", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+      const timeStr = now.toLocaleTimeString("en-GB", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      });
       // A4 portrait: 210mm x 297mm. At 96dpi screen: 794px x 1123px
       const A4_W = 794;
       const A4_H = 1123;
@@ -1360,15 +1779,15 @@
           function headerHtml(isFirst) {
             if (isFirst) return \`
               <div class="header-wrapper"><div class="header">
-                <h1>Nigerian Navy (Naval Headquarters)</h1>
-                <h2>CENTRAL PAY OFFICE, 23 POINT ROAD APAPA</h2>
+                <h1>DEFENSE SPACE ADMINISTRATION</h1>
+                <h2>NATIONAL SPACE MUSEUM, ABUJA</h2>
               </div></div>
               <div class="header-info">
                 <div><strong>DOCUMENTATION RECORDS</strong></div>
                 <div>PRODUCED ON <strong>\${dateStr}</strong> AT <strong>\${timeStr}</strong></div>
                 <div><strong>\${count}</strong> RECORDS</div>
               </div>\`;
-            return \`<div class="cont-header">Nigerian Navy — Documentation Records (continued)</div>\`;
+            return \`<div class="cont-header">DSA — Documentation Records (continued)</div>\`;
           }
 
           function tableHtml(rowsHtml) {
@@ -1411,20 +1830,26 @@
     let _previewHtmlBlob = null;
 
     async function openPreviewModal(title, htmlContent) {
-      const modal = document.getElementById('docPreviewModal');
-      const iframe = document.getElementById('docPreviewIframe');
-      document.getElementById('docPreviewTitle').textContent = title;
+      const modal = document.getElementById("docPreviewModal");
+      const iframe = document.getElementById("docPreviewIframe");
+      document.getElementById("docPreviewTitle").textContent = title;
 
       // Revoke any previous blob
-      if (_previewHtmlBlob) { URL.revokeObjectURL(_previewHtmlBlob); _previewHtmlBlob = null; }
+      if (_previewHtmlBlob) {
+        URL.revokeObjectURL(_previewHtmlBlob);
+        _previewHtmlBlob = null;
+      }
 
       // Resolve logo to absolute URL so the blob iframe can load it cross-origin
-      const logoAbsUrl = window.location.origin + '/photos/logo.png';
+      const logoAbsUrl = window.location.origin + "/photos/logo.png";
 
       // Inject absolute logo URL into the html before creating the blob
-      const resolvedHtml = htmlContent.replace(/url\('photos\/logo\.png'\)/g, `url('${logoAbsUrl}')`);
+      const resolvedHtml = htmlContent.replace(
+        /url\('photos\/logo\.png'\)/g,
+        `url('${logoAbsUrl}')`,
+      );
 
-      const blob = new Blob([resolvedHtml], { type: 'text/html' });
+      const blob = new Blob([resolvedHtml], { type: "text/html" });
       _previewHtmlBlob = URL.createObjectURL(blob);
 
       // Auto-resize iframe to full document height once loaded (including all page cards)
@@ -1432,34 +1857,40 @@
         try {
           // Poll briefly to let inline <script> pagination finish rendering
           const check = () => {
-            const docHeight = iframe.contentDocument.documentElement.scrollHeight;
+            const docHeight =
+              iframe.contentDocument.documentElement.scrollHeight;
             if (docHeight > 100) {
-              iframe.style.height = docHeight + 'px';
+              iframe.style.height = docHeight + "px";
             } else {
               setTimeout(check, 80);
             }
           };
           setTimeout(check, 120);
-        } catch (e) { /* cross-origin guard */ }
+        } catch (e) {
+          /* cross-origin guard */
+        }
       };
       iframe.src = _previewHtmlBlob;
 
-      modal.classList.remove('hidden');
+      modal.classList.remove("hidden");
     }
 
     function closePreviewModal() {
-      document.getElementById('docPreviewModal').classList.add('hidden');
-      const iframe = document.getElementById('docPreviewIframe');
-      iframe.src = 'about:blank';
-      if (_previewHtmlBlob) { URL.revokeObjectURL(_previewHtmlBlob); _previewHtmlBlob = null; }
+      document.getElementById("docPreviewModal").classList.add("hidden");
+      const iframe = document.getElementById("docPreviewIframe");
+      iframe.src = "about:blank";
+      if (_previewHtmlBlob) {
+        URL.revokeObjectURL(_previewHtmlBlob);
+        _previewHtmlBlob = null;
+      }
     }
 
     function downloadPreview(filename) {
       if (!_previewHtmlBlob) return;
       // Trigger browser Save As dialog via a hidden <a> with download attribute
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = _previewHtmlBlob;
-      a.download = filename || 'documentation.html';
+      a.download = filename || "documentation.html";
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -1472,84 +1903,91 @@
 
     // ─── UPLOAD MODAL ──────────────────────────────────────────────────────────
 
-    const uploadModal = document.getElementById('uploadModal');
-    const batchFileInput = document.getElementById('batchFileInput');
-    const dropZone = document.getElementById('dropZone');
-    const selectedFileDisplay = document.getElementById('selectedFileDisplay');
-    const selectedFileName = document.getElementById('selectedFileName');
-    const uploadResult = document.getElementById('uploadResult');
-    const submitUploadBtn = document.getElementById('submitUploadBtn');
+    const uploadModal = document.getElementById("uploadModal");
+    const batchFileInput = document.getElementById("batchFileInput");
+    const dropZone = document.getElementById("dropZone");
+    const selectedFileDisplay = document.getElementById("selectedFileDisplay");
+    const selectedFileName = document.getElementById("selectedFileName");
+    const uploadResult = document.getElementById("uploadResult");
+    const submitUploadBtn = document.getElementById("submitUploadBtn");
 
     let selectedFile = null;
 
     function openUploadModal() {
-      uploadModal.classList.remove('hidden');
+      uploadModal.classList.remove("hidden");
       resetUploadModal();
     }
 
     function closeUploadModal() {
-      uploadModal.classList.add('hidden');
+      uploadModal.classList.add("hidden");
       resetUploadModal();
     }
 
     function resetUploadModal() {
       selectedFile = null;
-      batchFileInput.value = '';
-      selectedFileDisplay.classList.add('hidden');
-      selectedFileName.textContent = '';
-      uploadResult.classList.add('hidden');
-      uploadResult.innerHTML = '';
+      batchFileInput.value = "";
+      selectedFileDisplay.classList.add("hidden");
+      selectedFileName.textContent = "";
+      uploadResult.classList.add("hidden");
+      uploadResult.innerHTML = "";
     }
 
     function handleFileSelect(file) {
       if (!file) return;
-      const allowed = ['.xlsx', '.xls', '.csv'];
-      const ext = '.' + file.name.split('.').pop().toLowerCase();
+      const allowed = [".xlsx", ".xls", ".csv"];
+      const ext = "." + file.name.split(".").pop().toLowerCase();
       if (!allowed.includes(ext)) {
-        showError('Only .xlsx, .xls, and .csv files are allowed.');
+        showError("Only .xlsx, .xls, and .csv files are allowed.");
         return;
       }
       if (file.size > 10 * 1024 * 1024) {
-        showError('File size exceeds 10MB limit.');
+        showError("File size exceeds 10MB limit.");
         return;
       }
       selectedFile = file;
       selectedFileName.textContent = file.name;
-      selectedFileDisplay.classList.remove('hidden');
-      uploadResult.classList.add('hidden');
+      selectedFileDisplay.classList.remove("hidden");
+      uploadResult.classList.add("hidden");
     }
 
     async function submitUpload() {
       if (!selectedFile) {
-        showError('Please select a file first.');
+        showError("Please select a file first.");
         return;
       }
 
       submitUploadBtn.disabled = true;
-      submitUploadBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Uploading...';
+      submitUploadBtn.innerHTML =
+        '<i class="fa-solid fa-spinner fa-spin"></i> Uploading...';
 
       const formData = new FormData();
-      formData.append('file', selectedFile);
+      formData.append("file", selectedFile);
 
       try {
         const token = getAuthToken();
-        const response = await auth.fetchWithAuth(`${BATCH_API_BASE}/batch-upload`, {
-          method: 'POST',
-          headers: { 'Authorization': `Bearer ${token}` },
-          body: formData
-        });
+        const response = await auth.fetchWithAuth(
+          `${BATCH_API_BASE}/batch-upload`,
+          {
+            method: "POST",
+            headers: { Authorization: `Bearer ${token}` },
+            body: formData,
+          },
+        );
 
         const result = await response.json();
 
-        uploadResult.classList.remove('hidden');
+        uploadResult.classList.remove("hidden");
 
         if (response.ok) {
           const s = result.summary;
           const hasDuplicates = s.duplicates && s.duplicates.length > 0;
           const hasFailed = s.failed > 0;
 
-          uploadResult.className = 'mb-4 p-4 rounded-lg border text-sm ' +
-            (hasFailed ? 'bg-yellow-50 border-yellow-300 text-yellow-800' : 'bg-green-50 border-green-300 text-green-800');
+          uploadResult.className =
+            "mb-4 p-4 rounded-lg border text-sm " +
+            (hasFailed
+              ? "bg-yellow-50 border-yellow-300 text-yellow-800"
+              : "bg-green-50 border-green-300 text-green-800");
 
           uploadResult.innerHTML = `
             <p class="font-semibold mb-2">${result.message}</p>
@@ -1559,28 +1997,34 @@
               <li>Duplicates skipped: <strong>${s.duplicates ? s.duplicates.length : 0}</strong></li>
               <li>Failed: <strong>${s.failed - (s.duplicates ? s.duplicates.length : 0)}</strong></li>
             </ul>
-            ${s.errors && s.errors.length > 0 ? `
+            ${
+              s.errors && s.errors.length > 0
+                ? `
               <details class="mt-3">
                 <summary class="cursor-pointer font-medium">View errors (${s.errors.length})</summary>
                 <ul class="mt-2 space-y-1 text-xs">
-                  ${s.errors.map(e => `<li>Row ${e.row || '—'} | ${e.serviceNumber || ''} ${e.signal ? '/ ' + e.signal : ''} — ${e.error}</li>`).join('')}
+                  ${s.errors.map((e) => `<li>Row ${e.row || "—"} | ${e.serviceNumber || ""} ${e.signal ? "/ " + e.signal : ""} — ${e.error}</li>`).join("")}
                 </ul>
-              </details>` : ''}
+              </details>`
+                : ""
+            }
           `;
 
           await fetchDocumentation();
           renderEmployeeDropdown(allEmployees, docNameDropdownItems);
         } else {
-          uploadResult.className = 'mb-4 p-4 rounded-lg border text-sm bg-red-50 border-red-300 text-red-800';
+          uploadResult.className =
+            "mb-4 p-4 rounded-lg border text-sm bg-red-50 border-red-300 text-red-800";
           uploadResult.innerHTML = `
             <p class="font-semibold">Upload failed</p>
-            <p>${result.error || 'An unexpected error occurred.'}</p>
-            ${result.details ? `<ul class="mt-2 text-xs list-disc list-inside">${Array.isArray(result.details) ? result.details.map(d => `<li>${d}</li>`).join('') : `<li>${result.details}</li>`}</ul>` : ''}
+            <p>${result.error || "An unexpected error occurred."}</p>
+            ${result.details ? `<ul class="mt-2 text-xs list-disc list-inside">${Array.isArray(result.details) ? result.details.map((d) => `<li>${d}</li>`).join("") : `<li>${result.details}</li>`}</ul>` : ""}
           `;
         }
       } catch (error) {
-        uploadResult.classList.remove('hidden');
-        uploadResult.className = 'mb-4 p-4 rounded-lg border text-sm bg-red-50 border-red-300 text-red-800';
+        uploadResult.classList.remove("hidden");
+        uploadResult.className =
+          "mb-4 p-4 rounded-lg border text-sm bg-red-50 border-red-300 text-red-800";
         uploadResult.innerHTML = `<p class="font-semibold">Network error</p><p>${error.message}</p>`;
       } finally {
         submitUploadBtn.disabled = false;
@@ -1591,25 +2035,28 @@
     async function downloadTemplate() {
       try {
         const token = getAuthToken();
-        const response = await auth.fetchWithAuth(`${BATCH_API_BASE}/batch-template`, {
-          method: 'GET',
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
+        const response = await auth.fetchWithAuth(
+          `${BATCH_API_BASE}/batch-template`,
+          {
+            method: "GET",
+            headers: { Authorization: `Bearer ${token}` },
+          },
+        );
 
         if (!response.ok) {
-          showError('Failed to download template.');
+          showError("Failed to download template.");
           return;
         }
 
         const blob = await response.blob();
         const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
+        const a = document.createElement("a");
         a.href = url;
-        a.download = 'documentation_template.xlsx';
+        a.download = "documentation_template.xlsx";
         a.click();
         URL.revokeObjectURL(url);
       } catch (error) {
-        showError('Error downloading template.');
+        showError("Error downloading template.");
       }
     }
 
@@ -1626,94 +2073,149 @@
       clearNewFields();
     });
 
-    document.getElementById("clearBtn").addEventListener("click", clearMainForm);
+    document
+      .getElementById("clearBtn")
+      .addEventListener("click", clearMainForm);
     document.getElementById("editBtn").addEventListener("click", setEditMode);
     document.getElementById("saveBtn").addEventListener("click", saveChanges);
-    document.getElementById("cancelEditBtn").addEventListener("click", cancelEdit);
-    document.getElementById("saveNewBtn").addEventListener("click", saveNewRecord);
-    document.getElementById("cancelNewBtn").addEventListener("click", cancelNew);
-    document.getElementById("printBtn").addEventListener("click", printSelected);
+    document
+      .getElementById("cancelEditBtn")
+      .addEventListener("click", cancelEdit);
+    document
+      .getElementById("saveNewBtn")
+      .addEventListener("click", saveNewRecord);
+    document
+      .getElementById("cancelNewBtn")
+      .addEventListener("click", cancelNew);
+    document
+      .getElementById("printBtn")
+      .addEventListener("click", printSelected);
     document.getElementById("printAllBtn").addEventListener("click", printAll);
 
     // Upload modal listeners
-    document.getElementById("uploadBtn").addEventListener("click", openUploadModal);
-    document.getElementById("closeUploadModal").addEventListener("click", closeUploadModal);
-    document.getElementById("cancelUploadBtn").addEventListener("click", closeUploadModal);
-    document.getElementById("submitUploadBtn").addEventListener("click", submitUpload);
-    document.getElementById("downloadTemplateBtn").addEventListener("click", downloadTemplate);
+    document
+      .getElementById("uploadBtn")
+      .addEventListener("click", openUploadModal);
+    document
+      .getElementById("closeUploadModal")
+      .addEventListener("click", closeUploadModal);
+    document
+      .getElementById("cancelUploadBtn")
+      .addEventListener("click", closeUploadModal);
+    document
+      .getElementById("submitUploadBtn")
+      .addEventListener("click", submitUpload);
+    document
+      .getElementById("downloadTemplateBtn")
+      .addEventListener("click", downloadTemplate);
     document.getElementById("clearFileBtn").addEventListener("click", () => {
       selectedFile = null;
-      batchFileInput.value = '';
-      selectedFileDisplay.classList.add('hidden');
-      uploadResult.classList.add('hidden');
+      batchFileInput.value = "";
+      selectedFileDisplay.classList.add("hidden");
+      uploadResult.classList.add("hidden");
     });
 
-    batchFileInput.addEventListener('change', (e) => handleFileSelect(e.target.files[0]));
+    batchFileInput.addEventListener("change", (e) =>
+      handleFileSelect(e.target.files[0]),
+    );
 
-    dropZone.addEventListener('dragover', (e) => {
+    dropZone.addEventListener("dragover", (e) => {
       e.preventDefault();
-      dropZone.classList.add('border-purple-400', 'bg-purple-50');
+      dropZone.classList.add("border-purple-400", "bg-purple-50");
     });
-    dropZone.addEventListener('dragleave', () => {
-      dropZone.classList.remove('border-purple-400', 'bg-purple-50');
+    dropZone.addEventListener("dragleave", () => {
+      dropZone.classList.remove("border-purple-400", "bg-purple-50");
     });
-    dropZone.addEventListener('drop', (e) => {
+    dropZone.addEventListener("drop", (e) => {
       e.preventDefault();
-      dropZone.classList.remove('border-purple-400', 'bg-purple-50');
+      dropZone.classList.remove("border-purple-400", "bg-purple-50");
       handleFileSelect(e.dataTransfer.files[0]);
     });
 
     // Close upload modal on backdrop click
-    uploadModal.addEventListener('click', (e) => {
+    uploadModal.addEventListener("click", (e) => {
       if (e.target === uploadModal) closeUploadModal();
     });
 
     // ─── PREVIEW MODAL LISTENERS ───────────────────────────────────────────────
-    document.getElementById('docClosePreviewBtn').addEventListener('click', closePreviewModal);
-    document.getElementById('docCancelPreviewBtn').addEventListener('click', closePreviewModal);
-    document.getElementById('docPreviewModal').addEventListener('click', (e) => {
-      if (e.target === document.getElementById('docPreviewModal')) closePreviewModal();
-    });
-    document.getElementById('docDownloadPreviewBtn').addEventListener('click', () => {
-      const title = document.getElementById('docPreviewTitle').textContent || 'documentation';
-      const filename = title.replace(/[^a-z0-9]/gi, '_').toLowerCase() + '.html';
-      downloadPreview(filename);
-    });
+    document
+      .getElementById("docClosePreviewBtn")
+      .addEventListener("click", closePreviewModal);
+    document
+      .getElementById("docCancelPreviewBtn")
+      .addEventListener("click", closePreviewModal);
+    document
+      .getElementById("docPreviewModal")
+      .addEventListener("click", (e) => {
+        if (e.target === document.getElementById("docPreviewModal"))
+          closePreviewModal();
+      });
+    document
+      .getElementById("docDownloadPreviewBtn")
+      .addEventListener("click", () => {
+        const title =
+          document.getElementById("docPreviewTitle").textContent ||
+          "documentation";
+        const filename =
+          title.replace(/[^a-z0-9]/gi, "_").toLowerCase() + ".html";
+        downloadPreview(filename);
+      });
 
     // Print Options modal listeners
-    document.getElementById("printOptionsBtn").addEventListener("click", openPrintOptionsModal);
-    document.getElementById("closePrintOptionsModal").addEventListener("click", closePrintOptionsModal);
-    document.getElementById("cancelPrintOptionsBtn").addEventListener("click", closePrintOptionsModal);
-    document.getElementById("confirmPrintOptionsBtn").addEventListener("click", executePrintOptions);
+    document
+      .getElementById("printOptionsBtn")
+      .addEventListener("click", openPrintOptionsModal);
+    document
+      .getElementById("closePrintOptionsModal")
+      .addEventListener("click", closePrintOptionsModal);
+    document
+      .getElementById("cancelPrintOptionsBtn")
+      .addEventListener("click", closePrintOptionsModal);
+    document
+      .getElementById("confirmPrintOptionsBtn")
+      .addEventListener("click", executePrintOptions);
 
-    document.querySelectorAll('input[name="printFilter"]').forEach(radio => {
-      radio.addEventListener('change', () => showPrintPanel(radio.value));
+    document.querySelectorAll('input[name="printFilter"]').forEach((radio) => {
+      radio.addEventListener("change", () => showPrintPanel(radio.value));
     });
 
     // Close print options modal on backdrop click
-    document.getElementById('printOptionsModal').addEventListener('click', (e) => {
-      if (e.target === document.getElementById('printOptionsModal')) closePrintOptionsModal();
-    });
+    document
+      .getElementById("printOptionsModal")
+      .addEventListener("click", (e) => {
+        if (e.target === document.getElementById("printOptionsModal"))
+          closePrintOptionsModal();
+      });
 
     // Employee search dropdowns
-    docNameInput.addEventListener('focus', () => docNameDropdown.classList.remove('hidden'));
-    docNameInput.addEventListener('input', function () {
+    docNameInput.addEventListener("focus", () =>
+      docNameDropdown.classList.remove("hidden"),
+    );
+    docNameInput.addEventListener("input", function () {
       filterDropdown(this.value, docNameDropdownItems);
-      docNameDropdown.classList.remove('hidden');
+      docNameDropdown.classList.remove("hidden");
     });
 
-    newNameInput.addEventListener('focus', () => newNameDropdown.classList.remove('hidden'));
-    newNameInput.addEventListener('input', function () {
+    newNameInput.addEventListener("focus", () =>
+      newNameDropdown.classList.remove("hidden"),
+    );
+    newNameInput.addEventListener("input", function () {
       filterDropdown(this.value, newNameDropdownItems);
-      newNameDropdown.classList.remove('hidden');
+      newNameDropdown.classList.remove("hidden");
     });
 
-    document.addEventListener('click', function (e) {
-      if (!docNameInput.contains(e.target) && !docNameDropdown.contains(e.target)) {
-        docNameDropdown.classList.add('hidden');
+    document.addEventListener("click", function (e) {
+      if (
+        !docNameInput.contains(e.target) &&
+        !docNameDropdown.contains(e.target)
+      ) {
+        docNameDropdown.classList.add("hidden");
       }
-      if (!newNameInput.contains(e.target) && !newNameDropdown.contains(e.target)) {
-        newNameDropdown.classList.add('hidden');
+      if (
+        !newNameInput.contains(e.target) &&
+        !newNameDropdown.contains(e.target)
+      ) {
+        newNameDropdown.classList.add("hidden");
       }
     });
 
@@ -1722,10 +2224,9 @@
     fetchDocumentation();
     fetchEmployees();
 
-    document.querySelectorAll('[id^="quickNav-"]').forEach(btn => {
-      const menuKey = btn.id.replace('quickNav-', '');
+    document.querySelectorAll('[id^="quickNav-"]').forEach((btn) => {
+      const menuKey = btn.id.replace("quickNav-", "");
       window.checkMenuAccess(menuKey, btn);
     });
-
   })();
 </script>

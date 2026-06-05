@@ -193,7 +193,7 @@ class OldPersonnelReportController extends BaseReportController {
       const fullSubtitle = `${filterDescription}\n${statsInfo}`;
 
       const workbook = await exporter.createWorkbook({
-        title: "NIGERIAN NAVY - PERSONNEL REPORT (EXITED MEMBERS)",
+        title: "DSA - PERSONNEL REPORT (EXITED MEMBERS)",
         subtitle: fullSubtitle,
         className: className,
         columns: columns,
