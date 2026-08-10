@@ -184,6 +184,7 @@ function getParentKey(childKey) {
     //'payment-statistics': 'reports',
     "personnel-reports": "reports",
     "listof-exited-members": "reports",
+    "enquiry": "reports",
 
     // Audit Trail menu items
     "salary-variance-analysis": "audit-trail",

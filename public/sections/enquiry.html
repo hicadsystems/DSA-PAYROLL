@@ -65,18 +65,6 @@
     <div class="flex flex-wrap gap-2">
       <button
         onclick="
-          window.navigation.navigateToSection(
-            'add-personnel',
-            'Add New Personnel',
-          )
-        "
-        class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-      >
-        Add New Personnel
-      </button>
-
-      <button
-        onclick="
           window.navigation.navigateToSection('old-personnel', 'Old Personnel')
         "
         class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
@@ -1407,11 +1395,7 @@
         </td>
         <td class="border border-gray-300 px-4 py-2 text-center">
           <button onclick="personnelManager.viewEmployee('${person.Empl_ID}')"
-                  class="px-2 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700 mr-1">View</button>
-          <button onclick="personnelManager.editEmployee('${person.Empl_ID}')"
-                  class="px-2 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700 mr-1">Edit</button>
-          <button onclick="personnelManager.deleteEmployee('${person.Empl_ID}')"
-                  class="px-2 py-1 bg-red-600 text-white rounded text-xs hover:bg-red-700">Delete</button>
+                  class="px-2 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700">View</button>
         </td>
       </tr>
     `,

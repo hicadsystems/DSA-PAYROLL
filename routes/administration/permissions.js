@@ -260,7 +260,8 @@ INSERT INTO menu_items (menu_key, menu_name, parent_id, menu_order, menu_type) V
 ('control-sheet', 'Control Sheet/Journal', @reports_id, 12, 'item'),
 ('salary-reconciliation', 'Salary Reconciliation', @reports_id, 13, 'item'),
 ('salary-history', 'Salary History', @reports_id, 14, 'item'),
-('personnel-reports', 'Personnel Reports', @reports_id, 15, 'item');
+('personnel-reports', 'Personnel Reports', @reports_id, 15, 'item'),
+('enquiry', 'Enquiry', @reports_id, 16, 'item');
 
 -- Audit Trail submenu
 INSERT INTO menu_items (menu_key, menu_name, parent_id, menu_order, menu_type) VALUES

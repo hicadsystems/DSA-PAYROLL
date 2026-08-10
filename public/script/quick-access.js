@@ -448,6 +448,12 @@ class QuickAccessManager {
         section: "listof-exited-members",
         title: "List of Exited Members",
       },
+      enquiry: {
+        id: "enquiry",
+        label: "Enquiry",
+        section: "enquiry",
+        title: "Enquiry",
+      },
 
       // Audit trail
       "salary-variance-analysis": {
