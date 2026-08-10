@@ -65,6 +65,7 @@ const payperrankRoutes = require("./refrence-tables/payperrank");
 const mutuallyexclusiveRoutes = require("./refrence-tables/mutuallyexclusive");
 const salaryscaleRoutes = require("./refrence-tables/salaryscale");
 const pfaRoutes = require("./refrence-tables/pfa");
+const titleRoutes = require("./refrence-tables/title");
 const dropdownhelperRoutes = require("./refrence-tables/dropdownhelper");
 
 //Reports
@@ -215,6 +216,7 @@ module.exports = (app) => {
   app.use("/rank", payperrankRoutes);
   app.use("/mutually", mutuallyexclusiveRoutes);
   app.use("/pfa", pfaRoutes);
+  app.use("/title", titleRoutes);
   app.use("/reference", dropdownhelperRoutes);
 
   //reports

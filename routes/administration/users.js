@@ -9,6 +9,17 @@ const jwt = require("jsonwebtoken");
 const JWT_SECRET = process.env.JWT_SECRET;
 const verifyToken = require("../../middware/authentication");
 
+// GET /api/users/employee/:id for fullname autofill on user creation (payroll only)
+router.get("/employee/:id", verifyToken, async (req, res) => {
+  const [rows] = await pool.query(
+    "SELECT Empl_ID, Title, Surname, OtherName, email, gsm_number FROM hr_employees WHERE Empl_ID = ? LIMIT 1",
+    [req.params.id],
+  );
+  if (!rows.length)
+    return res.status(404).json({ error: "Employee not found" });
+  res.json({ employee: rows[0] });
+});
+
 // User login - searches across all databases
 router.post("/login", async (req, res) => {
   const { user_id, password, payroll_class } = req.body;
@@ -312,6 +323,13 @@ router.post("/", verifyToken, async (req, res) => {
       return res.status(400).json({
         error:
           "User ID, Payroll Class, full name, email, and role are required",
+      });
+    }
+
+    // Password validation — the column is NOT NULL, so guard before the INSERT
+    if (!password || String(password).trim().length < 6) {
+      return res.status(400).json({
+        error: "Password is required and must be at least 6 characters",
       });
     }
 

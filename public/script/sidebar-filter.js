@@ -155,6 +155,7 @@ function getParentKey(childKey) {
     "department": "reference-tables",
     "state-codes": "reference-tables",
     "local-government": "reference-tables",
+    "title": "reference-tables",
 
     // Utilities menu items
     "emolument-form-processing": "utilities",

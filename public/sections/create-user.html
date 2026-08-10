@@ -54,116 +54,230 @@
   }
 </style>
 
-<div class="p-6 ">
+<div class="p-6">
   <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
     <h3 class="text-lg font-semibold text-gray-900">Create New Payroll User</h3>
 
-    <button id="quickNav-control-user" type="button"
-      onclick="window.navigation.navigateToSection('control-user', 'Control Payroll Users')"
-      class="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500">
+    <button
+      id="quickNav-control-user"
+      type="button"
+      onclick="
+        window.navigation.navigateToSection(
+          'control-user',
+          'Control Payroll Users',
+        )
+      "
+      class="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+    >
       View All Users
     </button>
   </div>
 
   <form id="create-user-form" class="space-y-3">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">User ID *</label>
-        <input type="text" id="employeeID" name="employeeId" required
-          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        <label class="block text-sm font-medium text-gray-700 mb-2"
+          >User ID *</label
+        >
+        <input
+          type="text"
+          id="employeeID"
+          name="employeeId"
+          required
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        />
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">Full Name *</label>
-        <input type="text" name="fullName" required cuursor="not-allowed" disabled
-          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        <label class="block text-sm font-medium text-gray-700 mb-2"
+          >Full Name *</label
+        >
+        <input
+          type="text"
+          name="fullName"
+          required
+          cuursor="not-allowed"
+          disabled
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        />
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">Payroll Class *</label>
-        <select id="payroll-class" name="payroll_class" required
-          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        <label class="block text-sm font-medium text-gray-700 mb-2"
+          >Payroll Class *</label
+        >
+        <select
+          id="payroll-class"
+          name="payroll_class"
+          required
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        >
           <option value="" selected>Select Payroll Class</option>
         </select>
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">User Role *</label>
-        <select name="role" id="role" required
-          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        <label class="block text-sm font-medium text-gray-700 mb-2"
+          >User Role *</label
+        >
+        <select
+          name="role"
+          id="role"
+          required
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        >
           <option value="" selected>Select Role...</option>
         </select>
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">Email Address *</label>
-        <input type="email" name="email" required
-          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        <label class="block text-sm font-medium text-gray-700 mb-2"
+          >Email Address *</label
+        >
+        <input
+          type="email"
+          name="email"
+          required
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        />
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
-        <input type="tel" name="phone"
-          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        <label class="block text-sm font-medium text-gray-700 mb-2"
+          >Phone Number</label
+        >
+        <input
+          type="tel"
+          name="phone"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        />
       </div>
 
-      <div style="display: none;">
-        <div class="hidden relative">
-          <label class="block text-sm font-medium text-gray-700 mb-2">Password *</label>
-          <input type="password" id="password"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-10">
+      <div class="relative">
+          <label class="block text-sm font-medium text-gray-700 mb-2"
+            >Password *</label
+          >
+          <input
+            type="password"
+            id="password"
+            name="password"
+            required
+            minlength="6"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-10"
+          />
 
           <!-- Eye Toggle Button -->
-          <span class="toggle-password" data-target="password"
-            style="position: absolute; top: 36px; right: 10px; cursor: pointer;">
+          <span
+            class="toggle-password"
+            data-target="password"
+            style="position: absolute; top: 36px; right: 10px; cursor: pointer"
+          >
             <!-- Eye Open SVG -->
-            <svg class="eye-open" xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 0 24 24" fill="none"
-              stroke="gray" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg
+              class="eye-open"
+              xmlns="http://www.w3.org/2000/svg"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="gray"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
               <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
               <circle cx="12" cy="12" r="3" />
             </svg>
 
             <!-- Eye Closed SVG -->
-            <svg class="eye-closed" xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 0 24 24" fill="none"
-              stroke="gray" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
-              <path d="M17.94 17.94A10.94 10.94 0 0112 20c-7 0-11-8-11-8a21.7 21.7 0 014.6-5.94M1 1l22 22" />
+            <svg
+              class="eye-closed"
+              xmlns="http://www.w3.org/2000/svg"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="gray"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              style="display: none"
+            >
+              <path
+                d="M17.94 17.94A10.94 10.94 0 0112 20c-7 0-11-8-11-8a21.7 21.7 0 014.6-5.94M1 1l22 22"
+              />
               <path d="M9.5 9.5a3 3 0 004 4" />
             </svg>
           </span>
-          <small class="text-gray-500 text-xs">Minimum 6 characters</small>
-        </div>
+          <small class="block mt-1 text-gray-500 text-xs"
+            >Minimum 6 characters</small
+          >
+      </div>
 
-        <div class="hidden relative">
-          <label class="block text-sm font-medium text-gray-700 mb-2">Confirm Password *</label>
-          <input type="password" id="confirmPassword"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-10">
+      <div class="relative">
+          <label class="block text-sm font-medium text-gray-700 mb-2"
+            >Confirm Password *</label
+          >
+          <input
+            type="password"
+            id="confirmPassword"
+            name="confirmPassword"
+            required
+            minlength="6"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-10"
+          />
 
           <!-- Eye Toggle Button -->
-          <span class="toggle-password" data-target="confirmPassword"
-            style="position: absolute; top: 36px; right: 10px; cursor: pointer;">
+          <span
+            class="toggle-password"
+            data-target="confirmPassword"
+            style="position: absolute; top: 36px; right: 10px; cursor: pointer"
+          >
             <!-- Eye Open SVG -->
-            <svg class="eye-open" xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 0 24 24" fill="none"
-              stroke="gray" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg
+              class="eye-open"
+              xmlns="http://www.w3.org/2000/svg"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="gray"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
               <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
               <circle cx="12" cy="12" r="3" />
             </svg>
 
             <!-- Eye Closed SVG -->
-            <svg class="eye-closed" xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 0 24 24" fill="none"
-              stroke="gray" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
-              <path d="M17.94 17.94A10.94 10.94 0 0112 20c-7 0-11-8-11-8a21.7 21.7 0 014.6-5.94M1 1l22 22" />
+            <svg
+              class="eye-closed"
+              xmlns="http://www.w3.org/2000/svg"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="gray"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              style="display: none"
+            >
+              <path
+                d="M17.94 17.94A10.94 10.94 0 0112 20c-7 0-11-8-11-8a21.7 21.7 0 014.6-5.94M1 1l22 22"
+              />
               <path d="M9.5 9.5a3 3 0 004 4" />
             </svg>
           </span>
-          <small id="password-match-message" class="text-xs"></small>
-        </div>
+          <small id="password-match-message" class="block mt-1 text-xs"></small>
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">Status *</label>
-        <select name="status" required
-          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        <label class="block text-sm font-medium text-gray-700 mb-2"
+          >Status *</label
+        >
+        <select
+          name="status"
+          required
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        >
           <option value="">Select Status...</option>
           <option value="active" selected>Active</option>
           <option value="inactive">Inactive</option>
@@ -172,19 +286,29 @@
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">Expiry Date</label>
-        <input type="date" name="expiryDate"
-          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        <label class="block text-sm font-medium text-gray-700 mb-2"
+          >Expiry Date</label
+        >
+        <input
+          type="date"
+          name="expiryDate"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        />
       </div>
     </div>
 
     <div class="flex flex-wrap justify-end gap-4 pt-6">
-      <button type="submit" id="submit-btn"
-        class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed">
+      <button
+        type="submit"
+        id="submit-btn"
+        class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed"
+      >
         Create User
       </button>
-      <button type="reset"
-        class="px-6 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500">
+      <button
+        type="reset"
+        class="px-6 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500"
+      >
         Reset Form
       </button>
     </div>
@@ -192,21 +316,31 @@
 </div>
 
 <!-- Success Popup -->
-<div id="successPopup" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 hidden z-50">
+<div
+  id="successPopup"
+  class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 hidden z-50"
+>
   <div class="bg-white p-6 rounded shadow flex items-center space-x-3">
     <div id="successSpinner" class="relative w-10 h-10 mx-auto mb-4">
-      <div class="absolute left-1 w-[6px] bg-blue-600 rounded animate-grow-up"></div>
-      <div class="absolute right-1 w-[6px] bg-blue-600 rounded animate-grow-down [animation-delay:0.3s]"></div>
       <div
-        class="absolute top-1/2 left-1 h-[6px] bg-blue-600 rounded animate-expand [animation-delay:0.6s] -translate-y-1/2">
-      </div>
+        class="absolute left-1 w-[6px] bg-blue-600 rounded animate-grow-up"
+      ></div>
+      <div
+        class="absolute right-1 w-[6px] bg-blue-600 rounded animate-grow-down [animation-delay:0.3s]"
+      ></div>
+      <div
+        class="absolute top-1/2 left-1 h-[6px] bg-blue-600 rounded animate-expand [animation-delay:0.6s] -translate-y-1/2"
+      ></div>
     </div>
     <span id="successMessage" class="text-gray-700">Processing...</span>
   </div>
 </div>
 
 <!-- Alert Modal -->
-<div id="alertModal" class="fixed inset-0 hidden flex items-center justify-center z-50">
+<div
+  id="alertModal"
+  class="fixed inset-0 hidden flex items-center justify-center z-50"
+>
   <div class="absolute inset-0 bg-black bg-opacity-50"></div>
   <div class="relative bg-white rounded-lg shadow-lg w-11/12 max-w-md p-6 z-10">
     <div class="flex items-start mb-4">
@@ -217,9 +351,18 @@
       </div>
     </div>
     <div class="flex justify-end gap-3 mt-6">
-      <button id="alert-cancel-btn"
-        class="hidden px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">Cancel</button>
-      <button id="alert-ok-btn" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">OK</button>
+      <button
+        id="alert-cancel-btn"
+        class="hidden px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+      >
+        Cancel
+      </button>
+      <button
+        id="alert-ok-btn"
+        class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+      >
+        OK
+      </button>
     </div>
   </div>
 </div>
@@ -238,24 +381,24 @@
     resolve: null,
 
     init() {
-      this.modal = document.getElementById('alertModal');
-      this.title = document.getElementById('alert-title');
-      this.message = document.getElementById('alert-message');
-      this.icon = document.getElementById('alert-icon');
-      this.okBtn = document.getElementById('alert-ok-btn');
-      this.cancelBtn = document.getElementById('alert-cancel-btn');
+      this.modal = document.getElementById("alertModal");
+      this.title = document.getElementById("alert-title");
+      this.message = document.getElementById("alert-message");
+      this.icon = document.getElementById("alert-icon");
+      this.okBtn = document.getElementById("alert-ok-btn");
+      this.cancelBtn = document.getElementById("alert-cancel-btn");
 
-      this.okBtn?.addEventListener('click', () => this.close(true));
-      this.cancelBtn?.addEventListener('click', () => this.close(false));
+      this.okBtn?.addEventListener("click", () => this.close(true));
+      this.cancelBtn?.addEventListener("click", () => this.close(false));
     },
 
     show(options = {}) {
       return new Promise((resolve) => {
         this.resolve = resolve;
 
-        const type = options.type || 'info'; // 'info', 'error', 'warning', 'success', 'confirm'
+        const type = options.type || "info"; // 'info', 'error', 'warning', 'success', 'confirm'
         const title = options.title || this.getDefaultTitle(type);
-        const message = options.message || '';
+        const message = options.message || "";
         const showCancel = options.showCancel || false;
 
         this.title.textContent = title;
@@ -263,21 +406,21 @@
         this.icon.innerHTML = this.getIcon(type);
 
         if (showCancel) {
-          this.cancelBtn.classList.remove('hidden');
-          this.okBtn.textContent = options.okText || 'Yes';
+          this.cancelBtn.classList.remove("hidden");
+          this.okBtn.textContent = options.okText || "Yes";
         } else {
-          this.cancelBtn.classList.add('hidden');
-          this.okBtn.textContent = options.okText || 'OK';
+          this.cancelBtn.classList.add("hidden");
+          this.okBtn.textContent = options.okText || "OK";
         }
 
-        this.modal.classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
+        this.modal.classList.remove("hidden");
+        document.body.style.overflow = "hidden";
       });
     },
 
     close(result) {
-      this.modal.classList.add('hidden');
-      document.body.style.overflow = '';
+      this.modal.classList.add("hidden");
+      document.body.style.overflow = "";
       if (this.resolve) {
         this.resolve(result);
         this.resolve = null;
@@ -286,80 +429,90 @@
 
     getDefaultTitle(type) {
       const titles = {
-        info: 'Information',
-        error: 'Error',
-        warning: 'Warning',
-        success: 'Success',
-        confirm: 'Confirm Action'
+        info: "Information",
+        error: "Error",
+        warning: "Warning",
+        success: "Success",
+        confirm: "Confirm Action",
       };
-      return titles[type] || 'Alert';
+      return titles[type] || "Alert";
     },
 
     getIcon(type) {
       const icons = {
         info: '<svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>',
-        error: '<svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>',
-        warning: '<svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>',
-        success: '<svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>',
-        confirm: '<svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>'
+        error:
+          '<svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>',
+        warning:
+          '<svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>',
+        success:
+          '<svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>',
+        confirm:
+          '<svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>',
       };
       return icons[type] || icons.info;
-    }
+    },
   };
 
   // Initialize alert modal
   AlertModal.init();
 
   function showSuccess(message) {
-    const popup = document.getElementById('successPopup');
-    const spinner = document.getElementById('successSpinner');
-    const text = document.getElementById('successMessage');
+    const popup = document.getElementById("successPopup");
+    const spinner = document.getElementById("successSpinner");
+    const text = document.getElementById("successMessage");
 
     if (!popup || !text) return;
 
     // Step 1: Show processing first
-    text.textContent = 'Processing...';
-    spinner?.classList.remove('hidden');
-    popup.classList.remove('hidden');
+    text.textContent = "Processing...";
+    spinner?.classList.remove("hidden");
+    popup.classList.remove("hidden");
 
     // Step 2: Show success message
     setTimeout(() => {
-      spinner?.classList.add('hidden');
-      text.innerHTML = `<span class="text-green-600 font-semibold">✔ ${message || 'User Created Successfully!'}</span>`;
+      spinner?.classList.add("hidden");
+      text.innerHTML = `<span class="text-green-600 font-semibold">✔ ${message || "User Created Successfully!"}</span>`;
     }, 2000);
 
     // Step 3: Close popup and navigate
     setTimeout(() => {
-      popup.classList.add('hidden');
-      spinner?.classList.remove('hidden');
-      text.textContent = 'Processing...';
+      popup.classList.add("hidden");
+      spinner?.classList.remove("hidden");
+      text.textContent = "Processing...";
 
-      if (window.navigation && typeof window.navigation.navigateToSection === 'function') {
-        window.navigation.navigateToSection('control-user', 'Control Payroll Users');
+      if (
+        window.navigation &&
+        typeof window.navigation.navigateToSection === "function"
+      ) {
+        window.navigation.navigateToSection(
+          "control-user",
+          "Control Payroll Users",
+        );
       }
     }, 4000);
   }
 
   // Real-time password matching validation
   function validatePasswordMatch() {
-    const password = document.getElementById('password').value;
-    const confirmPassword = document.getElementById('confirmPassword').value;
-    const message = document.getElementById('password-match-message');
-    const submitBtn = document.getElementById('submit-btn');
+    const password = document.getElementById("password").value;
+    const confirmPassword = document.getElementById("confirmPassword").value;
+    const message = document.getElementById("password-match-message");
+    const submitBtn = document.getElementById("submit-btn");
 
-    if (confirmPassword === '') {
-      message.textContent = '';
-      message.className = 'text-xs';
+    if (confirmPassword === "") {
+      message.textContent = "";
+      message.className = "text-xs";
       return true;
     }
 
     if (password === confirmPassword) {
-      message.textContent = '✓ Passwords match';
-      message.className = 'text-xs text-green-600';
+      message.textContent = "✓ Passwords match";
+      message.className = "text-xs text-green-600";
       return true;
     } else {
-      message.textContent = '✗ Passwords do not match';
-      message.className = 'text-xs text-red-600';
+      message.textContent = "✗ Passwords do not match";
+      message.className = "text-xs text-red-600";
       return false;
     }
   }
@@ -367,7 +520,7 @@
   // Password validation
   function validatePassword(password) {
     if (password.length < 6) {
-      return 'Password must be at least 6 characters long';
+      return "Password must be at least 6 characters long";
     }
     return null;
   }
@@ -375,25 +528,29 @@
   // Set minimum date for expiry date (today)
   const expiryDateInput = document.querySelector('input[name="expiryDate"]');
   if (expiryDateInput) {
-    const today = new Date().toISOString().split('T')[0];
-    expiryDateInput.setAttribute('min', today);
+    const today = new Date().toISOString().split("T")[0];
+    expiryDateInput.setAttribute("min", today);
   }
 
   // Add event listeners for password validation
-  document.getElementById('password').addEventListener('input', validatePasswordMatch);
-  document.getElementById('confirmPassword').addEventListener('input', validatePasswordMatch);
+  document
+    .getElementById("password")
+    .addEventListener("input", validatePasswordMatch);
+  document
+    .getElementById("confirmPassword")
+    .addEventListener("input", validatePasswordMatch);
 
   //roles dropdown
   async function fetchRoles() {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
 
       const res = await auth.fetchWithAuth("/roles", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       if (!res.ok) {
@@ -420,31 +577,31 @@
       select.appendChild(defaultOption);
 
       // Add role options
-      roles.forEach(r => {
+      roles.forEach((r) => {
         const opt = document.createElement("option");
         opt.value = r.name || r.id; // Use name if available, fallback to id
         opt.textContent = r.name || r.display_name || r.id;
         select.appendChild(opt);
       });
 
-      console.log('✅ Roles loaded successfully');
+      console.log("✅ Roles loaded successfully");
     } catch (err) {
       console.error("❌ Failed to fetch roles:", err);
-      alert('Failed to load user roles. Please refresh the page.');
+      alert("Failed to load user roles. Please refresh the page.");
     }
   }
 
   //payrollclass dropdown
   async function loadPayrollClasses() {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
 
       const res = await auth.fetchWithAuth("/db_classes", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       if (!res.ok) {
@@ -471,22 +628,22 @@
       select.appendChild(defaultOption);
 
       // Populate with DB data
-      classes.forEach(cls => {
+      classes.forEach((cls) => {
         const opt = document.createElement("option");
-        opt.value = cls.classname;            // backend value
+        opt.value = cls.classname; // backend value
         opt.textContent = cls.classname; // human-readable label
         select.appendChild(opt);
       });
 
-      console.log('✅ Payroll classes loaded successfully');
+      console.log("✅ Payroll classes loaded successfully");
     } catch (err) {
       console.error("❌ Failed to load payroll classes:", err);
-      alert('Failed to load payroll classes. Please refresh the page.');
+      alert("Failed to load payroll classes. Please refresh the page.");
     }
   }
 
   // Load dropdowns on page load
-  if (document.readyState === 'loading') {
+  if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", () => {
       fetchRoles();
       loadPayrollClasses();
@@ -504,16 +661,16 @@
 
   let lookupTimer = null;
 
-  employeeIdInput.addEventListener('input', function () {
+  employeeIdInput.addEventListener("input", function () {
     const val = this.value.trim();
 
     // Reset all auto-filled fields
-    fullNameInput.value = '';
+    fullNameInput.value = "";
     fullNameInput.disabled = false;
-    fullNameInput.style.background = '';
-    fullNameInput.style.cursor = '';
-    emailInput.value = '';
-    phoneInput.value = '';
+    fullNameInput.style.background = "";
+    fullNameInput.style.cursor = "";
+    emailInput.value = "";
+    phoneInput.value = "";
 
     clearTimeout(lookupTimer);
     if (!val) return;
@@ -522,27 +679,27 @@
   });
 
   async function lookupEmployee(userId) {
-    fullNameInput.value = '';
+    fullNameInput.value = "";
     fullNameInput.disabled = true;
-    fullNameInput.placeholder = 'Looking up...';
-    fullNameInput.style.background = '#f3f4f6';
-    fullNameInput.style.cursor = 'not-allowed';
+    fullNameInput.placeholder = "Looking up...";
+    fullNameInput.style.background = "#f3f4f6";
+    fullNameInput.style.cursor = "not-allowed";
 
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       const encodedId = encodeURIComponent(userId.trim());
 
       const res = await auth.fetchWithAuth(`/api/users/employee/${encodedId}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       if (!res.ok) {
         fullNameInput.disabled = false;
-        fullNameInput.placeholder = 'Employee not found';
+        fullNameInput.placeholder = "Employee not found";
         // fullNameInput.style.background = '';
         // fullNameInput.style.cursor = '';
-        emailInput.value = '';
-        phoneInput.value = '';
+        emailInput.value = "";
+        phoneInput.value = "";
         return;
       }
 
@@ -551,147 +708,207 @@
 
       // Full name
       const formatted = [
-        emp.Title ? emp.Title.trim() + '.' : null,
+        emp.Title ? emp.Title.trim() + "." : null,
         emp.Surname ? emp.Surname.trim() : null,
-        emp.OtherName ? emp.OtherName.trim().charAt(0) + '.' : null
-      ].filter(Boolean).join(' ');
+        emp.OtherName ? emp.OtherName.trim().charAt(0) + "." : null,
+      ]
+        .filter(Boolean)
+        .join(" ");
 
       fullNameInput.value = formatted;
       fullNameInput.disabled = true;
-      fullNameInput.placeholder = '';
+      fullNameInput.placeholder = "";
 
       // Email — auto-fill but leave editable
-      emailInput.value = emp.email ? emp.email.trim() : '';
+      emailInput.value = emp.email ? emp.email.trim() : "";
 
       // Phone — auto-fill but leave editable
-      phoneInput.value = emp.gsm_number ? emp.gsm_number.trim() : '';
-
+      phoneInput.value = emp.gsm_number ? emp.gsm_number.trim() : "";
     } catch (err) {
-      console.error('Employee lookup failed:', err);
+      console.error("Employee lookup failed:", err);
       fullNameInput.disabled = false;
-      fullNameInput.placeholder = 'Lookup failed — enter manually';
-      fullNameInput.style.background = '';
-      fullNameInput.style.cursor = '';
+      fullNameInput.placeholder = "Lookup failed — enter manually";
+      fullNameInput.style.background = "";
+      fullNameInput.style.cursor = "";
     }
   }
 
   // ── Form submit ───────────────────────────────────────────
-  document.getElementById('create-user-form').addEventListener('submit', async function (e) {
-    e.preventDefault();
+  document
+    .getElementById("create-user-form")
+    .addEventListener("submit", async function (e) {
+      e.preventDefault();
 
-    const formData = new FormData(this);
-    const userData = Object.fromEntries(formData.entries());
+      const formData = new FormData(this);
+      const userData = Object.fromEntries(formData.entries());
 
-    if (userData.employeeId) {
-      userData.user_id = userData.employeeId.trim();
-      delete userData.employeeId;
-    }
+      if (userData.employeeId) {
+        userData.user_id = userData.employeeId.trim();
+        delete userData.employeeId;
+      }
 
-    // Read directly since fullName may be disabled
-    userData.fullName = fullNameInput.value.trim();
+      // Read directly since fullName may be disabled
+      userData.fullName = fullNameInput.value.trim();
 
-    // Trim all string fields
-    Object.keys(userData).forEach(k => {
-      if (typeof userData[k] === 'string') userData[k] = userData[k].trim();
-    });
+      // Trim all string fields
+      Object.keys(userData).forEach((k) => {
+        if (typeof userData[k] === "string") userData[k] = userData[k].trim();
+      });
 
-    delete userData.password;
-    delete userData.confirmPassword;
+      // Password is sent to the server; the confirmation field is client-side only
+      const confirmPassword = userData.confirmPassword || "";
+      delete userData.confirmPassword;
 
-    if (!userData.status) userData.status = 'active';
-    if (!userData.expiryDate) delete userData.expiryDate;
-
-    // Basic guard — full name must be resolved
-    if (!userData.fullName) {
-      await AlertModal.show({ type: 'error', title: 'Missing Name', message: 'Please enter a valid Employee ID to auto-fill the full name.' });
-      return;
-    }
-
-    const submitBtn = document.getElementById('submit-btn');
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Creating...';
-
-    let result = {};
-
-    try {
-      const token = localStorage.getItem('token');
-
-      if (!token) {
-        await AlertModal.show({ type: 'error', title: 'Authentication Required', message: 'Session expired. Please log in again.' });
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Create User';
+      if (!userData.password) {
+        await AlertModal.show({
+          type: "error",
+          title: "Missing Password",
+          message: "Please enter a password for this user.",
+        });
         return;
       }
 
-      const response = await auth.fetchWithAuth('/api/users', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify(userData)
-      });
-
-      result = await response.json();
-
-      if (response.ok) {
-        showSuccess('User Created! ID: ' + result.user_id);
-        this.reset();
-        fullNameInput.value = '';
-        fullNameInput.disabled = false;
-        fullNameInput.style.background = '';
-        fullNameInput.style.cursor = '';
-        emailInput.value = '';
-        phoneInput.value = '';
-
-        if (window.personnelManager) {
-          const mgr = window.personnelManager;
-          await (mgr.load ?? mgr.loadPersonnelData ?? mgr.refresh ?? (() => { }))();
-        }
-      } else {
-        await AlertModal.show({ type: 'error', title: 'User Creation Failed', message: result.error || result.message || 'An unknown error occurred.' });
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Create User';
+      if (userData.password.length < 6) {
+        await AlertModal.show({
+          type: "error",
+          title: "Password Too Short",
+          message: "Password must be at least 6 characters.",
+        });
+        return;
       }
-    } catch (err) {
-      console.error('Fetch error:', err);
-      await AlertModal.show({ type: 'error', title: 'User Creation Failed', message: result.error || result.message || 'An unknown error occurred.' });
-      submitBtn.disabled = false;
-      submitBtn.textContent = 'Create User';
-    }
-  });
+
+      if (userData.password !== confirmPassword) {
+        await AlertModal.show({
+          type: "error",
+          title: "Passwords Do Not Match",
+          message: "Password and Confirm Password must be identical.",
+        });
+        return;
+      }
+
+      if (!userData.status) userData.status = "active";
+      if (!userData.expiryDate) delete userData.expiryDate;
+
+      // Basic guard — full name must be resolved
+      if (!userData.fullName) {
+        await AlertModal.show({
+          type: "error",
+          title: "Missing Name",
+          message:
+            "Please enter a valid Employee ID to auto-fill the full name.",
+        });
+        return;
+      }
+
+      const submitBtn = document.getElementById("submit-btn");
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Creating...";
+
+      let result = {};
+
+      try {
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+          await AlertModal.show({
+            type: "error",
+            title: "Authentication Required",
+            message: "Session expired. Please log in again.",
+          });
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Create User";
+          return;
+        }
+
+        const response = await auth.fetchWithAuth("/api/users", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(userData),
+        });
+
+        result = await response.json();
+
+        if (response.ok) {
+          showSuccess("User Created! ID: " + result.user_id);
+          this.reset();
+          fullNameInput.value = "";
+          fullNameInput.disabled = false;
+          fullNameInput.style.background = "";
+          fullNameInput.style.cursor = "";
+          emailInput.value = "";
+          phoneInput.value = "";
+
+          if (window.personnelManager) {
+            const mgr = window.personnelManager;
+            await (
+              mgr.load ??
+              mgr.loadPersonnelData ??
+              mgr.refresh ??
+              (() => {})
+            )();
+          }
+        } else {
+          await AlertModal.show({
+            type: "error",
+            title: "User Creation Failed",
+            message:
+              result.error || result.message || "An unknown error occurred.",
+          });
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Create User";
+        }
+      } catch (err) {
+        console.error("Fetch error:", err);
+        await AlertModal.show({
+          type: "error",
+          title: "User Creation Failed",
+          message:
+            result.error || result.message || "An unknown error occurred.",
+        });
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Create User";
+      }
+    });
 
   // Password visibility toggle with unique class-based approach
-  document.querySelectorAll('.toggle-password').forEach(toggle => {
-    toggle.addEventListener('click', function () {
-      const targetId = this.getAttribute('data-target');
+  document.querySelectorAll(".toggle-password").forEach((toggle) => {
+    toggle.addEventListener("click", function () {
+      const targetId = this.getAttribute("data-target");
       const input = document.getElementById(targetId);
 
       if (!input) return;
 
-      const isPassword = input.type === 'password';
-      input.type = isPassword ? 'text' : 'password';
+      const isPassword = input.type === "password";
+      input.type = isPassword ? "text" : "password";
 
-      const eyeOpen = this.querySelector('.eye-open');
-      const eyeClosed = this.querySelector('.eye-closed');
+      const eyeOpen = this.querySelector(".eye-open");
+      const eyeClosed = this.querySelector(".eye-closed");
 
       if (eyeOpen && eyeClosed) {
-        eyeOpen.style.display = isPassword ? 'none' : 'inline';
-        eyeClosed.style.display = isPassword ? 'inline' : 'none';
+        eyeOpen.style.display = isPassword ? "none" : "inline";
+        eyeClosed.style.display = isPassword ? "inline" : "none";
       }
     });
   });
 
   // Form reset handler to clear validation messages
-  document.querySelector('button[type="reset"]').addEventListener('click', function () {
-    const message = document.getElementById('password-match-message');
-    if (message) {
-      message.textContent = '';
-    }
-    const submitBtn = document.getElementById('submit-btn');
-    submitBtn.disabled = false;
-    submitBtn.textContent = 'Create User';
-  });
+  document
+    .querySelector('button[type="reset"]')
+    .addEventListener("click", function () {
+      const message = document.getElementById("password-match-message");
+      if (message) {
+        message.textContent = "";
+      }
+      const submitBtn = document.getElementById("submit-btn");
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Create User";
+    });
 
   //capitalize all
-  ["employeeID"].forEach(id => {
+  ["employeeID"].forEach((id) => {
     const el = document.getElementById(id);
     el.addEventListener("input", () => {
       el.value = el.value.toUpperCase();
@@ -708,8 +925,8 @@
       return;
     }
 
-    document.querySelectorAll('[id^="quickNav-"]').forEach(btn => {
-      const menuKey = btn.id.replace('quickNav-', '');
+    document.querySelectorAll('[id^="quickNav-"]').forEach((btn) => {
+      const menuKey = btn.id.replace("quickNav-", "");
       window.checkMenuAccess(menuKey, btn);
     });
   }

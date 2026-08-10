@@ -1,0 +1,891 @@
+<div class="p-6">
+  <!-- Title Section Header -->
+  <div class="flex flex-wrap gap-2 justify-between mb-6">
+    <h3 class="text-xl font-semibold text-gray-800">Title Management</h3>
+    <div class="flex flex-wrap gap-2">
+      <input
+        type="text"
+        id="searchTitle"
+        placeholder="Title code or description"
+        class="border rounded px-3 py-2"
+      />
+      <button
+        id="addNewTitleBtn"
+        class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+      >
+        + Add New Title
+      </button>
+      <button
+        id="generateReportBtn"
+        class="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700"
+      >
+        <i class="fas fa-file-alt mr-2"></i>Generate Report
+      </button>
+    </div>
+  </div>
+
+  <!-- Add/Edit Form -->
+  <form
+    id="titleForm"
+    class="hidden grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded mb-6"
+  >
+    <div>
+      <label for="Titlecode" class="block text-sm font-medium text-gray-700"
+        >Title Code *</label
+      >
+      <input
+        type="text"
+        id="Titlecode"
+        name="Titlecode"
+        required
+        maxlength="15"
+        class="w-full border border-blue-500 rounded-md px-3 py-2 bg-white"
+      />
+    </div>
+
+    <div>
+      <label for="Description" class="block text-sm font-medium text-gray-700"
+        >Description</label
+      >
+      <input
+        type="text"
+        id="Description"
+        name="Description"
+        maxlength="30"
+        class="w-full border border-blue-500 rounded-md px-3 py-2 bg-white"
+      />
+    </div>
+
+    <div class="md:col-span-2 flex justify-end gap-2">
+      <button
+        type="submit"
+        id="submitBtn"
+        class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded transition duration-200"
+      >
+        Save
+      </button>
+      <button
+        type="button"
+        id="cancelBtn"
+        class="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500"
+      >
+        Cancel
+      </button>
+    </div>
+  </form>
+
+  <!-- Title List -->
+  <div>
+    <div class="pt-3 overflow-x-auto">
+      <table class="min-w-full border border-gray-200 rounded-lg text-sm">
+        <thead class="bg-blue-100 text-blue-900">
+          <tr>
+            <th class="border px-2 py-3 text-left">Title Code</th>
+            <th class="border px-2 py-3 text-left">Description</th>
+            <th class="border px-2 py-3 text-left">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="titleTableBody">
+          <!-- Data will be populated here -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination Controls -->
+    <div
+      class="px-6 py-4 border-t border-gray-200 flex flex-wrap items-center justify-between gap-4"
+    >
+      <div class="flex items-center gap-2">
+        <label for="recordsPerPage" class="text-sm text-gray-600"
+          >Records per page:</label
+        >
+        <select id="recordsPerPage" class="border rounded px-2 py-1 text-sm">
+          <option value="10">10</option>
+          <option value="25">25</option>
+          <option value="50">50</option>
+          <option value="100">100</option>
+        </select>
+      </div>
+
+      <div class="text-sm text-gray-600">
+        Showing <span id="startRecord">0</span> to
+        <span id="endRecord">0</span> of
+        <span id="totalRecords">0</span> records
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button
+          id="prevPage"
+          class="px-3 py-1 border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Previous
+        </button>
+        <span class="text-sm text-gray-600">
+          Page <span id="currentPage">1</span> of <span id="totalPages">1</span>
+        </span>
+        <button
+          id="nextPage"
+          class="px-3 py-1 border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Success/Error Messages -->
+<div
+  id="messageContainer"
+  class="fixed inset-0 flex items-center justify-center z-50 pointer-events-none"
+>
+  <div class="space-y-3 w-full max-w-md px-4" id="messageInner">
+    <!-- Toast messages will be injected here -->
+  </div>
+</div>
+
+<script>
+  const auth = window.authService;
+  class TitleManager {
+    constructor() {
+      this.apiUrl = "/title";
+      this.token = localStorage.getItem("token");
+      this.isEditing = false;
+      this.editingCode = null;
+      this.validationTimers = {};
+
+      // Pagination state
+      this.currentPage = 1;
+      this.recordsPerPage = 10;
+      this.allTitles = [];
+      this.filteredData = [];
+      this.currentSearchTerm = "";
+
+      this.initializeElements();
+      this.bindEvents();
+      this.loadTitles();
+      this.bindCapitalization();
+      this.bindValidation();
+    }
+
+    getHeaders() {
+      return {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${this.token}`,
+      };
+    }
+
+    initializeElements() {
+      this.form = document.getElementById("titleForm");
+      this.addNewBtn = document.getElementById("addNewTitleBtn");
+      this.submitBtn = document.getElementById("submitBtn");
+      this.cancelBtn = document.getElementById("cancelBtn");
+      this.tableBody = document.getElementById("titleTableBody");
+      this.messageContainer = document.getElementById("messageContainer");
+      this.searchInput = document.getElementById("searchTitle");
+
+      // Pagination elements
+      this.prevPageBtn = document.getElementById("prevPage");
+      this.nextPageBtn = document.getElementById("nextPage");
+      this.currentPageSpan = document.getElementById("currentPage");
+      this.totalPagesSpan = document.getElementById("totalPages");
+      this.recordsPerPageSelect = document.getElementById("recordsPerPage");
+      this.startRecordSpan = document.getElementById("startRecord");
+      this.endRecordSpan = document.getElementById("endRecord");
+      this.totalRecordsSpan = document.getElementById("totalRecords");
+    }
+
+    bindEvents() {
+      this.form.addEventListener("submit", (e) => this.handleSubmit(e));
+      this.addNewBtn.addEventListener("click", () => this.showForm());
+      this.cancelBtn.addEventListener("click", () => this.hideForm());
+      this.searchInput.addEventListener("input", (e) =>
+        this.filterTitles(e.target.value),
+      );
+      document
+        .getElementById("generateReportBtn")
+        .addEventListener("click", () => this.generateReport());
+
+      // Pagination events
+      if (this.prevPageBtn) {
+        this.prevPageBtn.addEventListener("click", () => {
+          if (this.currentPage > 1) {
+            this.currentPage--;
+            this.renderWithPagination();
+          }
+        });
+      }
+
+      if (this.nextPageBtn) {
+        this.nextPageBtn.addEventListener("click", () => {
+          const { totalPages } = this.getPaginationData();
+          if (this.currentPage < totalPages) {
+            this.currentPage++;
+            this.renderWithPagination();
+          }
+        });
+      }
+
+      if (this.recordsPerPageSelect) {
+        this.recordsPerPageSelect.addEventListener("change", (e) => {
+          this.recordsPerPage = parseInt(e.target.value);
+          this.currentPage = 1;
+          this.renderWithPagination();
+        });
+      }
+    }
+
+    // Pagination functions
+    getPaginationData() {
+      const totalRecords = this.filteredData.length;
+      const totalPages = Math.ceil(totalRecords / this.recordsPerPage) || 1;
+      const startIndex = (this.currentPage - 1) * this.recordsPerPage;
+      const endIndex = startIndex + this.recordsPerPage;
+      const currentData = this.filteredData.slice(startIndex, endIndex);
+      const startRecord = totalRecords === 0 ? 0 : startIndex + 1;
+      const endRecord = Math.min(endIndex, totalRecords);
+
+      return { totalRecords, totalPages, currentData, startRecord, endRecord };
+    }
+
+    updatePaginationUI() {
+      const { totalRecords, totalPages, startRecord, endRecord } =
+        this.getPaginationData();
+
+      if (this.currentPageSpan)
+        this.currentPageSpan.textContent = this.currentPage;
+      if (this.totalPagesSpan) this.totalPagesSpan.textContent = totalPages;
+      if (this.startRecordSpan) this.startRecordSpan.textContent = startRecord;
+      if (this.endRecordSpan) this.endRecordSpan.textContent = endRecord;
+      if (this.totalRecordsSpan)
+        this.totalRecordsSpan.textContent = totalRecords;
+
+      if (this.prevPageBtn) this.prevPageBtn.disabled = this.currentPage <= 1;
+      if (this.nextPageBtn)
+        this.nextPageBtn.disabled = this.currentPage >= totalPages;
+    }
+
+    renderWithPagination() {
+      this.renderTable();
+      this.updatePaginationUI();
+    }
+
+    applySearch(term) {
+      this.currentSearchTerm = term;
+      if (term) {
+        this.filteredData = this.allTitles.filter(
+          (t) =>
+            (t.Titlecode && t.Titlecode.toLowerCase().includes(term)) ||
+            (t.Description && t.Description.toLowerCase().includes(term)),
+        );
+      } else {
+        this.filteredData = [...this.allTitles];
+      }
+    }
+
+    async validateField(field, value) {
+      if (!value || !value.trim()) {
+        this.clearValidationMessage(field);
+        return true;
+      }
+
+      try {
+        let url = `${this.apiUrl}/check/${field}/${encodeURIComponent(value)}`;
+
+        if (this.isEditing && this.editingCode) {
+          url += `?exclude=${encodeURIComponent(this.editingCode)}`;
+        }
+
+        const response = await auth.fetchWithAuth(url, {
+          headers: this.getHeaders(),
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+
+        if (result.exists) {
+          this.showValidationMessage(
+            field,
+            `This title code already exists`,
+            "error",
+          );
+          return false;
+        } else {
+          this.clearValidationMessage(field);
+          return true;
+        }
+      } catch (error) {
+        console.error(`Validation error for ${field}:`, error);
+        this.clearValidationMessage(field);
+        return true;
+      }
+    }
+
+    showValidationMessage(field, message, type) {
+      const inputElement = document.getElementById(field);
+      if (!inputElement) return;
+
+      this.clearValidationMessage(field);
+
+      const messageElement = document.createElement("div");
+      messageElement.className = `validation-message text-sm mt-1 ${
+        type === "error" ? "text-red-600" : "text-green-600"
+      }`;
+      messageElement.textContent = message;
+      messageElement.id = `${field}-validation`;
+
+      inputElement.parentNode.insertBefore(
+        messageElement,
+        inputElement.nextSibling,
+      );
+
+      if (type === "error") {
+        inputElement.classList.add("border-red-500");
+        inputElement.classList.remove("border-green-500");
+      } else {
+        inputElement.classList.add("border-green-500");
+        inputElement.classList.remove("border-red-500");
+      }
+    }
+
+    clearValidationMessage(field) {
+      const messageElement = document.getElementById(`${field}-validation`);
+      if (messageElement) {
+        messageElement.remove();
+      }
+
+      const inputElement = document.getElementById(field);
+      if (inputElement) {
+        inputElement.classList.remove("border-red-500", "border-green-500");
+      }
+    }
+
+    bindValidation() {
+      const validationFields = ["Titlecode"];
+
+      validationFields.forEach((field) => {
+        const element = document.getElementById(field);
+        if (element) {
+          element.addEventListener("input", (e) => {
+            const value = e.target.value.trim();
+
+            if (this.validationTimers[field]) {
+              clearTimeout(this.validationTimers[field]);
+            }
+
+            this.validationTimers[field] = setTimeout(() => {
+              if (value) {
+                this.validateField(field, value);
+              } else {
+                this.clearValidationMessage(field);
+              }
+            }, 500);
+          });
+
+          element.addEventListener("blur", (e) => {
+            const value = e.target.value.trim();
+            if (value) {
+              if (this.validationTimers[field]) {
+                clearTimeout(this.validationTimers[field]);
+              }
+              this.validateField(field, value);
+            }
+          });
+        }
+      });
+    }
+
+    async loadTitles(preserveState = false) {
+      try {
+        const response = await auth.fetchWithAuth(this.apiUrl, {
+          headers: this.getHeaders(),
+        });
+        const titles = await response.json();
+        this.allTitles = Array.isArray(titles) ? titles : [];
+
+        if (preserveState) {
+          this.applySearch(this.currentSearchTerm);
+          const totalPages =
+            Math.ceil(this.filteredData.length / this.recordsPerPage) || 1;
+          if (this.currentPage > totalPages) {
+            this.currentPage = totalPages;
+          }
+        } else {
+          this.filteredData = [...this.allTitles];
+          this.currentPage = 1;
+          this.currentSearchTerm = "";
+        }
+
+        this.renderWithPagination();
+      } catch (error) {
+        this.showMessage("Error loading titles", "error");
+      }
+    }
+
+    filterTitles(searchTerm) {
+      const term = searchTerm.toLowerCase();
+      this.applySearch(term);
+      this.currentPage = 1;
+      this.renderWithPagination();
+    }
+
+    showForm() {
+      this.form.classList.remove("hidden");
+      this.addNewBtn.style.display = "none";
+    }
+
+    hideForm() {
+      this.form.classList.add("hidden");
+      this.addNewBtn.style.display = "block";
+      this.resetForm();
+    }
+
+    escapeHtml(str) {
+      return String(str ?? "").replace(
+        /[&<>"']/g,
+        (c) =>
+          ({
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;",
+          })[c],
+      );
+    }
+
+    renderTable() {
+      const { currentData } = this.getPaginationData();
+
+      this.tableBody.innerHTML = "";
+
+      if (currentData.length === 0) {
+        this.tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="3" class="border px-2 py-8 text-center text-gray-500">No records found</td>
+                    </tr>
+                `;
+        return;
+      }
+
+      currentData.forEach((t) => {
+        const row = document.createElement("tr");
+        row.className = "hover:bg-gray-50";
+        const code = this.escapeHtml(t.Titlecode);
+        row.innerHTML = `
+                    <td class="border px-2 py-1 text-left">${code}</td>
+                    <td class="border px-2 py-1 text-left">${this.escapeHtml(t.Description || "")}</td>
+                    <td class="border px-2 py-1 text-left">
+                        <button onclick="titleManager.editTitle('${code}')"
+                            class="text-blue-600 hover:text-blue-900 px-2 py-1 rounded hover:bg-blue-50">Edit</button>
+                        <button onclick="titleManager.deleteTitle('${code}')"
+                            class="text-red-600 hover:text-red-900 px-2 py-1 rounded hover:bg-red-50">Delete</button>
+                    </td>
+                `;
+        this.tableBody.appendChild(row);
+      });
+    }
+
+    async handleSubmit(e) {
+      e.preventDefault();
+
+      const formData = new FormData(this.form);
+      const data = Object.fromEntries(formData);
+
+      // Titlecode is disabled while editing, so read it from state
+      if (this.isEditing) {
+        data.Titlecode = this.editingCode;
+      }
+
+      if (!data.Titlecode || !data.Titlecode.trim()) {
+        this.showMessage("Title code is required", "error");
+        return;
+      }
+
+      try {
+        if (!this.isEditing) {
+          const isValid = await this.validateField(
+            "Titlecode",
+            data.Titlecode.trim(),
+          );
+          if (!isValid) {
+            this.showMessage(
+              "Please fix validation errors before submitting",
+              "error",
+            );
+            return;
+          }
+        }
+
+        const url = this.isEditing
+          ? `${this.apiUrl}/${encodeURIComponent(this.editingCode)}`
+          : `${this.apiUrl}/post`;
+        const method = this.isEditing ? "PUT" : "POST";
+
+        const response = await auth.fetchWithAuth(url, {
+          method,
+          headers: this.getHeaders(),
+          body: JSON.stringify(data),
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          this.showMessage(
+            `Title ${this.isEditing ? "updated" : "created"} successfully`,
+            "success",
+          );
+          this.hideForm();
+          await this.loadTitles(true); // Preserve state
+        } else {
+          this.showMessage(result.error, "error");
+        }
+      } catch (error) {
+        this.showMessage("Network error occurred", "error");
+      }
+    }
+
+    async editTitle(Titlecode) {
+      try {
+        const response = await auth.fetchWithAuth(
+          `${this.apiUrl}/${encodeURIComponent(Titlecode)}`,
+          {
+            headers: this.getHeaders(),
+          },
+        );
+        const t = await response.json();
+
+        this.form.Titlecode.value = t.Titlecode;
+        this.form.Description.value = t.Description || "";
+
+        this.form.Titlecode.disabled = true;
+        this.isEditing = true;
+        this.editingCode = Titlecode;
+
+        this.submitBtn.textContent = "Update Title";
+        this.showForm();
+
+        ["Titlecode", "Description"].forEach((field) => {
+          this.clearValidationMessage(field);
+        });
+      } catch (error) {
+        this.showMessage("Error loading title data", "error");
+      }
+    }
+
+    async deleteTitle(Titlecode) {
+      if (!confirm(`Are you sure you want to delete title ${Titlecode}?`))
+        return;
+
+      try {
+        const response = await auth.fetchWithAuth(
+          `${this.apiUrl}/${encodeURIComponent(Titlecode)}`,
+          {
+            method: "DELETE",
+            headers: this.getHeaders(),
+          },
+        );
+
+        const result = await response.json();
+
+        if (response.ok) {
+          this.showMessage("Title deleted successfully", "success");
+          await this.loadTitles(true); // Preserve state
+        } else {
+          this.showMessage(result.error, "error");
+        }
+      } catch (error) {
+        this.showMessage("Network error occurred", "error");
+      }
+    }
+
+    resetForm() {
+      this.form.reset();
+      this.form.Titlecode.disabled = false;
+      this.isEditing = false;
+      this.editingCode = null;
+
+      this.submitBtn.textContent = "Add Title";
+
+      ["Titlecode", "Description"].forEach((field) => {
+        this.clearValidationMessage(field);
+        if (this.validationTimers[field]) {
+          clearTimeout(this.validationTimers[field]);
+          delete this.validationTimers[field];
+        }
+      });
+    }
+
+    showMessage(message, type) {
+      const messageElement = document.createElement("div");
+      messageElement.className = `p-4 rounded-md mb-4 pointer-events-auto ${
+        type === "success"
+          ? "bg-green-100 text-green-700 border border-green-300"
+          : "bg-red-100 text-red-700 border border-red-300"
+      }`;
+      messageElement.textContent = message;
+
+      const messageInner = document.getElementById("messageInner");
+      messageInner.appendChild(messageElement);
+
+      setTimeout(() => {
+        messageElement.remove();
+      }, 5000);
+    }
+
+    capitalizeWords(str) {
+      return str
+        ? str
+            .toLowerCase()
+            .split(" ")
+            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(" ")
+        : "";
+    }
+
+    bindCapitalization() {
+      ["Description"].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.addEventListener("input", () => {
+            el.value = this.capitalizeWords(el.value);
+          });
+        }
+      });
+
+      ["Titlecode"].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.addEventListener("input", () => {
+            el.value = el.value.toUpperCase();
+          });
+        }
+      });
+    }
+
+    generateReport() {
+      const now = new Date();
+      const dateStr = now.toLocaleDateString("en-GB", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+      const timeStr = now.toLocaleTimeString("en-GB", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      });
+
+      const generatedBy = localStorage.getItem("full_name") || "System User";
+
+      const printWindow = window.open("", "_blank");
+
+      const printContent = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="utf-8">
+                    <title>Title Management Report</title>
+                    <style>
+                        @page {
+                            size: A4;
+                            margin: 5mm;
+                            background-color: #f8fbff;
+                        }
+
+                        body {
+                            font-family: Helvetica, Arial, sans-serif;
+                            font-size: 10pt;
+                            margin: 0;
+                            padding: 0;
+                            position: relative;
+                            color: #333;
+                        }
+
+                        /* Faint logo overlay */
+                        body::before {
+                            content: "";
+                            position: fixed;
+                            top: 0;
+                            left: 0;
+                            width: 100%;
+                            height: 100%;
+                            background-image: url('photos/logo.png');
+                            background-size: auto 100%;
+                            background-repeat: no-repeat;
+                            background-position: center center;
+                            opacity: 0.02;
+                            z-index: -1;
+                            pointer-events: none;
+                        }
+
+                        .header-wrapper {
+                            display: flex;
+                            align-items: flex-start;
+                            margin-bottom: 8px;
+                            border-bottom: 2px solid #1a1a1a;
+                            padding-bottom: 5px;
+                        }
+
+                        .header {
+                            flex-grow: 1;
+                            text-align: center;
+                        }
+
+                        .header h1 {
+                            font-size: 13pt;
+                            font-weight: bold;
+                            margin-bottom: 2px;
+                            letter-spacing: 1.5px;
+                            color: #1e40af;
+                            font-family: 'Libre Baskerville', Georgia, serif;
+                        }
+
+                        .header h2 {
+                            font-size: 10pt;
+                            font-weight: normal;
+                            margin-top: 2px;
+                            color: #4a4a4a;
+                            font-family: 'Libre Baskerville', Georgia, serif;
+                        }
+
+                        .header-info {
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                            margin: 10px 0;
+                            font-size: 9pt;
+                        }
+
+                        table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin-bottom: 20px;
+                            font-size: 10px;
+                        }
+
+                        th {
+                            color: #1e40af;
+                            padding: 8px 4px;
+                            text-align: left;
+                            font-weight: bold;
+                            font-size: 10px;
+                            text-transform: uppercase;
+                            letter-spacing: 0.3px;
+                            border-bottom: 1px solid #0056A0;
+                        }
+
+                        td {
+                            padding: 6px 4px;
+                            border: none;
+                            vertical-align: middle;
+                        }
+
+                        .text-center {
+                            text-align: center;
+                        }
+
+                        .footer {
+                            padding-top: 10px;
+                            border-top: 0.5px solid #1a1a1a;
+                            text-align: center;
+                            font-size: 8pt;
+                            color: #64748b;
+                            margin-top: 20px;
+                        }
+
+                        @media print {
+                            body {
+                                print-color-adjust: exact;
+                                -webkit-print-color-adjust: exact;
+                            }
+
+                            body::before {
+                                position: fixed;
+                                display: block;
+                                content: "";
+                                width: 100%;
+                                height: 100%;
+                                top: 0;
+                                left: 0;
+                                background-image: url('photos/logo.png');
+                                background-size: auto 100%;
+                                background-repeat: no-repeat;
+                                background-position: center center;
+                                opacity: 0.02;
+                                z-index: -1;
+                            }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="header-wrapper">
+                        <div class="header">
+                            <h1>DEFENCE SPACE ADMINISTRATION</h1>
+                            <h2>NATIONAL SPACE MUSEUM, ABUJA</h2>
+                        </div>
+                    </div>
+
+                    <div class="header-info">
+                        <div class="left">
+                            <strong>TITLE MANAGEMENT REPORT</strong>
+                        </div>
+                        <div class="center">
+                            <span>PRODUCED ON</span>
+                            <strong>${dateStr}</strong>
+                            <span>AT</span>
+                            <strong>${timeStr}</strong>
+                        </div>
+                        <div class="right">
+                            <strong>${this.allTitles.length}</strong>
+                            <span>RECORDS</span>
+                        </div>
+                    </div>
+
+                    <!-- Data Table -->
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 10%;">No.</th>
+                                <th style="width: 25%;">Title Code</th>
+                                <th style="width: 65%;">Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${this.allTitles
+                              .map(
+                                (t, index) => `
+                                <tr>
+                                    <td class="text-center"><strong>${index + 1}</strong></td>
+                                    <td><strong>${t.Titlecode}</strong></td>
+                                    <td>${t.Description || "-"}</td>
+                                </tr>
+                            `,
+                              )
+                              .join("")}
+                        </tbody>
+                    </table>
+
+                    <div class="footer">
+                        <p>Generated by: <strong>${generatedBy}</strong></p>
+                        <p>All rights reserved &#xA9; Hicad Systems Limited.</p>
+                    </div>
+                </body>
+                </html>
+            `;
+
+      printWindow.document.write(printContent);
+      printWindow.document.close();
+
+      printWindow.onload = function () {
+        printWindow.print();
+      };
+    }
+  }
+
+  window.titleManager = new TitleManager();
+</script>

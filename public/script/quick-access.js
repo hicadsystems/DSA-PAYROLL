@@ -324,6 +324,12 @@ class QuickAccessManager {
         section: "local-government",
         title: "Local Government",
       },
+      title: {
+        id: "title",
+        label: "Title",
+        section: "title",
+        title: "Title",
+      },
 
       // Utilities
       "emolument-form-processing": {
