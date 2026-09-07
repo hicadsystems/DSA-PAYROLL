@@ -484,7 +484,7 @@ router.get("/batch-template", verifyToken, async (req, res) => {
     // Add sub header - Row 2 - Medium gray background
     worksheet.mergeCells("A2:N2");
     const subHeader = worksheet.getCell("A2");
-    subHeader.value = "NATIONAL SPACE MUSEUM, ABUJA";
+    subHeader.value = "OBASANJO SPACE CENTRE, ABUJA";
     subHeader.font = {
       name: "Arial",
       size: 11,

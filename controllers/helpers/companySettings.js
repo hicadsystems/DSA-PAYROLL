@@ -32,7 +32,7 @@ class CompanySettingsHelper {
             ? `data:image/png;base64,${settings.logo}`
             : "",
           companyName: settings.company_name || "DEFENCE SPACE ADMINISTRATION",
-          companyAddress: settings.address || "NATIONAL SPACE MUSEUM, ABUJA",
+          companyAddress: settings.address || "OBASANJO SPACE CENTRE, ABUJA",
         };
       } else {
         // Fallback to defaults
@@ -74,7 +74,7 @@ class CompanySettingsHelper {
         this.cachedSettings = {
           logoDataUrl: `data:${mimeType};base64,${logoBase64}`,
           companyName: "DEFENCE SPACE ADMINISTRATION",
-          companyAddress: "NATIONAL SPACE MUSEUM, ABUJA",
+          companyAddress: "OBASANJO SPACE CENTRE, ABUJA",
         };
 
         console.log("✅ Settings created successfully");
@@ -110,7 +110,7 @@ class CompanySettingsHelper {
     return {
       logoDataUrl: "",
       companyName: "DEFENCE SPACE ADMINISTRATION",
-      companyAddress: "NATIONAL SPACE MUSEUM, ABUJA",
+      companyAddress: "OBASANJO SPACE CENTRE, ABUJA",
     };
   }
 }

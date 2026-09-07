@@ -97,7 +97,8 @@ class RangePaymentServices {
             FROM py_wkemployees we
             CROSS JOIN (SELECT ord, mth FROM py_stdrate WHERE type = 'BT05') sr
             INNER JOIN py_mastercum mc ON mc.his_empno = we.empl_id AND mc.his_type = sr.mth
-            LEFT JOIN py_bank bnk ON bnk.bankcode = we.Bankcode AND bnk.branchcode = LPAD(we.bankbranch, 3, '0')
+            LEFT JOIN py_bank bnk ON TRIM(LEADING '0' FROM TRIM(bnk.bankcode)) = TRIM(LEADING '0' FROM TRIM(we.Bankcode))
+                            AND TRIM(LEADING '0' FROM TRIM(bnk.branchcode)) = TRIM(LEADING '0' FROM TRIM(we.bankbranch))
             WHERE mc.his_netmth BETWEEN ? AND ?
               ${year ? 'AND sr.ord = ?' : ''}
               ${month ? 'AND sr.mth = ?' : ''}
@@ -139,7 +140,8 @@ class RangePaymentServices {
             FROM py_wkemployees we
             CROSS JOIN (SELECT ord, mth FROM py_stdrate WHERE type = 'BT05') sr
             INNER JOIN py_mastercum mc ON mc.his_empno = we.empl_id AND mc.his_type = sr.mth
-            LEFT JOIN py_bank bnk ON bnk.bankcode = we.Bankcode AND bnk.branchcode = LPAD(we.bankbranch, 3, '0')
+            LEFT JOIN py_bank bnk ON TRIM(LEADING '0' FROM TRIM(bnk.bankcode)) = TRIM(LEADING '0' FROM TRIM(we.Bankcode))
+                            AND TRIM(LEADING '0' FROM TRIM(bnk.branchcode)) = TRIM(LEADING '0' FROM TRIM(we.bankbranch))
             LEFT JOIN py_Title tt ON tt.Titlecode = we.Title
             WHERE mc.his_netmth BETWEEN ? AND ?
               ${year ? 'AND sr.ord = ?' : ''}
@@ -221,8 +223,8 @@ class RangePaymentServices {
     const query = `
       SELECT DISTINCT we.Bankcode, we.bankbranch, bnk.branchname
       FROM py_wkemployees we
-      LEFT JOIN py_bank bnk ON bnk.bankcode = we.Bankcode 
-                            AND bnk.branchcode = LPAD(we.bankbranch, 3, '0')
+      LEFT JOIN py_bank bnk ON TRIM(LEADING '0' FROM TRIM(bnk.bankcode)) = TRIM(LEADING '0' FROM TRIM(we.Bankcode))
+                            AND TRIM(LEADING '0' FROM TRIM(bnk.branchcode)) = TRIM(LEADING '0' FROM TRIM(we.bankbranch))
       ORDER BY we.Bankcode, we.bankbranch
     `;
     const [rows] = await pool.query(query);

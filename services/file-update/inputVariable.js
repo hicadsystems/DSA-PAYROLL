@@ -5,8 +5,9 @@ class PayPeriodReportService {
   // ========================================================================
   // PAY PERIOD REPORT - DETAILED LISTING
   // ========================================================================
-  async getPayPeriodReport() {
-    
+  async getPayPeriodReport(options = {}) {
+    const { groupByPayType = false } = options;
+
     try {
       const query = `
         SELECT
@@ -16,6 +17,9 @@ class PayPeriodReportService {
           CONCAT(TRIM(h.Surname), ' ', TRIM(IFNULL(h.OtherName, ''))) as full_name,
           tt.Description as title,
           h.Title as Title,
+          -- Single rank label: prefer the title description, fall back to the raw
+          -- title code. Printing both produced the duplicated "Maj Gen Maj Gen" rank.
+          COALESCE(NULLIF(TRIM(tt.Description), ''), NULLIF(TRIM(h.Title), '')) as rank_display,
           pp.type as pay_element_type,
           COALESCE(et.elmDesc, pp.type) as pay_element_description,
           pp.mak1,
@@ -33,7 +37,9 @@ class PayPeriodReportService {
         LEFT JOIN py_Title tt ON tt.Titlecode = h.Title
         LEFT JOIN py_elementType et ON et.PaymentType = pp.type
         LEFT JOIN py_stdrate s ON s.type = 'BT05'
-        ORDER BY pp.Empl_ID, pp.type
+        ORDER BY ${groupByPayType
+          ? 'pp.type, pp.Empl_ID'
+          : 'pp.Empl_ID, pp.type'}
       `;
       
       const [rows] = await pool.query(query);

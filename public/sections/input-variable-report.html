@@ -93,6 +93,18 @@
         <h3 class="text-xl font-bold text-gray-900 mb-2">Select Export Format</h3>
         <p class="text-gray-600">Choose the format for your report</p>
       </div>
+      <div class="mb-5 border rounded-lg p-3 bg-white">
+        <p class="text-xs font-semibold text-gray-700 uppercase tracking-wide mb-2"><i
+            class="fas fa-print mr-2"></i>Print Options</p>
+        <label class="flex items-start cursor-pointer">
+          <input type="checkbox" id="groupByPayType" class="text-blue-600 w-4 h-4 mt-1" checked>
+          <span class="ml-2 text-left">
+            <span class="font-medium text-gray-900">Group by Payment Type</span>
+            <span class="block text-xs text-gray-600">Prints each payment type as a heading with its records listed
+              underneath, and drops the per-row description column.</span>
+          </span>
+        </label>
+      </div>
       <div class="space-y-3 mb-6">
         <button id="selectPdfBtn"
           class="w-full px-6 py-4 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg shadow transition-all flex items-center justify-center"><i
@@ -272,7 +284,8 @@
       loadingModal.classList.remove('hidden');
       try {
         const token = localStorage.getItem('token') || '';
-        const response = await auth.fetchWithAuth(`${API_BASE}?format=${format}`, { headers: { 'Authorization': `Bearer ${token}` } });
+        const groupByPayType = document.getElementById('groupByPayType')?.checked !== false;
+        const response = await auth.fetchWithAuth(`${API_BASE}?format=${format}&groupByPayType=${groupByPayType}`, { headers: { 'Authorization': `Bearer ${token}` } });
         if (!response.ok) { const e = await response.json().catch(() => ({})); throw new Error(e.error || 'Failed to generate report'); }
         const blob = await response.blob();
         loadingModal.classList.add('hidden');

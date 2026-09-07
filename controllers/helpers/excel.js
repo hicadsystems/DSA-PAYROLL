@@ -6,7 +6,7 @@ const ExcelJS = require("exceljs");
 const EXCEL_CONFIG = {
   company: {
     name: "DEFENCE SPACE ADMINISTRATION",
-    address: "NATIONAL SPACE MUSEUM, ABUJA",
+    address: "OBASANJO SPACE CENTRE, ABUJA",
   },
   colors: {
     primary: "1e40af", // Blue for headers

@@ -483,7 +483,8 @@ class PersonnelReportService {
           bankbranch as code,
           bk.branchname as description
         FROM hr_employees
-        LEFT JOIN py_bank bk ON bk.branchcode = LPAD(bankbranch, 3, '0')
+        LEFT JOIN py_bank bk ON TRIM(LEADING '0' FROM TRIM(bk.bankcode)) = TRIM(LEADING '0' FROM TRIM(Bankcode))
+                            AND TRIM(LEADING '0' FROM TRIM(bk.branchcode)) = TRIM(LEADING '0' FROM TRIM(bankbranch))
         WHERE bankbranch IS NOT NULL AND bankbranch != ''
           AND payrollclass = ?
           AND (LENGTH(IFNULL(DateLeft, '')) = 0 

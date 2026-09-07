@@ -173,6 +173,33 @@
         page-break-after: always;
       }
 
+      /* Payment type grouping */
+      thead {
+        display: table-header-group;
+      }
+
+      tr.group-header td {
+        padding: 8px 4px 4px 4px;
+        font-size: 9px;
+        font-weight: bold;
+        color: #1e40af;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        background-color: #eaf1fb;
+        border-top: 1px solid #0056a0;
+        border-bottom: 0.5px solid #9db8de;
+      }
+
+      tr.group-header {
+        page-break-inside: avoid;
+        page-break-after: avoid;
+      }
+
+      tr.group-header .group-code {
+        color: #334155;
+        font-weight: bold;
+      }
+
       @media print {
         body {
           print-color-adjust: exact;
@@ -202,7 +229,7 @@
       <div class="className">{{className}}</div>
       <div class="header">
         <h1>DEFENCE SPACE ADMINISTRATION</h1>
-        <h2>NATIONAL SPACE MUSEUM, ABUJA</h2>
+        <h2>OBASANJO SPACE CENTRE, ABUJA</h2>
       </div>
     </div>
 
@@ -239,7 +266,9 @@
             Full Name
           </th>
           <th style="width: 6%; text-align: center">Pay Code</th>
+          {{#unless groupByPayType}}
           <th style="width: 18%; text-align: left">Description</th>
+          {{/unless}}
           <th style="width: 5%; text-align: center">MAK1</th>
           <th style="width: 10%; text-align: center">Amt Payable</th>
           <th style="width: 5%; text-align: center">MAK2</th>
@@ -250,10 +279,43 @@
         </tr>
       </thead>
       <tbody>
-        {{#each data}}
+        {{#if groupByPayType}}
+        <!-- Grouped by payment type: heading row, then its records -->
+        {{#each groups}}
+        <tr class="group-header">
+          <td colspan="11">
+            <span class="group-code">{{this.code}}</span> &mdash;
+            {{this.description}}
+          </td>
+        </tr>
+        {{#each this.records}}
         <tr>
           <td>{{this.employee_id}}</td>
-          <td>{{this.title}} {{this.Title}}</td>
+          <td>
+            {{#if
+            this.rank_display}}{{this.rank_display}}{{else}}{{this.Title}}{{/if}}
+          </td>
+          <td style="white-space: nowrap">{{this.full_name}}</td>
+          <td style="text-align: center">{{this.pay_element_type}}</td>
+          <td style="text-align: center">{{this.mak1}}</td>
+          <td style="text-align: center">
+            ₦{{formatCurrency this.amount_primary}}
+          </td>
+          <td style="text-align: center">{{this.mak2}}</td>
+          <td style="text-align: center">
+            ₦{{formatCurrency this.amount_to_date}}
+          </td>
+          <td style="text-align: center">{{this.payment_indicator}}</td>
+          <td style="text-align: center">{{this.number_of_months}}</td>
+          <td style="white-space: nowrap">{{this.created_by}}</td>
+        </tr>
+        {{/each}} {{/each}} {{else}} {{#each data}}
+        <tr>
+          <td>{{this.employee_id}}</td>
+          <td>
+            {{#if
+            this.rank_display}}{{this.rank_display}}{{else}}{{this.Title}}{{/if}}
+          </td>
           <td style="white-space: nowrap">{{this.full_name}}</td>
           <td style="text-align: center">{{this.pay_element_type}}</td>
           <td style="white-space: nowrap">{{this.pay_element_description}}</td>
@@ -269,7 +331,7 @@
           <td style="text-align: center">{{this.number_of_months}}</td>
           <td style="white-space: nowrap">{{this.created_by}}</td>
         </tr>
-        {{/each}}
+        {{/each}} {{/if}}
       </tbody>
     </table>
 

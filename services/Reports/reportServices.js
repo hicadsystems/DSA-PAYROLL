@@ -1,41 +1,43 @@
-const pool = require('../../config/db');
+const pool = require("../../config/db");
 
 class ReportService {
-
   async _getPeriod(year, month) {
     // If explicit year+month supplied, use them directly — no DB round-trip needed
     if (year && month) {
       return { year: String(year), month: String(month) };
     }
- 
+
     const [rows] = await pool.query(
-      `SELECT ord AS year, mth AS month FROM py_stdrate WHERE type = 'BT05' LIMIT 1`
+      `SELECT ord AS year, mth AS month FROM py_stdrate WHERE type = 'BT05' LIMIT 1`,
     );
     if (!rows || rows.length === 0) {
       throw new Error("Current period (BT05) not found in py_stdrate");
     }
     return { year: String(rows[0].year), month: String(rows[0].month) };
   }
-  
+
   // REPORT 1: PAY SLIPS (USES payslipGenerationService)
 
   // ========================================================================
   // REPORT 2: PAYMENTS BY BANK (BRANCH)
   // ========================================================================
   async getPaymentsByBank(filters = {}) {
-    const { year, month, bankName, summaryOnly, allClasses, specificClass } = filters;
-    
+    const { year, month, bankName, summaryOnly, allClasses, specificClass } =
+      filters;
+
     // Determine which databases to query
     let databasesToQuery = [];
     const currentDb = pool.getCurrentDatabase();
     const masterDb = pool.getMasterDb();
-    
-    if (allClasses === 'true' || allClasses === true) {
+
+    if (allClasses === "true" || allClasses === true) {
       // Only allow all classes if current database is the master/officers database
       if (currentDb !== masterDb) {
-        throw new Error('All classes report can only be generated from the Officers database');
+        throw new Error(
+          "All classes report can only be generated from the Officers database",
+        );
       }
-      
+
       // If specific class is selected, use only that class
       if (specificClass) {
         const targetDb = pool.getDatabaseFromPayrollClass(specificClass);
@@ -48,35 +50,40 @@ class ReportService {
         const dbToClassMap = await this.getDbToClassMap();
 
         // Get all available databases including the current one
-        const dbConfig = require('../../config/db-config').getConfigSync();
-        databasesToQuery = Object.entries(dbConfig.databases)
-          .map(([className, dbName]) => ({ 
+        const dbConfig = require("../../config/db-config").getConfigSync();
+        databasesToQuery = Object.entries(dbConfig.databases).map(
+          ([className, dbName]) => ({
             name: dbToClassMap[dbName] || className, // Use mapped name or fallback to original
-            db: dbName 
-          }));
+            db: dbName,
+          }),
+        );
       }
     } else {
       // Single database query - current session database
-      databasesToQuery = [{ name: 'current', db: currentDb }];
+      databasesToQuery = [{ name: "current", db: currentDb }];
     }
-    
+
     const allResults = [];
     const failedClasses = [];
-    
+
     for (const { name, db } of databasesToQuery) {
       // Temporarily switch to the target database
       const originalDb = pool.getCurrentDatabase();
-      
+
       try {
         pool.useDatabase(db);
       } catch (dbError) {
         console.warn(`⚠️ Skipping ${name} (${db}): ${dbError.message}`);
-        failedClasses.push({ class: name, database: db, error: dbError.message });
+        failedClasses.push({
+          class: name,
+          database: db,
+          error: dbError.message,
+        });
         continue;
       }
-      
+
       try {
-        if (summaryOnly === 'true' || summaryOnly === true) {
+        if (summaryOnly === "true" || summaryOnly === true) {
           // Summary query - aggregated data
           const query = `
             SELECT 
@@ -90,29 +97,29 @@ class ReportService {
             FROM py_wkemployees we
             CROSS JOIN (SELECT ord, mth FROM py_stdrate WHERE type = 'BT05') sr
             INNER JOIN py_mastercum mc ON mc.his_empno = we.empl_id AND mc.his_type = sr.mth
-            LEFT JOIN py_bank bnk ON bnk.bankcode = we.Bankcode AND bnk.branchcode = LPAD(we.bankbranch, 3, '0')
+            LEFT JOIN py_bank bnk ON TRIM(LEADING '0' FROM TRIM(bnk.bankcode)) = TRIM(LEADING '0' FROM TRIM(we.Bankcode))
+                            AND TRIM(LEADING '0' FROM TRIM(bnk.branchcode)) = TRIM(LEADING '0' FROM TRIM(we.bankbranch))
             WHERE 1=1
-              ${year ? 'AND sr.ord = ?' : ''}
-              ${month ? 'AND sr.mth = ?' : ''}
-              ${bankName ? 'AND we.Bankcode = ?' : ''}
+              ${year ? "AND sr.ord = ?" : ""}
+              ${month ? "AND sr.mth = ?" : ""}
+              ${bankName ? "AND we.Bankcode = ?" : ""}
             GROUP BY sr.ord, sr.mth, we.Bankcode, we.bankbranch, bnk.branchname
             ORDER BY we.Bankcode, we.bankbranch
           `;
-          
+
           const params = [];
           if (year) params.push(year);
           if (month) params.push(month);
           if (bankName) params.push(bankName);
-          
+
           const [rows] = await pool.query(query, params);
-          
+
           // Add class identifier to each row
           allResults.push({
             payrollClass: name,
             database: db,
-            data: rows
+            data: rows,
           });
-          
         } else {
           // Detailed query - individual employee records
           const query = `
@@ -131,58 +138,71 @@ class ReportService {
             FROM py_wkemployees we
             CROSS JOIN (SELECT ord, mth FROM py_stdrate WHERE type = 'BT05') sr
             INNER JOIN py_mastercum mc ON mc.his_empno = we.empl_id AND mc.his_type = sr.mth
-            LEFT JOIN py_bank bnk ON bnk.bankcode = we.Bankcode AND bnk.branchcode = LPAD(we.bankbranch, 3, '0')
+            LEFT JOIN py_bank bnk ON TRIM(LEADING '0' FROM TRIM(bnk.bankcode)) = TRIM(LEADING '0' FROM TRIM(we.Bankcode))
+                            AND TRIM(LEADING '0' FROM TRIM(bnk.branchcode)) = TRIM(LEADING '0' FROM TRIM(we.bankbranch))
             LEFT JOIN py_Title tt ON tt.Titlecode = we.Title
             WHERE 1=1
-              ${year ? 'AND sr.ord = ?' : ''}
-              ${month ? 'AND sr.mth = ?' : ''}
-              ${bankName ? 'AND we.Bankcode = ?' : ''}
-            ORDER BY we.Bankcode, we.bankbranch, we.empl_id
+              ${year ? "AND sr.ord = ?" : ""}
+              ${month ? "AND sr.mth = ?" : ""}
+              ${bankName ? "AND we.Bankcode = ?" : ""}
+            ORDER BY we.Bankcode, we.bankbranch, total_net DESC, we.empl_id
           `;
-          
+
           const params = [];
           if (year) params.push(year);
           if (month) params.push(month);
           if (bankName) params.push(bankName);
-          
+
           const [rows] = await pool.query(query, params);
-          
+
           // Add class identifier to each row
           allResults.push({
             payrollClass: name,
             database: db,
-            data: rows
+            data: rows,
           });
         }
       } catch (queryError) {
-        console.error(`❌ Query error for ${name} (${db}):`, queryError.message);
-        failedClasses.push({ class: name, database: db, error: queryError.message });
+        console.error(
+          `❌ Query error for ${name} (${db}):`,
+          queryError.message,
+        );
+        failedClasses.push({
+          class: name,
+          database: db,
+          error: queryError.message,
+        });
       } finally {
         // Restore original database context
         try {
           pool.useDatabase(originalDb);
         } catch (restoreError) {
-          console.warn(`⚠️ Could not restore database context: ${restoreError.message}`);
+          console.warn(
+            `⚠️ Could not restore database context: ${restoreError.message}`,
+          );
         }
       }
     }
-    
+
     // Return results based on whether it's a multi-class query
-    if (allClasses === 'true' || allClasses === true) {
-      const result = { 
+    if (allClasses === "true" || allClasses === true) {
+      const result = {
         data: allResults,
         summary: {
           total: databasesToQuery.length,
           successful: allResults.length,
-          failed: failedClasses.length
-        }
+          failed: failedClasses.length,
+        },
       };
-      
+
       if (failedClasses.length > 0) {
         result.failedClasses = failedClasses;
-        console.warn(`⚠️ ${failedClasses.length} class(es) failed:`, failedClasses);
+        console.warn(
+          `⚠️ ${failedClasses.length} class(es) failed:`,
+          failedClasses,
+        );
       }
-      
+
       return result;
     } else {
       return allResults[0]?.data || [];
@@ -194,14 +214,15 @@ class ReportService {
   // ========================================================================
   async getEarningsDeductionsAnalysis(filters = {}) {
     const { year, month, paymentType, summaryOnly } = filters;
-    const isSummary = summaryOnly === true || summaryOnly === "1" || summaryOnly === "true";
-    const period    = await this._getPeriod(year, month);
- 
+    const isSummary =
+      summaryOnly === true || summaryOnly === "1" || summaryOnly === "true";
+    const period = await this._getPeriod(year, month);
+
     const params = [];
     if (paymentType) params.push(paymentType);
- 
+
     let query;
- 
+
     // Category expression uses range comparisons instead of LEFT() so MySQL
     // can use a range scan on the his_type index rather than a full scan.
     // e.g. his_type >= 'BP' AND his_type < 'BQ' covers all BP* codes without
@@ -216,7 +237,7 @@ class ReportService {
             WHEN mp.his_type >= 'PL' AND mp.his_type < 'PM' THEN 'Loan'
             ELSE 'Other'
           END`;
- 
+
     if (isSummary) {
       query = `
         SELECT
@@ -254,9 +275,9 @@ class ReportService {
           ${paymentType ? "AND mp.his_type = ?" : ""}
         GROUP BY mp.his_type, et.elmDesc, mp.his_empno,
                  we.Surname, we.OtherName, we.Title, tt.Description
-        ORDER BY category, mp.his_type, mp.his_empno`;
+        ORDER BY category, mp.his_type, total_amount DESC, mp.his_empno`;
     }
- 
+
     const [rows] = await pool.query(query, params);
     return rows;
   }
@@ -265,7 +286,7 @@ class ReportService {
   // REPORT 4: LOAN ANALYSIS
   // ========================================================================
   async getLoanAnalysis(filters = {}) {
-    const { year, month} = filters;
+    const { year, month } = filters;
 
     const query = `
       SELECT 
@@ -289,21 +310,21 @@ class ReportService {
           -- OR (LEFT(mp.his_type, 2) = 'PR' AND mp.payindic = 'T')
         )
         AND (mp.amtthismth > 0)
-        ${year ? `AND sr.ord = ?` : ''}
-        ${month ? `AND sr.mth = ?` : ''}
+        ${year ? `AND sr.ord = ?` : ""}
+        ${month ? `AND sr.mth = ?` : ""}
       ORDER BY mp.his_type, et.elmDesc, mp.his_empno
     `;
 
     const params = [];
     if (year) params.push(year);
     if (month) params.push(month);
-    
+
     const [rows] = await pool.query(query, params);
-    
+
     // Group by loan_type and loan_description
     const grouped = {};
-    
-    rows.forEach(row => {
+
+    rows.forEach((row) => {
       const key = `${row.loan_type}|${row.loan_description}`;
       if (!grouped[key]) {
         grouped[key] = {
@@ -313,17 +334,18 @@ class ReportService {
           totals: {
             original_loan: 0,
             this_month_payment: 0,
-            count: 0
-          }
+            count: 0,
+          },
         };
       }
-      
+
       grouped[key].loans.push(row);
       grouped[key].totals.original_loan += parseFloat(row.original_loan) || 0;
-      grouped[key].totals.this_month_payment += parseFloat(row.this_month_payment) || 0;
+      grouped[key].totals.this_month_payment +=
+        parseFloat(row.this_month_payment) || 0;
       grouped[key].totals.count += 1;
     });
-    
+
     return Object.values(grouped);
   }
 
@@ -332,10 +354,11 @@ class ReportService {
   // ========================================================================
   async getPaymentsDeductionsByBank(filters = {}) {
     const { year, month, bankName, paymentType, summaryOnly } = filters;
-    
+
     // Convert summaryOnly to boolean if it's a string
-    const isSummary = summaryOnly === true || summaryOnly === '1' || summaryOnly === 'true';
-    
+    const isSummary =
+      summaryOnly === true || summaryOnly === "1" || summaryOnly === "true";
+
     const query = `
       SELECT 
         sr.ord as year,
@@ -353,35 +376,40 @@ class ReportService {
           WHEN LEFT(mp.his_type, 2) = 'PL' THEN 'Loan'
           ELSE 'Other'
         END as category,
-        ${!isSummary ? `mp.his_empno,
+        ${
+          !isSummary
+            ? `mp.his_empno,
         we.Surname,
         we.Title as Title,
         CONCAT(we.Surname, ' ', we.OtherName) as fullname,
-        tt.Description as title,` : ''}
-        ${isSummary ? 'COUNT(DISTINCT mp.his_empno) as employee_count,' : ''}
+        tt.Description as title,`
+            : ""
+        }
+        ${isSummary ? "COUNT(DISTINCT mp.his_empno) as employee_count," : ""}
         ROUND(SUM(mp.amtthismth), 2) as total_amount
       FROM py_masterpayded mp
       CROSS JOIN (SELECT ord, mth FROM py_stdrate WHERE type = 'BT05') sr
       INNER JOIN py_wkemployees we ON we.empl_id = mp.his_empno
       LEFT JOIN py_elementType et ON et.PaymentType = mp.his_type
-      LEFT JOIN py_bank bnk ON bnk.bankcode = we.Bankcode AND bnk.branchcode = LPAD(we.bankbranch, 3, '0')
+      LEFT JOIN py_bank bnk ON TRIM(LEADING '0' FROM TRIM(bnk.bankcode)) = TRIM(LEADING '0' FROM TRIM(we.Bankcode))
+                            AND TRIM(LEADING '0' FROM TRIM(bnk.branchcode)) = TRIM(LEADING '0' FROM TRIM(we.bankbranch))
       LEFT JOIN py_Title tt ON tt.Titlecode = we.Title
       WHERE mp.amtthismth != 0
-        ${year ? 'AND sr.ord = ?' : ''}
-        ${month ? 'AND sr.mth = ?' : ''}
-        ${bankName ? 'AND we.Bankcode = ?' : ''}
-        ${paymentType ? 'AND mp.his_type = ?' : ''}
+        ${year ? "AND sr.ord = ?" : ""}
+        ${month ? "AND sr.mth = ?" : ""}
+        ${bankName ? "AND we.Bankcode = ?" : ""}
+        ${paymentType ? "AND mp.his_type = ?" : ""}
       GROUP BY sr.ord, sr.mth, we.Bankcode, we.bankbranch, bnk.branchname, mp.his_type, et.elmDesc, mp.his_empno, we.Surname, we.OtherName, we.Title, tt.Description
-        ${!isSummary ? ', mp.his_empno, we.Surname, we.Title, tt.Description' : ''}
-      ORDER BY we.Bankcode, we.bankbranch, category, mp.his_type${!isSummary ? ', mp.his_empno' : ''}
+        ${!isSummary ? ", mp.his_empno, we.Surname, we.Title, tt.Description" : ""}
+      ORDER BY we.Bankcode, we.bankbranch, category, mp.his_type${!isSummary ? ", mp.his_empno" : ""}
     `;
-    
+
     const params = [];
     if (year) params.push(year);
     if (month) params.push(month);
     if (bankName) params.push(bankName);
     if (paymentType) params.push(paymentType);
-    
+
     const [rows] = await pool.query(query, params);
     return rows;
   }
@@ -407,8 +435,8 @@ class ReportService {
     const query = `
       SELECT DISTINCT we.Bankcode, we.bankbranch, bnk.branchname
       FROM py_wkemployees we
-      LEFT JOIN py_bank bnk ON bnk.bankcode = we.Bankcode 
-                            AND bnk.branchcode = LPAD(we.bankbranch, 3, '0')
+      LEFT JOIN py_bank bnk ON TRIM(LEADING '0' FROM TRIM(bnk.bankcode)) = TRIM(LEADING '0' FROM TRIM(we.Bankcode))
+                            AND TRIM(LEADING '0' FROM TRIM(bnk.branchcode)) = TRIM(LEADING '0' FROM TRIM(we.bankbranch))
       ORDER BY we.Bankcode, we.bankbranch
     `;
     const [rows] = await pool.query(query);
@@ -418,13 +446,15 @@ class ReportService {
   async getDbToClassMap() {
     const masterDb = pool.getMasterDb();
     pool.useDatabase(masterDb);
-    const [dbClasses] = await pool.query('SELECT db_name, classname FROM py_payrollclass');
-    
+    const [dbClasses] = await pool.query(
+      "SELECT db_name, classname FROM py_payrollclass",
+    );
+
     const dbToClassMap = {};
-    dbClasses.forEach(row => {
+    dbClasses.forEach((row) => {
       dbToClassMap[row.db_name] = row.classname;
     });
-    
+
     return dbToClassMap;
   }
 }

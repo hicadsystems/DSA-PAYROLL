@@ -582,7 +582,7 @@ class PayslipGenerationService {
   // ==========================================================================
   async getGeneratedPayslips(station) {
     const [rows] = await pool.query(
-      `SELECT * FROM py_tempslipnlpc WHERE work_station = ? ORDER BY NUMB, bpc, BP`,
+      `SELECT * FROM py_tempslipnlpc WHERE work_station = ? ORDER BY netpay DESC, NUMB, bpc, BP`,
       [station],
     );
     return rows;
@@ -619,8 +619,8 @@ class PayslipGenerationService {
        GROUP BY
          p.NUMB, p.title, p.surname, p.othername, p.bankacnumber, p.bankname,
          p.gradelevel, p.gradetype, p.ord, p.desc1, p.factory, p.location,
-         p.nsitf, p.nsitfcode, p.email, p.payclass, pc.classname
-       ORDER BY p.NUMB`,
+         p.nsitf, p.nsitfcode, p.email, p.payclass, p.netpay, pc.classname
+       ORDER BY p.netpay DESC, p.NUMB`,
       [station],
     );
 
@@ -637,10 +637,11 @@ class PayslipGenerationService {
          loan,
          ltenor           AS loan_tenor,
          lbal             AS loan_balance,
-         lmth             AS loan_months
+         lmth             AS loan_months,
+         netpay
        FROM py_tempslipnlpc
        WHERE work_station = ?
-       ORDER BY NUMB, bpc, BP`,
+       ORDER BY netpay DESC, NUMB, bpc, BP`,
       [station],
     );
 

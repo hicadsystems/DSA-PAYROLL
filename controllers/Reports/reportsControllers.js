@@ -667,7 +667,7 @@ class ReportController extends BaseReportController {
           bg: WHITE,
           height: 28,
         });
-        titleRow("NATIONAL SPACE MUSEUM, ABUJA", {
+        titleRow("OBASANJO SPACE CENTRE, ABUJA", {
           bold: false,
           size: 11,
           fg: GREY_MID,

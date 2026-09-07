@@ -1394,7 +1394,7 @@ function generatePDFHTML(
         <div class="className">${classDescription}</div>
         <div class="header">
           <h1>DEFENCE SPACE ADMINISTRATION</h1>
-          <h2>NATIONAL SPACE MUSEUM, ABUJA</h2>
+          <h2>OBASANJO SPACE CENTRE, ABUJA</h2>
         </div>
       </div>
 
@@ -1517,7 +1517,7 @@ async function generateSummaryPDFHTML(
         <div class="className">${classDescription}</div>
         <div class="header">
           <h1>DEFENCE SPACE ADMINISTRATION</h1>
-          <h2>NATIONAL SPACE MUSEUM, ABUJA</h2>
+          <h2>OBASANJO SPACE CENTRE, ABUJA</h2>
         </div>
       </div>
 

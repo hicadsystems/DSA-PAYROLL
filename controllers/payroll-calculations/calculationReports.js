@@ -8,7 +8,7 @@ const PDFDocument = require("pdfkit");
 const CONFIG = {
   company: {
     name: "DEFENCE SPACE ADMINISTRATION",
-    address: "NATIONAL SPACE MUSEUM, ABUJA",
+    address: "OBASANJO SPACE CENTRE, ABUJA",
     //phone: '+234 XXX XXX XXXX',
     //email: 'hr@company.com'
   },
