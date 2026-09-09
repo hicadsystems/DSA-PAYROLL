@@ -3,13 +3,13 @@ const pool = require("../../config/db"); // mysql2 pool
 const verifyToken = require("../../middware/authentication");
 const router = express.Router();
 
-// py_title columns: Titlecode (PK), Description, user_created, user
+// py_title columns: Titlecode (PK), Description, user
 
 // GET all titles
 router.get("/", verifyToken, async (req, res) => {
   try {
     const [rows] = await pool.query(
-      "SELECT Titlecode, Description, user_created, user FROM py_title ORDER BY Titlecode",
+      "SELECT Titlecode, Description, user FROM py_title ORDER BY Titlecode",
     );
     res.json(rows);
   } catch (error) {
@@ -52,7 +52,7 @@ router.get("/check/:field/:value", verifyToken, async (req, res) => {
 router.get("/:Titlecode", verifyToken, async (req, res) => {
   try {
     const [rows] = await pool.query(
-      "SELECT Titlecode, Description, user_created, user FROM py_title WHERE Titlecode = ?",
+      "SELECT Titlecode, Description, user FROM py_title WHERE Titlecode = ?",
       [req.params.Titlecode],
     );
     if (rows.length === 0) {
@@ -76,7 +76,7 @@ router.post("/post", verifyToken, async (req, res) => {
     const currentUser = req.user_id || null;
 
     await pool.query(
-      `INSERT INTO py_title (Titlecode, Description, user_created, user)
+      `INSERT INTO py_title (Titlecode, Description, user)
        VALUES (?, ?, ?, ?)`,
       [Titlecode.trim(), Description || null, currentUser, currentUser],
     );

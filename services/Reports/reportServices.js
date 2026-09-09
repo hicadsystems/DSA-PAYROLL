@@ -145,7 +145,7 @@ class ReportService {
               ${year ? "AND sr.ord = ?" : ""}
               ${month ? "AND sr.mth = ?" : ""}
               ${bankName ? "AND we.Bankcode = ?" : ""}
-            ORDER BY we.Bankcode, we.bankbranch, total_net DESC, we.empl_id
+            ORDER BY we.Bankcode, we.bankbranch, tt.rank_order DESC, we.empl_id
           `;
 
           const params = [];
@@ -275,7 +275,7 @@ class ReportService {
           ${paymentType ? "AND mp.his_type = ?" : ""}
         GROUP BY mp.his_type, et.elmDesc, mp.his_empno,
                  we.Surname, we.OtherName, we.Title, tt.Description
-        ORDER BY category, mp.his_type, total_amount DESC, mp.his_empno`;
+        ORDER BY category, mp.his_type, tt.rank_order DESC, mp.his_empno`;
     }
 
     const [rows] = await pool.query(query, params);
@@ -312,7 +312,7 @@ class ReportService {
         AND (mp.amtthismth > 0)
         ${year ? `AND sr.ord = ?` : ""}
         ${month ? `AND sr.mth = ?` : ""}
-      ORDER BY mp.his_type, et.elmDesc, mp.his_empno
+      ORDER BY mp.his_type, et.elmDesc, tt.rank_order DESC, mp.his_empno
     `;
 
     const params = [];
