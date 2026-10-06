@@ -1,47 +1,47 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const pool = require('../../config/db'); // mysql2 pool
-const verifyToken = require('../../middware/authentication');
+const pool = require("../../config/db"); // mysql2 pool
+const verifyToken = require("../../middware/authentication");
 
 const tables = {
   salarygroup: "py_salarygroup",
-  salarygrade: "py_gradelevel",   
+  salarygrade: "py_gradelevel",
   bankbranch: "py_bank",
   bankcode: "py_bank",
-  command: "py_navalcommand",   
+  command: "py_navalcommand",
   sex: "py_sex",
   relationship: "py_relationship",
   status: "py_status",
-  country: "py_Country",
-  marital: "py_MaritalStatus",
-  title: "py_Title",
+  country: "py_country",
+  marital: "py_maritalstatus",
+  title: "py_title",
   specialisation: "py_specialisationarea",
   state: "py_tblstates",
-  lga: "py_tblLGA",
+  lga: "py_tblllga",
   pfa: "py_pfa",
   religion: "py_religion",
   exittype: "py_exittype",
-  elementtype: "py_elementType",
+  elementtype: "py_elementtype",
   geozone: "geozone",
   payrollclass: "py_payrollclass",
   location: "ac_costcentre",
   branch: "ac_businessline",
   oneoff: "py_oneofftype",
   ledger: "accchart",
-  functiontype: "py_FunctionType",
+  functiontype: "py_functiontype",
   payindicator: "py_payind",
   payfrequency: "py_paydesc",
-  entrymode: "entrymode"
+  entrymode: "entrymode",
 };
 
 // Get LGAs by State Code
 router.get("/lga/:statecode", verifyToken, async (req, res) => {
   const { statecode } = req.params;
-  
+
   try {
     const [rows] = await pool.query(
-      `SELECT * FROM py_tblLGA WHERE Statecode = ?`, 
-      [statecode]
+      `SELECT * FROM py_tblllga WHERE Statecode = ?`,
+      [statecode],
     );
     res.json(rows);
   } catch (err) {

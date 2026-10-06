@@ -1,15 +1,14 @@
-const pool = require('../../config/db');
+const pool = require("../../config/db");
 
 class PayPeriodReportService {
-  
   // ========================================================================
   // PAY PERIOD REPORT - DETAILED LISTING
   // ========================================================================
   async getPayPeriodReport(filters = {}) {
     const { fromPeriod, toPeriod, emplId, createdBy, payType } = filters;
-    
-    console.log('Pay Period Report Filters:', filters); // DEBUG
-    
+
+    console.log("Pay Period Report Filters:", filters); // DEBUG
+
     try {
       // Build the main query with all filters
       const query = `
@@ -36,32 +35,31 @@ class PayPeriodReportService {
           pp.batchName as batch_name
         FROM py_inputhistory pp
         INNER JOIN hr_employees h ON h.empl_id = pp.Empl_ID
-        LEFT JOIN py_Title tt ON tt.Titlecode = h.Title
-        LEFT JOIN py_elementType et ON et.PaymentType = pp.type
+        LEFT JOIN py_title tt ON tt.Titlecode = h.Title
+        LEFT JOIN py_elementtype et ON et.PaymentType = pp.type
         WHERE 1=1
-          ${fromPeriod ? 'AND pp.pay_period >= ?' : ''}
-          ${toPeriod ? 'AND pp.pay_period <= ?' : ''}
-          ${emplId ? 'AND pp.Empl_ID = ?' : ''}
-          ${createdBy ? 'AND pp.createdby LIKE ?' : ''}
-          ${payType ? 'AND pp.type = ?' : ''}
+          ${fromPeriod ? "AND pp.pay_period >= ?" : ""}
+          ${toPeriod ? "AND pp.pay_period <= ?" : ""}
+          ${emplId ? "AND pp.Empl_ID = ?" : ""}
+          ${createdBy ? "AND pp.createdby LIKE ?" : ""}
+          ${payType ? "AND pp.type = ?" : ""}
         ORDER BY pp.pay_period DESC, pp.Empl_ID, pp.type
       `;
-      
+
       const params = [];
       if (fromPeriod) params.push(fromPeriod);
       if (toPeriod) params.push(toPeriod);
       if (emplId) params.push(emplId);
       if (createdBy) params.push(`%${createdBy}%`);
       if (payType) params.push(payType);
-      
+
       const [rows] = await pool.query(query, params);
-      
-      console.log('Pay Period Report - Rows returned:', rows.length); // DEBUG
-      
+
+      console.log("Pay Period Report - Rows returned:", rows.length); // DEBUG
+
       return rows;
-      
     } catch (error) {
-      console.error('Error in getPayPeriodReport:', error);
+      console.error("Error in getPayPeriodReport:", error);
       throw error;
     }
   }
@@ -71,7 +69,7 @@ class PayPeriodReportService {
   // ========================================================================
   async getPayPeriodStatistics(filters = {}) {
     const { fromPeriod, toPeriod, emplId, createdBy, payType } = filters;
-    
+
     try {
       const query = `
         SELECT 
@@ -89,25 +87,24 @@ class PayPeriodReportService {
           MAX(pp.pay_period) as latest_period
         FROM py_inputhistory pp
         WHERE 1=1
-          ${fromPeriod ? 'AND pp.pay_period >= ?' : ''}
-          ${toPeriod ? 'AND pp.pay_period <= ?' : ''}
-          ${emplId ? 'AND pp.Empl_ID = ?' : ''}
-          ${createdBy ? 'AND pp.createdby LIKE ?' : ''}
-          ${payType ? 'AND pp.type = ?' : ''}
+          ${fromPeriod ? "AND pp.pay_period >= ?" : ""}
+          ${toPeriod ? "AND pp.pay_period <= ?" : ""}
+          ${emplId ? "AND pp.Empl_ID = ?" : ""}
+          ${createdBy ? "AND pp.createdby LIKE ?" : ""}
+          ${payType ? "AND pp.type = ?" : ""}
       `;
-      
+
       const params = [];
       if (fromPeriod) params.push(fromPeriod);
       if (toPeriod) params.push(toPeriod);
       if (emplId) params.push(emplId);
       if (createdBy) params.push(`%${createdBy}%`);
       if (payType) params.push(payType);
-      
+
       const [rows] = await pool.query(query, params);
       return rows[0];
-      
     } catch (error) {
-      console.error('Error in getPayPeriodStatistics:', error);
+      console.error("Error in getPayPeriodStatistics:", error);
       throw error;
     }
   }
@@ -126,12 +123,11 @@ class PayPeriodReportService {
         ORDER BY pay_period DESC
         LIMIT 50
       `;
-      
+
       const [rows] = await pool.query(query);
       return rows;
-      
     } catch (error) {
-      console.error('Error in getAvailablePayPeriods:', error);
+      console.error("Error in getAvailablePayPeriods:", error);
       throw error;
     }
   }
@@ -146,15 +142,14 @@ class PayPeriodReportService {
           pp.type as code,
           COALESCE(et.elmDesc, pp.type) as description
         FROM py_inputhistory pp
-        LEFT JOIN py_elementType et ON et.PaymentType = pp.type
+        LEFT JOIN py_elementtype et ON et.PaymentType = pp.type
         ORDER BY pp.type
       `;
-      
+
       const [rows] = await pool.query(query);
       return rows;
-      
     } catch (error) {
-      console.error('Error in getAvailablePayTypes:', error);
+      console.error("Error in getAvailablePayTypes:", error);
       throw error;
     }
   }
@@ -171,12 +166,11 @@ class PayPeriodReportService {
         WHERE createdby IS NOT NULL
         ORDER BY createdby
       `;
-      
+
       const [rows] = await pool.query(query);
       return rows;
-      
     } catch (error) {
-      console.error('Error in getAvailableOperators:', error);
+      console.error("Error in getAvailableOperators:", error);
       throw error;
     }
   }
@@ -195,12 +189,11 @@ class PayPeriodReportService {
         ORDER BY pp.Empl_ID
         LIMIT 1000
       `;
-      
+
       const [rows] = await pool.query(query);
       return rows;
-      
     } catch (error) {
-      console.error('Error in getAvailableEmployees:', error);
+      console.error("Error in getAvailableEmployees:", error);
       throw error;
     }
   }
@@ -210,15 +203,27 @@ class PayPeriodReportService {
   // ========================================================================
   formatPeriod(period) {
     if (!period || period.length !== 6) return period;
-    
+
     const year = period.substring(0, 4);
     const month = period.substring(4, 6);
-    
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                   'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    
+
+    const months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+
     const monthName = months[parseInt(month) - 1] || month;
-    
+
     return `${monthName} ${year}`;
   }
 
@@ -231,12 +236,11 @@ class PayPeriodReportService {
         SELECT MAX(pay_period) as current_period
         FROM py_inputhistory
       `;
-      
+
       const [rows] = await pool.query(query);
       return rows[0]?.current_period || null;
-      
     } catch (error) {
-      console.error('Error in getCurrentPeriod:', error);
+      console.error("Error in getCurrentPeriod:", error);
       throw error;
     }
   }

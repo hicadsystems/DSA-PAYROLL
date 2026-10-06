@@ -1,7 +1,6 @@
-const pool = require('../../config/db');
+const pool = require("../../config/db");
 
 class PayPeriodReportService {
-  
   // ========================================================================
   // PAY PERIOD REPORT - DETAILED LISTING
   // ========================================================================
@@ -34,22 +33,21 @@ class PayPeriodReportService {
           DATE_FORMAT(pp.datecreated, '%Y-%m-%d %H:%i:%s') as date_created
         FROM py_payded pp
         INNER JOIN hr_employees h ON h.empl_id = pp.Empl_ID
-        LEFT JOIN py_Title tt ON tt.Titlecode = h.Title
-        LEFT JOIN py_elementType et ON et.PaymentType = pp.type
+        LEFT JOIN py_title tt ON tt.Titlecode = h.Title
+        LEFT JOIN py_elementtype et ON et.PaymentType = pp.type
         LEFT JOIN py_stdrate s ON s.type = 'BT05'
-        ORDER BY ${groupByPayType
-          ? 'pp.type, pp.Empl_ID'
-          : 'pp.Empl_ID, pp.type'}
+        ORDER BY ${
+          groupByPayType ? "pp.type, pp.Empl_ID" : "pp.Empl_ID, pp.type"
+        }
       `;
-      
+
       const [rows] = await pool.query(query);
-      
-      console.log('Pay Period Report - Rows returned:', rows.length); // DEBUG
-      
+
+      console.log("Pay Period Report - Rows returned:", rows.length); // DEBUG
+
       return rows;
-      
     } catch (error) {
-      console.error('Error in getPayPeriodReport:', error);
+      console.error("Error in getPayPeriodReport:", error);
       throw error;
     }
   }
@@ -58,7 +56,6 @@ class PayPeriodReportService {
   // GET STATISTICS FOR PAY PERIOD REPORT
   // ========================================================================
   async getPayPeriodStatistics() {
-    
     try {
       const query = `
         SELECT 
@@ -73,12 +70,11 @@ class PayPeriodReportService {
           ROUND(AVG(pp.amtp), 2) as avg_amount_primary
         FROM py_payded pp
       `;
-      
+
       const [rows] = await pool.query(query);
       return rows[0];
-      
     } catch (error) {
-      console.error('Error in getPayPeriodStatistics:', error);
+      console.error("Error in getPayPeriodStatistics:", error);
       throw error;
     }
   }

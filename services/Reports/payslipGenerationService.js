@@ -289,7 +289,7 @@ class PayslipGenerationService {
       titleCodes.length
         ? pool
             .query(
-              `SELECT Titlecode, Description FROM py_Title WHERE Titlecode IN (?)`,
+              `SELECT Titlecode, Description FROM py_title WHERE Titlecode IN (?)`,
               [titleCodes],
             )
             .then((r) => r[0])
@@ -333,7 +333,7 @@ class PayslipGenerationService {
   // ==========================================================================
   async bulkGetElementDescriptions() {
     const [rows] = await pool.query(
-      `SELECT PaymentType, elmDesc FROM py_elementType`,
+      `SELECT PaymentType, elmDesc FROM py_elementtype`,
     );
     const map = new Map();
     for (const r of rows)

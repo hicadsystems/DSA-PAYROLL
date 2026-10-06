@@ -112,7 +112,7 @@ class SeamlessHistoricalWrapper {
       /CREATE\s+VIEW/i,
       /DROP\s+VIEW/i,
       /py_stdrate/i,
-      /py_elementType/i,
+      /py_elementtype/i,
       /SHOW\s+/i,
       /DESCRIBE\s+/i,
       /information_schema/i,

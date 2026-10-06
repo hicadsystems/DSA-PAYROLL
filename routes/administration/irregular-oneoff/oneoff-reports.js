@@ -264,7 +264,7 @@ router.post("/generate-excel-report", verifyToken, async (req, res) => {
           COALESCE(et.elmdesc, ot.one_type, '') as one_desc
         FROM py_calculation c
         LEFT JOIN py_oneofftype ot ON c.his_type = ot.one_type
-        LEFT JOIN py_elementType et ON c.his_type = et.PaymentType
+        LEFT JOIN py_elementtype et ON c.his_type = et.PaymentType
         WHERE c.his_empno IN (?)
       `;
 
@@ -320,7 +320,7 @@ router.post("/generate-excel-report", verifyToken, async (req, res) => {
         `SELECT COALESCE(et.elmdesc, ot.one_type, ?) as description
          FROM (SELECT ? AS dummy) d
          LEFT JOIN py_oneofftype ot ON ot.one_type = ?
-         LEFT JOIN py_elementType et ON et.PaymentType = ?
+         LEFT JOIN py_elementtype et ON et.PaymentType = ?
          LIMIT 1`,
         [specificType, specificType, specificType, specificType],
       );
@@ -475,7 +475,7 @@ router.post("/generate-pdf-report", verifyToken, async (req, res) => {
        INNER JOIN hr_employees e ON c.his_empno = e.EMPL_ID
        LEFT JOIN py_bank b ON e.bankcode = b.bankcode AND e.bankbranch = b.branchcode
        LEFT JOIN py_oneofftype ot ON c.his_type = ot.one_type
-       LEFT JOIN py_elementType et ON c.his_type = et.PaymentType
+       LEFT JOIN py_elementtype et ON c.his_type = et.PaymentType
        WHERE e.payrollclass = ?`;
     const pdfParams = [payrollClass];
     if (specificType) {
@@ -499,7 +499,7 @@ router.post("/generate-pdf-report", verifyToken, async (req, res) => {
         `SELECT COALESCE(et.elmdesc, ot.one_type, ?) as description
          FROM (SELECT ? AS dummy) d
          LEFT JOIN py_oneofftype ot ON ot.one_type = ?
-         LEFT JOIN py_elementType et ON et.PaymentType = ?
+         LEFT JOIN py_elementtype et ON et.PaymentType = ?
          LIMIT 1`,
         [specificType, specificType, specificType, specificType],
       );
@@ -1053,7 +1053,7 @@ async function generateSummaryExcel(workbook, payrollClass, classDescription) {
       SUM(c.amtthismth) as total_amount
     FROM py_calculation c
     LEFT JOIN py_oneofftype ot ON c.his_type = ot.one_type
-    LEFT JOIN py_elementType et ON c.his_type = et.PaymentType
+    LEFT JOIN py_elementtype et ON c.his_type = et.PaymentType
     INNER JOIN hr_employees e ON c.his_empno = e.EMPL_ID
     WHERE e.payrollclass = ?
     GROUP BY c.his_type, et.elmdesc, ot.one_type
@@ -1440,7 +1440,7 @@ async function generateSummaryPDFHTML(
       SUM(c.amtthismth) as total_amount
     FROM py_calculation c
     LEFT JOIN py_oneofftype ot ON c.his_type = ot.one_type
-    LEFT JOIN py_elementType et ON c.his_type = et.PaymentType
+    LEFT JOIN py_elementtype et ON c.his_type = et.PaymentType
     INNER JOIN hr_employees e ON c.his_empno = e.EMPL_ID
     WHERE e.payrollclass = ?
     GROUP BY c.his_type, et.elmdesc, ot.one_type

@@ -262,7 +262,7 @@ async function createAllowancesExcel(workbook, period) {
       ROUND(MIN(mp.amtthismth), 2) as min_amount,
       ROUND(MAX(mp.amtthismth), 2) as max_amount
     FROM py_masterpayded mp
-    INNER JOIN py_elementType et ON et.PaymentType = mp.his_type
+    INNER JOIN py_elementtype et ON et.PaymentType = mp.his_type
     WHERE LEFT(mp.his_type, 2) = 'PT' AND mp.amtthismth > 0
     GROUP BY mp.his_type, et.elmDesc
     ORDER BY total_amount DESC
@@ -422,7 +422,7 @@ async function createDeductionsExcel(workbook, period) {
       ROUND(MIN(mp.amtthismth), 2) as min_amount,
       ROUND(MAX(mp.amtthismth), 2) as max_amount
     FROM py_masterpayded mp
-    INNER JOIN py_elementType et ON et.PaymentType = mp.his_type
+    INNER JOIN py_elementtype et ON et.PaymentType = mp.his_type
     WHERE LEFT(mp.his_type, 2) = 'PR' AND mp.amtthismth > 0
     GROUP BY mp.his_type, et.elmDesc
     ORDER BY total_amount DESC
@@ -972,7 +972,7 @@ async function createControlSheetExcel(workbook, period) {
         ELSE 7
       END as sort_order
     FROM py_tempsumm ts
-    LEFT JOIN py_elementType et ON et.PaymentType = ts.type1
+    LEFT JOIN py_elementtype et ON et.PaymentType = ts.type1
     WHERE (ts.amt1 != 0 OR ts.amt2 != 0 OR ts.tax != 0 OR ts.net != 0 OR ts.roundup != 0)
     GROUP BY ts.cyear, ts.pmonth, ts.type1, ts.desc1, et.elmDesc, ts.ledger1, dr_cr_indicator, sort_order
     ORDER BY sort_order, ts.type1
@@ -1187,7 +1187,7 @@ exports.getDeductionsSummary = async (req, res) => {
         ROUND(MIN(mp.amtthismth), 2) as min_amount,
         ROUND(MAX(mp.amtthismth), 2) as max_amount
       FROM py_masterpayded mp
-      INNER JOIN py_elementType et ON et.PaymentType = mp.his_type
+      INNER JOIN py_elementtype et ON et.PaymentType = mp.his_type
       WHERE LEFT(mp.his_type, 2) IN ('PR', 'PL')
         AND mp.amtthismth > 0
       GROUP BY mp.his_type, et.elmDesc
@@ -1427,7 +1427,7 @@ exports.getAllowancesSummary = async (req, res) => {
         ROUND(MIN(mp.amtthismth), 2) as min_amount,
         ROUND(MAX(mp.amtthismth), 2) as max_amount
       FROM py_masterpayded mp
-      INNER JOIN py_elementType et ON et.PaymentType = mp.his_type
+      INNER JOIN py_elementtype et ON et.PaymentType = mp.his_type
       WHERE LEFT(mp.his_type, 2) = 'PT'
         AND mp.amtthismth > 0
       GROUP BY mp.his_type, et.elmDesc
@@ -1502,7 +1502,7 @@ exports.getControlSheet = async (req, res) => {
           ELSE 7
         END as sort_order
       FROM py_tempsumm ts
-      LEFT JOIN py_elementType et ON et.PaymentType = ts.type1
+      LEFT JOIN py_elementtype et ON et.PaymentType = ts.type1
       WHERE (ts.amt1 != 0 OR ts.amt2 != 0 OR ts.tax != 0 OR ts.net != 0 OR ts.roundup != 0)
       GROUP BY ts.cyear, ts.pmonth, ts.type1, ts.desc1, et.elmDesc, ts.ledger1, dr_cr_indicator, sort_order
       ORDER BY sort_order, ts.type1

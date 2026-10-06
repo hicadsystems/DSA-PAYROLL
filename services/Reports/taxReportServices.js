@@ -1,58 +1,84 @@
-const pool = require('../../config/db');
+const pool = require("../../config/db");
 
 class TaxReportService {
-  
   // ========================================================================
   // TAX REPORT - WITH STATE FILTERING
   // ========================================================================
   async getTaxReport(filters = {}) {
     const { year, month, taxState, summaryOnly } = filters;
-    
+
     // Convert summaryOnly to boolean if it's a string
-    const isSummary = summaryOnly === true || summaryOnly === '1' || summaryOnly === 'true';
-    
+    const isSummary =
+      summaryOnly === true || summaryOnly === "1" || summaryOnly === "true";
+
     // Helper function to convert month number to name
     const getMonthName = (monthNum) => {
-      const months = ['January', 'February', 'March', 'April', 'May', 'June', 
-                      'July', 'August', 'September', 'October', 'November', 'December'];
+      const months = [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
+      ];
       return months[monthNum - 1] || monthNum;
     };
-    
+
     // IMPORTANT: Check if calculation is complete for the requested month
     if (month) {
-      console.log(`Checking calculation status for month=${month}, year=${year || 'latest'}`); // DEBUG
-      
+      console.log(
+        `Checking calculation status for month=${month}, year=${year || "latest"}`,
+      ); // DEBUG
+
       const checkQuery = `
         SELECT ord as year, mth as month, sun 
         FROM py_stdrate 
         WHERE type = 'BT05' 
           AND mth = ?
-          ${year ? 'AND ord = ?' : ''}
+          ${year ? "AND ord = ?" : ""}
         ORDER BY ord DESC
         LIMIT 1
       `;
-      
+
       const params = year ? [month, year] : [month];
       const [checkRows] = await pool.query(checkQuery, params);
-      console.log('Calculation check result:', checkRows); // DEBUG
-      
+      console.log("Calculation check result:", checkRows); // DEBUG
+
       if (!checkRows || checkRows.length === 0) {
         const monthName = getMonthName(month);
-        throw new Error(`No tax collected in ${monthName}${year ? `, ${year}` : ''}.`);
+        throw new Error(
+          `No tax collected in ${monthName}${year ? `, ${year}` : ""}.`,
+        );
       }
-      
+
       const checkResult = checkRows[0];
-      console.log('Sun value:', checkResult.sun, 'Type:', typeof checkResult.sun); // DEBUG
-      
+      console.log(
+        "Sun value:",
+        checkResult.sun,
+        "Type:",
+        typeof checkResult.sun,
+      ); // DEBUG
+
       // Check if sun is not 999 (calculation incomplete)
-      if (checkResult.sun != 999) {  // Using != to handle both string and number
+      if (checkResult.sun != 999) {
+        // Using != to handle both string and number
         const monthName = getMonthName(month);
-        throw new Error(`Calculation not completed for ${monthName}, ${checkResult.year}. Please complete payroll calculation before generating reports for ${monthName}, ${checkResult.year}.`);
+        throw new Error(
+          `Calculation not completed for ${monthName}, ${checkResult.year}. Please complete payroll calculation before generating reports for ${monthName}, ${checkResult.year}.`,
+        );
       }
-      
-      console.log('Calculation check passed - proceeding with report generation'); // DEBUG
+
+      console.log(
+        "Calculation check passed - proceeding with report generation",
+      ); // DEBUG
     }
-    
+
     if (isSummary) {
       // Summary query - aggregated by tax state
       const query = `
@@ -76,25 +102,24 @@ class TaxReportService {
         INNER JOIN py_mastercum mc ON mc.his_empno = we.empl_id AND mc.his_type = sr.mth
         LEFT JOIN py_tblstates st ON st.Statecode = we.taxstate
         WHERE 1=1
-          ${year ? 'AND sr.ord = ?' : ''}
-          ${month ? 'AND sr.mth = ?' : ''}
-          ${taxState ? 'AND we.taxstate = ?' : ''}
+          ${year ? "AND sr.ord = ?" : ""}
+          ${month ? "AND sr.mth = ?" : ""}
+          ${taxState ? "AND we.taxstate = ?" : ""}
         GROUP BY sr.ord, sr.mth, we.taxstate, st.Statename
         ORDER BY total_tax_deducted DESC, st.Statename
       `;
-      
+
       const params = [];
       if (year) params.push(year);
       if (month) params.push(month);
       if (taxState) params.push(taxState);
-      
+
       const [rows] = await pool.query(query, params);
       return rows;
-      
     } else {
       // Detailed query - process in batches for better performance
       const BATCH_SIZE = 100;
-      
+
       // First, get the total count
       const countQuery = `
         SELECT COUNT(DISTINCT mc.his_empno) as total
@@ -102,28 +127,28 @@ class TaxReportService {
         CROSS JOIN (SELECT ord, mth FROM py_stdrate WHERE type = 'BT05') sr
         INNER JOIN py_mastercum mc ON mc.his_empno = we.empl_id AND mc.his_type = sr.mth
         WHERE 1=1
-          ${year ? 'AND sr.ord = ?' : ''}
-          ${month ? 'AND sr.mth = ?' : ''}
-          ${taxState ? 'AND we.taxstate = ?' : ''}
+          ${year ? "AND sr.ord = ?" : ""}
+          ${month ? "AND sr.mth = ?" : ""}
+          ${taxState ? "AND we.taxstate = ?" : ""}
       `;
-      
+
       const countParams = [];
       if (year) countParams.push(year);
       if (month) countParams.push(month);
       if (taxState) countParams.push(taxState);
-      
+
       const [[{ total }]] = await pool.query(countQuery, countParams);
-      
+
       // If no records, return empty array
       if (total === 0) return [];
-      
+
       // Fetch data in batches
       const allResults = [];
       const totalBatches = Math.ceil(total / BATCH_SIZE);
-      
+
       for (let batch = 0; batch < totalBatches; batch++) {
         const offset = batch * BATCH_SIZE;
-        
+
         const query = `
           SELECT 
             sr.ord as year,
@@ -152,26 +177,26 @@ class TaxReportService {
           INNER JOIN py_mastercum mc ON mc.his_empno = we.empl_id AND mc.his_type = sr.mth
           LEFT JOIN py_tblstates st ON st.Statecode = we.taxstate
           LEFT JOIN ac_costcentre cc ON cc.unitcode = we.Location
-          LEFT JOIN py_Title tt ON tt.Titlecode = we.Title
+          LEFT JOIN py_title tt ON tt.Titlecode = we.Title
           WHERE 1=1
-            ${year ? 'AND sr.ord = ?' : ''}
-            ${month ? 'AND sr.mth = ?' : ''}
-            ${taxState ? 'AND we.taxstate = ?' : ''}
+            ${year ? "AND sr.ord = ?" : ""}
+            ${month ? "AND sr.mth = ?" : ""}
+            ${taxState ? "AND we.taxstate = ?" : ""}
           ORDER BY 
-            ${taxState ? 'mc.his_taxmth DESC' : 'st.Statename, mc.his_taxmth DESC'}
+            ${taxState ? "mc.his_taxmth DESC" : "st.Statename, mc.his_taxmth DESC"}
           LIMIT ? OFFSET ?
         `;
-        
+
         const params = [];
         if (year) params.push(year);
         if (month) params.push(month);
         if (taxState) params.push(taxState);
         params.push(BATCH_SIZE, offset);
-        
+
         const [batchRows] = await pool.query(query, params);
         allResults.push(...batchRows);
       }
-      
+
       return allResults;
     }
   }
@@ -189,7 +214,7 @@ class TaxReportService {
       WHERE we.taxstate IS NOT NULL
       ORDER BY state_name
     `;
-    
+
     const [rows] = await pool.query(query);
     return rows;
   }

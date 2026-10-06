@@ -1,23 +1,22 @@
-const pool = require('../../config/db');
+const pool = require("../../config/db");
 
 class OldPersonnelReportService {
-  
   // ========================================================================
   // HELPER: Get Payroll Class from Current Database
   // ========================================================================
   async getPayrollClassFromDb(dbName) {
     const masterDb = pool.getMasterDb();
     const connection = await pool.getConnection();
-    
+
     try {
       await connection.query(`USE \`${masterDb}\``);
       const [rows] = await connection.query(
-        'SELECT classcode FROM py_payrollclass WHERE db_name = ?',
-        [dbName]
+        "SELECT classcode FROM py_payrollclass WHERE db_name = ?",
+        [dbName],
       );
-      
+
       const result = rows.length > 0 ? rows[0].classcode : null;
-      console.log('🔍 Database:', dbName, '→ Payroll Class:', result);
+      console.log("🔍 Database:", dbName, "→ Payroll Class:", result);
       return result;
     } finally {
       connection.release();
@@ -28,26 +27,26 @@ class OldPersonnelReportService {
   // PERSONNEL REPORT - DETAILED LISTING (OLD EMPLOYEES)
   // ========================================================================
   async getPersonnelReport(filters = {}, currentDb) {
-    const { 
-      title, 
-      pfa, 
-      location, 
-      gradetype, 
-      gradelevel, 
-      bankBranch, 
-      stateOfOrigin, 
+    const {
+      title,
+      pfa,
+      location,
+      gradetype,
+      gradelevel,
+      bankBranch,
+      stateOfOrigin,
       exitType,
       rentSubsidy,
-      taxed
+      taxed,
     } = filters;
-    
+
     const payrollClass = await this.getPayrollClassFromDb(currentDb);
-    
-    console.log('📊 Personnel Report Request (Old Employees):');
-    console.log('   └─ Database:', currentDb);
-    console.log('   └─ Payroll Class:', payrollClass);
-    console.log('   └─ Filters:', JSON.stringify(filters, null, 2));
-    
+
+    console.log("📊 Personnel Report Request (Old Employees):");
+    console.log("   └─ Database:", currentDb);
+    console.log("   └─ Payroll Class:", payrollClass);
+    console.log("   └─ Filters:", JSON.stringify(filters, null, 2));
+
     try {
       const query = `
         SELECT 
@@ -167,19 +166,19 @@ class OldPersonnelReportService {
               AND STR_TO_DATE(h.DateLeft, '%Y%m%d') <= CURDATE()
             )) 
           AND h.payrollclass = ?
-          ${title ? 'AND h.Title = ?' : ''}
-          ${pfa ? 'AND h.pfacode = ?' : ''}
-          ${location ? 'AND h.Location = ?' : ''}
-          ${gradetype ? 'AND h.gradetype = ?' : ''}
-          ${gradelevel ? 'AND h.gradelevel = ?' : ''}
-          ${bankBranch ? 'AND h.bankbranch = ?' : ''}
-          ${stateOfOrigin ? 'AND h.StateofOrigin = ?' : ''}
-          ${rentSubsidy ? 'AND h.rent_subsidy = ?' : ''}
-          ${taxed ? 'AND h.taxed = ?' : ''}
-          ${exitType ? 'AND h.exittype = ?' : ''}
+          ${title ? "AND h.Title = ?" : ""}
+          ${pfa ? "AND h.pfacode = ?" : ""}
+          ${location ? "AND h.Location = ?" : ""}
+          ${gradetype ? "AND h.gradetype = ?" : ""}
+          ${gradelevel ? "AND h.gradelevel = ?" : ""}
+          ${bankBranch ? "AND h.bankbranch = ?" : ""}
+          ${stateOfOrigin ? "AND h.StateofOrigin = ?" : ""}
+          ${rentSubsidy ? "AND h.rent_subsidy = ?" : ""}
+          ${taxed ? "AND h.taxed = ?" : ""}
+          ${exitType ? "AND h.exittype = ?" : ""}
         ORDER BY h.Title, h.gradelevel DESC, h.Surname
       `;
-      
+
       const params = [payrollClass];
       if (title) params.push(title);
       if (pfa) params.push(pfa);
@@ -191,40 +190,42 @@ class OldPersonnelReportService {
       if (rentSubsidy) params.push(rentSubsidy);
       if (taxed) params.push(taxed);
       if (exitType) params.push(exitType);
-      
-      console.log('🔍 Executing query with params:', params);
-      
+
+      console.log("🔍 Executing query with params:", params);
+
       const [rows] = await pool.query(query, params);
-      
+
       if (rows.length === 0) {
-        console.log('⚠️  NO DATA FOUND for the selected filters');
-        console.log('   └─ Applied Filters:', {
+        console.log("⚠️  NO DATA FOUND for the selected filters");
+        console.log("   └─ Applied Filters:", {
           payrollClass,
-          title: title || 'All',
-          pfa: pfa || 'All',
-          location: location || 'All',
-          gradetype: gradetype || 'All',
-          gradelevel: gradelevel || 'All',
-          bankBranch: bankBranch || 'All',
-          stateOfOrigin: stateOfOrigin || 'All',
-          rentSubsidy: rentSubsidy || 'All',
-          taxed: taxed || 'All',
-          exitType: exitType || 'All',
-          employeeType: 'Old Employees Only'
+          title: title || "All",
+          pfa: pfa || "All",
+          location: location || "All",
+          gradetype: gradetype || "All",
+          gradelevel: gradelevel || "All",
+          bankBranch: bankBranch || "All",
+          stateOfOrigin: stateOfOrigin || "All",
+          rentSubsidy: rentSubsidy || "All",
+          taxed: taxed || "All",
+          exitType: exitType || "All",
+          employeeType: "Old Employees Only",
         });
       } else {
-        console.log('✅ Personnel Report (Old Employees) - Records found:', rows.length);
+        console.log(
+          "✅ Personnel Report (Old Employees) - Records found:",
+          rows.length,
+        );
       }
-      
+
       return rows;
-      
     } catch (error) {
-      console.error('❌ ERROR in getPersonnelReport:');
-      console.error('   └─ Error Type:', error.constructor.name);
-      console.error('   └─ Error Code:', error.code);
-      console.error('   └─ Error Message:', error.message);
-      console.error('   └─ SQL State:', error.sqlState);
-      console.error('   └─ Full Error:', error);
+      console.error("❌ ERROR in getPersonnelReport:");
+      console.error("   └─ Error Type:", error.constructor.name);
+      console.error("   └─ Error Code:", error.code);
+      console.error("   └─ Error Message:", error.message);
+      console.error("   └─ SQL State:", error.sqlState);
+      console.error("   └─ Full Error:", error);
       throw error;
     }
   }
@@ -233,23 +234,25 @@ class OldPersonnelReportService {
   // GET STATISTICS FOR PERSONNEL REPORT (OLD EMPLOYEES)
   // ========================================================================
   async getPersonnelStatistics(filters = {}, currentDb) {
-    const { 
-      title, 
-      pfa, 
-      location, 
-      gradetype, 
-      gradelevel, 
-      bankBranch, 
-      stateOfOrigin, 
+    const {
+      title,
+      pfa,
+      location,
+      gradetype,
+      gradelevel,
+      bankBranch,
+      stateOfOrigin,
       exitType,
       rentSubsidy,
-      taxed
+      taxed,
     } = filters;
-    
+
     const payrollClass = await this.getPayrollClassFromDb(currentDb);
-    
-    console.log('📊 Generating statistics for personnel report (Old Employees)...');
-    
+
+    console.log(
+      "📊 Generating statistics for personnel report (Old Employees)...",
+    );
+
     try {
       const query = `
         SELECT 
@@ -312,18 +315,18 @@ class OldPersonnelReportService {
               AND STR_TO_DATE(h.DateLeft, '%Y%m%d') <= CURDATE()
             )) 
           AND h.payrollclass = ?
-          ${title ? 'AND h.Title = ?' : ''}
-          ${pfa ? 'AND h.pfacode = ?' : ''}
-          ${location ? 'AND h.Location = ?' : ''}
-          ${gradetype ? 'AND h.gradetype = ?' : ''}
-          ${gradelevel ? 'AND h.gradelevel = ?' : ''}
-          ${bankBranch ? 'AND h.bankbranch = ?' : ''}
-          ${stateOfOrigin ? 'AND h.StateofOrigin = ?' : ''}
-          ${rentSubsidy ? 'AND h.rent_subsidy = ?' : ''}
-          ${taxed ? 'AND h.taxed = ?' : ''}
-          ${exitType ? 'AND h.exittype = ?' : ''}
+          ${title ? "AND h.Title = ?" : ""}
+          ${pfa ? "AND h.pfacode = ?" : ""}
+          ${location ? "AND h.Location = ?" : ""}
+          ${gradetype ? "AND h.gradetype = ?" : ""}
+          ${gradelevel ? "AND h.gradelevel = ?" : ""}
+          ${bankBranch ? "AND h.bankbranch = ?" : ""}
+          ${stateOfOrigin ? "AND h.StateofOrigin = ?" : ""}
+          ${rentSubsidy ? "AND h.rent_subsidy = ?" : ""}
+          ${taxed ? "AND h.taxed = ?" : ""}
+          ${exitType ? "AND h.exittype = ?" : ""}
       `;
-      
+
       const params = [payrollClass];
       if (title) params.push(title);
       if (pfa) params.push(pfa);
@@ -335,25 +338,24 @@ class OldPersonnelReportService {
       if (rentSubsidy) params.push(rentSubsidy);
       if (taxed) params.push(taxed);
       if (exitType) params.push(exitType);
-      
+
       const [rows] = await pool.query(query, params);
-      
-      console.log('✅ Statistics generated (Old Employees):', {
+
+      console.log("✅ Statistics generated (Old Employees):", {
         total_employees: rows[0].total_employees,
         avg_age: rows[0].avg_age,
         avg_years_of_service: rows[0].avg_years_of_service,
-        avg_years_since_exit: rows[0].avg_years_since_exit
+        avg_years_since_exit: rows[0].avg_years_since_exit,
       });
-      
+
       return rows[0];
-      
     } catch (error) {
-      console.error('❌ ERROR in getPersonnelStatistics:');
-      console.error('   └─ Error Type:', error.constructor.name);
-      console.error('   └─ Error Code:', error.code);
-      console.error('   └─ Error Message:', error.message);
-      console.error('   └─ SQL State:', error.sqlState);
-      console.error('   └─ Full Error:', error);
+      console.error("❌ ERROR in getPersonnelStatistics:");
+      console.error("   └─ Error Type:", error.constructor.name);
+      console.error("   └─ Error Code:", error.code);
+      console.error("   └─ Error Message:", error.message);
+      console.error("   └─ SQL State:", error.sqlState);
+      console.error("   └─ Full Error:", error);
       throw error;
     }
   }
@@ -364,25 +366,24 @@ class OldPersonnelReportService {
   async getAvailableTitles(currentDb) {
     try {
       const payrollClass = await this.getPayrollClassFromDb(currentDb);
-      
+
       const query = `
         SELECT DISTINCT 
           h.Title as code,
           COALESCE(t.Description, h.Title) as description
         FROM hr_employees h
-        LEFT JOIN py_Title t ON t.Titlecode = h.Title
+        LEFT JOIN py_title t ON t.Titlecode = h.Title
         WHERE h.Title IS NOT NULL AND h.Title != ''
           AND h.payrollclass = ?
           AND ((LENGTH(IFNULL(h.DateLeft, '')) > 0 AND STR_TO_DATE(h.DateLeft, '%Y%m%d') <= CURDATE()) 
             OR LENGTH(IFNULL(h.exittype, '')) > 0)
         ORDER BY h.Title
       `;
-      
+
       const [rows] = await pool.query(query, [payrollClass]);
       return rows;
-      
     } catch (error) {
-      console.error('Error in getAvailableTitles:', error);
+      console.error("Error in getAvailableTitles:", error);
       throw error;
     }
   }
@@ -393,7 +394,7 @@ class OldPersonnelReportService {
   async getAvailablePFAs(currentDb) {
     try {
       const payrollClass = await this.getPayrollClassFromDb(currentDb);
-      
+
       const query = `
         SELECT DISTINCT 
           pfacode as code,
@@ -405,12 +406,11 @@ class OldPersonnelReportService {
             OR LENGTH(IFNULL(exittype, '')) > 0)
         ORDER BY pfacode
       `;
-      
+
       const [rows] = await pool.query(query, [payrollClass]);
       return rows;
-      
     } catch (error) {
-      console.error('Error in getAvailablePFAs:', error);
+      console.error("Error in getAvailablePFAs:", error);
       throw error;
     }
   }
@@ -421,7 +421,7 @@ class OldPersonnelReportService {
   async getAvailableLocations(currentDb) {
     try {
       const payrollClass = await this.getPayrollClassFromDb(currentDb);
-      
+
       const query = `
         SELECT DISTINCT 
           h.Location as code,
@@ -434,12 +434,11 @@ class OldPersonnelReportService {
             OR LENGTH(IFNULL(h.exittype, '')) > 0)
         ORDER BY h.Location
       `;
-      
+
       const [rows] = await pool.query(query, [payrollClass]);
       return rows;
-      
     } catch (error) {
-      console.error('Error in getAvailableLocations:', error);
+      console.error("Error in getAvailableLocations:", error);
       throw error;
     }
   }
@@ -450,7 +449,7 @@ class OldPersonnelReportService {
   async getAvailableGradeTypes(currentDb) {
     try {
       const payrollClass = await this.getPayrollClassFromDb(currentDb);
-      
+
       const query = `
         SELECT DISTINCT 
           h.gradetype as code,
@@ -463,12 +462,11 @@ class OldPersonnelReportService {
             OR LENGTH(IFNULL(h.exittype, '')) > 0)
         ORDER BY h.gradetype
       `;
-      
+
       const [rows] = await pool.query(query, [payrollClass]);
       return rows;
-      
     } catch (error) {
-      console.error('Error in getAvailableGradeTypes:', error);
+      console.error("Error in getAvailableGradeTypes:", error);
       throw error;
     }
   }
@@ -479,7 +477,7 @@ class OldPersonnelReportService {
   async getAvailableGradeLevels(currentDb) {
     try {
       const payrollClass = await this.getPayrollClassFromDb(currentDb);
-      
+
       const query = `
         SELECT DISTINCT 
           gradelevel as code,
@@ -491,12 +489,11 @@ class OldPersonnelReportService {
             OR LENGTH(IFNULL(exittype, '')) > 0)
         ORDER BY gradelevel DESC
       `;
-      
+
       const [rows] = await pool.query(query, [payrollClass]);
       return rows;
-      
     } catch (error) {
-      console.error('Error in getAvailableGradeLevels:', error);
+      console.error("Error in getAvailableGradeLevels:", error);
       throw error;
     }
   }
@@ -507,7 +504,7 @@ class OldPersonnelReportService {
   async getAvailableBankBranches(currentDb) {
     try {
       const payrollClass = await this.getPayrollClassFromDb(currentDb);
-      
+
       const query = `
         SELECT DISTINCT 
           bankbranch as code,
@@ -521,12 +518,11 @@ class OldPersonnelReportService {
             OR LENGTH(IFNULL(exittype, '')) > 0)
         ORDER BY bankbranch
       `;
-      
+
       const [rows] = await pool.query(query, [payrollClass]);
       return rows;
-      
     } catch (error) {
-      console.error('Error in getAvailableBankBranches:', error);
+      console.error("Error in getAvailableBankBranches:", error);
       throw error;
     }
   }
@@ -537,7 +533,7 @@ class OldPersonnelReportService {
   async getAvailableStates(currentDb) {
     try {
       const payrollClass = await this.getPayrollClassFromDb(currentDb);
-      
+
       const query = `
         SELECT DISTINCT 
           StateofOrigin as code,
@@ -550,12 +546,11 @@ class OldPersonnelReportService {
             OR LENGTH(IFNULL(exittype, '')) > 0)
         ORDER BY StateofOrigin
       `;
-      
+
       const [rows] = await pool.query(query, [payrollClass]);
       return rows;
-      
     } catch (error) {
-      console.error('Error in getAvailableStates:', error);
+      console.error("Error in getAvailableStates:", error);
       throw error;
     }
   }
@@ -566,7 +561,7 @@ class OldPersonnelReportService {
   async getAvailableRentSubsidy(currentDb) {
     try {
       const payrollClass = await this.getPayrollClassFromDb(currentDb);
-      
+
       const query = `
         SELECT DISTINCT 
           rent_subsidy as code,
@@ -582,12 +577,11 @@ class OldPersonnelReportService {
             OR LENGTH(IFNULL(exittype, '')) > 0)
         ORDER BY rent_subsidy DESC
       `;
-      
+
       const [rows] = await pool.query(query, [payrollClass]);
       return rows;
-      
     } catch (error) {
-      console.error('Error in getAvailableRentSubsidy:', error);
+      console.error("Error in getAvailableRentSubsidy:", error);
       throw error;
     }
   }
@@ -598,7 +592,7 @@ class OldPersonnelReportService {
   async getAvailableTaxedStatus(currentDb) {
     try {
       const payrollClass = await this.getPayrollClassFromDb(currentDb);
-      
+
       const query = `
         SELECT DISTINCT 
           taxed as code,
@@ -614,12 +608,11 @@ class OldPersonnelReportService {
             OR LENGTH(IFNULL(exittype, '')) > 0)
         ORDER BY taxed DESC
       `;
-      
+
       const [rows] = await pool.query(query, [payrollClass]);
       return rows;
-      
     } catch (error) {
-      console.error('Error in getAvailableTaxedStatus:', error);
+      console.error("Error in getAvailableTaxedStatus:", error);
       throw error;
     }
   }
@@ -630,7 +623,7 @@ class OldPersonnelReportService {
   async getAvailableExitTypes(currentDb) {
     try {
       const payrollClass = await this.getPayrollClassFromDb(currentDb);
-      
+
       const query = `
         SELECT DISTINCT 
           exittype as code,
@@ -642,16 +635,14 @@ class OldPersonnelReportService {
             OR LENGTH(IFNULL(exittype, '')) > 0)
         ORDER BY exittype
       `;
-      
+
       const [rows] = await pool.query(query, [payrollClass]);
       return rows;
-      
     } catch (error) {
-      console.error('Error in getAvailableExitTypes:', error);
+      console.error("Error in getAvailableExitTypes:", error);
       throw error;
     }
   }
 }
-
 
 module.exports = new OldPersonnelReportService();

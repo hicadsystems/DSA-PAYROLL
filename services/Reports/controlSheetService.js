@@ -1,13 +1,12 @@
-const pool = require('../../config/db');
+const pool = require("../../config/db");
 
 class ControlSheetService {
-
   // ========================================================================
   // PAYROLL CONTROL SHEET REPORT
   // ========================================================================
   async getControlSheet(filters = {}) {
     const { year, month, payrollClass } = filters;
-    
+
     const query = `
       SELECT 
         ts.cyear as year,
@@ -49,33 +48,39 @@ class ControlSheetService {
           ELSE 7
         END as sort_order
       FROM py_tempsumm ts
-      LEFT JOIN py_elementType et ON et.PaymentType = ts.type1
+      LEFT JOIN py_elementtype et ON et.PaymentType = ts.type1
       WHERE (ts.amt1 != 0 OR ts.amt2 != 0 OR ts.tax != 0 OR ts.net != 0 OR ts.roundup != 0)
-        ${year ? 'AND ts.cyear = ?' : ''}
-        ${month ? 'AND ts.pmonth = ?' : ''}
-        ${payrollClass ? 'AND ts.loc = ?' : ''}
+        ${year ? "AND ts.cyear = ?" : ""}
+        ${month ? "AND ts.pmonth = ?" : ""}
+        ${payrollClass ? "AND ts.loc = ?" : ""}
       GROUP BY ts.cyear, ts.pmonth, ts.type1, ts.desc1, et.elmDesc, ts.ledger1, dr_cr_indicator, sort_order
       ORDER BY sort_order, ts.type1
     `;
-    
+
     const params = [];
     if (year) params.push(year);
     if (month) params.push(month);
     if (payrollClass) params.push(payrollClass);
-    
+
     const [rows] = await pool.query(query, params);
-    
+
     // Calculate totals
-    const drTotal = rows.reduce((sum, row) => sum + parseFloat(row.dr_amount || 0), 0);
-    const crTotal = rows.reduce((sum, row) => sum + parseFloat(row.cr_amount || 0), 0);
-    
+    const drTotal = rows.reduce(
+      (sum, row) => sum + parseFloat(row.dr_amount || 0),
+      0,
+    );
+    const crTotal = rows.reduce(
+      (sum, row) => sum + parseFloat(row.cr_amount || 0),
+      0,
+    );
+
     return {
       details: rows,
       totals: {
         dr_total: drTotal,
         cr_total: crTotal,
-        balanced: Math.abs(drTotal - crTotal) < 0.01
-      }
+        balanced: Math.abs(drTotal - crTotal) < 0.01,
+      },
     };
   }
 

@@ -1,45 +1,49 @@
-const pool = require('../../config/db');
+const pool = require("../../config/db");
 
 class RangePaymentServices {
   async getPaymentsByBankInRange(filters = {}) {
-    const { 
-      year, 
-      month, 
-      bankName, 
-      summaryOnly, 
-      allClasses, 
+    const {
+      year,
+      month,
+      bankName,
+      summaryOnly,
+      allClasses,
       specificClass,
-      minAmount,  // New filter for minimum amount
-      maxAmount   // New filter for maximum amount
+      minAmount, // New filter for minimum amount
+      maxAmount, // New filter for maximum amount
     } = filters;
-    
+
     // Validate amount range parameters
     if (minAmount === undefined || maxAmount === undefined) {
-      throw new Error('Both minAmount and maxAmount are required for in-range filtering');
+      throw new Error(
+        "Both minAmount and maxAmount are required for in-range filtering",
+      );
     }
-    
+
     const min = parseFloat(minAmount);
     const max = parseFloat(maxAmount);
-    
+
     if (isNaN(min) || isNaN(max)) {
-      throw new Error('minAmount and maxAmount must be valid numbers');
+      throw new Error("minAmount and maxAmount must be valid numbers");
     }
-    
+
     if (min > max) {
-      throw new Error('minAmount cannot be greater than maxAmount');
+      throw new Error("minAmount cannot be greater than maxAmount");
     }
-    
+
     // Determine which databases to query
     let databasesToQuery = [];
     const currentDb = pool.getCurrentDatabase();
     const masterDb = pool.getMasterDb();
-    
-    if (allClasses === 'true' || allClasses === true) {
+
+    if (allClasses === "true" || allClasses === true) {
       // Only allow all classes if current database is the master/officers database
       if (currentDb !== masterDb) {
-        throw new Error('All classes report can only be generated from the Officers database');
+        throw new Error(
+          "All classes report can only be generated from the Officers database",
+        );
       }
-      
+
       // If specific class is selected, use only that class
       if (specificClass) {
         const targetDb = pool.getDatabaseFromPayrollClass(specificClass);
@@ -52,35 +56,40 @@ class RangePaymentServices {
         const dbToClassMap = await this.getDbToClassMap();
 
         // Get all available databases including the current one
-        const dbConfig = require('../../config/db-config').getConfigSync();
-        databasesToQuery = Object.entries(dbConfig.databases)
-          .map(([className, dbName]) => ({ 
+        const dbConfig = require("../../config/db-config").getConfigSync();
+        databasesToQuery = Object.entries(dbConfig.databases).map(
+          ([className, dbName]) => ({
             name: dbToClassMap[dbName] || className,
-            db: dbName 
-          }));
+            db: dbName,
+          }),
+        );
       }
     } else {
       // Single database query - current session database
-      databasesToQuery = [{ name: 'current', db: currentDb }];
+      databasesToQuery = [{ name: "current", db: currentDb }];
     }
-    
+
     const allResults = [];
     const failedClasses = [];
-    
+
     for (const { name, db } of databasesToQuery) {
       // Temporarily switch to the target database
       const originalDb = pool.getCurrentDatabase();
-      
+
       try {
         pool.useDatabase(db);
       } catch (dbError) {
         console.warn(`⚠️ Skipping ${name} (${db}): ${dbError.message}`);
-        failedClasses.push({ class: name, database: db, error: dbError.message });
+        failedClasses.push({
+          class: name,
+          database: db,
+          error: dbError.message,
+        });
         continue;
       }
-      
+
       try {
-        if (summaryOnly === 'true' || summaryOnly === true) {
+        if (summaryOnly === "true" || summaryOnly === true) {
           // Summary query - aggregated data with amount range filter
           const query = `
             SELECT 
@@ -100,28 +109,27 @@ class RangePaymentServices {
             LEFT JOIN py_bank bnk ON TRIM(LEADING '0' FROM TRIM(bnk.bankcode)) = TRIM(LEADING '0' FROM TRIM(we.Bankcode))
                             AND TRIM(LEADING '0' FROM TRIM(bnk.branchcode)) = TRIM(LEADING '0' FROM TRIM(we.bankbranch))
             WHERE mc.his_netmth BETWEEN ? AND ?
-              ${year ? 'AND sr.ord = ?' : ''}
-              ${month ? 'AND sr.mth = ?' : ''}
-              ${bankName ? 'AND we.Bankcode = ?' : ''}
+              ${year ? "AND sr.ord = ?" : ""}
+              ${month ? "AND sr.mth = ?" : ""}
+              ${bankName ? "AND we.Bankcode = ?" : ""}
             GROUP BY sr.ord, sr.mth, we.Bankcode, we.bankbranch, bnk.branchname
             ORDER BY we.Bankcode, we.bankbranch
           `;
-          
+
           const params = [min, max];
           if (year) params.push(year);
           if (month) params.push(month);
           if (bankName) params.push(bankName);
-          
+
           const [rows] = await pool.query(query, params);
-          
+
           // Add class identifier to each row
           allResults.push({
             payrollClass: name,
             database: db,
             amountRange: { min, max },
-            data: rows
+            data: rows,
           });
-          
         } else {
           // Detailed query - individual employee records with amount range filter
           const query = `
@@ -142,65 +150,80 @@ class RangePaymentServices {
             INNER JOIN py_mastercum mc ON mc.his_empno = we.empl_id AND mc.his_type = sr.mth
             LEFT JOIN py_bank bnk ON TRIM(LEADING '0' FROM TRIM(bnk.bankcode)) = TRIM(LEADING '0' FROM TRIM(we.Bankcode))
                             AND TRIM(LEADING '0' FROM TRIM(bnk.branchcode)) = TRIM(LEADING '0' FROM TRIM(we.bankbranch))
-            LEFT JOIN py_Title tt ON tt.Titlecode = we.Title
+            LEFT JOIN py_title tt ON tt.Titlecode = we.Title
             WHERE mc.his_netmth BETWEEN ? AND ?
-              ${year ? 'AND sr.ord = ?' : ''}
-              ${month ? 'AND sr.mth = ?' : ''}
-              ${bankName ? 'AND we.Bankcode = ?' : ''}
+              ${year ? "AND sr.ord = ?" : ""}
+              ${month ? "AND sr.mth = ?" : ""}
+              ${bankName ? "AND we.Bankcode = ?" : ""}
             ORDER BY we.Bankcode, we.bankbranch, we.empl_id
           `;
-          
+
           const params = [min, max];
           if (year) params.push(year);
           if (month) params.push(month);
           if (bankName) params.push(bankName);
-          
+
           const [rows] = await pool.query(query, params);
-          
+
           // Add class identifier to each row
           allResults.push({
             payrollClass: name,
             database: db,
             amountRange: { min, max },
-            data: rows
+            data: rows,
           });
         }
       } catch (queryError) {
-        console.error(`❌ Query error for ${name} (${db}):`, queryError.message);
-        failedClasses.push({ class: name, database: db, error: queryError.message });
+        console.error(
+          `❌ Query error for ${name} (${db}):`,
+          queryError.message,
+        );
+        failedClasses.push({
+          class: name,
+          database: db,
+          error: queryError.message,
+        });
       } finally {
         // Restore original database context
         try {
           pool.useDatabase(originalDb);
         } catch (restoreError) {
-          console.warn(`⚠️ Could not restore database context: ${restoreError.message}`);
+          console.warn(
+            `⚠️ Could not restore database context: ${restoreError.message}`,
+          );
         }
       }
     }
-    
+
     // Return results based on whether it's a multi-class query
-    if (allClasses === 'true' || allClasses === true) {
-      const result = { 
+    if (allClasses === "true" || allClasses === true) {
+      const result = {
         data: allResults,
         amountRange: { min, max },
         summary: {
           total: databasesToQuery.length,
           successful: allResults.length,
           failed: failedClasses.length,
-          totalRecords: allResults.reduce((sum, r) => sum + (r.data?.length || 0), 0)
-        }
+          totalRecords: allResults.reduce(
+            (sum, r) => sum + (r.data?.length || 0),
+            0,
+          ),
+        },
       };
-      
+
       if (failedClasses.length > 0) {
         result.failedClasses = failedClasses;
-        console.warn(`⚠️ ${failedClasses.length} class(es) failed:`, failedClasses);
+        console.warn(
+          `⚠️ ${failedClasses.length} class(es) failed:`,
+          failedClasses,
+        );
       }
-      
+
       return result;
     } else {
       return {
         amountRange: { min, max },
-        data: allResults[0]?.data || []
+        data: allResults[0]?.data || [],
       };
     }
   }
@@ -234,13 +257,15 @@ class RangePaymentServices {
   async getDbToClassMap() {
     const masterDb = pool.getMasterDb();
     pool.useDatabase(masterDb);
-    const [dbClasses] = await pool.query('SELECT db_name, classname FROM py_payrollclass');
-    
+    const [dbClasses] = await pool.query(
+      "SELECT db_name, classname FROM py_payrollclass",
+    );
+
     const dbToClassMap = {};
-    dbClasses.forEach(row => {
+    dbClasses.forEach((row) => {
       dbToClassMap[row.db_name] = row.classname;
     });
-    
+
     return dbToClassMap;
   }
 }

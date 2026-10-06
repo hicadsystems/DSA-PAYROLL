@@ -9,9 +9,9 @@ const { AsyncLocalStorage } = require("async_hooks");
 const MASTER_TABLES = new Set([
   // Employee and Personal Info
   "hr_employees",
-  "Spouse",
-  "Children",
-  "NextOfKin",
+  "spouse",
+  "children",
+  "nextofkin",
 
   // Organizational Structure
   "ac_businessline",
@@ -23,9 +23,9 @@ const MASTER_TABLES = new Set([
 
   // Payroll Configuration
   "py_bank",
-  //'py_elementType',
-  //'py_exclusiveType',
-  "py_functionType",
+  //'py_elementtype',
+  //'py_exclusivetype',
+  "py_functiontype",
   "py_Grade",
   "py_gradelevel",
   "py_paydesc",
@@ -40,16 +40,16 @@ const MASTER_TABLES = new Set([
   "py_specialisationarea",
 
   // Lookup/Reference Tables
-  "py_MaritalStatus",
+  "py_maritalstatus",
   "py_pfa",
   "py_relationship",
   "py_religion",
   "py_status",
-  "py_tblLga",
+  "py_tblllga",
   "py_tblstates",
   "geozone",
-  "py_Country",
-  "py_Title",
+  "py_country",
+  "py_title",
   "py_sex",
 
   // System Tables

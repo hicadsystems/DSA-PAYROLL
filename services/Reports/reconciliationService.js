@@ -181,7 +181,7 @@ class ReconciliationService {
         e.Title,
         ttl.Description AS title_description
       FROM hr_employees e
-      LEFT JOIN py_Title ttl ON ttl.TitleCode = e.Title
+      LEFT JOIN py_title ttl ON ttl.TitleCode = e.Title
       WHERE (e.DateLeft IS NULL OR e.DateLeft = '')
         AND (e.exittype IS NULL OR e.exittype = '')
         ${employeeFilter}
@@ -248,7 +248,7 @@ class ReconciliationService {
              LEFT(his_type, 2) AS type_prefix,
              COALESCE(SUM(amtthismth), 0) AS amount
            FROM py_masterpayded
-           LEFT JOIN py_elementType et ON et.PaymentType = his_type
+           LEFT JOIN py_elementtype et ON et.PaymentType = his_type
            WHERE his_empno = ?
            GROUP BY his_type
            ORDER BY his_type`,

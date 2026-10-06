@@ -339,7 +339,7 @@ class PeriodValidatorService {
         )
       )
        FROM py_payhistory ph
-       LEFT JOIN py_elementType et ON et.PaymentType = ph.his_type
+       LEFT JOIN py_elementtype et ON et.PaymentType = ph.his_type
        WHERE ph.his_empno = ${empnoField}
          AND ph.his_year = ${year}
          AND ph.${amtCol} > 0

@@ -1,13 +1,12 @@
-const express = require('express');
-const pool = require('../../config/db'); // mysql2 pool
-const verifyToken = require('../../middware/authentication');
+const express = require("express");
+const pool = require("../../config/db"); // mysql2 pool
+const verifyToken = require("../../middware/authentication");
 const router = express.Router();
-
 
 // Get all exclusive types
 router.get("/", verifyToken, async (req, res) => {
   try {
-    const [rows] = await pool.query("SELECT * FROM py_exclusiveType");
+    const [rows] = await pool.query("SELECT * FROM py_exclusivetype");
     res.json(rows);
   } catch (err) {
     console.error("Fetch failed:", err);
@@ -20,8 +19,8 @@ router.get("/:typeH/:typeL", verifyToken, async (req, res) => {
   try {
     const { typeH, typeL } = req.params;
     const [rows] = await pool.query(
-      "SELECT * FROM py_exclusiveType WHERE typeH = ? AND typeL = ?",
-      [typeH, typeL]
+      "SELECT * FROM py_exclusivetype WHERE typeH = ? AND typeL = ?",
+      [typeH, typeL],
     );
     if (rows.length === 0) return res.status(404).json({ error: "Not found" });
     res.json(rows[0]);
@@ -41,7 +40,7 @@ router.post("/post", verifyToken, async (req, res) => {
     }
 
     const sql = `
-      INSERT INTO py_exclusiveType (typeH, typeL, typehdesc, typeldesc)
+      INSERT INTO py_exclusivetype (typeH, typeL, typehdesc, typeldesc)
       VALUES (?, ?, ?, ?)
     `;
 
@@ -59,7 +58,6 @@ router.post("/post", verifyToken, async (req, res) => {
   }
 });
 
-
 // Update existing exclusive type
 router.put("/:typeH/:typeL", verifyToken, async (req, res) => {
   try {
@@ -69,7 +67,7 @@ router.put("/:typeH/:typeL", verifyToken, async (req, res) => {
     const { typehdesc, typeldesc } = req.body;
 
     const sql = `
-      UPDATE py_exclusiveType
+      UPDATE py_exclusivetype
       SET typehdesc = ?, typeldesc = ?
       WHERE typeH = ? AND typeL = ?
     `;
@@ -97,8 +95,8 @@ router.delete("/:typeH/:typeL", verifyToken, async (req, res) => {
   try {
     const { typeH, typeL } = req.params;
     const [result] = await pool.query(
-      "DELETE FROM py_exclusiveType WHERE typeH = ? AND typeL = ?",
-      [typeH, typeL]
+      "DELETE FROM py_exclusivetype WHERE typeH = ? AND typeL = ?",
+      [typeH, typeL],
     );
 
     if (result.affectedRows === 0)

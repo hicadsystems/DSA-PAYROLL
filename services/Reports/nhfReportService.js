@@ -92,7 +92,7 @@ class NHFReportService {
          INNER JOIN py_wkemployees we ON we.empl_id  = mp.his_empno
          INNER JOIN py_mastercum   mc ON mc.his_empno = mp.his_empno
                                      AND mc.his_type  = ?
-         LEFT  JOIN py_Title        tt ON tt.Titlecode  = we.Title
+         LEFT  JOIN py_title        tt ON tt.Titlecode  = we.Title
          LEFT  JOIN ac_costcentre   cc ON cc.unitcode   = we.Location
          WHERE mp.his_type   = 'PR306'
            AND mp.amtthismth > 0

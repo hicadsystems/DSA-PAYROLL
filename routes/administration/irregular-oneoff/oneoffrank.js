@@ -1,13 +1,12 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const pool = require('../../../config/db.js'); // mysql2 pool
-const verifyToken = require('../../../middware/authentication.js');
-
+const pool = require("../../../config/db.js"); // mysql2 pool
+const verifyToken = require("../../../middware/authentication.js");
 
 //------------- ONE-OFF PAY PER RANK ------------------
 
 //validations
-router.get('/check/:field/:value', verifyToken, async (req, res) => {
+router.get("/check/:field/:value", verifyToken, async (req, res) => {
   const { field, value } = req.params;
   const { exclude } = req.query;
 
@@ -22,7 +21,7 @@ router.get('/check/:field/:value', verifyToken, async (req, res) => {
     let params = [value];
 
     if (exclude) {
-      query += ' AND one_type != ?';
+      query += " AND one_type != ?";
       params.push(exclude);
     }
 
@@ -37,7 +36,9 @@ router.get('/check/:field/:value', verifyToken, async (req, res) => {
 // Get all payperrank records
 router.get("/", verifyToken, async (req, res) => {
   try {
-    const [rows] = await pool.query("SELECT r.*, et.elmDesc as description FROM py_oneoffrank r LEFT JOIN py_elementType et ON r.one_type = et.PaymentType");
+    const [rows] = await pool.query(
+      "SELECT r.*, et.elmDesc as description FROM py_oneoffrank r LEFT JOIN py_elementtype et ON r.one_type = et.PaymentType",
+    );
     res.json(rows);
   } catch (err) {
     console.error(err);
@@ -49,8 +50,8 @@ router.get("/", verifyToken, async (req, res) => {
 router.get("/:one_type", verifyToken, async (req, res) => {
   try {
     const [rows] = await pool.query(
-      "SELECT r.*, et.elmDesc as description FROM py_oneoffrank r LEFT JOIN py_elementType et ON r.one_type = et.PaymentType WHERE r.one_type = ?",
-      [req.params.one_type]
+      "SELECT r.*, et.elmDesc as description FROM py_oneoffrank r LEFT JOIN py_elementtype et ON r.one_type = et.PaymentType WHERE r.one_type = ?",
+      [req.params.one_type],
     );
     if (rows.length === 0) return res.status(404).json({ error: "Not found" });
     res.json(rows[0]);
@@ -102,10 +103,10 @@ router.put("/:one_type", verifyToken, async (req, res) => {
       .join(",");
     const values = Object.values(payload);
 
-    await pool.query(
-      `UPDATE py_oneoffrank SET ${setClause} WHERE one_type=?`,
-      [...values, one_type]
-    );
+    await pool.query(`UPDATE py_oneoffrank SET ${setClause} WHERE one_type=?`, [
+      ...values,
+      one_type,
+    ]);
 
     res.json({ message: "One-off rank amounts updated successfully" });
   } catch (err) {

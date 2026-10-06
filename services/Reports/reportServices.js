@@ -140,7 +140,7 @@ class ReportService {
             INNER JOIN py_mastercum mc ON mc.his_empno = we.empl_id AND mc.his_type = sr.mth
             LEFT JOIN py_bank bnk ON TRIM(LEADING '0' FROM TRIM(bnk.bankcode)) = TRIM(LEADING '0' FROM TRIM(we.Bankcode))
                             AND TRIM(LEADING '0' FROM TRIM(bnk.branchcode)) = TRIM(LEADING '0' FROM TRIM(we.bankbranch))
-            LEFT JOIN py_Title tt ON tt.Titlecode = we.Title
+            LEFT JOIN py_title tt ON tt.Titlecode = we.Title
             WHERE 1=1
               ${year ? "AND sr.ord = ?" : ""}
               ${month ? "AND sr.mth = ?" : ""}
@@ -249,7 +249,7 @@ class ReportService {
           COUNT(DISTINCT mp.his_empno)   AS employee_count,
           ROUND(SUM(mp.amtthismth), 2)   AS total_amount
         FROM py_masterpayded mp
-        LEFT JOIN py_elementType et ON et.PaymentType = mp.his_type
+        LEFT JOIN py_elementtype et ON et.PaymentType = mp.his_type
         WHERE mp.amtthismth != 0
           ${paymentType ? "AND mp.his_type = ?" : ""}
         GROUP BY mp.his_type, et.elmDesc
@@ -269,8 +269,8 @@ class ReportService {
           ROUND(SUM(mp.amtthismth), 2)                           AS total_amount
         FROM py_masterpayded mp
         LEFT JOIN py_wkemployees we ON we.empl_id = mp.his_empno
-        LEFT JOIN py_elementType et ON et.PaymentType = mp.his_type
-        LEFT JOIN py_Title tt       ON tt.Titlecode   = we.Title
+        LEFT JOIN py_elementtype et ON et.PaymentType = mp.his_type
+        LEFT JOIN py_title tt       ON tt.Titlecode   = we.Title
         WHERE mp.amtthismth != 0
           ${paymentType ? "AND mp.his_type = ?" : ""}
         GROUP BY mp.his_type, et.elmDesc, mp.his_empno,
@@ -303,8 +303,8 @@ class ReportService {
       FROM py_masterpayded mp
       CROSS JOIN (SELECT ord, mth FROM py_stdrate WHERE type = 'BT05') sr
       INNER JOIN py_wkemployees we ON we.empl_id = mp.his_empno
-      LEFT JOIN py_elementType et ON et.PaymentType = mp.his_type
-      LEFT JOIN py_Title tt ON tt.Titlecode = we.Title
+      LEFT JOIN py_elementtype et ON et.PaymentType = mp.his_type
+      LEFT JOIN py_title tt ON tt.Titlecode = we.Title
       WHERE (
           LEFT(mp.his_type, 2) = 'PL'
           -- OR (LEFT(mp.his_type, 2) = 'PR' AND mp.payindic = 'T')
@@ -390,10 +390,10 @@ class ReportService {
       FROM py_masterpayded mp
       CROSS JOIN (SELECT ord, mth FROM py_stdrate WHERE type = 'BT05') sr
       INNER JOIN py_wkemployees we ON we.empl_id = mp.his_empno
-      LEFT JOIN py_elementType et ON et.PaymentType = mp.his_type
+      LEFT JOIN py_elementtype et ON et.PaymentType = mp.his_type
       LEFT JOIN py_bank bnk ON TRIM(LEADING '0' FROM TRIM(bnk.bankcode)) = TRIM(LEADING '0' FROM TRIM(we.Bankcode))
                             AND TRIM(LEADING '0' FROM TRIM(bnk.branchcode)) = TRIM(LEADING '0' FROM TRIM(we.bankbranch))
-      LEFT JOIN py_Title tt ON tt.Titlecode = we.Title
+      LEFT JOIN py_title tt ON tt.Titlecode = we.Title
       WHERE mp.amtthismth != 0
         ${year ? "AND sr.ord = ?" : ""}
         ${month ? "AND sr.mth = ?" : ""}

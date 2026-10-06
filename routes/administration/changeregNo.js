@@ -1,8 +1,7 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const verifyToken = require('../../middware/authentication');
-const pool = require('../../config/db');
-
+const verifyToken = require("../../middware/authentication");
+const pool = require("../../config/db");
 
 /**
  * Maps database name to payroll class code from py_payrollclass
@@ -12,16 +11,16 @@ const pool = require('../../config/db');
 async function getPayrollClassFromDb(dbName) {
   const masterDb = pool.getMasterDb();
   const connection = await pool.getConnection();
-  
+
   try {
     await connection.query(`USE \`${masterDb}\``);
     const [rows] = await connection.query(
-      'SELECT classcode FROM py_payrollclass WHERE db_name = ?',
-      [dbName]
+      "SELECT classcode FROM py_payrollclass WHERE db_name = ?",
+      [dbName],
     );
-    
+
     const result = rows.length > 0 ? rows[0].classcode : null;
-    console.log('🔍 Database:', dbName, '→ Payroll Class:', result);
+    console.log("🔍 Database:", dbName, "→ Payroll Class:", result);
     return result;
   } finally {
     connection.release();
@@ -35,31 +34,31 @@ async function getPayrollClassFromDb(dbName) {
 function getDefaultPayrollTables() {
   return [
     // INPUT TABLES
-    { table: 'py_payded',          emplIdCol: 'Empl_ID'   },
-    { table: 'py_cumulated',       emplIdCol: 'Empl_ID'   },
-    { table: 'py_header',          emplIdCol: 'Empl_ID'   },
-    { table: 'py_operative',       emplIdCol: 'Empl_ID'   },
-    { table: 'py_overtime',        emplIdCol: 'Empl_ID'   },
-    { table: 'py_documentation',   emplIdCol: 'doc_numb'  },
+    { table: "py_payded", emplIdCol: "Empl_ID" },
+    { table: "py_cumulated", emplIdCol: "Empl_ID" },
+    { table: "py_header", emplIdCol: "Empl_ID" },
+    { table: "py_operative", emplIdCol: "Empl_ID" },
+    { table: "py_overtime", emplIdCol: "Empl_ID" },
+    { table: "py_documentation", emplIdCol: "doc_numb" },
     // ARCHIVE TABLES
-    { table: 'py_ipis_payhistory', emplIdCol: 'numb'      },
-    { table: 'py_payhistory',      emplIdCol: 'his_empno' },
-    { table: 'py_inputhistory',    emplIdCol: 'Empl_ID'   },
+    { table: "py_ipis_payhistory", emplIdCol: "numb" },
+    { table: "py_payhistory", emplIdCol: "his_empno" },
+    { table: "py_inputhistory", emplIdCol: "Empl_ID" },
     // MASTER TABLES
-    { table: 'py_masterpayded',    emplIdCol: 'his_Empno' },
-    { table: 'py_mastercum',       emplIdCol: 'his_Empno' },
-    { table: 'py_masterover',      emplIdCol: 'his_Empno' },
-    { table: 'py_masterope',       emplIdCol: 'his_Empno' },
-    { table: 'py_calculation',     emplIdCol: 'his_empno' },
-    { table: 'py_oneoffhistory',   emplIdCol: 'his_empno' },
+    { table: "py_masterpayded", emplIdCol: "his_Empno" },
+    { table: "py_mastercum", emplIdCol: "his_Empno" },
+    { table: "py_masterover", emplIdCol: "his_Empno" },
+    { table: "py_masterope", emplIdCol: "his_Empno" },
+    { table: "py_calculation", emplIdCol: "his_empno" },
+    { table: "py_oneoffhistory", emplIdCol: "his_empno" },
   ];
 }
 
-// HR child tables — Spouse, Children, NextOfKin are all in MASTER_TABLES
+// HR child tables — spouse, children, nextofkin are all in MASTER_TABLES
 // so pool.query qualifies them to MASTER_DB automatically.
 // NOTE: pass the bare table name (no backticks) in queries so qualifyMasterTables
 // regex can match and rewrite it correctly.
-const HR_CHILD_TABLES = ['Children', 'NextOfKin', 'Spouse'];
+const HR_CHILD_TABLES = ["children", "nextofkin", "spouse"];
 
 // ──────────────────────────────────────────────────────────────────────────────
 // HELPERS
@@ -79,7 +78,7 @@ async function discoverPayrollTables(database) {
          AND table_name LIKE 'py_%'
          AND table_name NOT IN ('py_payrollclass', 'py_setup')
        ORDER BY table_name`,
-      [database]
+      [database],
     );
 
     const discovered = [];
@@ -105,7 +104,7 @@ async function discoverPayrollTables(database) {
              ELSE 6
            END
          LIMIT 1`,
-        [database, table_name]
+        [database, table_name],
       );
       if (cols.length > 0) {
         discovered.push({ table: table_name, emplIdCol: cols[0].COLUMN_NAME });
@@ -127,7 +126,7 @@ async function resolveColumnName(database, table, column) {
       `SELECT COLUMN_NAME
        FROM information_schema.columns
        WHERE table_schema = ? AND table_name = ? AND LOWER(COLUMN_NAME) = LOWER(?)`,
-      [database, table, column]
+      [database, table, column],
     );
     return rows.length > 0 ? rows[0].COLUMN_NAME : column;
   } catch {
@@ -145,7 +144,7 @@ async function isPrimaryKey(database, table, column) {
        FROM information_schema.columns
        WHERE table_schema = ? AND table_name = ? AND LOWER(COLUMN_NAME) = LOWER(?)
          AND COLUMN_KEY = 'PRI'`,
-      [database, table, column]
+      [database, table, column],
     );
     return rows.length > 0;
   } catch {
@@ -154,7 +153,7 @@ async function isPrimaryKey(database, table, column) {
 }
 
 // ==================== GET ALL EMPLOYEES ====================
-router.get('/employees', verifyToken, async (req, res) => {
+router.get("/employees", verifyToken, async (req, res) => {
   try {
     const currentDb = pool.getCurrentDatabase(req.user_id.toString());
     const payrollClass = await getPayrollClassFromDb(currentDb);
@@ -165,17 +164,19 @@ router.get('/employees', verifyToken, async (req, res) => {
        WHERE ((DateLeft IS NULL OR DateLeft = '' OR DateLeft > DATE_FORMAT(CURDATE(), '%Y%m%d'))
          AND (exittype IS NULL OR exittype = '')
          AND payrollclass = ?)`,
-      [payrollClass]
+      [payrollClass],
     );
 
     res.status(200).json({
-      message: 'Employees retrieved successfully',
+      message: "Employees retrieved successfully",
       data: rows,
-      count: rows.length
+      count: rows.length,
     });
   } catch (error) {
-    console.error('Error fetching employees:', error);
-    res.status(500).json({ error: 'Failed to fetch employees', details: error.message });
+    console.error("Error fetching employees:", error);
+    res
+      .status(500)
+      .json({ error: "Failed to fetch employees", details: error.message });
   }
 });
 
@@ -185,7 +186,7 @@ router.get('/employees', verifyToken, async (req, res) => {
  *
  * Updates Empl_ID across all tables in the pool's current database.
  *
- * - hr_employees, Children, NextOfKin, Spouse are in MASTER_TABLES so pool.query
+ * - hr_employees, children, nextofkin, spouse are in MASTER_TABLES so pool.query
  *   auto-qualifies them to MASTER_DB via qualifyMasterTables.
  *   IMPORTANT: pass bare table names (no backticks) in query strings so the
  *   regex in qualifyMasterTables can match and rewrite them correctly.
@@ -196,54 +197,66 @@ router.get('/employees', verifyToken, async (req, res) => {
  * - SET FOREIGN_KEY_CHECKS is session-level so it wraps outside the transaction,
  *   restored in a finally block.
  */
-router.put('/update-regno', verifyToken, async (req, res) => {
+router.put("/update-regno", verifyToken, async (req, res) => {
   const { oldRegNo, newRegNo } = req.body;
 
   if (!oldRegNo || !newRegNo) {
-    return res.status(400).json({ error: 'Both current and new registration numbers are required.' });
+    return res.status(400).json({
+      error: "Both current and new registration numbers are required.",
+    });
   }
   if (oldRegNo.trim() === newRegNo.trim()) {
-    return res.status(400).json({ error: 'New registration number cannot be the same as the old one.' });
+    return res.status(400).json({
+      error: "New registration number cannot be the same as the old one.",
+    });
   }
 
-  const oldId     = oldRegNo.trim();
-  const newId     = newRegNo.trim();
+  const oldId = oldRegNo.trim();
+  const newId = newRegNo.trim();
   const currentDb = pool.getCurrentDatabase(req.user_id.toString());
-  const masterDb  = pool.getMasterDb();
+  const masterDb = pool.getMasterDb();
 
-  console.log(`🔄 update-regno: "${oldId}" → "${newId}" | database: ${currentDb}`);
+  console.log(
+    `🔄 update-regno: "${oldId}" → "${newId}" | database: ${currentDb}`,
+  );
 
   try {
     // ── 1. Pre-flight checks ──────────────────────────────────────────────────
     // pool.query qualifies hr_employees → MASTER_DB automatically
     const [existingEmployee] = await pool.query(
-      'SELECT Empl_ID FROM hr_employees WHERE Empl_ID = ?',
-      [oldId]
+      "SELECT Empl_ID FROM hr_employees WHERE Empl_ID = ?",
+      [oldId],
     );
     if (existingEmployee.length === 0) {
-      return res.status(404).json({ error: `No employee found with registration number "${oldId}".` });
+      return res.status(404).json({
+        error: `No employee found with registration number "${oldId}".`,
+      });
     }
 
     const [taken] = await pool.query(
-      'SELECT Empl_ID FROM hr_employees WHERE Empl_ID = ?',
-      [newId]
+      "SELECT Empl_ID FROM hr_employees WHERE Empl_ID = ?",
+      [newId],
     );
     if (taken.length > 0) {
-      return res.status(400).json({ error: `The registration number "${newId}" already exists.` });
+      return res
+        .status(400)
+        .json({ error: `The registration number "${newId}" already exists.` });
     }
 
     // ── 2. Discover py_* tables (before the transaction) ─────────────────────
     let payrollTables = await discoverPayrollTables(currentDb);
 
     if (payrollTables.length === 0) {
-      console.log('  ⚠️ Dynamic discovery found no py_ tables — using fallback list');
+      console.log(
+        "  ⚠️ Dynamic discovery found no py_ tables — using fallback list",
+      );
       const defaults = getDefaultPayrollTables();
       for (const entry of defaults) {
         const [tc] = await pool.query(
           `SELECT COUNT(*) AS cnt
            FROM information_schema.tables
            WHERE table_schema = ? AND table_name = ?`,
-          [currentDb, entry.table]
+          [currentDb, entry.table],
         );
         if (tc[0].cnt > 0) payrollTables.push(entry);
       }
@@ -251,7 +264,7 @@ router.put('/update-regno', verifyToken, async (req, res) => {
     console.log(`  ✓ ${payrollTables.length} py_* table(s) found`);
 
     // ── 3. FK checks off — session-level, outside the transaction ────────────
-    await pool.rawQuery('SET FOREIGN_KEY_CHECKS = 0');
+    await pool.rawQuery("SET FOREIGN_KEY_CHECKS = 0");
 
     let updateLog;
     try {
@@ -259,16 +272,20 @@ router.put('/update-regno', verifyToken, async (req, res) => {
         const log = [];
 
         // ── hr_employees (PK) ─────────────────────────────────────────────────
-        // Bare table name — qualifyMasterTables rewrites to MASTER_DB.Children etc.
+        // Bare table name — qualifyMasterTables rewrites to MASTER_DB.children etc.
         const [hrResult] = await pool.query(
-          'UPDATE hr_employees SET Empl_ID = ? WHERE Empl_ID = ?',
-          [newId, oldId]
+          "UPDATE hr_employees SET Empl_ID = ? WHERE Empl_ID = ?",
+          [newId, oldId],
         );
-        log.push({ table: 'hr_employees', rows: hrResult.affectedRows, pk: true });
+        log.push({
+          table: "hr_employees",
+          rows: hrResult.affectedRows,
+          pk: true,
+        });
         console.log(`  ✓ hr_employees (PK) → ${hrResult.affectedRows} row(s)`);
 
         // ── HR child tables (FK) ──────────────────────────────────────────────
-        // Children, NextOfKin, Spouse are all in MASTER_TABLES.
+        // children, nextofkin, spouse are all in MASTER_TABLES.
         // Use bare table name in the query string so qualifyMasterTables matches it.
         for (const childTable of HR_CHILD_TABLES) {
           try {
@@ -276,19 +293,29 @@ router.put('/update-regno', verifyToken, async (req, res) => {
               `SELECT COUNT(*) AS cnt
                FROM information_schema.tables
                WHERE table_schema = ? AND table_name = ?`,
-              [masterDb, childTable]
+              [masterDb, childTable],
             );
             if (tableCheck[0].cnt === 0) continue;
 
-            const col = await resolveColumnName(masterDb, childTable, 'Empl_ID');
+            const col = await resolveColumnName(
+              masterDb,
+              childTable,
+              "Empl_ID",
+            );
 
             const [result] = await pool.query(
               `UPDATE ${childTable} SET \`${col}\` = ? WHERE \`${col}\` = ?`,
-              [newId, oldId]
+              [newId, oldId],
             );
-            log.push({ table: childTable, rows: result.affectedRows, fk: true });
+            log.push({
+              table: childTable,
+              rows: result.affectedRows,
+              fk: true,
+            });
             if (result.affectedRows > 0) {
-              console.log(`  ✓ ${childTable} (FK) → ${result.affectedRows} row(s)`);
+              console.log(
+                `  ✓ ${childTable} (FK) → ${result.affectedRows} row(s)`,
+              );
             }
           } catch (err) {
             console.warn(`  ⚠️ Could not update ${childTable}: ${err.message}`);
@@ -301,16 +328,18 @@ router.put('/update-regno', verifyToken, async (req, res) => {
         // the transaction and roll back together on failure.
         for (const { table, emplIdCol } of payrollTables) {
           try {
-            const col   = await resolveColumnName(currentDb, table, emplIdCol);
+            const col = await resolveColumnName(currentDb, table, emplIdCol);
             const colPK = await isPrimaryKey(currentDb, table, col);
 
             const [result] = await conn.query(
               `UPDATE \`${table}\` SET \`${col}\` = ? WHERE \`${col}\` = ?`,
-              [newId, oldId]
+              [newId, oldId],
             );
             if (result.affectedRows > 0) {
               log.push({ table, rows: result.affectedRows, pk: colPK });
-              console.log(`  ✓ ${table}.${col}${colPK ? ' (PK)' : ''} → ${result.affectedRows} row(s)`);
+              console.log(
+                `  ✓ ${table}.${col}${colPK ? " (PK)" : ""} → ${result.affectedRows} row(s)`,
+              );
             }
           } catch (err) {
             console.warn(`  ⚠️ Could not update ${table}: ${err.message}`);
@@ -322,29 +351,30 @@ router.put('/update-regno', verifyToken, async (req, res) => {
       });
     } finally {
       // Always restore — whether transaction succeeded or threw
-      await pool.rawQuery('SET FOREIGN_KEY_CHECKS = 1');
+      await pool.rawQuery("SET FOREIGN_KEY_CHECKS = 1");
     }
 
     const totalRows = updateLog.reduce((sum, e) => sum + (e.rows || 0), 0);
-    const tablesHit = updateLog.filter(e => e.rows > 0).length;
-    console.log(`✅ Done: "${oldId}" → "${newId}" | ${totalRows} row(s) across ${tablesHit} table(s)`);
+    const tablesHit = updateLog.filter((e) => e.rows > 0).length;
+    console.log(
+      `✅ Done: "${oldId}" → "${newId}" | ${totalRows} row(s) across ${tablesHit} table(s)`,
+    );
 
     return res.status(200).json({
-      message: 'Registration number updated successfully.',
+      message: "Registration number updated successfully.",
       data: {
-        oldRegNo:         oldId,
-        newRegNo:         newId,
-        database:         currentDb,
+        oldRegNo: oldId,
+        newRegNo: newId,
+        database: currentDb,
         totalRowsUpdated: totalRows,
-        breakdown:        updateLog
-      }
+        breakdown: updateLog,
+      },
     });
-
   } catch (error) {
-    console.error('❌ Error updating registration number:', error);
+    console.error("❌ Error updating registration number:", error);
     return res.status(500).json({
-      error:   'Failed to update registration number.',
-      details: error.message
+      error: "Failed to update registration number.",
+      details: error.message,
     });
   }
 });

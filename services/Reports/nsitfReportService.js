@@ -153,7 +153,7 @@ class NSITFReportService {
          INNER JOIN hr_employees he ON he.Empl_ID  = we.empl_id
          LEFT  JOIN py_pfa        pfa ON pfa.pfacode  = he.pfacode
          LEFT  JOIN py_tblstates  st  ON st.Statecode = we.StateofOrigin
-         LEFT  JOIN py_Title      tt  ON tt.Titlecode = we.Title
+         LEFT  JOIN py_title      tt  ON tt.Titlecode = we.Title
          ${paymentJoin}
          WHERE he.pfacode   IS NOT NULL AND he.pfacode   != ''
            AND we.NSITFcode IS NOT NULL AND we.NSITFcode != ''
@@ -193,7 +193,7 @@ class NSITFReportService {
          et.elmDesc           AS payment_description,
          'Deductions'         AS category
        FROM py_masterpayded mp
-       LEFT JOIN py_elementType et ON et.PaymentType = mp.his_type
+       LEFT JOIN py_elementtype et ON et.PaymentType = mp.his_type
        WHERE LEFT(mp.his_type, 2) IN ('PR', 'PL')
          AND mp.amtthismth > 0
        ORDER BY mp.his_type`,

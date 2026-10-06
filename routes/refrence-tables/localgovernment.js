@@ -1,25 +1,30 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const pool = require('../../config/db'); // mysql2 pool
-const verifyToken = require('../../middware/authentication');
+const pool = require("../../config/db"); // mysql2 pool
+const verifyToken = require("../../middware/authentication");
 
 // CREATE - Add new LGA
 router.post("/postlga", verifyToken, async (req, res) => {
   try {
-    const { Lgcode, Lgname, Lghqs, Statecode} = req.body;
+    const { Lgcode, Lgname, Lghqs, Statecode } = req.body;
     const createdby = req.user_fullname || "Admin User";
     const [result] = await pool.query(
-      "INSERT INTO py_tblLGA (Lgcode, Lgname, Lghqs, Statecode, createdby, datecreated) VALUES (?, ?, ?, ?, ?, NOW())",
-      [Lgcode, Lgname, Lghqs, Statecode, createdby]
+      "INSERT INTO py_tblllga (Lgcode, Lgname, Lghqs, Statecode, createdby, datecreated) VALUES (?, ?, ?, ?, ?, NOW())",
+      [Lgcode, Lgname, Lghqs, Statecode, createdby],
     );
-    res.status(201).json({ message: "New Local Government Area created", id: result.insertId });
+    res
+      .status(201)
+      .json({
+        message: "New Local Government Area created",
+        id: result.insertId,
+      });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
 //validation
-router.get('/postlga/check/:field/:value', verifyToken, async (req, res) => {
+router.get("/postlga/check/:field/:value", verifyToken, async (req, res) => {
   const { field, value } = req.params;
   const { exclude } = req.query;
 
@@ -30,12 +35,12 @@ router.get('/postlga/check/:field/:value', verifyToken, async (req, res) => {
   }
 
   try {
-    let query = `SELECT ${field} FROM py_tblLGA WHERE ${field} = ?`;
+    let query = `SELECT ${field} FROM py_tblllga WHERE ${field} = ?`;
     let params = [value];
 
     // If exclude Lgcode is provided, exclude that record from the check
     if (exclude) {
-      query += ' AND Lgcode != ?';
+      query += " AND Lgcode != ?";
       params.push(exclude);
     }
 
@@ -51,7 +56,7 @@ router.get('/postlga/check/:field/:value', verifyToken, async (req, res) => {
 // READ - Get all LGAs
 router.get("/lga", verifyToken, async (req, res) => {
   try {
-    const [rows] = await pool.query("SELECT * FROM py_tblLGA");
+    const [rows] = await pool.query("SELECT * FROM py_tblllga");
     res.json(rows);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -61,10 +66,12 @@ router.get("/lga", verifyToken, async (req, res) => {
 // READ - Get one LGA by Lgcode
 router.get("/:Lgcode", verifyToken, async (req, res) => {
   try {
-    const [rows] = await pool.query("SELECT * FROM py_tblLGA WHERE Lgcode = ?", [
-      req.params.Lgcode,
-    ]);
-    if (rows.length === 0) return res.status(404).json({ message: "LGA not found" });
+    const [rows] = await pool.query(
+      "SELECT * FROM py_tblllga WHERE Lgcode = ?",
+      [req.params.Lgcode],
+    );
+    if (rows.length === 0)
+      return res.status(404).json({ message: "LGA not found" });
     res.json(rows[0]);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -76,11 +83,14 @@ router.put("/:Lgcode", verifyToken, async (req, res) => {
   try {
     const { Lgname, Lghqs, Lgcode } = req.body;
     const [result] = await pool.query(
-      "UPDATE py_tblLGA SET Lgname = ?, Lghqs = ?, Lgcode = ? WHERE Lgcode = ?",
-      [Lgname, Lghqs, Lgcode, req.params.Lgcode]
+      "UPDATE py_tblllga SET Lgname = ?, Lghqs = ?, Lgcode = ? WHERE Lgcode = ?",
+      [Lgname, Lghqs, Lgcode, req.params.Lgcode],
     );
-    if (result.affectedRows === 0) return res.status(404).json({ message: "LGA not found" });
-    res.json({ message: "Successfully updated a Local Government Area record" });
+    if (result.affectedRows === 0)
+      return res.status(404).json({ message: "LGA not found" });
+    res.json({
+      message: "Successfully updated a Local Government Area record",
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -89,11 +99,15 @@ router.put("/:Lgcode", verifyToken, async (req, res) => {
 // DELETE - Remove LGA
 router.delete("/:Lgcode", async (req, res) => {
   try {
-    const [result] = await pool.query("DELETE FROM py_tblLGA WHERE Lgcode = ?", [
-      req.params.Lgcode,
-    ]);
-    if (result.affectedRows === 0) return res.status(404).json({ message: "LGA not found" });
-    res.json({ message: "Successfully deleted a Local Government Area record" });
+    const [result] = await pool.query(
+      "DELETE FROM py_tblllga WHERE Lgcode = ?",
+      [req.params.Lgcode],
+    );
+    if (result.affectedRows === 0)
+      return res.status(404).json({ message: "LGA not found" });
+    res.json({
+      message: "Successfully deleted a Local Government Area record",
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
