@@ -472,18 +472,22 @@ class PersonnelReportService {
       const payrollClass = await this.getPayrollClassFromDb(currentDb);
 
       const query = `
-        SELECT DISTINCT 
-          bankbranch as code,
-          bk.branchname as description
-        FROM hr_employees
-        LEFT JOIN py_bank bk ON TRIM(LEADING '0' FROM TRIM(bk.bankcode)) = TRIM(LEADING '0' FROM TRIM(Bankcode))
-                            AND TRIM(LEADING '0' FROM TRIM(bk.branchcode)) = TRIM(LEADING '0' FROM TRIM(bankbranch))
-        WHERE bankbranch IS NOT NULL AND bankbranch != ''
-          AND payrollclass = ?
-          AND (LENGTH(IFNULL(DateLeft, '')) = 0 
-            OR (LENGTH(IFNULL(DateLeft, '')) = 8 AND STR_TO_DATE(DateLeft, '%Y%m%d') > CURDATE()))
-          AND LENGTH(IFNULL(exittype, '')) = 0
-        ORDER BY bankbranch
+        SELECT DISTINCT
+          hr.bankbranch AS code,
+          bk.branchname AS description
+        FROM hr_employees hr
+        LEFT JOIN py_bank bk
+          ON TRIM(LEADING '0' FROM TRIM(bk.bankcode)) = TRIM(LEADING '0' FROM TRIM(hr.Bankcode))
+        AND TRIM(LEADING '0' FROM TRIM(bk.branchcode)) = TRIM(LEADING '0' FROM TRIM(hr.bankbranch))
+        WHERE hr.bankbranch IS NOT NULL AND hr.bankbranch != ''
+          AND hr.payrollclass = ?
+          AND (
+                LENGTH(IFNULL(hr.DateLeft, '')) = 0
+                OR (LENGTH(IFNULL(hr.DateLeft, '')) = 8
+                    AND STR_TO_DATE(hr.DateLeft, '%Y%m%d') > CURDATE())
+              )
+          AND LENGTH(IFNULL(hr.exittype, '')) = 0
+        ORDER BY hr.bankbranch;
       `;
 
       const [rows] = await pool.query(query, [payrollClass]);

@@ -87,16 +87,17 @@ router.get("/employees-current", verifyToken, async (req, res) => {
     // Get employees filtered by payroll class
     const [rows] = await pool.query(
       `
-      SELECT Empl_ID, Title, Surname, OtherName
-      FROM hr_employees 
-      WHERE (exittype IS NULL OR exittype = '')
+      SELECT hr.Empl_ID, hr.Title, hr.Surname, hr.OtherName, tt.rank_order
+      FROM hr_employees hr
+      LEFT JOIN py_title tt ON tt.Titlecode = hr.Title
+      WHERE (hr.exittype IS NULL OR hr.exittype = '')
         AND (
-          DateLeft IS NULL
-          OR DateLeft = ''
-          OR DateLeft > DATE_FORMAT(CURDATE(), '%Y%m%d')
-        )
-        AND payrollclass = ?
-      ORDER BY Empl_ID ASC
+              hr.DateLeft IS NULL
+              OR hr.DateLeft = ''
+              OR hr.DateLeft > DATE_FORMAT(CURDATE(), '%Y%m%d')
+            )
+        AND hr.payrollclass = ?
+      ORDER BY tt.rank_order DESC, hr.Empl_ID ASC
     `,
       [payrollClass],
     );
@@ -143,14 +144,15 @@ router.get("/employees-current-pages", verifyToken, async (req, res) => {
     const [countResult] = await pool.query(
       `
       SELECT COUNT(*) as total
-      FROM hr_employees 
-      WHERE (exittype IS NULL OR exittype = '')
+      FROM hr_employees hr
+      LEFT JOIN py_title tt ON tt.Titlecode = hr.Title
+      WHERE (hr.exittype IS NULL OR hr.exittype = '')
         AND (
-          DateLeft IS NULL
-          OR DateLeft = ''
-          OR DateLeft > DATE_FORMAT(CURDATE(), '%Y%m%d')
+          hr.DateLeft IS NULL
+          OR hr.DateLeft = ''
+          OR hr.DateLeft > DATE_FORMAT(CURDATE(), '%Y%m%d')
         )
-        AND payrollclass = ?
+        AND hr.payrollclass = ?
     `,
       [payrollClass],
     );
@@ -161,16 +163,17 @@ router.get("/employees-current-pages", verifyToken, async (req, res) => {
     // Get paginated employees with payroll class filter
     const [rows] = await pool.query(
       `
-      SELECT Empl_ID, Title, Surname, OtherName 
-      FROM hr_employees 
-      WHERE (exittype IS NULL OR exittype = '')
+      SELECT hr.Empl_ID, hr.Title, hr.Surname, hr.OtherName, tt.rank_order
+      FROM hr_employees hr
+      LEFT JOIN py_title tt ON tt.Titlecode = hr.Title
+      WHERE (hr.exittype IS NULL OR hr.exittype = '')
         AND (
-          DateLeft IS NULL
-          OR DateLeft = ''
-          OR DateLeft > DATE_FORMAT(CURDATE(), '%Y%m%d')
+          hr.DateLeft IS NULL
+          OR hr.DateLeft = ''
+          OR hr.DateLeft > DATE_FORMAT(CURDATE(), '%Y%m%d')
         )
-        AND payrollclass = ?
-      ORDER BY Empl_ID ASC
+        AND hr.payrollclass = ?
+      ORDER BY tt.rank_order DESC, hr.Empl_ID ASC
       LIMIT ? OFFSET ?
     `,
       [payrollClass, limit, offset],
@@ -226,13 +229,13 @@ router.get("/employees-current/search", verifyToken, async (req, res) => {
 
     // Base WHERE clause
     let whereClause = `
-      WHERE (exittype IS NULL OR exittype = '')
+      WHERE (hr.exittype IS NULL OR hr.exittype = '')
         AND (
-          DateLeft IS NULL
-          OR DateLeft = ''
-          OR DateLeft > DATE_FORMAT(CURDATE(), '%Y%m%d')
+          hr.DateLeft IS NULL
+          OR hr.DateLeft = ''
+          OR hr.DateLeft > DATE_FORMAT(CURDATE(), '%Y%m%d')
         )
-        AND payrollclass = ?
+        AND hr.payrollclass = ?
     `;
 
     const params = [payrollClass];
@@ -240,13 +243,13 @@ router.get("/employees-current/search", verifyToken, async (req, res) => {
     // Add search conditions if search term provided
     if (searchTerm) {
       whereClause += ` AND (
-        Empl_ID LIKE ? OR
-        Surname LIKE ? OR
-        OtherName LIKE ? OR
-        Title LIKE ? OR
-        email LIKE ? OR
-        gsm_number LIKE ? OR
-        CONCAT(Surname, ' ', OtherName) LIKE ?
+        hr.Empl_ID LIKE ? OR
+        hr.Surname LIKE ? OR
+        hr.OtherName LIKE ? OR
+        hr.Title LIKE ? OR
+        hr.email LIKE ? OR
+        hr.gsm_number LIKE ? OR
+        CONCAT(hr.Surname, ' ', hr.OtherName) LIKE ?
       )`;
 
       const searchPattern = `%${searchTerm}%`;
@@ -263,7 +266,7 @@ router.get("/employees-current/search", verifyToken, async (req, res) => {
 
     // Add rank filter if provided
     if (rankFilter) {
-      whereClause += ` AND Title = ?`;
+      whereClause += ` AND hr.Title = ?`;
       params.push(rankFilter);
     }
 
@@ -274,9 +277,10 @@ router.get("/employees-current/search", verifyToken, async (req, res) => {
       // Count how many records come BEFORE this employee (with same filters)
       const positionQuery = `
         SELECT COUNT(*) as position
-        FROM hr_employees 
+        FROM hr_employees hr
+        LEFT JOIN py_title tt ON tt.Titlecode = hr.Title
         ${whereClause}
-        AND Empl_ID < ?
+        AND hr.Empl_ID < ?
       `;
 
       const [positionResult] = await pool.query(positionQuery, [
@@ -308,7 +312,8 @@ router.get("/employees-current/search", verifyToken, async (req, res) => {
     // Get total count with all filters
     const countQuery = `
       SELECT COUNT(*) as total
-      FROM hr_employees 
+      FROM hr_employees hr
+      LEFT JOIN py_title tt ON tt.Titlecode = hr.Title
       ${whereClause}
     `;
 
@@ -318,10 +323,11 @@ router.get("/employees-current/search", verifyToken, async (req, res) => {
 
     // Get paginated results with all filters
     const dataQuery = `
-      SELECT Empl_ID, Title, Surname, OtherName
-      FROM hr_employees 
+      SELECT hr.Empl_ID, hr.Title, hr.Surname, hr.OtherName, tt.rank_order
+      FROM hr_employees hr
+      LEFT JOIN py_title tt ON tt.Titlecode = hr.Title
       ${whereClause}
-      ORDER BY Empl_ID ASC
+      ORDER BY tt.rank_order DESC, hr.Empl_ID ASC
       LIMIT ? OFFSET ?
     `;
 
@@ -371,16 +377,17 @@ router.get("/employees-old", verifyToken, async (req, res) => {
     // Get employees with payroll class filter
     const [rows] = await pool.query(
       `
-      SELECT Empl_ID, Title, Surname, OtherName
-      FROM hr_employees 
-      WHERE ((exittype IS NOT NULL AND exittype <> '')
+      SELECT hr.Empl_ID, hr.Title, hr.Surname, hr.OtherName, tt.rank_order
+      FROM hr_employees hr
+      LEFT JOIN py_title tt ON tt.Titlecode = hr.Title
+      WHERE ((hr.exittype IS NOT NULL AND hr.exittype <> '')
           OR (
-            DateLeft IS NOT NULL
-            AND DateLeft <> ''
-            AND DateLeft <= DATE_FORMAT(CURDATE(), '%Y%m%d')
+            hr.DateLeft IS NOT NULL
+            AND hr.DateLeft <> ''
+            AND hr.DateLeft <= DATE_FORMAT(CURDATE(), '%Y%m%d')
           )) 
-        AND payrollclass = ?
-      ORDER BY Empl_ID ASC
+        AND hr.payrollclass = ?
+      ORDER BY tt.rank_order DESC, hr.Empl_ID ASC
       `,
       [payrollClass],
     );
@@ -416,14 +423,15 @@ router.get("/employees-old-pages", verifyToken, async (req, res) => {
     const [countResult] = await pool.query(
       `
       SELECT COUNT(*) as total
-      FROM hr_employees 
-      WHERE ((exittype IS NOT NULL AND exittype <> '')
+      FROM hr_employees hr
+      LEFT JOIN py_title tt ON tt.Titlecode = hr.Title
+      WHERE ((hr.exittype IS NOT NULL AND hr.exittype <> '')
           OR (
-            DateLeft IS NOT NULL
-            AND DateLeft <> ''
-            AND DateLeft <= DATE_FORMAT(CURDATE(), '%Y%m%d')
+            hr.DateLeft IS NOT NULL
+            AND hr.DateLeft <> ''
+            AND hr.DateLeft <= DATE_FORMAT(CURDATE(), '%Y%m%d')
           )) 
-        AND payrollclass = ?
+        AND hr.payrollclass = ?
     `,
       [payrollClass],
     );
@@ -434,16 +442,17 @@ router.get("/employees-old-pages", verifyToken, async (req, res) => {
     // Get paginated employees with payroll class filter
     const [rows] = await pool.query(
       `
-      SELECT Empl_ID, Title, Surname, OtherName
-      FROM hr_employees 
-      WHERE ((exittype IS NOT NULL AND exittype <> '')
+      SELECT hr.Empl_ID, hr.Title, hr.Surname, hr.OtherName, tt.rank_order
+      FROM hr_employees hr
+      LEFT JOIN py_title tt ON tt.Titlecode = hr.Title
+      WHERE ((hr.exittype IS NOT NULL AND hr.exittype <> '')
           OR (
-            DateLeft IS NOT NULL
-            AND DateLeft <> ''
-            AND DateLeft <= DATE_FORMAT(CURDATE(), '%Y%m%d')
+            hr.DateLeft IS NOT NULL
+            AND hr.DateLeft <> ''
+            AND hr.DateLeft <= DATE_FORMAT(CURDATE(), '%Y%m%d')
           )) 
-        AND payrollclass = ?
-      ORDER BY Empl_ID ASC
+        AND hr.payrollclass = ?
+      ORDER BY tt.rank_order DESC, hr.Empl_ID ASC
       LIMIT ? OFFSET ?
     `,
       [payrollClass, limit, offset],
@@ -499,13 +508,13 @@ router.get("/employees-old/search", verifyToken, async (req, res) => {
 
     // Base WHERE clause
     let whereClause = `
-      WHERE ((exittype IS NOT NULL AND exittype <> '')
+      WHERE ((hr.exittype IS NOT NULL AND hr.exittype <> '')
           OR (
-            DateLeft IS NOT NULL
-            AND DateLeft <> ''
-            AND DateLeft <= DATE_FORMAT(CURDATE(), '%Y%m%d')
+            hr.DateLeft IS NOT NULL
+            AND hr.DateLeft <> ''
+            AND hr.DateLeft <= DATE_FORMAT(CURDATE(), '%Y%m%d')
           )) 
-        AND payrollclass = ?
+        AND hr.payrollclass = ?
     `;
 
     const params = [payrollClass];
@@ -513,13 +522,13 @@ router.get("/employees-old/search", verifyToken, async (req, res) => {
     // Add search conditions if search term provided
     if (searchTerm) {
       whereClause += ` AND (
-        Empl_ID LIKE ? OR
-        Surname LIKE ? OR
-        OtherName LIKE ? OR
-        Title LIKE ? OR
-        email LIKE ? OR
-        gsm_number LIKE ? OR
-        CONCAT(Surname, ' ', OtherName) LIKE ?
+        hr.Empl_ID LIKE ? OR
+        hr.Surname LIKE ? OR
+        hr.OtherName LIKE ? OR
+        hr.Title LIKE ? OR
+        hr.email LIKE ? OR
+        hr.gsm_number LIKE ? OR
+        CONCAT(hr.Surname, ' ', hr.OtherName) LIKE ?
       )`;
 
       const searchPattern = `%${searchTerm}%`;
@@ -536,7 +545,7 @@ router.get("/employees-old/search", verifyToken, async (req, res) => {
 
     // Add rank filter if provided
     if (rankFilter) {
-      whereClause += ` AND Title = ?`;
+      whereClause += ` AND hr.Title = ?`;
       params.push(rankFilter);
     }
 
@@ -546,9 +555,10 @@ router.get("/employees-old/search", verifyToken, async (req, res) => {
 
       const positionQuery = `
         SELECT COUNT(*) as position
-        FROM hr_employees 
+        FROM hr_employees hr
+        LEFT JOIN py_title tt ON tt.Titlecode = hr.Title
         ${whereClause}
-        AND Empl_ID < ?
+        AND hr.Empl_ID < ?
       `;
 
       const [positionResult] = await pool.query(positionQuery, [
@@ -578,7 +588,8 @@ router.get("/employees-old/search", verifyToken, async (req, res) => {
     // Get total count with all filters
     const countQuery = `
       SELECT COUNT(*) as total
-      FROM hr_employees 
+      FROM hr_employees hr
+      LEFT JOIN py_title tt ON tt.Titlecode = hr.Title
       ${whereClause}
     `;
 
@@ -588,10 +599,11 @@ router.get("/employees-old/search", verifyToken, async (req, res) => {
 
     // Get paginated results with all filters
     const dataQuery = `
-      SELECT Empl_ID, Title, Surname, OtherName
-      FROM hr_employees 
+      SELECT hr.Empl_ID, hr.Title, hr.Surname, hr.OtherName, tt.rank_order
+      FROM hr_employees hr
+      LEFT JOIN py_title tt ON tt.Titlecode = hr.Title
       ${whereClause}
-      ORDER BY Empl_ID ASC
+      ORDER BY tt.rank_order DESC, hr.Empl_ID ASC
       LIMIT ? OFFSET ?
     `;
 

@@ -9,15 +9,13 @@ router.post("/postlga", verifyToken, async (req, res) => {
     const { Lgcode, Lgname, Lghqs, Statecode } = req.body;
     const createdby = req.user_fullname || "Admin User";
     const [result] = await pool.query(
-      "INSERT INTO py_tblllga (Lgcode, Lgname, Lghqs, Statecode, createdby, datecreated) VALUES (?, ?, ?, ?, ?, NOW())",
+      "INSERT INTO py_tbllga (Lgcode, Lgname, Lghqs, Statecode, createdby, datecreated) VALUES (?, ?, ?, ?, ?, NOW())",
       [Lgcode, Lgname, Lghqs, Statecode, createdby],
     );
-    res
-      .status(201)
-      .json({
-        message: "New Local Government Area created",
-        id: result.insertId,
-      });
+    res.status(201).json({
+      message: "New Local Government Area created",
+      id: result.insertId,
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -35,7 +33,7 @@ router.get("/postlga/check/:field/:value", verifyToken, async (req, res) => {
   }
 
   try {
-    let query = `SELECT ${field} FROM py_tblllga WHERE ${field} = ?`;
+    let query = `SELECT ${field} FROM py_tbllga WHERE ${field} = ?`;
     let params = [value];
 
     // If exclude Lgcode is provided, exclude that record from the check
@@ -56,7 +54,7 @@ router.get("/postlga/check/:field/:value", verifyToken, async (req, res) => {
 // READ - Get all LGAs
 router.get("/lga", verifyToken, async (req, res) => {
   try {
-    const [rows] = await pool.query("SELECT * FROM py_tblllga");
+    const [rows] = await pool.query("SELECT * FROM py_tbllga");
     res.json(rows);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -67,7 +65,7 @@ router.get("/lga", verifyToken, async (req, res) => {
 router.get("/:Lgcode", verifyToken, async (req, res) => {
   try {
     const [rows] = await pool.query(
-      "SELECT * FROM py_tblllga WHERE Lgcode = ?",
+      "SELECT * FROM py_tbllga WHERE Lgcode = ?",
       [req.params.Lgcode],
     );
     if (rows.length === 0)
@@ -83,7 +81,7 @@ router.put("/:Lgcode", verifyToken, async (req, res) => {
   try {
     const { Lgname, Lghqs, Lgcode } = req.body;
     const [result] = await pool.query(
-      "UPDATE py_tblllga SET Lgname = ?, Lghqs = ?, Lgcode = ? WHERE Lgcode = ?",
+      "UPDATE py_tbllga SET Lgname = ?, Lghqs = ?, Lgcode = ? WHERE Lgcode = ?",
       [Lgname, Lghqs, Lgcode, req.params.Lgcode],
     );
     if (result.affectedRows === 0)
@@ -100,7 +98,7 @@ router.put("/:Lgcode", verifyToken, async (req, res) => {
 router.delete("/:Lgcode", async (req, res) => {
   try {
     const [result] = await pool.query(
-      "DELETE FROM py_tblllga WHERE Lgcode = ?",
+      "DELETE FROM py_tbllga WHERE Lgcode = ?",
       [req.params.Lgcode],
     );
     if (result.affectedRows === 0)

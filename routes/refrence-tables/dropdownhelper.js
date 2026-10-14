@@ -17,7 +17,7 @@ const tables = {
   title: "py_title",
   specialisation: "py_specialisationarea",
   state: "py_tblstates",
-  lga: "py_tblllga",
+  lga: "py_tbllga",
   pfa: "py_pfa",
   religion: "py_religion",
   exittype: "py_exittype",
@@ -40,7 +40,7 @@ router.get("/lga/:statecode", verifyToken, async (req, res) => {
 
   try {
     const [rows] = await pool.query(
-      `SELECT * FROM py_tblllga WHERE Statecode = ?`,
+      `SELECT * FROM py_tbllga WHERE Statecode = ?`,
       [statecode],
     );
     res.json(rows);

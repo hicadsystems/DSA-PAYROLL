@@ -45,7 +45,7 @@ const MASTER_TABLES = new Set([
   "py_relationship",
   "py_religion",
   "py_status",
-  "py_tblllga",
+  "py_tbllga",
   "py_tblstates",
   "geozone",
   "py_country",
