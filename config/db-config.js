@@ -135,10 +135,6 @@ async function buildConfig() {
     // Map database names
     process.env.DB_OFFICERS = process.env.MYSQL_DB_OFFICERS;
     process.env.DB_WOFFICERS = process.env.MYSQL_DB_WOFFICERS;
-    process.env.DB_RATINGS = process.env.MYSQL_DB_RATINGS;
-    process.env.DB_RATINGS_A = process.env.MYSQL_DB_RATINGS_A;
-    process.env.DB_RATINGS_B = process.env.MYSQL_DB_RATINGS_B;
-    process.env.DB_JUNIOR_TRAINEE = process.env.MYSQL_DB_JUNIOR_TRAINEE;
   } else {
     // Map MSSQL_* env vars to DB_* format
     process.env.DB_USER = process.env.MSSQL_USER;
@@ -150,10 +146,6 @@ async function buildConfig() {
     // Map database names
     process.env.DB_OFFICERS = process.env.MSSQL_DB_OFFICERS;
     process.env.DB_WOFFICERS = process.env.MSSQL_DB_WOFFICERS;
-    process.env.DB_RATINGS = process.env.MSSQL_DB_RATINGS;
-    process.env.DB_RATINGS_A = process.env.MSSQL_DB_RATINGS_A;
-    process.env.DB_RATINGS_B = process.env.MSSQL_DB_RATINGS_B;
-    process.env.DB_JUNIOR_TRAINEE = process.env.MSSQL_DB_JUNIOR_TRAINEE;
   }
 
   // Return config in YOUR EXACT format!
@@ -170,10 +162,6 @@ async function buildConfig() {
     databases: {
       Military: process.env.DB_OFFICERS,
       Civilian: process.env.DB_WOFFICERS,
-      Pension: process.env.DB_RATINGS,
-      NYSC: process.env.DB_RATINGS_A,
-      "Running Cost": process.env.DB_RATINGS_B,
-      //juniorTrainee: process.env.DB_JUNIOR_TRAINEE,
     },
   };
 }
