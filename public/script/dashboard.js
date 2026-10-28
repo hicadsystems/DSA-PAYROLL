@@ -1784,8 +1784,16 @@ async function logout() {
     if (cls) localStorage.setItem("class", cls);
     if (capabilities) localStorage.setItem("capabilities", capabilities);
     //this.stopTracking();
-    sessionStorage.setItem("_from_logout", "true");
-    window.location.href = "personnel-login.html";
+    // Same as NAVY-PAYROLL: a user who came in through the staff portal goes
+    // back to user-dashboard.html, which re-opens the payroll class picker.
+    // A direct admin login (personnel-login.html) has no pre-login token,
+    // so it goes back to that login page instead.
+    if (preLoginToken) {
+      sessionStorage.setItem("_from_logout", "true");
+      window.location.href = "user-dashboard.html";
+    } else {
+      window.location.href = "personnel-login.html";
+    }
   }
 }
 

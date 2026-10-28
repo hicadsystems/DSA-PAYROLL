@@ -34,6 +34,9 @@ const verifyToken = (req, res, next) => {
     // Attach user info to the request object
     req.user_id = decoded.user_id;
     req.user_fullname = decoded.full_name;
+    req.user_name = decoded.name;
+    req.user_rank = decoded.rank;
+    req.email = decoded.email;
     req.user_role = decoded.role;
     req.primary_class = decoded.primary_class;
     req.current_class = decoded.current_class;
@@ -84,6 +87,11 @@ const verifyToken = (req, res, next) => {
         return res.status(500).json({ message: "Database context error" });
       }
     } else {
+      // Pre-login (self-service) tokens carry no current_class —
+      // personnel data, payslips and mail live in the officers DB.
+      const pool = require("../config/db");
+      const config = require("../config");
+      pool.useDatabase(process.env.DB_OFFICERS || config.databases.officers);
       return next();
     }
   });

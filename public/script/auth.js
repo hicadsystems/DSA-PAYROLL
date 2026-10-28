@@ -23,8 +23,8 @@
         "click",
       ];
 
-      // Auto-initialize if logged in
-      if (this.isLoggedIn()) {
+      // Auto-initialize if logged in AND on dashboard
+      if (this.isLoggedIn() && this.isDashboard()) {
         this.startInactivityTracking();
       }
     }
@@ -41,8 +41,18 @@
         document.addEventListener(event, () => this.resetTimer(), true);
       });
 
+      // Stop tracking when leaving dashboard.html
+      window.addEventListener("pagehide", () => {
+        this.stopTracking();
+        console.log("⏹️ Inactivity tracking stopped (left dashboard)");
+      });
+
       // Start timer
       this.resetTimer();
+    }
+
+    isDashboard() {
+      return window.location.pathname.endsWith("dashboard.html");
     }
 
     resetTimer() {
@@ -172,8 +182,10 @@
         localStorage.setItem(this.ACCESS_TOKEN_KEY, data.token);
         localStorage.setItem(this.REFRESH_TOKEN_KEY, data.refresh_token);
 
-        // Start inactivity tracking
-        this.startInactivityTracking();
+        // Start inactivity tracking (dashboard only)
+        if (this.isDashboard()) {
+          this.startInactivityTracking();
+        }
 
         console.log("✅ Login successful");
         return data;
@@ -226,8 +238,14 @@
         if (capabilities) localStorage.setItem("capabilities", capabilities);
 
         this.stopTracking();
-        sessionStorage.setItem("_from_logout", "true");
-        window.location.href = "personnel-login.html";
+        // Staff-portal users go back to user-dashboard.html (class picker re-opens);
+        // direct admin logins have no pre-login token and go back to their login page.
+        if (preLoginToken) {
+          sessionStorage.setItem("_from_logout", "true");
+          window.location.href = "user-dashboard.html";
+        } else {
+          window.location.href = "personnel-login.html";
+        }
       }
     }
 

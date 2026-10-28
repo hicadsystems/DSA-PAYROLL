@@ -1,0 +1,2279 @@
+<!-- ================================================
+  PAYSLIP PAGE — Standalone file
+  Save as: pages/user-payslip.html
+  Loaded dynamically by user-dashboard.js
+================================================ -->
+<style>
+  /* ══════════════════════════════════════════════
+     SHARED / TAB SHELL
+  ══════════════════════════════════════════════ */
+  .ps-wrap {
+    width: 100%;
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px 60px;
+    box-sizing: border-box;
+    font-family: 'DM Sans', system-ui, sans-serif;
+  }
+
+  /* ── TAB CHROME (admin only) ── */
+  .ps-tabs {
+    display: flex;
+    gap: 4px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 14px;
+    padding: 5px;
+    margin-bottom: 2px;
+    width: 100%;
+    max-width: 480px;
+  }
+
+  .ps-tab {
+    flex: 1;
+    padding: 10px 0;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(200, 220, 255, 0.45);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.22s ease;
+    letter-spacing: 0.3px;
+    user-select: none;
+  }
+
+  .ps-tab.active {
+    background: rgba(245, 200, 66, 0.14);
+    color: #f5c842;
+    box-shadow: inset 0 0 0 1px rgba(245, 200, 66, 0.25);
+  }
+
+  .ps-tab:hover:not(.active) {
+    color: rgba(200, 220, 255, 0.7);
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  /* ── TAB PANELS ── */
+  .ps-panel {
+    display: none;
+    width: 100%;
+    align-items: center;
+    flex-direction: column;
+  }
+
+  .ps-panel.active {
+    display: flex;
+  }
+
+  /* ══════════════════════════════════════════════
+     CARD — shared by both panels
+  ══════════════════════════════════════════════ */
+  .ps-card {
+    background: rgba(15, 35, 64, 0.72);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 20px;
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    box-shadow: 0 32px 80px rgba(0, 0, 0, 0.45);
+    width: 100%;
+    max-width: 480px;
+    padding: 28px 32px;
+    box-sizing: border-box;
+    animation: psCardIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  @keyframes psCardIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* ── TITLE ── */
+  .ps-title {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 0.3px;
+    margin-bottom: 6px;
+  }
+
+  .ps-subtitle {
+    font-size: 11px;
+    font-weight: 500;
+    color: rgba(200, 220, 255, 0.38);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 18px;
+  }
+
+  /* ── FORM FIELDS ── */
+  .ps-field {
+    margin-bottom: 14px;
+  }
+
+  .ps-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(200, 220, 255, 0.45);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 8px;
+  }
+
+  .ps-row {
+    display: flex;
+    gap: 12px;
+  }
+
+  .ps-row .ps-field {
+    flex: 1;
+    margin-bottom: 0;
+  }
+
+  .ps-select,
+  .ps-input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: #e8f0fe;
+    transition: border-color 0.2s, background 0.2s;
+    box-sizing: border-box;
+  }
+
+  .ps-select {
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none' viewBox='0 0 12 8'%3E%3Cpath stroke='rgba(200,220,255,0.4)' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 38px;
+  }
+
+  .ps-select:focus,
+  .ps-input:focus {
+    outline: none;
+    border-color: rgba(126, 184, 247, 0.5);
+    background-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .ps-select option {
+    background: #0d1f35;
+    color: #e8f0fe;
+  }
+
+  .ps-input::placeholder {
+    color: rgba(200, 220, 255, 0.25);
+  }
+
+  textarea.ps-input {
+    resize: vertical;
+    min-height: 72px;
+    line-height: 1.6;
+    padding: 10px 14px;
+  }
+
+  /* ── MODE SWITCHER (admin Others tab) ── */
+  .ps-mode-switcher {
+    display: flex;
+    gap: 4px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 4px;
+    margin-bottom: 16px;
+  }
+
+  .ps-mode-btn {
+    flex: 1;
+    padding: 7px 0;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(200, 220, 255, 0.4);
+    border-radius: 7px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.3px;
+    user-select: none;
+  }
+
+  .ps-mode-btn.active {
+    background: rgba(245, 200, 66, 0.12);
+    color: #f5c842;
+    box-shadow: inset 0 0 0 1px rgba(245, 200, 66, 0.22);
+  }
+
+  .ps-mode-btn:hover:not(.active) {
+    color: rgba(200, 220, 255, 0.65);
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  /* ── MODE PANELS ── */
+  .ps-mode-panel {
+    display: none;
+  }
+
+  .ps-mode-panel.active {
+    display: block;
+  }
+
+  /* ── TAG INPUT (multi mode) ── */
+  .ps-tag-input-wrap {
+    min-height: 80px;
+    max-height: 160px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 10px;
+    padding: 8px 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    align-content: flex-start;
+    overflow-y: auto;
+    cursor: text;
+    transition: border-color 0.2s, background 0.2s;
+    position: relative;
+    box-sizing: border-box;
+  }
+
+  .ps-tag-input-wrap:focus-within {
+    border-color: rgba(126, 184, 247, 0.5);
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .ps-tag-input-wrap::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .ps-tag-input-wrap::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+  }
+
+  .ps-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(245, 200, 66, 0.12);
+    border: 1px solid rgba(245, 200, 66, 0.25);
+    border-radius: 6px;
+    padding: 3px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #f5c842;
+    max-width: 100%;
+    white-space: nowrap;
+    animation: psCardIn 0.15s ease both;
+  }
+
+  .ps-tag .ps-tag-id {
+    color: rgba(245, 200, 66, 0.5);
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+  }
+
+  .ps-tag .ps-tag-del {
+    cursor: pointer;
+    color: rgba(245, 200, 66, 0.4);
+    font-size: 14px;
+    line-height: 1;
+    margin-left: 1px;
+    transition: color 0.15s;
+  }
+
+  .ps-tag .ps-tag-del:hover {
+    color: rgba(231, 76, 60, 0.8);
+  }
+
+  .ps-tag-real-input {
+    flex: 1;
+    min-width: 120px;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: #e8f0fe;
+    padding: 3px 4px;
+  }
+
+  .ps-tag-real-input::placeholder {
+    color: rgba(200, 220, 255, 0.25);
+  }
+
+  /* ── SEARCH INPUT with dropdown ── */
+  .ps-search-wrap {
+    position: relative;
+    margin-bottom: 14px;
+  }
+
+  .ps-search-drop {
+    position: absolute;
+    left: 0;
+    right: 0;
+    background: #0d1f35;
+    border: 1px solid rgba(255, 255, 255, 0.13);
+    border-radius: 10px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 99;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
+    display: none;
+    animation: psCardIn 0.2s ease both;
+  }
+
+  .ps-search-drop.open {
+    display: block;
+  }
+
+  .ps-search-item {
+    padding: 10px 14px;
+    cursor: pointer;
+    font-size: 13px;
+    color: rgba(200, 220, 255, 0.8);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    transition: background 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .ps-search-item:last-child {
+    border-bottom: none;
+  }
+
+  .ps-search-item:hover {
+    background: rgba(255, 255, 255, 0.07);
+  }
+
+  .ps-search-item .ps-si-id {
+    font-size: 11px;
+    color: rgba(200, 220, 255, 0.38);
+    font-family: 'Courier New', monospace;
+  }
+
+  .ps-search-drop-empty {
+    padding: 14px;
+    text-align: center;
+    font-size: 12px;
+    color: rgba(200, 220, 255, 0.3);
+  }
+
+  /* selected employee chip (single admin mode) */
+  .ps-selected-chip {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    background: rgba(245, 200, 66, 0.08);
+    border: 1px solid rgba(245, 200, 66, 0.22);
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-bottom: 14px;
+    animation: psCardIn 0.25s ease both;
+  }
+
+  .ps-selected-chip.show {
+    display: flex;
+  }
+
+  .ps-selected-chip .ps-chip-name {
+    flex: 1;
+    font-size: 13px;
+    font-weight: 600;
+    color: #f5c842;
+  }
+
+  .ps-selected-chip .ps-chip-id {
+    font-size: 11px;
+    color: rgba(245, 200, 66, 0.55);
+    font-family: 'Courier New', monospace;
+  }
+
+  .ps-chip-clear {
+    cursor: pointer;
+    color: rgba(200, 220, 255, 0.35);
+    font-size: 16px;
+    line-height: 1;
+    transition: color 0.15s;
+    flex-shrink: 0;
+  }
+
+  .ps-chip-clear:hover {
+    color: rgba(231, 76, 60, 0.8);
+  }
+
+  /* ── CAROUSEL NAV (injected into attPreviewOverlay) ── */
+  .ps-carousel-nav {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+  }
+
+  .ps-carousel-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 7px;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: rgba(200, 220, 255, 0.7);
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    flex-shrink: 0;
+    user-select: none;
+  }
+
+  .ps-carousel-btn:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.13);
+    color: #fff;
+  }
+
+  .ps-carousel-btn:disabled {
+    opacity: 0.25;
+    cursor: default;
+  }
+
+  .ps-carousel-counter {
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(200, 220, 255, 0.45);
+    white-space: nowrap;
+  }
+
+  /* ── DIVIDER ── */
+  .ps-divider {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 14px 0;
+    color: rgba(200, 220, 255, 0.2);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .ps-divider::before,
+  .ps-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.07);
+  }
+
+  /* ── STAMP TOGGLE ── */
+  .ps-stamp-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    margin-bottom: 18px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .ps-stamp-row:hover {
+    background: rgba(255, 255, 255, 0.07);
+  }
+
+  .ps-stamp-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(200, 220, 255, 0.7);
+  }
+
+  .ps-stamp-label span {
+    font-size: 11px;
+    color: rgba(200, 220, 255, 0.35);
+    margin-left: 6px;
+  }
+
+  .ps-toggle {
+    width: 40px;
+    height: 22px;
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 11px;
+    position: relative;
+    transition: background 0.25s;
+    flex-shrink: 0;
+  }
+
+  .ps-toggle.on {
+    background: #f5c842;
+  }
+
+  .ps-toggle::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 16px;
+    height: 16px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  .ps-toggle.on::after {
+    transform: translateX(18px);
+  }
+
+  /* ── GENERATE BUTTON ── */
+  .ps-btn {
+    width: 100%;
+    padding: 12px;
+    background: #f5c842;
+    color: #0d1f35;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.22s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .ps-btn:hover:not(:disabled) {
+    background: #ffd95a;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 28px rgba(245, 200, 66, 0.35);
+  }
+
+  .ps-btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .ps-btn.secondary {
+    background: transparent;
+    border: 1px solid rgba(245, 200, 66, 0.35);
+    color: #f5c842;
+  }
+
+  .ps-btn.secondary:hover:not(:disabled) {
+    background: rgba(245, 200, 66, 0.08);
+    box-shadow: none;
+  }
+
+  /* spinner */
+  .ps-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(13, 31, 53, 0.3);
+    border-top-color: #0d1f35;
+    border-radius: 50%;
+    animation: psSpin 0.7s linear infinite;
+    display: none;
+  }
+
+  @keyframes psSpin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  /* ── STATUS MESSAGE ── */
+  .ps-status {
+    margin-top: 18px;
+    padding: 14px 18px;
+    border-radius: 10px;
+    font-size: 13px;
+    line-height: 1.55;
+    display: none;
+    animation: psCardIn 0.3s ease both;
+  }
+
+  .ps-status.info {
+    background: rgba(126, 184, 247, 0.10);
+    border: 1px solid rgba(126, 184, 247, 0.22);
+    color: rgba(200, 230, 255, 0.85);
+    display: block;
+  }
+
+  .ps-status.error {
+    background: rgba(231, 76, 60, 0.12);
+    border: 1px solid rgba(231, 76, 60, 0.28);
+    color: rgba(255, 160, 150, 0.9);
+    display: block;
+  }
+
+  .ps-status.success {
+    background: rgba(39, 174, 96, 0.12);
+    border: 1px solid rgba(39, 174, 96, 0.28);
+    color: rgba(130, 220, 160, 0.9);
+    display: block;
+  }
+
+  /* ══════════════════════════════════════════════
+     RESULTS MODAL (admin)
+  ══════════════════════════════════════════════ */
+
+  /* Full-screen overlay */
+  .ps-modal-overlay {
+    position: fixed;
+    inset: 0;
+    /* Match DashAlertModal z-index so it layers consistently with the header */
+    z-index: 300;
+    background: rgba(4, 12, 28, 0.82);
+    backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Top padding pushes content below the fixed header (~70px) */
+    padding: 80px 24px 24px;
+    box-sizing: border-box;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+
+  .ps-modal-overlay.open {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  /* Modal box */
+  .ps-modal {
+    background: #0f2340;
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 14px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+    width: 100%;
+    max-width: 520px;
+    /* Leave room for header above + breathing room below */
+    max-height: calc(100vh - 110px);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transform: translateY(16px) scale(0.98);
+    transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .ps-modal-overlay.open .ps-modal {
+    transform: translateY(0) scale(1);
+  }
+
+  /* Modal header */
+  .ps-modal-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 18px 20px 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    flex-shrink: 0;
+  }
+
+  .ps-modal-title {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+    flex: 1;
+  }
+
+  .ps-modal-close {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    color: rgba(200, 220, 255, 0.5);
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+
+  .ps-modal-close:hover {
+    background: rgba(231, 76, 60, 0.18);
+    color: rgba(255, 140, 130, 0.9);
+  }
+
+  /* Pills row inside header */
+  .ps-modal-pills {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    flex-shrink: 0;
+  }
+
+  .ps-sum-pill {
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+
+  .ps-sum-pill.total {
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(200, 220, 255, 0.6);
+  }
+
+  .ps-sum-pill.ok {
+    background: rgba(39, 174, 96, 0.18);
+    color: rgba(130, 220, 160, 0.9);
+  }
+
+  .ps-sum-pill.skipped {
+    background: rgba(231, 76, 60, 0.15);
+    color: rgba(255, 160, 150, 0.85);
+  }
+
+  .ps-sum-spacer {
+    flex: 1;
+  }
+
+  .ps-select-all-btn {
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(245, 200, 66, 0.7);
+    cursor: pointer;
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(245, 200, 66, 0.2);
+    transition: all 0.18s;
+    user-select: none;
+    background: transparent;
+  }
+
+  .ps-select-all-btn:hover {
+    background: rgba(245, 200, 66, 0.08);
+    color: #f5c842;
+  }
+
+  /* Scrollable list */
+  .ps-results-list {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+  }
+
+  .ps-results-list::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  .ps-results-list::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .ps-results-list::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+  }
+
+  /* Individual result row */
+  .ps-result-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    transition: background 0.15s, box-shadow 0.2s;
+    position: relative;
+    box-shadow: inset 0 0 0 0 transparent;
+  }
+
+  .ps-result-row:last-child {
+    border-bottom: none;
+  }
+
+  .ps-result-row.success {
+    cursor: pointer;
+  }
+
+  .ps-result-row.success:hover {
+    background: rgba(255, 255, 255, 0.035);
+  }
+
+  .ps-result-row.selected {
+    background: rgba(39, 174, 96, 0.07);
+    box-shadow: inset 3px 0 0 rgba(39, 174, 96, 0.7), inset 0 0 0 1px rgba(39, 174, 96, 0.18);
+  }
+
+  .ps-result-row.skipped {
+    opacity: 0.5;
+    cursor: default;
+  }
+
+  .ps-rr-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 14px;
+  }
+
+  .ps-rr-icon.ok {
+    background: rgba(39, 174, 96, 0.15);
+    color: rgba(130, 220, 160, 0.9);
+  }
+
+  .ps-rr-icon.skipped {
+    background: rgba(231, 76, 60, 0.12);
+    color: rgba(255, 160, 150, 0.8);
+  }
+
+  .ps-rr-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .ps-rr-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #e8f0fe;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .ps-rr-sub {
+    font-size: 11px;
+    color: rgba(200, 220, 255, 0.38);
+    font-family: 'Courier New', monospace;
+    margin-top: 1px;
+  }
+
+  .ps-rr-reason {
+    font-size: 11px;
+    color: rgba(255, 150, 140, 0.7);
+    margin-top: 2px;
+    line-height: 1.4;
+  }
+
+  .ps-rr-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .ps-rr-preview-btn {
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(126, 184, 247, 0.7);
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+    border: 1px solid rgba(126, 184, 247, 0.2);
+    background: transparent;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+
+  .ps-rr-preview-btn:hover {
+    background: rgba(126, 184, 247, 0.1);
+    color: #7eb8f7;
+  }
+
+  .ps-rr-check {
+    width: 20px;
+    height: 20px;
+    border-radius: 5px;
+    border: 1.5px solid rgba(255, 255, 255, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.18s;
+    flex-shrink: 0;
+    font-size: 11px;
+    color: transparent;
+  }
+
+  .ps-result-row.selected .ps-rr-check {
+    background: rgba(39, 174, 96, 0.8);
+    border-color: rgba(39, 174, 96, 0.9);
+    color: #fff;
+  }
+
+  /* Download footer inside modal */
+  .ps-download-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 20px;
+    background: rgba(8, 22, 48, 0.9);
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+    flex-shrink: 0;
+  }
+
+  .ps-dl-count {
+    font-size: 12px;
+    color: rgba(200, 220, 255, 0.45);
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+
+  .ps-dl-count strong {
+    color: #f5c842;
+  }
+
+  .ps-dl-spacer {
+    flex: 1;
+  }
+
+  .ps-dl-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 16px;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .ps-dl-btn.merged {
+    background: #f5c842;
+    color: #0d1f35;
+  }
+
+  .ps-dl-btn.merged:hover {
+    background: #ffd95a;
+    transform: translateY(-1px);
+  }
+
+  .ps-dl-btn.zip {
+    background: transparent;
+    border: 1px solid rgba(245, 200, 66, 0.3);
+    color: #f5c842;
+  }
+
+  .ps-dl-btn.zip:hover {
+    background: rgba(245, 200, 66, 0.08);
+  }
+
+  .ps-dl-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    transform: none !important;
+  }
+
+  .ps-dl-btn.zip {
+    display: none;
+  }
+
+  /* dl spinner */
+  .ps-dl-spinner {
+    width: 13px;
+    height: 13px;
+    border: 2px solid rgba(13, 31, 53, 0.3);
+    border-top-color: #0d1f35;
+    border-radius: 50%;
+    animation: psSpin 0.7s linear infinite;
+    display: none;
+  }
+
+  .ps-dl-btn.zip .ps-dl-spinner {
+    border-top-color: #f5c842;
+  }
+</style>
+
+<!-- ════════════════════════════════════════════
+     HTML
+════════════════════════════════════════════ -->
+<div class="ps-wrap" id="ps-wrap">
+
+  <!-- Tab chrome — injected by JS only for admins -->
+  <div class="ps-tabs" id="ps-tabs" style="display:none;">
+    <div class="ps-tab active" data-tab="mine" id="ps-tab-mine">My Payslip</div>
+    <div class="ps-tab" data-tab="others" id="ps-tab-others">Admin</div>
+  </div>
+
+  <!-- ── MY PAYSLIP PANEL (original design, untouched) ── -->
+  <div class="ps-panel active" id="ps-panel-mine">
+    <div class="ps-card">
+      <p class="ps-title">My Payslip</p>
+      <p class="hidden ps-subtitle">View &amp; Download</p>
+
+      <!-- Month + Year -->
+      <div class="ps-row" style="margin-bottom:20px;">
+        <div class="ps-field">
+          <label class="ps-label">Month</label>
+          <select class="ps-select" id="ps-month">
+            <option value="1">January</option>
+            <option value="2">February</option>
+            <option value="3">March</option>
+            <option value="4">April</option>
+            <option value="5">May</option>
+            <option value="6">June</option>
+            <option value="7">July</option>
+            <option value="8">August</option>
+            <option value="9">September</option>
+            <option value="10">October</option>
+            <option value="11">November</option>
+            <option value="12">December</option>
+          </select>
+        </div>
+        <div class="ps-field">
+          <label class="ps-label">Year</label>
+          <select class="ps-select" id="ps-year"></select>
+        </div>
+      </div>
+
+      <!-- Stamp toggle -->
+      <div class="ps-stamp-row" id="ps-stamp-row">
+        <span class="ps-stamp-label">Include Official Stamp <span>(optional)</span></span>
+        <div class="ps-toggle" id="ps-stamp-toggle"></div>
+      </div>
+
+      <!-- Generate button -->
+      <button class="ps-btn" id="ps-generate-btn">
+        <div class="ps-spinner" id="ps-spinner"></div>
+        <span id="ps-btn-text">Generate Payslip</span>
+      </button>
+
+      <!-- Status -->
+      <div class="ps-status" id="ps-status"></div>
+    </div>
+  </div>
+
+  <!-- ── OTHERS PANEL (admin only) ── -->
+  <div class="ps-panel" id="ps-panel-others">
+    <div class="ps-card">
+      <p class="ps-title">Admin Payslip Control</p>
+      <p class="ps-subtitle">Admin Access</p>
+
+      <!-- Mode switcher -->
+      <div class="ps-mode-switcher">
+        <div class="ps-mode-btn active" data-mode="single">Single</div>
+        <div class="ps-mode-btn" data-mode="multi">Multi</div>
+        <div class="ps-mode-btn" data-mode="range">Range</div>
+      </div>
+
+      <!-- ── SINGLE MODE ── -->
+      <div class="ps-mode-panel active" id="adm-panel-single">
+        <!-- Unified search: name OR service number in one input -->
+        <div class="ps-field">
+          <label class="ps-label">Name or Service Number</label>
+          <div class="ps-search-wrap">
+            <input class="ps-input" id="adm-name-search" type="text" placeholder="e.g. John or N12345…"
+              autocomplete="off">
+            <div class="ps-search-drop" id="adm-name-drop"></div>
+          </div>
+        </div>
+
+        <!-- Resolved chip — shown after selecting from dropdown -->
+        <div class="ps-selected-chip" id="adm-single-chip">
+          <div class="ps-chip-info" style="flex:1;min-width:0;">
+            <div class="ps-chip-name" id="adm-chip-name"></div>
+            <div class="ps-chip-id" id="adm-chip-id"></div>
+          </div>
+          <span class="ps-chip-clear" id="adm-chip-clear">×</span>
+        </div>
+      </div>
+
+      <!-- ── MULTI MODE ── -->
+      <div class="ps-mode-panel" id="adm-panel-multi">
+        <div class="ps-field">
+          <label class="ps-label">Employees <span
+              style="font-weight:400;text-transform:none;letter-spacing:0;color:rgba(200,220,255,0.25);">— search by
+              name, service no, or paste IDs</span></label>
+          <!-- Tag input wrap contains both chips and the live text input -->
+          <div class="ps-tag-input-wrap" id="adm-tag-wrap">
+            <!-- tags injected here by JS -->
+            <input class="ps-tag-real-input" id="adm-multi-search" placeholder="Type name or N12345…" autocomplete="off"
+              type="text">
+          </div>
+          <div class="ps-search-drop" id="adm-multi-drop" style="margin-top:4px;"></div>
+        </div>
+      </div>
+
+      <!-- ── RANGE MODE ── -->
+      <div class="ps-mode-panel" id="adm-panel-range">
+        <div class="ps-row" style="margin-bottom:14px;">
+          <div class="ps-field">
+            <label class="ps-label">From ID</label>
+            <input class="ps-input" id="adm-range-from" type="text" placeholder="e.g. N12300">
+          </div>
+          <div class="ps-field">
+            <label class="ps-label">To ID</label>
+            <input class="ps-input" id="adm-range-to" type="text" placeholder="e.g. N12399">
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SHARED: Month / Year / Stamp ── -->
+      <div class="ps-row" style="margin-bottom:14px;margin-top:4px;">
+        <div class="ps-field">
+          <label class="ps-label">Month</label>
+          <select class="ps-select" id="adm-month">
+            <option value="1">January</option>
+            <option value="2">February</option>
+            <option value="3">March</option>
+            <option value="4">April</option>
+            <option value="5">May</option>
+            <option value="6">June</option>
+            <option value="7">July</option>
+            <option value="8">August</option>
+            <option value="9">September</option>
+            <option value="10">October</option>
+            <option value="11">November</option>
+            <option value="12">December</option>
+          </select>
+        </div>
+        <div class="ps-field">
+          <label class="ps-label">Year</label>
+          <select class="ps-select" id="adm-year"></select>
+        </div>
+      </div>
+
+      <div class="ps-stamp-row" id="adm-stamp-row">
+        <span class="ps-stamp-label">Include Official Stamp <span>(optional)</span></span>
+        <div class="ps-toggle" id="adm-stamp-toggle"></div>
+      </div>
+
+      <button class="ps-btn" id="adm-generate-btn">
+        <div class="ps-spinner" id="adm-spinner"></div>
+        <span id="adm-btn-text">Generate</span>
+      </button>
+
+      <div class="ps-status" id="adm-status"></div>
+    </div>
+
+  </div><!-- /ps-panel-others -->
+
+  <!-- ── RESULTS MODAL (admin, outside panel flow) ── -->
+  <div class="ps-modal-overlay" id="adm-modal-overlay">
+    <div class="ps-modal" id="adm-modal">
+
+      <!-- Header -->
+      <div class="ps-modal-header">
+        <span class="ps-modal-title" id="adm-modal-title">Results</span>
+        <button class="ps-modal-close" id="adm-modal-close">✕</button>
+      </div>
+
+      <!-- Pills + Select All -->
+      <div class="ps-modal-pills">
+        <span class="ps-sum-pill total" id="adm-sum-total"></span>
+        <span class="ps-sum-pill ok" id="adm-sum-ok" style="display:none;"></span>
+        <span class="ps-sum-pill skipped" id="adm-sum-skip" style="display:none;"></span>
+        <span class="ps-sum-spacer"></span>
+        <button class="ps-select-all-btn" id="adm-preview-all"
+          style="margin-right:6px;color:rgba(126,184,247,0.7);border-color:rgba(126,184,247,0.2);">Preview All</button>
+        <button class="ps-select-all-btn" id="adm-select-all">Select All</button>
+      </div>
+
+      <!-- Scrollable list -->
+      <div class="ps-results-list" id="adm-results-list"></div>
+
+      <!-- Download footer -->
+      <div class="ps-download-bar">
+        <span class="ps-dl-count" id="adm-dl-count"><strong>0</strong> selected</span>
+        <span class="ps-dl-spacer"></span>
+        <button class="ps-dl-btn merged" id="adm-dl-merged" disabled>
+          <div class="ps-dl-spinner" id="adm-dl-merged-spin"></div>
+          <span>Merged PDF</span>
+        </button>
+        <button class="ps-dl-btn zip" id="adm-dl-zip" disabled>
+          <div class="ps-dl-spinner" id="adm-dl-zip-spin"></div>
+          <span>ZIP</span>
+        </button>
+      </div>
+
+    </div>
+  </div><!-- /adm-modal -->
+
+</div><!-- /ps-wrap -->
+
+
+<script>
+  (function () {
+    'use strict';
+
+    // ══════════════════════════════════════════════
+    // ROLE FLAG — swap value to match your JWT field
+    // ══════════════════════════════════════════════
+    var USER_ROLE = localStorage.getItem('role') || '';
+    var IS_ADMIN = USER_ROLE.toLowerCase() === 'hicad';
+
+    // ══════════════════════════════════════════════
+    // SHARED HELPERS
+    // ══════════════════════════════════════════════
+    var now = new Date();
+    var curYear = now.getFullYear();
+    var curMonth = now.getMonth() + 1;
+
+    function populateYears(selId) {
+      var sel = document.getElementById(selId);
+      if (!sel) return;
+      for (var y = curYear; y >= curYear - 5; y--) {
+        var opt = document.createElement('option');
+        opt.value = y; opt.textContent = y;
+        sel.appendChild(opt);
+      }
+    }
+
+    function getMonthName(selId) {
+      var sel = document.getElementById(selId);
+      return sel ? sel.options[sel.selectedIndex].text : '';
+    }
+
+    function setStatus(elId, type, msg) {
+      var el = document.getElementById(elId);
+      if (!el) return;
+      el.className = 'ps-status ' + type;
+      el.textContent = msg;
+    }
+    function clearStatus(elId) {
+      var el = document.getElementById(elId);
+      if (el) { el.className = 'ps-status'; el.textContent = ''; }
+    }
+
+    function setLoading(btnId, spinnerId, textId, on, label) {
+      var btn = document.getElementById(btnId);
+      var spin = document.getElementById(spinnerId);
+      var txt = document.getElementById(textId);
+      if (btn) btn.disabled = on;
+      if (spin) spin.style.display = on ? 'block' : 'none';
+      if (txt) txt.textContent = on ? 'Please wait…' : (label || 'Generate');
+    }
+
+    // ══════════════════════════════════════════════
+    // ADMIN TAB INIT
+    // ══════════════════════════════════════════════
+    if (IS_ADMIN) {
+      document.getElementById('ps-tabs').style.display = 'flex';
+
+      // Tab switching
+      document.querySelectorAll('.ps-tab').forEach(function (tab) {
+        tab.addEventListener('click', function () {
+          document.querySelectorAll('.ps-tab').forEach(function (t) { t.classList.remove('active'); });
+          document.querySelectorAll('.ps-panel').forEach(function (p) { p.classList.remove('active'); });
+          tab.classList.add('active');
+          document.getElementById('ps-panel-' + tab.dataset.tab).classList.add('active');
+        });
+      });
+    }
+
+    // ══════════════════════════════════════════════
+    // MY PAYSLIP TAB — original logic, untouched
+    // ══════════════════════════════════════════════
+    populateYears('ps-year');
+    document.getElementById('ps-month').value = curMonth;
+
+    var stampToggle = document.getElementById('ps-stamp-toggle');
+    var stampOn = false;
+    document.getElementById('ps-stamp-row').addEventListener('click', function () {
+      stampOn = !stampOn;
+      stampToggle.classList.toggle('on', stampOn);
+    });
+
+    var generateBtn = document.getElementById('ps-generate-btn');
+    var btnText = document.getElementById('ps-btn-text');
+    var spinner = document.getElementById('ps-spinner');
+    var statusEl = document.getElementById('ps-status');
+    var lastData = null;
+    var _previewBlobUrl = null;
+
+    generateBtn.addEventListener('click', function () {
+      var month = document.getElementById('ps-month').value;
+      var year = document.getElementById('ps-year').value;
+      var token = localStorage.getItem('token');
+      var selMonth = parseInt(month);
+      var selYear = parseInt(year);
+      var selMonthName = getMonthName('ps-month');
+
+      if (!token) { setStatus('ps-status', 'error', 'Session expired. Please log in again.'); return; }
+      if (selYear > curYear || (selYear === curYear && selMonth > curMonth)) {
+        setStatus('ps-status', 'error', 'Cannot generate a payslip for ' + selMonthName + ' ' + selYear + ' — this is a future period.');
+        return;
+      }
+
+      clearStatus('ps-status');
+      lastData = null;
+      setLoading('ps-generate-btn', 'ps-spinner', 'ps-btn-text', true);
+
+      fetch('/payslip/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({ year: year, month: month })
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (res) {
+          setLoading('ps-generate-btn', 'ps-spinner', 'ps-btn-text', false, 'Generate Payslip');
+          if (res.notReady) {
+            setStatus('ps-status', 'info', 'Payslip for ' + selMonthName + ' ' + selYear + ' is not ready yet. Please check again later.');
+            return;
+          }
+          if (!res.success || !res.data) {
+            setStatus('ps-status', 'error', (res.error || 'Unable to generate payslip') + ' (' + selMonthName + ' ' + selYear + ').');
+            return;
+          }
+          lastData = res.data;
+          lastData._selectedMonth = selMonthName;
+          lastData._selectedYear = selYear;
+          openPayslipPreview(lastData, stampOn);
+        })
+        .catch(function () {
+          setLoading('ps-generate-btn', 'ps-spinner', 'ps-btn-text', false, 'Generate Payslip');
+          setStatus('ps-status', 'error', 'A network error occurred. Please try again.');
+        });
+    });
+
+
+    // ══════════════════════════════════════════════
+    // ADMIN — OTHERS TAB
+    // ══════════════════════════════════════════════
+    if (!IS_ADMIN) return; // stop here for regular users
+
+    populateYears('adm-year');
+    document.getElementById('adm-month').value = curMonth;
+
+    // ── Stamp toggle ──
+    var admStampOn = false;
+    document.getElementById('adm-stamp-row').addEventListener('click', function () {
+      admStampOn = !admStampOn;
+      document.getElementById('adm-stamp-toggle').classList.toggle('on', admStampOn);
+    });
+
+    // ── Mode switcher ──
+    var currentMode = 'single';
+    document.querySelectorAll('.ps-mode-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        document.querySelectorAll('.ps-mode-btn').forEach(function (b) { b.classList.remove('active'); });
+        document.querySelectorAll('.ps-mode-panel').forEach(function (p) { p.classList.remove('active'); });
+        btn.classList.add('active');
+        currentMode = btn.dataset.mode;
+        document.getElementById('adm-panel-' + currentMode).classList.add('active');
+        hideResultsPanel();
+        clearStatus('adm-status');
+      });
+    });
+
+    // ── Name search shared ──────────────────────────────────────
+    // Debounced search against /adm/employees/search?q=
+    // Endpoint should return [{ id, surname, othername }]
+    // Replace with your actual endpoint if different.
+    function buildSearchDrop(inputId, dropId, onSelect) {
+      var input = document.getElementById(inputId);
+      var drop = document.getElementById(dropId);
+      var timer = null;
+
+      input.addEventListener('input', function () {
+        clearTimeout(timer);
+        var q = input.value.trim();
+        if (q.length < 2) { drop.classList.remove('open'); return; }
+        timer = setTimeout(function () {
+          var token = localStorage.getItem('token');
+          fetch('/adm/payslip/search?q=' + encodeURIComponent(q), {
+            headers: { 'Authorization': 'Bearer ' + token }
+          })
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+              drop.innerHTML = '';
+              if (!data || !data.length) {
+                drop.innerHTML = '<div class="ps-search-drop-empty">No results found</div>';
+                drop.classList.add('open'); return;
+              }
+              data.slice(0, 8).forEach(function (emp) {
+                var item = document.createElement('div');
+                item.className = 'ps-search-item';
+                var fullName = [emp.title, emp.surname, emp.othername].filter(Boolean).join(' ');
+                item.innerHTML = '<span>' + escHtml(fullName) + '</span>'
+                  + '<span class="ps-si-id">' + escHtml(emp.id) + '</span>';
+                item.addEventListener('click', function () {
+                  onSelect(emp);
+                  drop.classList.remove('open');
+                  // do NOT clear input here — onSelect sets it for single mode
+                });
+                drop.appendChild(item);
+              });
+              drop.classList.add('open');
+            })
+            .catch(function () { drop.classList.remove('open'); });
+        }, 320);
+      });
+
+      // close on outside click
+      document.addEventListener('click', function (e) {
+        if (!input.contains(e.target) && !drop.contains(e.target)) {
+          drop.classList.remove('open');
+        }
+      });
+    }
+
+    // ── SINGLE mode ─────────────────────────────────────────────
+    var singleSelectedEmp = null;
+
+    buildSearchDrop('adm-name-search', 'adm-name-drop', function (emp) {
+      singleSelectedEmp = emp;
+      var displayName = [emp.title, emp.surname, emp.othername].filter(Boolean).join(' ');
+      document.getElementById('adm-name-search').value = displayName;
+      document.getElementById('adm-chip-name').textContent = displayName;
+      document.getElementById('adm-chip-id').textContent = emp.id;
+      document.getElementById('adm-single-chip').classList.add('show');
+    });
+
+    document.getElementById('adm-chip-clear').addEventListener('click', function () {
+      singleSelectedEmp = null;
+      document.getElementById('adm-name-search').value = '';
+      document.getElementById('adm-chip-name').textContent = '';
+      document.getElementById('adm-chip-id').textContent = '';
+      document.getElementById('adm-single-chip').classList.remove('show');
+    });
+
+    // adm-single-id field removed — search input is now unified
+
+    // ── MULTI mode ──────────────────────────────────────────────
+    var multiSearchAdded = []; // [{id, surname, othername}] added via search
+
+    // ── TAG INPUT: multi-mode ──────────────────────────────────
+    buildSearchDrop('adm-multi-search', 'adm-multi-drop', function (emp) {
+      addMultiTag(emp);
+    });
+
+    function addMultiTag(emp) {
+      if (!emp || !emp.id) return;
+      if (multiSearchAdded.find(function (e) { return e.id === emp.id; })) return;
+      multiSearchAdded.push(emp);
+      document.getElementById('adm-multi-search').value = '';
+      renderMultiTags();
+    }
+
+    function addRawId(rawId) {
+      var id = rawId.trim().toUpperCase();
+      if (!id) return;
+      if (multiSearchAdded.find(function (e) { return e.id === id; })) return;
+      multiSearchAdded.push({ id: id, title: '', surname: id, othername: '' });
+      renderMultiTags();
+    }
+
+    function renderMultiTags() {
+      var wrap = document.getElementById('adm-tag-wrap');
+      var input = document.getElementById('adm-multi-search');
+      // Remove existing tags (keep only the real input)
+      Array.from(wrap.querySelectorAll('.ps-tag')).forEach(function (t) { t.remove(); });
+      // Re-insert tags before the input
+      multiSearchAdded.forEach(function (emp) {
+        var tag = document.createElement('div');
+        tag.className = 'ps-tag';
+        var cn = [emp.title, emp.surname, emp.othername].filter(Boolean).join(' ');
+        tag.innerHTML = '<span>' + escHtml(cn) + '</span>'
+          + (emp.title || emp.othername ? '<span class="ps-tag-id">' + escHtml(emp.id) + '</span>' : '')
+          + '<span class="ps-tag-del" data-id="' + escHtml(emp.id) + '">×</span>';
+        tag.querySelector('.ps-tag-del').addEventListener('click', function (e) {
+          e.stopPropagation();
+          multiSearchAdded = multiSearchAdded.filter(function (x) { return x.id !== emp.id; });
+          renderMultiTags();
+        });
+        wrap.insertBefore(tag, input);
+      });
+      wrap.scrollTop = wrap.scrollHeight;
+    }
+
+    // Click wrap → focus input
+    document.getElementById('adm-tag-wrap').addEventListener('click', function () {
+      document.getElementById('adm-multi-search').focus();
+    });
+
+    // Handle Enter key (confirm raw ID) and comma/newline paste
+    document.getElementById('adm-multi-search').addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ',') {
+        e.preventDefault();
+        var val = this.value.trim().replace(/,$/, '');
+        if (val) { addRawId(val); this.value = ''; }
+      }
+      // Backspace on empty input removes last tag
+      if (e.key === 'Backspace' && !this.value && multiSearchAdded.length) {
+        multiSearchAdded.pop();
+        renderMultiTags();
+      }
+    });
+
+    // Detect paste of multiple IDs
+    document.getElementById('adm-multi-search').addEventListener('paste', function (e) {
+      var text = (e.clipboardData || window.clipboardData).getData('text');
+      if (!text) return;
+      var parts = text.split(/[,\s]+/).map(function (s) { return s.trim(); }).filter(Boolean);
+      if (parts.length > 1) {
+        e.preventDefault();
+        parts.forEach(addRawId);
+      }
+      // single value — let default paste handle it, dropdown will catch it
+    });
+
+    // legacy alias so parseMultiIds still works
+    function renderMultiChips() { renderMultiTags(); }
+
+    function parseMultiIds() {
+      // All entries come from multiSearchAdded (tags in the wrap)
+      // Plus anything still typed in the input that hasn't been confirmed
+      var typed = document.getElementById('adm-multi-search').value.trim();
+      var all = multiSearchAdded.map(function (e) { return e.id; });
+      if (typed) all.push(typed.toUpperCase());
+      return all.filter(function (v, i, a) { return a.indexOf(v) === i; });
+    }
+
+    // ── BUILD REQUEST BODY ──────────────────────────────────────
+    function buildRequestBody() {
+      var month = document.getElementById('adm-month').value;
+      var year = document.getElementById('adm-year').value;
+      var base = { year: year, month: month };
+
+      if (currentMode === 'single') {
+        // Use the selected employee chip ID, or fall back to raw search input value
+        var id = singleSelectedEmp
+          ? singleSelectedEmp.id
+          : (document.getElementById('adm-name-search').value.trim());
+        if (!id) return null;
+        return Object.assign({}, base, { mode: 'single', employeeId: id });
+      }
+
+      if (currentMode === 'multi') {
+        var ids = parseMultiIds();
+        if (!ids.length) return null;
+        return Object.assign({}, base, { mode: 'multi', employeeIds: ids });
+      }
+
+      if (currentMode === 'range') {
+        var from = document.getElementById('adm-range-from').value.trim();
+        var to = document.getElementById('adm-range-to').value.trim();
+        if (!from || !to) return null;
+        return Object.assign({}, base, { mode: 'range', fromId: from, toId: to });
+      }
+      return null;
+    }
+
+    // ══════════════════════════════════════════════
+    // RESULTS STATE
+    // ══════════════════════════════════════════════
+    var admResults = [];   // full results array from server
+    var selectedEmpIds = {};   // { empId: true } map of selected
+    var carouselList = [];   // successful results for carousel
+    var carouselIndex = 0;    // current carousel position
+
+    function hideResultsModal() {
+      document.getElementById('adm-modal-overlay').classList.remove('open');
+      admResults = [];
+      selectedEmpIds = {};
+    }
+    // keep old name as alias so generate-btn handler still works
+    var hideResultsPanel = hideResultsModal;
+
+    // ── GENERATE ────────────────────────────────────────────────
+    document.getElementById('adm-generate-btn').addEventListener('click', function () {
+      var body = buildRequestBody();
+      var token = localStorage.getItem('token');
+      var month = parseInt(document.getElementById('adm-month').value);
+      var year = parseInt(document.getElementById('adm-year').value);
+      var mName = getMonthName('adm-month');
+
+      if (!token) { setStatus('adm-status', 'error', 'Session expired. Please log in again.'); return; }
+      if (!body) { setStatus('adm-status', 'error', 'Please fill in the required fields.'); return; }
+
+      if (year > curYear || (year === curYear && month > curMonth)) {
+        setStatus('adm-status', 'error', 'Cannot generate payslip for a future period.');
+        return;
+      }
+
+      clearStatus('adm-status');
+      hideResultsPanel();
+      setLoading('adm-generate-btn', 'adm-spinner', 'adm-btn-text', true);
+
+      fetch('/adm/payslip/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify(body)
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (res) {
+          setLoading('adm-generate-btn', 'adm-spinner', 'adm-btn-text', false, 'Generate');
+          if (!res.success) {
+            setStatus('adm-status', 'error', res.error || 'Generation failed.');
+            return;
+          }
+          admResults = res.results || [];
+
+          // Single mode — open lightbox directly if successful
+          if (currentMode === 'single' && admResults.length === 1 && !admResults[0].skipped) {
+            var d = admResults[0].data;
+            d._selectedMonth = mName;
+            d._selectedYear = year;
+            openPayslipPreview(d, admStampOn);
+            return;
+          }
+
+          renderResultsPanel(res.summary, mName, year);
+        })
+        .catch(function () {
+          setLoading('adm-generate-btn', 'adm-spinner', 'adm-btn-text', false, 'Generate');
+          setStatus('adm-status', 'error', 'A network error occurred. Please try again.');
+        });
+    });
+
+    // ── RENDER RESULTS PANEL ────────────────────────────────────
+    function renderResultsPanel(summary, mName, year) {
+      var list = document.getElementById('adm-results-list');
+
+      // Summary pills
+      document.getElementById('adm-sum-total').textContent = summary.total + ' Total';
+      var okPill = document.getElementById('adm-sum-ok');
+      var skipPill = document.getElementById('adm-sum-skip');
+      if (summary.successful > 0) {
+        okPill.textContent = summary.successful + ' Ready';
+        okPill.style.display = '';
+      } else { okPill.style.display = 'none'; }
+      if (summary.skipped > 0) {
+        skipPill.textContent = summary.skipped + ' Skipped';
+        skipPill.style.display = '';
+      } else { skipPill.style.display = 'none'; }
+
+      // Build rows
+      list.innerHTML = '';
+      selectedEmpIds = {};
+
+      admResults.forEach(function (result) {
+        var row = document.createElement('div');
+        row.className = 'ps-result-row ' + (result.skipped ? 'skipped' : 'success');
+        row.dataset.empId = result.empId;
+
+        var emp = result.data || {};
+        var name = result.skipped
+          ? (result.empId || 'Unknown')
+          : (emp.surname || '') + ' ' + (emp.othername || '');
+        var subLine = result.empId + ((!result.skipped && emp.payroll_month) ? '  ·  ' + emp.payroll_month + ' ' + (emp.payroll_year || year) : '');
+
+        if (result.skipped) {
+          row.innerHTML =
+            '<div class="ps-rr-icon skipped">✕</div>'
+            + '<div class="ps-rr-info">'
+            + '<div class="ps-rr-name">' + escHtml(name) + '</div>'
+            + '<div class="ps-rr-sub">' + escHtml(subLine) + '</div>'
+            + '<div class="ps-rr-reason">' + escHtml(result.reason || 'Skipped') + '</div>'
+            + '</div>';
+        } else {
+          row.innerHTML =
+            '<div class="ps-rr-icon ok">✓</div>'
+            + '<div class="ps-rr-info">'
+            + '<div class="ps-rr-name">' + escHtml(name.trim()) + '</div>'
+            + '<div class="ps-rr-sub">' + escHtml(subLine) + '</div>'
+            + '</div>'
+            + '<div class="ps-rr-actions">'
+            + '<button class="ps-rr-preview-btn">Preview</button>'
+            + '<div class="ps-rr-check">✓</div>'
+            + '</div>';
+
+          // Preview button — opens carousel at this employee's index
+          row.querySelector('.ps-rr-preview-btn').addEventListener('click', function (e) {
+            e.stopPropagation();
+            var idx = carouselList.findIndex(function (r) { return r.empId === result.empId; });
+            carouselIndex = idx >= 0 ? idx : 0;
+            openCarousel(carouselIndex);
+          });
+
+          // Row click = toggle selection
+          row.addEventListener('click', function () {
+            toggleSelection(result.empId, row);
+          });
+        }
+
+        list.appendChild(row);
+      });
+
+      updateDownloadBar();
+
+      // Build carousel from successful results
+      carouselList = admResults.filter(function (r) { return !r.skipped; });
+      carouselIndex = 0;
+
+      // open modal
+      var overlay = document.getElementById('adm-modal-overlay');
+      document.getElementById('adm-modal-title').textContent =
+        'Results — ' + mName + ' ' + year;
+      overlay.classList.add('open');
+    }
+
+    // ── SELECTION ───────────────────────────────────────────────
+    function toggleSelection(empId, row) {
+      if (selectedEmpIds[empId]) {
+        delete selectedEmpIds[empId];
+        row.classList.remove('selected');
+      } else {
+        selectedEmpIds[empId] = true;
+        row.classList.add('selected');
+      }
+      updateDownloadBar();
+      updateSelectAllBtn();
+    }
+
+    function updateSelectAllBtn() {
+      var successCount = admResults.filter(function (r) { return !r.skipped; }).length;
+      var selCount = Object.keys(selectedEmpIds).length;
+      document.getElementById('adm-select-all').textContent =
+        selCount === successCount ? 'Deselect All' : 'Select All';
+    }
+
+    // Close modal on button or overlay-backdrop click
+    document.getElementById('adm-modal-close').addEventListener('click', hideResultsModal);
+    document.getElementById('adm-modal-overlay').addEventListener('click', function (e) {
+      if (e.target === this) hideResultsModal();
+    });
+
+    // Preview All — open carousel at index 0
+    document.getElementById('adm-preview-all').addEventListener('click', function () {
+      if (!carouselList.length) return;
+      carouselIndex = 0;
+      openCarousel(carouselIndex);
+    });
+
+    document.getElementById('adm-select-all').addEventListener('click', function () {
+      var successRows = admResults.filter(function (r) { return !r.skipped; });
+      var allSelected = Object.keys(selectedEmpIds).length === successRows.length;
+
+      if (allSelected) {
+        selectedEmpIds = {};
+        document.querySelectorAll('.ps-result-row.success').forEach(function (r) { r.classList.remove('selected'); });
+      } else {
+        selectedEmpIds = {};
+        successRows.forEach(function (r) {
+          selectedEmpIds[r.empId] = true;
+        });
+        document.querySelectorAll('.ps-result-row.success').forEach(function (r) { r.classList.add('selected'); });
+      }
+      updateDownloadBar();
+      updateSelectAllBtn();
+    });
+
+    function updateDownloadBar() {
+      var count = Object.keys(selectedEmpIds).length;
+      var countEl = document.getElementById('adm-dl-count');
+      countEl.innerHTML = '<strong>' + count + '</strong> selected';
+      document.getElementById('adm-dl-merged').disabled = count === 0;
+      document.getElementById('adm-dl-zip').disabled = count === 0;
+    }
+
+    // ── DOWNLOAD ────────────────────────────────────────────────
+    function getSelectedResults() {
+      return admResults.filter(function (r) { return !r.skipped && selectedEmpIds[r.empId]; });
+    }
+
+    function downloadBatch(delivery) {
+      var selected = getSelectedResults();
+      if (!selected.length) return;
+
+      var token = localStorage.getItem('token');
+      var mergedBtn = document.getElementById('adm-dl-merged');
+      var zipBtn = document.getElementById('adm-dl-zip');
+      var mergedSpin = document.getElementById('adm-dl-merged-spin');
+      var zipSpin = document.getElementById('adm-dl-zip-spin');
+
+      mergedBtn.disabled = true; zipBtn.disabled = true;
+      if (delivery === 'merged') { mergedSpin.style.display = 'block'; }
+      else { zipSpin.style.display = 'block'; }
+
+      fetch('/adm/payslip/pdf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({ results: selected, delivery: delivery, stamp: admStampOn })
+      })
+        .then(function (r) {
+          if (!r.ok) throw new Error('failed');
+          return r.blob();
+        })
+        .then(function (blob) {
+          var url = URL.createObjectURL(blob);
+          var link = document.createElement('a');
+          link.href = url;
+          // merged: "Payslips April 2025.pdf"  |  zip: "Payslips April 2025.zip"
+          var _mName = getMonthName('adm-month');
+          var _yr = document.getElementById('adm-year').value;
+          if (delivery === 'zip') {
+            link.download = 'Payslips ' + _mName + ' ' + _yr + '.zip';
+          } else {
+            link.download = 'Payslips ' + _mName + ' ' + _yr + '.pdf';
+          }
+          link.click();
+          setTimeout(function () { URL.revokeObjectURL(url); }, 5000);
+        })
+        .catch(function () {
+          setStatus('adm-status', 'error', 'Download failed. Please try again.');
+        })
+        .finally(function () {
+          mergedSpin.style.display = 'none';
+          zipSpin.style.display = 'none';
+          var count = Object.keys(selectedEmpIds).length;
+          mergedBtn.disabled = count === 0;
+          zipBtn.disabled = count === 0;
+        });
+    }
+
+    document.getElementById('adm-dl-merged').addEventListener('click', function () { downloadBatch('merged'); });
+    document.getElementById('adm-dl-zip').addEventListener('click', function () { downloadBatch('zip'); });
+
+    // ── CAROUSEL ────────────────────────────────────────────────
+    function openCarousel(index) {
+      if (!carouselList.length) return;
+      carouselIndex = Math.max(0, Math.min(index, carouselList.length - 1));
+      var entry = carouselList[carouselIndex];
+      var d = entry.data;
+      d._selectedMonth = d.payroll_month || '';
+      d._selectedYear = d.payroll_year || '';
+
+      var logoPromise = fetch('photos/logo.png')
+        .then(function (r) { return r.blob(); })
+        .then(function (b) {
+          return new Promise(function (res) {
+            var fr = new FileReader();
+            fr.onload = function () { res(fr.result); };
+            fr.readAsDataURL(b);
+          });
+        })
+        .catch(function () { return ''; });
+
+      var stampPromise = admStampOn
+        ? fetch('photos/cpo-stamp.png')
+          .then(function (r) { return r.blob(); })
+          .then(function (b) {
+            return new Promise(function (res) {
+              var fr = new FileReader();
+              fr.onload = function () { res(fr.result); };
+              fr.readAsDataURL(b);
+            });
+          })
+          .catch(function () { return ''; })
+        : Promise.resolve('');
+
+      var fontsPromise = fetch('offline-assets/css/fonts.css')
+        .then(function (r) { return r.text(); })
+        .catch(function () { return ''; });
+
+      Promise.all([logoPromise, stampPromise, fontsPromise]).then(function (results) {
+        _buildAndShowCarouselSlide(d, results[0], results[1], results[2]);
+      });
+    }
+    
+    function _buildAndShowCarouselSlide(data, logoDataUrl, stampDataUrl, fontsCSS) {
+      if (_previewBlobUrl) { URL.revokeObjectURL(_previewBlobUrl); _previewBlobUrl = null; }
+
+      var html = buildPayslipHTML(data, admStampOn, logoDataUrl, stampDataUrl, fontsCSS);
+      var blob = new Blob([html], { type: 'text/html' });
+      var blobUrl = URL.createObjectURL(blob);
+      _previewBlobUrl = blobUrl;
+
+      var overlay = document.getElementById('attPreviewOverlay');
+      var content = document.getElementById('attPreviewContent');
+      var nameEl = document.getElementById('attPreviewName');
+      var expBtn = document.getElementById('attPreviewExpandBtn');
+      var dlBtn = document.getElementById('attPreviewDownloadBtn');
+
+      if (!overlay || !content) return;
+
+      var emp = data.employees ? data.employees[0] : data;
+      nameEl.textContent = (emp.surname || '')
+        + ' — ' + (emp.payroll_month || '') + ' ' + (emp.payroll_year || '') + ' Payslip';
+
+      content.innerHTML = '';
+      var iframe = document.createElement('iframe');
+      iframe.src = blobUrl;
+      iframe.style.cssText = 'width:100%;height:100%;border:none;background:#fff;display:block;flex:1;min-height:0;';
+      content.appendChild(iframe);
+
+      // Wire download button to this employee
+      dlBtn.onclick = function () { downloadPayslipPdf(data, admStampOn); };
+
+      if (expBtn) {
+        expBtn.innerHTML = '<svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24">'
+          + '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" '
+          + 'd="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg> Expand';
+      }
+
+      // ── Inject / update carousel nav into the overlay title bar ──
+      // Find or create the nav container
+      var bar = document.getElementById('attPreviewBar') || overlay.querySelector('.att-preview-bar');
+      var nav = document.getElementById('ps-carousel-nav');
+      if (!nav && bar) {
+        nav = document.createElement('div');
+        nav.id = 'ps-carousel-nav';
+        nav.className = 'ps-carousel-nav';
+        nav.innerHTML =
+          '<button class="ps-carousel-btn" id="ps-car-prev">&#8592;</button>'
+          + '<span class="ps-carousel-counter" id="ps-car-counter"></span>'
+          + '<button class="ps-carousel-btn" id="ps-car-next">&#8594;</button>';
+        bar.appendChild(nav);
+
+        document.getElementById('ps-car-prev').addEventListener('click', function () {
+          if (carouselIndex > 0) openCarousel(carouselIndex - 1);
+        });
+        document.getElementById('ps-car-next').addEventListener('click', function () {
+          if (carouselIndex < carouselList.length - 1) openCarousel(carouselIndex + 1);
+        });
+      }
+
+      // Update counter + button states
+      if (document.getElementById('ps-car-counter')) {
+        document.getElementById('ps-car-counter').textContent =
+          (carouselIndex + 1) + ' / ' + carouselList.length;
+      }
+      if (document.getElementById('ps-car-prev'))
+        document.getElementById('ps-car-prev').disabled = carouselIndex === 0;
+      if (document.getElementById('ps-car-next'))
+        document.getElementById('ps-car-next').disabled = carouselIndex === carouselList.length - 1;
+
+      // Show only if more than one
+      if (nav) nav.style.display = carouselList.length > 1 ? 'flex' : 'none';
+
+      overlay.classList.add('open');
+
+      // Patch close to remove nav and revoke blob
+      var _origClose = window.closeAttPreview;
+      window.closeAttPreview = function () {
+        if (_previewBlobUrl) {
+          var u = _previewBlobUrl; _previewBlobUrl = null;
+          setTimeout(function () { URL.revokeObjectURL(u); }, 500);
+        }
+        var navEl = document.getElementById('ps-carousel-nav');
+        if (navEl) navEl.remove();
+        window.closeAttPreview = _origClose;
+        if (_origClose) _origClose();
+      };
+    }
+
+
+    // ══════════════════════════════════════════════
+    // PAYSLIP PREVIEW + PDF (shared by both tabs)
+    // All functions below are identical to original
+    // ══════════════════════════════════════════════
+
+    function escHtml(s) {
+      if (s === null || s === undefined) return '';
+      return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function formatCurrency(n) {
+      var num = parseFloat(n) || 0;
+      return num.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return '';
+      var d = new Date(dateStr);
+      if (isNaN(d)) return dateStr;
+      return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
+    }
+
+    function renderEmployee(emp, globals) {
+      var nsitfRow = emp.nsitfcode
+        ? '<div class="info-row"><span class="info-label">RSA (Pension):</span><span class="info-value">' + escHtml(emp.nsitfcode) + '</span></div>'
+        : '';
+      var bankInfo = escHtml(emp.bank_account_number || '') + (emp.bank_name ? ' (' + escHtml(emp.bank_name) + ')' : '');
+
+      function renderPayTable(items) {
+        if (!items || !items.length) return '';
+        return items.map(function (item) {
+          return '<tr><td>' + escHtml(item.description) + '</td>'
+            + '<td class="amount">₦' + formatCurrency(item.amount) + '</td></tr>';
+        }).join('');
+      }
+
+      function renderDeductions(items) {
+        if (!items || !items.length) return '';
+        var leftRows = items.map(function (item) {
+          return '<tr><td>' + escHtml(item.description) + '</td>'
+            + '<td class="amount">(₦' + formatCurrency(item.amount) + ')</td></tr>';
+        }).join('');
+        var rightRows = items.map(function (item) {
+          if (item.loan_balance) {
+            return '<div class="rz-row" style="min-height:13px;padding:1px 4px 1px 12px;">'
+              + '<span class="rz-lbal">' + escHtml(formatCurrency(item.loan_balance)) + '</span>'
+              + '<span class="rz-osmths">' + (item.outstanding_months && item.outstanding_months !== '-' && item.outstanding_months !== 0 ? escHtml(String(item.outstanding_months)) : '') + '</span>'
+              + '</div>';
+          }
+          return '<div class="rz-row rz-empty"></div>';
+        }).join('');
+        return '<div class="full-row">'
+          + '<div class="left-zone"><table class="items-table"><colgroup><col class="col-desc"><col class="col-amount"></colgroup><tbody>'
+          + leftRows + '</tbody></table></div>'
+          + '<div class="right-zone"><div class="rz-rows">' + rightRows + '</div></div>'
+          + '</div>';
+      }
+
+      // DSA: single payroll section (no IPPIS split)
+      var payHtml = '';
+      if (emp.pay) {
+        var pay = emp.pay;
+        payHtml += '<div class="lbal-header-row" style="margin-top:6px;">'
+          + '<div class="lh-spacer"><div class="source-header" style="margin-top:0;width:100%;">PAYMENT DETAILS</div></div>'
+          + '<div class="lh-labels"><span class="lh-col lbal">&#x20A6;L.Bal</span><span class="lh-col osmths">Os.Mths</span></div>'
+          + '</div>';
+        if (pay.taxable && pay.taxable.length)
+          payHtml += '<div class="section-header">Taxable Payment</div>'
+            + '<table class="items-table" style="width:70%"><colgroup><col class="col-desc"><col class="col-amount"></colgroup><tbody>'
+            + renderPayTable(pay.taxable) + '</tbody></table>';
+        if (pay.nontaxable && pay.nontaxable.length)
+          payHtml += '<div class="section-header">Non-Taxable Payment</div>'
+            + '<table class="items-table" style="width:70%"><colgroup><col class="col-desc"><col class="col-amount"></colgroup><tbody>'
+            + renderPayTable(pay.nontaxable) + '</tbody></table>';
+        if (pay.deductions && pay.deductions.length)
+          payHtml += '<div class="section-header">Deductions</div>' + renderDeductions(pay.deductions);
+      }
+
+      var stampHtml = globals.showStamp && globals.stampDataUrl
+        ? '<img class="stamp-box" src="' + globals.stampDataUrl + '" alt="Official Stamp" />'
+        + '<span class="stamp-date-text">' + formatDate(globals.payDate) + '</span>'
+        : '';
+
+      return '<div class="container">'
+        + '<div class="header-wrapper">'
+        + '<div class="className">' + escHtml(globals.className || '') + '</div>'
+        + '<div class="header"><h1>DEFENCE SPACE ADMINISTRATION</h1><h2>OBASANJO SPACE CENTRE, ABUJA</h2></div>'
+        + '</div>'
+        + '<div class="pay-period">'
+        + '<span class="pp-left"><strong>Pay Period:</strong> ' + escHtml(emp.payroll_month) + ' ' + escHtml(String(emp.payroll_year)) + '</span>'
+        + '<span class="pp-center">' + escHtml(emp.surname) + ' ' + escHtml(emp.othername) + "'s PAYSLIP</span>"
+        + '<span class="pp-right"><strong>Produced On:</strong> ' + escHtml(formatDate(globals.payDate)) + '</span>'
+        + '</div>'
+        + '<div class="section-header">Official Profile</div>'
+        + '<div class="employee-info">'
+        + '<div class="info-row"><span class="info-label">Service No:</span><span class="info-value">' + escHtml(emp.employee_id) + '</span></div>'
+        + '<div class="info-row"><span class="info-label">Grade:</span><span class="info-value">' + escHtml(emp.gradelevel) + '</span></div>'
+        + '<div class="info-row"><span class="info-label">Department:</span><span class="info-value">' + escHtml(emp.department) + '</span></div>'
+        + '<div class="info-row"><span class="info-label">Branch:</span><span class="info-value">' + escHtml(emp.factory) + '</span></div>'
+        + '<div class="info-row"><span class="info-label">Bank Account:</span><span class="info-value">' + bankInfo + '</span></div>'
+        + nsitfRow + '</div>'
+        + payHtml
+        + '<div class="net-pay-wrapper">'
+        + '<div class="net-pay"><span class="label">Net Payment This Month</span><span class="amount">₦' + formatCurrency(emp.net_pay) + '</span></div>'
+        + stampHtml
+        + '</div>'
+        + '<div class="footer"><p>All rights reserved &#xA9; Hicad Systems Limited.</p></div>'
+        + '</div>';
+    }
+
+    function buildPayslipHTML(data, showStamp, logoDataUrl, stampDataUrl, fontsCSS) {
+      var employees = data.employees || [data];
+      var globals = {
+        className: data.className || '',
+        payDate: data.payDate || new Date().toISOString(),
+        showStamp: !!showStamp,
+        stampDataUrl: stampDataUrl || ''
+      };
+      var body = employees.map(function (emp) { return renderEmployee(emp, globals); }).join('');
+      return '<!DOCTYPE html><html><head><meta charset="UTF-8"><style>'
+        + getPayslipCSS(logoDataUrl, fontsCSS)
+        + '</style></head><body>' + body + '</body></html>';
+    }
+
+    function getPayslipCSS(logoDataUrl, fontsCSS) {
+      var logoUrl = logoDataUrl || 'photos/logo.png';
+      return (fontsCSS || '')
+        + '@page{size:A5;margin:10mm;margin-top:0.2mm;margin-bottom:0.2mm;background-color:#f8fbff;}'
+        + '*{margin:0;padding:0;box-sizing:border-box;}'
+        + 'html{background:#1e2a3a;min-height:100%;}'
+        + 'body{font-family:Helvetica,Arial,sans-serif;font-size:7pt;color:#1a1a1a;line-height:1.2;position:relative;background-color:#f8fbff;width:559px;min-height:794px;margin:16px auto;padding:10mm;padding-top:0.2mm;padding-bottom:0.2mm;box-shadow:0 8px 40px rgba(0,0,0,0.55);}'
+        + 'body::before{content:"";position:absolute;top:0;left:0;width:100%;height:100%;background-image:url("' + logoUrl + '");background-size:auto 100%;background-repeat:no-repeat;background-position:center center;opacity:0.01;pointer-events:none;}'
+        + '@media print{body{print-color-adjust:exact;-webkit-print-color-adjust:exact;}body::before{position:fixed;display:block;}}'
+        + '.container{width:100%;padding:10px;page-break-after:always;}.container:last-child{page-break-after:auto;}'
+        + '.header-wrapper{display:flex;align-items:flex-start;margin-bottom:8px;border-bottom:2px solid #1a1a1a;padding-bottom:5px;}'
+        + '.className{flex-shrink:0;margin-right:20px;align-self:center;font-size:9pt;}'
+        + '.header{flex-grow:1;text-align:center;}'
+        + '.header h1{font-size:13pt;font-weight:bold;margin-bottom:2px;letter-spacing:1.5px;color:#1e40af;font-family:"Libre Baskerville",Georgia,serif;}'
+        + '.header h2{font-size:10pt;font-weight:normal;margin-top:2px;color:#4a4a4a;font-family:"Libre Baskerville",Georgia,serif;}'
+        + '.pay-period{width:100%;margin:3px 0;font-size:7pt;display:flex;justify-content:space-between;align-items:center;background-color:#fafafa;}'
+        + '.pp-left,.pp-right{color:#4a4a4a;white-space:nowrap;}.pp-left strong,.pp-right strong{color:#1a1a1a;}'
+        + '.pp-center{flex-grow:1;text-align:center;font-size:7pt;font-weight:bold;color:#1a1a1a;letter-spacing:0.5px;text-transform:uppercase;padding:0 5px;white-space:nowrap;font-family:"Times New Roman",Times,serif;font-style:italic;}'
+        + '.section-header{font-size:8pt;font-weight:bold;margin-top:3px;margin-bottom:4px;padding:2px 5px;color:#1e40af;text-transform:uppercase;letter-spacing:0.5px;width:70%;}'
+        + '.source-header{font-size:8.5pt;font-weight:bold;margin-top:6px;margin-bottom:2px;padding:3px 6px;color:#1e40af;text-transform:uppercase;letter-spacing:0.8px;width:70%;text-align:center;border-bottom:1.5px solid #1e40af;}'
+        + '.employee-info{margin-bottom:6px;padding:2px 6px;background-color:#fafafa;border:1px solid #d0d0d0;width:70%;}'
+        + '.info-row{display:flex;padding:2px 0;font-size:7pt;border-bottom:1px solid #f0f0f0;}.info-row:last-child{border-bottom:none;}'
+        + '.info-label{font-weight:600;min-width:85px;flex-shrink:0;color:#1a1a1a;}.info-value{flex-grow:1;color:#4a4a4a;}'
+        + '.full-row{width:100%;display:flex;align-items:flex-start;}.full-row .left-zone{width:70%;flex-shrink:0;}.full-row .right-zone{width:30%;flex-shrink:0;padding-left:8px;}'
+        + '.lbal-header-row{width:100%;display:flex;align-items:flex-end;margin-bottom:2px;}.lbal-header-row .lh-spacer{width:70%;flex-shrink:0;}.lbal-header-row .lh-labels{width:30%;display:flex;justify-content:space-between;padding-left:12px;padding-right:4px;padding-bottom:3px;box-sizing:border-box;}'
+        + '.lh-col{font-size:7pt;font-weight:600;color:#4a4a4a;}.lh-col.lbal{text-align:left;}.lh-col.osmths{text-align:right;}'
+        + '.items-table{width:100%;border-collapse:collapse;margin-bottom:0;}.items-table col.col-desc{width:auto;}.items-table col.col-amount{width:80px;}'
+        + '.items-table thead{border-bottom:1px solid #1a1a1a;}.items-table th{font-size:7pt;font-weight:600;padding:1px 4px;text-align:left;color:#1a1a1a;}.items-table th.amount-col{text-align:right;}'
+        + '.items-table tbody tr{border-bottom:1px solid #f0f0f0;}.items-table tbody td{padding:1px 4px;font-size:7pt;vertical-align:middle;color:#4a4a4a;}'
+        + '.items-table tbody td.amount{text-align:right;white-space:nowrap;font-family:"Courier New",monospace;color:#1a1a1a;font-weight:700;font-size:7.5pt;padding-right:8px;}'
+        + '.rz-rows{width:100%;}.rz-row{display:flex;justify-content:space-between;align-items:center;min-height:13px;padding:1px 4px 1px 12px;box-sizing:border-box;}.rz-empty{border:none!important;visibility:hidden;}'
+        + '.rz-lbal{text-align:left;font-family:"Courier New",monospace;font-size:7pt;font-weight:600;color:#1a1a1a;}.rz-osmths{text-align:right;font-family:"Courier New",monospace;font-size:7pt;font-weight:600;color:#7c3aed;}'
+        + '.total-row{background-color:#f5f5f5;border-top:1px solid #d0d0d0;border-bottom:1px solid #d0d0d0;padding:2px 6px;display:flex;justify-content:space-between;font-size:8pt;font-weight:600;width:70%;}'
+        + '.total-row .label{text-transform:uppercase;color:#1a1a1a;}.total-row .amount{text-align:right;min-width:90px;font-family:"Courier New",monospace;color:#1a1a1a;font-weight:700;}'
+        + '.net-pay{background-color:#f0f0f0;border:2px solid #1a1a1a;padding:5px 6px;margin:4px 0;display:flex;justify-content:space-between;font-size:9pt;font-weight:bold;width:70%;}'
+        + '.net-pay-wrapper{position:relative;width:100%;margin:4px 0;}'
+        + '.net-pay{background-color:#f0f0f0;border:2px solid #1a1a1a;padding:5px 6px;display:flex;justify-content:space-between;font-size:9pt;font-weight:bold;width:70%;}'
+        + '.net-pay .label{text-transform:uppercase;letter-spacing:1px;}.net-pay .amount{text-align:right;min-width:80px;font-family:"Courier New",monospace;font-weight:800;}'
+        + '.stamp-box{position:absolute;left:calc(70% - 39px);top:150%;transform:translateY(-50%) rotate(-15deg);transform-origin:center center;width:195px;height:145px;object-fit:contain;opacity:0.5;}'
+        + '.stamp-date-text{position:absolute;font-family:"Caveat",cursive;font-size:7pt;color:#1a4080; font-weight:600;'
+        + 'left:calc(70% + 52px);top:calc(150% + 19px);transform:translateY(-50%) rotate(-15deg);'
+        + 'transform-origin:center center;white-space:nowrap;pointer-events:none;}'
+        + '.footer{margin-top:3px;padding-top:1px;border-top:2px solid #d0d0d0;text-align:center;font-size:6pt;color:#6a6a6a;}.footer p{margin:1px 0;}.footer p:first-child{font-weight:600;color:#4a4a4a;}';
+    }
+
+    function openPayslipPreview(data, showStamp) {
+      if (_previewBlobUrl) { URL.revokeObjectURL(_previewBlobUrl); _previewBlobUrl = null; }
+
+      var logoPromise = fetch('photos/logo.png')
+        .then(function (r) { return r.blob(); })
+        .then(function (blob) {
+          return new Promise(function (resolve) {
+            var reader = new FileReader();
+            reader.onload = function () { resolve(reader.result); };
+            reader.readAsDataURL(blob);
+          });
+        })
+        .catch(function () { return ''; });
+
+      var stampPromise = showStamp
+        ? fetch('photos/cpo-stamp.png')
+          .then(function (r) { return r.blob(); })
+          .then(function (blob) {
+            return new Promise(function (resolve) {
+              var reader = new FileReader();
+              reader.onload = function () { resolve(reader.result); };
+              reader.readAsDataURL(blob);
+            });
+          })
+          .catch(function () { return ''; })
+        : Promise.resolve('');
+
+      // Fetch fonts CSS alongside logo and stamp
+      var fontsPromise = fetch('offline-assets/css/fonts.css')
+        .then(function (r) { return r.text(); })
+        .catch(function () { return ''; });
+
+      Promise.all([logoPromise, stampPromise, fontsPromise]).then(function (results) {
+        _buildAndShowPreview(data, showStamp, results[0], results[1], results[2]);
+      });
+    }
+
+    function _buildAndShowPreview(data, showStamp, logoDataUrl, stampDataUrl, fontsCSS) {
+      var html = buildPayslipHTML(data, showStamp, logoDataUrl, stampDataUrl, fontsCSS);
+      var blob = new Blob([html], { type: 'text/html' });
+      var blobUrl = URL.createObjectURL(blob);
+      _previewBlobUrl = blobUrl;
+
+      var overlay = document.getElementById('attPreviewOverlay');
+      var content = document.getElementById('attPreviewContent');
+      var nameEl = document.getElementById('attPreviewName');
+      var dlBtn = document.getElementById('attPreviewDownloadBtn');
+      var expBtn = document.getElementById('attPreviewExpandBtn');
+
+      if (!overlay || !content) { triggerDirectDownload(data, showStamp); return; }
+
+      var employees = data.employees || [data];
+      var emp = employees[0] || {};
+      nameEl.textContent = (emp.surname || 'Payslip') + ' — ' + (emp.payroll_month || '') + ' ' + (emp.payroll_year || '') + ' Payslip';
+
+      content.innerHTML = '';
+      var iframe = document.createElement('iframe');
+      iframe.src = blobUrl;
+      iframe.title = 'Payslip Preview';
+      iframe.style.cssText = 'width:100%;height:100%;border:none;background:#fff;display:block;flex:1;min-height:0;';
+      content.appendChild(iframe);
+
+      dlBtn.onclick = function () { downloadPayslipPdf(data, showStamp); };
+
+      if (expBtn) {
+        expBtn.innerHTML = '<svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24">'
+          + '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" '
+          + 'd="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg> Expand';
+      }
+
+      overlay.classList.add('open');
+
+      var _origClose = window.closeAttPreview;
+      window.closeAttPreview = function () {
+        if (_previewBlobUrl) {
+          var urlToRevoke = _previewBlobUrl; _previewBlobUrl = null;
+          setTimeout(function () { URL.revokeObjectURL(urlToRevoke); }, 500);
+        }
+        window.closeAttPreview = _origClose;
+        if (_origClose) _origClose();
+      };
+    }
+
+    function downloadPayslipPdf(data, showStamp) {
+      var token = localStorage.getItem('token');
+      var dlBtn = document.getElementById('attPreviewDownloadBtn');
+      if (dlBtn) { dlBtn.disabled = true; dlBtn.textContent = 'Preparing…'; }
+
+      // Single-employee PDF always goes through /payslip/pdf (same as original)
+      fetch('/payslip/pdf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({ data: data, stamp: showStamp })
+      })
+        .then(function (r) { if (!r.ok) throw new Error('failed'); return r.blob(); })
+        .then(function (blob) {
+          var url = URL.createObjectURL(blob);
+          var link = document.createElement('a');
+          link.href = url;
+          var _emp = data.employees ? data.employees[0] : data;
+          var _surname = (_emp.surname || '').trim().toUpperCase();
+          var _other = (_emp.othername || '').trim().toUpperCase();
+          var _month = data._selectedMonth || _emp.payroll_month || '';
+          var _year = data._selectedYear || _emp.payroll_year || '';
+          link.download = [_surname, _other, _month, _year, 'Payslip'].filter(Boolean).join(' ') + '.pdf';
+          link.click();
+          setTimeout(function () { URL.revokeObjectURL(url); }, 5000);
+          if (dlBtn) {
+            dlBtn.disabled = false;
+            dlBtn.innerHTML = '<svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">'
+              + '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" '
+              + 'd="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg> Download';
+          }
+        })
+        .catch(function () {
+          if (dlBtn) { dlBtn.disabled = false; dlBtn.textContent = 'Download'; }
+          if (typeof DashAlertModal !== 'undefined') DashAlertModal.show('PDF generation failed. Please try again.');
+        });
+    }
+
+    function triggerDirectDownload(data, showStamp) {
+      var html = buildPayslipHTML(data, showStamp);
+      var blob = new Blob([html], { type: 'text/html' });
+      var url = URL.createObjectURL(blob);
+      var link = document.createElement('a');
+      link.href = url; link.download = 'payslip-preview.html'; link.click();
+      setTimeout(function () { URL.revokeObjectURL(url); }, 5000);
+    }
+
+  })();
+</script>

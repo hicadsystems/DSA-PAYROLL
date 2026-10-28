@@ -39,6 +39,18 @@ const config = {
     refreshExpiry: process.env.JWT_REFRESH_EXPIRY || "7d",
     refreshSecret: process.env.JWT_REFRESH_SECRET,
   },
+  email: {
+    host: process.env.SMTP_HOST,
+    port: process.env.SMTP_PORT,
+    user: process.env.SMTP_USER,
+    password: process.env.SMTP_PASS,
+    secure: process.env.SMTP_SECURE,
+    from: process.env.SMTP_FROM,
+  },
+  termii: {
+    api_key: process.env.TERMII_API_KEY,
+    email_config_id: process.env.TERMII_EMAIL_CONFIG_ID,
+  },
 };
 
 module.exports = config;

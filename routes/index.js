@@ -94,17 +94,35 @@ const salaryVarianceRoutes = require("./audit-trail/salaryVariance");
 const variationInputRoutes = require("./audit-trail/variationInput");
 const rangePaymentRoutes = require("./audit-trail/rangePayments");
 
-// //User Dashboard
-// //email
-// const mailSystemRoutes = require("../routes/user-dashboard/email/mailSystem");
-// const cron = require("node-cron");
-// const {
-//   cleanupOrphanedAttachments,
-// } = require("./user-dashboard/email/mailSystem");
+//User Dashboard (personnel self-service — ported from NAVY-PAYROLL, no emolument)
+//email (backend live; hidden from the dashboard nav)
+const mailSystemRoutes = require("../routes/user-dashboard/email/email.router");
+const cron = require("node-cron");
+const crypto = require("crypto");
+const pool = require("../config/db");
+const config = require("../config");
+const {
+  cleanupOrphanedAttachments,
+} = require("./user-dashboard/email/email.service");
 
-// //payslip
-// const userPayslipRoutes = require("../routes/user-dashboard/payslips/userpayslip");
-// const adminPayslip = require("../routes/user-dashboard/payslips/adminpayslip");
+//payslip
+const userPayslipRoutes = require("../routes/user-dashboard/payslips/userpayslip");
+const adminPayslip = require("../routes/user-dashboard/payslips/adminpayslip");
+
+// Background jobs get their own DB-context scope so they never share the
+// "default" session bucket with request traffic.
+function runInJobContext(fn) {
+  const sessionContext = pool._getSessionContext
+    ? pool._getSessionContext()
+    : null;
+  const run = () => {
+    pool.useDatabase(process.env.DB_OFFICERS || config.databases.officers);
+    return fn();
+  };
+  return sessionContext
+    ? sessionContext.run(`job:${crypto.randomUUID()}`, run)
+    : run();
+}
 
 // //emolument
 // //-- admin --
@@ -245,13 +263,15 @@ module.exports = (app) => {
   app.use("/variationinput", variationInputRoutes);
   app.use("/rangepayments", rangePaymentRoutes);
 
-  // //user-dashboard
-  // //email
-  // app.use("/messages", mailSystemRoutes);
-  // // Every hour at :00
-  // cron.schedule("0 * * * *", () => {
-  //   cleanupOrphanedAttachments();
-  // });
+  //user-dashboard
+  //email
+  app.use("/messages", mailSystemRoutes);
+  // Every hour at :00
+  cron.schedule("0 * * * *", () => {
+    Promise.resolve(runInJobContext(cleanupOrphanedAttachments)).catch((err) =>
+      console.error("❌ Mail attachment cleanup failed:", err),
+    );
+  });
 
   // //emolument
   // //-- admin --
@@ -285,10 +305,10 @@ module.exports = (app) => {
   // app.use("/tickets", emolumentTicketsRoutes);
   // //
 
-  // //payslip
-  // app.use("/payslip", userPayslipRoutes);
-  // app.use("/adm/payslip", adminPayslip);
-  // //
+  //payslip
+  app.use("/payslip", userPayslipRoutes);
+  app.use("/adm/payslip", adminPayslip);
+  //
 
   //file-upload-helper
   app.use("/api/v1", salaryscaleuploadRoutes);

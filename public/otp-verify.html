@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Enter Verification Code</title>
+    <link rel="stylesheet" href="styles/output.css" />
+    <link rel="stylesheet" href="styles/personnel-login.css" />
+  </head>
+
+  <body
+    class="bg-gradient-to-br from-orange-100 to-yellow-100 min-h-screen flex items-center justify-center"
+  >
+    <div
+      class="bg-white shadow-2xl rounded-xl p-10 w-full max-w-md border-4 border-yellow-300"
+    >
+      <!-- Logo -->
+      <div class="flex flex-col items-center mb-6">
+        <a href="/" class="inline-block hover:opacity-80 transition">
+          <img
+            src="photos/logo.png"
+            alt="DSA Emblem"
+            class="w-20 h-24 mb-3 cursor-pointer"
+          />
+        </a>
+      </div>
+
+      <!-- OTP entry state -->
+      <div id="otp-state">
+        <h2 class="text-2xl font-bold mb-2 text-center text-orange-700">
+          Enter Verification Code
+        </h2>
+        <p class="text-sm text-gray-600 text-center mb-6">
+          We sent a 6-digit code to your registered email. Paste or type it
+          below.
+        </p>
+
+        <form id="otp-form" class="space-y-5" novalidate>
+          <div>
+            <label for="otp-input" class="sr-only">Verification code</label>
+            <input
+              type="text"
+              id="otp-input"
+              name="otp"
+              required
+              inputmode="numeric"
+              autocomplete="one-time-code"
+              maxlength="12"
+              placeholder="000000"
+              aria-describedby="otp-error"
+              class="w-full px-4 py-3 border rounded-md text-center text-2xl font-mono tracking-[0.5em] focus:outline-none focus:ring-2 focus:ring-yellow-400"
+            />
+            <p
+              id="otp-error"
+              role="alert"
+              class="text-sm text-red-600 mt-2 min-h-[1.25rem]"
+            ></p>
+          </div>
+
+          <button
+            type="submit"
+            id="otp-submit-btn"
+            disabled
+            class="w-full bg-yellow-400 text-orange-900 font-bold py-2 rounded-md hover:bg-yellow-500 transition disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Verify Code
+          </button>
+        </form>
+
+        <div class="mt-6 text-center text-sm text-gray-600 space-y-2">
+          <p>
+            Code expired or not received?
+            <a
+              href="/personnel-user-login.html"
+              class="text-orange-700 font-semibold hover:underline"
+              >Request a new code</a
+            >
+          </p>
+          <p>
+            <a
+              href="/personnel-user-login.html"
+              class="text-gray-500 hover:underline"
+              >Back to Login</a
+            >
+          </p>
+        </div>
+      </div>
+
+      <!-- Shown when no User ID was saved (or it went stale) -->
+      <div id="missing-state" class="hidden text-center py-4">
+        <h2 class="text-xl font-bold text-orange-900 mb-2">Session Not Found</h2>
+        <p class="text-gray-600 mb-6">
+          We couldn't tell which account this code is for. Start again to get
+          a new code.
+        </p>
+        <a
+          href="/personnel-user-login.html"
+          class="inline-block w-full bg-yellow-400 text-orange-900 font-bold py-2 rounded-md hover:bg-yellow-500 transition"
+        >
+          Request a new code
+        </a>
+      </div>
+    </div>
+
+    <script src="script/otp-verify.js"></script>
+  </body>
+</html>

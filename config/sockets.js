@@ -219,6 +219,26 @@ class SocketService {
   }
 
   // =========================
+  // MAIL EVENTS (self-service email)
+  // No-op when Socket.IO isn't initialised or the user isn't connected.
+  // =========================
+  static emitToUser(userId, event, payload) {
+    if (!this.io) return;
+    const socketId = this.userSockets.get(userId);
+    if (socketId) {
+      this.io.to(socketId).emit(event, payload);
+    }
+  }
+
+  static newMail(userId, message) {
+    this.emitToUser(userId, "mail:new", message);
+  }
+
+  static updateBadge(userId, unread) {
+    this.emitToUser(userId, "mail:badge", { unread });
+  }
+
+  // =========================
   // ✅ STATIC GET ACTIVE ROOMS
   // =========================
   static getActiveRooms() {

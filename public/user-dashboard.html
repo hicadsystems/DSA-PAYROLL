@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DSA Dashboard</title>
+    <link rel="stylesheet" href="offline-assets/css/fonts.css" />
+    <link rel="stylesheet" href="more-assets/css/boxicons.min.css" />
+    <link rel="stylesheet" href="more-assets/css/fontawesome.all.min.css" />
+    <link rel="stylesheet" href="styles/output.css" />
+    <link rel="stylesheet" href="styles/user-dashboard.css" />
+    <script src="script/choices-v2.js"></script>
+    <style>
+      /* ── Reset / base ─────────────────────────────────────── */
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      /* ── Header ───────────────────────────────────────────── */
+      header {
+        transition:
+          background 0.35s ease,
+          backdrop-filter 0.35s ease,
+          border-color 0.35s ease,
+          box-shadow 0.35s ease;
+      }
+
+    </style>
+  </head>
+
+  <body>
+    <!-- ── HAMBURGER DRAWER ─────────────────────────────────── -->
+    <div
+      class="nav-drawer-overlay"
+      id="drawerOverlay"
+      onclick="closeDrawer()"
+    ></div>
+    <div class="nav-drawer" id="navDrawer">
+      <div class="nav-drawer-header">
+        <span class="nav-drawer-title">Menu</span>
+        <button
+          class="nav-drawer-close"
+          onclick="closeDrawer()"
+          aria-label="Close menu"
+        >
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+      </div>
+      <div class="nav-drawer-links">
+        <a class="active" data-page="home" onclick="navTo('home')">
+          <svg
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            width="18"
+            height="18"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+            />
+          </svg>
+          Home
+        </a>
+        <a data-page="payroll" onclick="navTo('payroll')">
+          <svg
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            width="18"
+            height="18"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"
+            />
+          </svg>
+          Payroll
+        </a>
+        <a data-page="payslip" onclick="navTo('payslip')">
+          <svg
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            width="18"
+            height="18"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+            />
+          </svg>
+          Payslip
+        </a>
+        <!-- Email is ported but hidden in DSA — remove style="display: none" to enable -->
+        <a data-page="email" onclick="navTo('email')" style="display: none">
+          <svg
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            width="18"
+            height="18"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+            />
+          </svg>
+          Email
+          <span
+            class="drawer-mail-badge"
+            id="drawer-mail-badge"
+            style="display: none"
+          ></span>
+        </a>
+        <a
+          data-page="logout"
+          onclick="navTo('logout')"
+          class="logout-link"
+          style="margin-top: 12px"
+        >
+          <svg
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            width="18"
+            height="18"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+            />
+          </svg>
+          Sign Out
+        </a>
+      </div>
+    </div>
+
+    <!-- ── HEADER ───────────────────────────────────────────── -->
+    <header>
+      <div class="header-left">
+        <img
+          src="photos/logo.png"
+          alt="DSA logo"
+          class="header-logo"
+          id="header-logo"
+        />
+        <div class="header-username" id="header-username">
+          <span class="header-username-label">Signed in as</span>
+          <span class="header-username-name" id="header-username-text"></span>
+        </div>
+      </div>
+
+      <!-- Desktop nav -->
+      <nav>
+        <a class="active" id="nav-home" data-page="home">Home</a>
+        <a id="nav-payroll" data-page="payroll">Payroll</a>
+        <a id="nav-payslip" data-page="payslip">Payslip</a>
+        <!-- Email hidden in DSA — remove style="display: none" to enable -->
+        <a id="nav-email" data-page="email" style="display: none">
+          Email
+          <span
+            id="nav-mail-badge"
+            style="
+              background: #f5c842;
+              color: #0d1f35;
+              font-size: 10px;
+              font-weight: 700;
+              padding: 2px 6px;
+              border-radius: 20px;
+              margin-left: 2px;
+              vertical-align: middle;
+              display: none;
+            "
+          ></span>
+        </a>
+        <a id="nav-logout" data-page="logout">
+          <i class="fas fa-sign-out-alt"></i>
+          Sign Out
+        </a>
+      </nav>
+
+      <!-- Mobile hamburger (hidden on desktop) -->
+      <button
+        class="nav-hamburger"
+        id="navHamburger"
+        onclick="openDrawer()"
+        aria-label="Open menu"
+      >
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M4 6h16M4 12h16M4 18h16"
+          />
+        </svg>
+      </button>
+    </header>
+
+    <!-- ── PAGES ─────────────────────────────────────────────── -->
+
+    <!-- HOME -->
+    <div class="page home-bg active" id="page-home">
+      <div class="home-content">
+        <p class="welcome-tag" id="greeting-tag">
+          <span class="welcome-tag-icon" id="greeting-icon">☀️</span>
+          <span id="greeting-text">Good Morning</span>
+        </p>
+        <h1 class="welcome-name" id="welcome-name">
+          Welcome, <span id="user-display-name">...</span>
+        </h1>
+        <p class="welcome-sub" id="greeting-sub">
+          Hope your morning is off to a great start.
+        </p>
+        <div class="divider"></div>
+        <div class="quick-actions">
+          <!-- Email hidden in DSA — remove style="display: none" to enable -->
+          <button class="btn btn-primary" data-page="email" style="display: none">My Email</button>
+          <button class="btn btn-primary" data-page="payslip">My Payslip</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAYSLIP -->
+    <div class="page inner-page" id="page-payslip">
+      <p class="page-label">PAYSLIP — COMING SOON</p>
+    </div>
+
+    <!-- EMAIL -->
+    <div class="page inner-page" id="page-email">
+      <p class="page-label">EMAIL — COMING SOON</p>
+    </div>
+
+    <!-- ATTACHMENT PREVIEW LIGHTBOX -->
+    <div class="att-preview-overlay" id="attPreviewOverlay">
+      <div class="att-preview-box">
+        <div class="att-preview-bar">
+          <span class="att-preview-filename" id="attPreviewName"></span>
+          <div class="att-preview-actions">
+            <button
+              class="att-preview-btn att-preview-download"
+              id="attPreviewDownloadBtn"
+            >
+              <svg
+                width="14"
+                height="14"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                />
+              </svg>
+              Download
+            </button>
+            <button
+              class="att-preview-btn att-preview-expand"
+              id="attPreviewExpandBtn"
+              onclick="toggleAttFullscreen()"
+            ></button>
+            <button
+              class="att-preview-btn att-preview-close"
+              onclick="closeAttPreview()"
+            >
+              ✕ Close
+            </button>
+          </div>
+        </div>
+        <div class="att-preview-content" id="attPreviewContent"></div>
+        <div class="att-preview-esc-hint" id="attEscHint">
+          <kbd>ESC</kbd> to exit fullscreen
+        </div>
+      </div>
+    </div>
+
+    <script src="script/user-dashboard.js"></script>
+    
+
+    <script>
+      /* ── Personnel-form overlay: hide/restore header on demand ── */
+      window.addEventListener("message", function (e) {
+        if (e.data?.type === "pfo_overlay_open") {
+          var h = document.querySelector("header");
+          if (h) h.style.display = "none";
+        } else if (e.data?.type === "pfo_overlay_closed") {
+          var h = document.querySelector("header");
+          if (h) h.style.display = "";
+        }
+      });
+
+      /* ── Drawer helpers ──────────────────────────────── */
+      function openDrawer() {
+        document.getElementById("navDrawer").classList.add("open");
+        document.getElementById("drawerOverlay").classList.add("open");
+        document.body.style.overflow = "hidden";
+      }
+      function closeDrawer() {
+        document.getElementById("navDrawer").classList.remove("open");
+        document.getElementById("drawerOverlay").classList.remove("open");
+        document.body.style.overflow = "";
+      }
+      /* Close drawer on Escape */
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape") closeDrawer();
+      });
+
+      /* ── Drawer nav active state ─────────────────────── */
+      function navTo(page) {
+        closeDrawer();
+        /* Mirror the existing dashboard nav click */
+        var el = document.getElementById("nav-" + page);
+        if (el) el.click();
+        /* Sync drawer active state */
+        document.querySelectorAll(".nav-drawer-links a").forEach(function (a) {
+          a.classList.toggle("active", a.getAttribute("data-page") === page);
+        });
+        /* Sync bottom tab active state */
+        document.querySelectorAll(".bottom-tab-item").forEach(function (b) {
+          b.classList.toggle("active", b.getAttribute("data-page") === page);
+        });
+      }
+
+      /* ── Badge sync ──────────────────────────────────── */
+      var _origUpdateGlobalBadge = window.updateGlobalBadge;
+      window.updateGlobalBadge = function (n) {
+        if (typeof _origUpdateGlobalBadge === "function")
+          _origUpdateGlobalBadge(n);
+        /* Drawer badge */
+        var db = document.getElementById("drawer-mail-badge");
+        if (db) {
+          if (n > 0) {
+            db.textContent = n > 99 ? "99+" : n;
+            db.style.display = "inline-block";
+          } else {
+            db.style.display = "none";
+          }
+        }
+        /* Bottom tab badge */
+        var btb = document.getElementById("bottom-tab-badge");
+        if (btb) {
+          btb.textContent = n > 99 ? "99+" : n;
+          n > 0
+            ? btb.classList.add("visible")
+            : btb.classList.remove("visible");
+        }
+      };
+    </script>
+  </body>
+</html>

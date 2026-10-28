@@ -23,6 +23,28 @@ router.get("/employee/:id", verifyToken, async (req, res) => {
 // User login - searches across all databases
 router.post("/login", async (req, res) => {
   const { user_id, password, payroll_class } = req.body;
+
+  // Self-service dashboard path: a payroll admin who already signed in via
+  // POST /auth/users/pre-login sends that token instead of a password
+  // (pages/payroll-modal.html). The password check is then skipped and only
+  // class assignment / status / expiry are validated below.
+  let trustedPreLogin = false;
+  const bearerHeader = req.headers["authorization"];
+  if (!password && bearerHeader && bearerHeader.startsWith("Bearer ")) {
+    let decoded;
+    try {
+      decoded = jwt.verify(bearerHeader.split(" ")[1], JWT_SECRET);
+    } catch (err) {
+      return res
+        .status(401)
+        .json({ error: "Invalid or expired token. Please log in again." });
+    }
+    if (decoded.current_class || String(decoded.user_id) !== String(user_id || "").trim()) {
+      return res.status(403).json({ error: "Token mismatch" });
+    }
+    trustedPreLogin = true;
+  }
+  const pwMatches = (u) => trustedPreLogin || u.password === password;
   // payroll_class comes from frontend as: 'hicaddata', 'hicaddata1' (db_name)
 
   try {
@@ -159,7 +181,7 @@ router.post("/login", async (req, res) => {
 
       // Check if password matches, status is active, not expired, and primary_class matches
       if (
-        user.password === password &&
+        pwMatches(user) &&
         user.status === "active" &&
         !isExpired &&
         classMatches
@@ -170,7 +192,7 @@ router.post("/login", async (req, res) => {
         break; // Found valid match, stop searching
       } else {
         console.log(`❌ Invalid credentials in ${database}:`);
-        if (user.password !== password) console.log(`   - Password mismatch`);
+        if (!pwMatches(user)) console.log(`   - Password mismatch`);
         if (user.status !== "active")
           console.log(`   - Account status: ${user.status}`);
         if (isExpired)
@@ -190,7 +212,7 @@ router.post("/login", async (req, res) => {
 
       // Provide specific error message
       const hasPasswordMatch = userCandidates.some(
-        (c) => c.user.password === password,
+        (c) => pwMatches(c.user),
       );
       const hasInactiveAccount = userCandidates.some(
         (c) => c.user.status !== "active",

@@ -78,7 +78,7 @@ const AlertModal = {
 
   getIcon(type) {
     const icons = {
-      info: '<svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>',
+      info: '<svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>',
       error:
         '<svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>',
       warning:
@@ -136,9 +136,9 @@ document
         popup.classList.remove("hidden");
         spinner.innerHTML = `
         <div class="relative w-10 h-10">
-          <div class="absolute left-1 w-[6px] bg-blue-600 rounded animate-grow-up"></div>
-          <div class="absolute right-1 w-[6px] bg-blue-600 rounded animate-grow-down"></div>
-          <div class="absolute top-1/2 left-1 h-[6px] bg-blue-600 rounded animate-expand -translate-y-1/2"></div>
+          <div class="absolute left-1 w-[6px] bg-orange-600 rounded animate-grow-up"></div>
+          <div class="absolute right-1 w-[6px] bg-orange-600 rounded animate-grow-down"></div>
+          <div class="absolute top-1/2 left-1 h-[6px] bg-orange-600 rounded animate-expand -translate-y-1/2"></div>
         </div>
       `;
 
@@ -161,7 +161,10 @@ document
           localStorage.setItem("class", data.user.primary_class);
 
           // Store capabilities so dashboard knows what to show
-          localStorage.setItem('capabilities', JSON.stringify(data.capabilities));
+          localStorage.setItem(
+            "capabilities",
+            JSON.stringify(data.capabilities),
+          );
 
           // Encrypt and store credentials temporarily in sessionStorage
           // so dashboard modal can complete Login 2 flow with class selection.
@@ -205,294 +208,224 @@ togglePassword.addEventListener("click", () => {
   eyeClosed.style.display = isPassword ? "inline" : "none";
 });
 
-  //capitalize all
-  ["userID"].forEach(id => {
-    const el = document.getElementById(id);
-    el.addEventListener("input", () => {
-      el.value = el.value.toUpperCase();
-    });
+//capitalize all
+["userID"].forEach((id) => {
+  const el = document.getElementById(id);
+  el.addEventListener("input", () => {
+    el.value = el.value.toUpperCase();
   });
-
-// Forgot Password Link
-const isLocal = window.location.hostname === "localhost";
-const BASE_URL = isLocal ? "http://localhost:5500" : "https://hicad.ng";
+});
 
 // Forgot Password Manager
 const ForgotPasswordManager = {
   modal: null,
-  verifyStep: null,
-  resetStep: null,
-  successModal: null,
-  verifiedData: null,
+  sentModal: null,
 
   init() {
     this.modal = document.getElementById("forgotPasswordModal");
-    this.verifyStep = document.getElementById("verify-step");
-    this.resetStep = document.getElementById("reset-step");
-    this.successModal = document.getElementById("resetSuccessModal");
+    this.sentModal = document.getElementById("resetSentModal");
 
-    // Load payroll classes for verification
-    //this.loadPayrollClasses();
+    document
+      .getElementById("forgot-password-form")
+      ?.addEventListener("submit", (e) => this.sendResetLink(e));
 
-    // Bind events
     document
       .getElementById("close-forgot-modal")
       ?.addEventListener("click", () => this.close());
+
     document
-      .getElementById("close-reset-modal")
+      .getElementById("cancel-forgot-btn")
       ?.addEventListener("click", () => this.close());
-    document
-      .getElementById("cancel-verify-btn")
-      ?.addEventListener("click", () => this.close());
-    document
-      .getElementById("back-to-verify-btn")
-      ?.addEventListener("click", () => this.backToVerify());
-    document
-      .getElementById("close-success-modal")
-      ?.addEventListener("click", () => this.closeSuccess());
 
-    // Form submissions
     document
-      .getElementById("verify-identity-form")
-      ?.addEventListener("submit", (e) => this.verifyIdentity(e));
-    document
-      .getElementById("reset-password-form")
-      ?.addEventListener("submit", (e) => this.resetPassword(e));
-
-    // Password matching validation
-    document
-      .getElementById("confirm-new-password")
-      ?.addEventListener("input", () => this.validatePasswordMatch());
-    document
-      .getElementById("new-password")
-      ?.addEventListener("input", () => this.validatePasswordMatch());
-
-    // Password length validation
-    document
-      .getElementById("new-password")
-      ?.addEventListener("input", () => this.validatePasswordLength());
-
-    // Password toggle
-    document.querySelectorAll(".toggle-password-reset").forEach((toggle) => {
-      toggle.addEventListener("click", function () {
-        const targetId = this.getAttribute("data-target");
-        const input = document.getElementById(targetId);
-        if (!input) return;
-
-        const isPassword = input.type === "password";
-        input.type = isPassword ? "text" : "password";
-
-        const eyeOpen = this.querySelector(".eye-open");
-        const eyeClosed = this.querySelector(".eye-closed");
-        if (eyeOpen && eyeClosed) {
-          eyeOpen.style.display = isPassword ? "none" : "inline";
-          eyeClosed.style.display = isPassword ? "inline" : "none";
-        }
-      });
-    });
+      .getElementById("close-sent-modal")
+      ?.addEventListener("click", () => this.closeSent());
   },
 
   open() {
     this.modal.classList.remove("hidden");
-    this.verifyStep.classList.remove("hidden");
-    this.resetStep.classList.add("hidden");
     document.body.style.overflow = "hidden";
 
-    // Reset forms
-    document.getElementById("verify-identity-form")?.reset();
-    document.getElementById("reset-password-form")?.reset();
+    document.getElementById("forgot-password-form").reset();
   },
 
   close() {
     this.modal.classList.add("hidden");
     document.body.style.overflow = "";
-    this.verifiedData = null;
   },
 
-  closeSuccess() {
-    this.successModal.classList.add("hidden");
+  closeSent() {
+    this.sentModal.classList.add("hidden");
     document.body.style.overflow = "";
   },
 
-  backToVerify() {
-    this.verifyStep.classList.remove("hidden");
-    this.resetStep.classList.add("hidden");
-  },
-
-  validatePasswordMatch() {
-    const password = document.getElementById("new-password")?.value || "";
-    const confirm =
-      document.getElementById("confirm-new-password")?.value || "";
-    const msg = document.getElementById("password-match-msg");
-
-    if (!msg) return true;
-
-    if (confirm === "") {
-      msg.textContent = "";
-      msg.className = "text-xs";
-      return true;
-    }
-
-    if (password === confirm) {
-      msg.textContent = "✓ Passwords match";
-      msg.className = "text-xs text-green-600";
-      return true;
-    } else {
-      msg.textContent = "✗ Passwords do not match";
-      msg.className = "text-xs text-red-600";
-      return false;
-    }
-  },
-
-  validatePasswordLength() {
-    const password = document.getElementById("new-password")?.value || "";
-    const msg = document.getElementById("password-length-msg");
-
-    if (!msg) return true;
-
-    if (password.length < 6) {
-      msg.textContent = "✗ Password must be at least 6 characters long";
-      msg.className = "text-xs text-red-600";
-      return false;
-    } else {
-      msg.textContent = "✓ Password is valid";
-      msg.className = "text-xs text-green-600";
-      return true;
-    }
-  },
-
-  async verifyIdentity(e) {
+  async sendResetLink(e) {
     e.preventDefault();
 
-    const btn = document.getElementById("verify-btn");
-    btn.disabled = true;
-    btn.textContent = "Verifying...";
+    const btn = document.getElementById("forgot-submit-btn");
 
-    const formData = new FormData(e.target);
-    const data = {
-      user_id: formData.get("user_id"),
-      full_name: formData.get("full_name"),
+    btn.disabled = true;
+    btn.textContent = "Sending...";
+
+    const form = new FormData(e.target);
+
+    const payload = {
+      user_id: form.get("user_id"),
+      email: form.get("email"),
     };
 
     try {
-      const res = await fetch(
-        `${BASE_URL}/auth/users/verify-identity`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
+      const res = await fetch(`/auth/users/forgot-password-otp`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
-
-      const result = await res.json();
-
-      if (res.ok) {
-        this.verifiedData = data;
-
-        document.getElementById("reset-user-id").value = data.user_id;
-        document.getElementById("reset-full-name").value = data.full_name;
-
-        this.verifyStep.classList.add("hidden");
-        this.resetStep.classList.remove("hidden");
-      } else {
-        await AlertModal.show({
-          type: "error",
-          title: "Verification Failed",
-          message: result.error || "Identity verification failed",
-        });
-      }
-    } catch (err) {
-      console.error("Verification error:", err);
-      await AlertModal.show({
-        type: "error",
-        title: "Connection Error",
-        message: "Failed to connect to server. Please try again.",
+        body: JSON.stringify(payload),
       });
-    } finally {
-      btn.disabled = false;
-      btn.textContent = "Verify Identity";
-    }
-  },
-
-  async resetPassword(e) {
-    e.preventDefault();
-
-    const password = document.getElementById("new-password").value;
-    const confirm = document.getElementById("confirm-new-password").value;
-
-    if (password.length < 6) {
-      await AlertModal.show({
-        type: "error",
-        title: "Invalid Password",
-        message: "Password must be at least 6 characters long",
-      });
-      return;
-    }
-
-    if (password !== confirm) {
-      await AlertModal.show({
-        type: "error",
-        title: "Password Mismatch",
-        message: "Passwords do not match. Please try again.",
-      });
-      return;
-    }
-
-    const btn = document.getElementById("reset-btn");
-    btn.disabled = true;
-    btn.textContent = "Resetting...";
-
-    const data = {
-      user_id: document.getElementById("reset-user-id").value,
-      full_name: document.getElementById("reset-full-name").value,
-      new_password: password,
-    };
-
-    try {
-      const res = await fetch(
-        `${BASE_URL}/auth/users/reset-password`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
-        },
-      );
 
       const result = await res.json();
 
       if (res.ok) {
         this.close();
-        this.successModal.classList.remove("hidden");
+
+        localStorage.setItem("reset_identifier",payload.user_id)
+        document.body.style.overflow = "hidden";
+        window.location.href = "otp-verify.html";
+
+      } else {
+        await AlertModal.show({
+          type: "error",
+          title: "Request Failed",
+          message: result.error || "Unable to send reset link.",
+        });
+      }
+    } catch (err) {
+      console.error(err);
+
+      await AlertModal.show({
+        type: "error",
+        title: "Connection Error",
+        message: "Unable to connect to the server. Please try again.",
+      });
+    } finally {
+      btn.disabled = false;
+      btn.textContent = "Send Reset Link";
+    }
+  },
+};
+
+// Set Password Manager
+const SetPasswordManager = {
+  modal: null,
+  sentModal: null,
+
+  init() {
+    this.modal = document.getElementById("setPasswordModal");
+    this.sentModal = document.getElementById("resetSentModal");
+
+    document
+      .getElementById("set-password-form")
+      ?.addEventListener("submit", (e) => this.sendSetLink(e));
+
+    document
+      .getElementById("close-set-modal")
+      ?.addEventListener("click", () => this.close());
+
+    document
+      .getElementById("cancel-set-btn")
+      ?.addEventListener("click", () => this.close());
+
+    document
+      .getElementById("close-sent-modal")
+      ?.addEventListener("click", () => this.closeSent());
+  },
+
+  open() {
+    this.modal.classList.remove("hidden");
+    document.body.style.overflow = "hidden";
+
+    document.getElementById("set-password-form").reset();
+  },
+
+  close() {
+    this.modal.classList.add("hidden");
+    document.body.style.overflow = "";
+  },
+
+  closeSent() {
+    this.sentModal.classList.add("hidden");
+    document.body.style.overflow = "";
+  },
+
+  async sendSetLink(e) {
+    e.preventDefault();
+
+    const btn = document.getElementById("set-submit-btn");
+
+    btn.disabled = true;
+    btn.textContent = "Sending...";
+
+    const form = new FormData(e.target);
+
+    const payload = {
+      user_id: form.get("user_id"),
+      ac_number: form.get("ac_number"),
+    };
+
+    try {
+      const res = await fetch(`/auth/users/verify-identity`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const result = await res.json();
+
+      if (res.ok) {
+        localStorage.setItem('user_id', payload.user_id)
+        // Short-lived proof from verify-identity; required by /set-password
+        sessionStorage.setItem('set_password_token', result.setup_token || '')
+        this.close();
+        
+        window.location.href = "set-password.html";
+        
         document.body.style.overflow = "hidden";
       } else {
         await AlertModal.show({
           type: "error",
-          title: "Password Reset Failed",
-          message: result.error || "Password reset failed. Please try again.",
+          title: "Request Failed",
+          message: result.error || "Unable to send link.",
         });
       }
     } catch (err) {
-      console.error("Reset error:", err);
+      console.error(err);
+
       await AlertModal.show({
         type: "error",
         title: "Connection Error",
-        message: "Failed to connect to server. Please try again.",
+        message: "Unable to connect to the server. Please try again.",
       });
     } finally {
       btn.disabled = false;
-      btn.textContent = "Reset Password";
+      btn.textContent = "Send Reset Link";
     }
   },
 };
 
 // Initialize when page loads
 if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", () =>
-    ForgotPasswordManager.init(),
+  document.addEventListener(
+    "DOMContentLoaded",
+    () => ForgotPasswordManager.init(),
+    SetPasswordManager.init(),
   );
 } else {
   ForgotPasswordManager.init();
+  SetPasswordManager.init();
 }
 
 // Expose to global scope so you can call it from login page
 window.openForgotPassword = () => ForgotPasswordManager.open();
+window.openSetPassword = () => SetPasswordManager.open();

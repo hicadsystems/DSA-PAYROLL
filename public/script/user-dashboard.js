@@ -5,6 +5,36 @@
 // ── Clear payroll class on dashboard load ──────────────────
 localStorage.removeItem("current_class");
 
+// ══════════════════════════════════════════════════════════
+// SOCKET.IO CONNECTION
+// ══════════════════════════════════════════════════════════
+// Optional: only connects when /socket.io + script/socket.js are loaded
+// (they are not in DSA while email is hidden). Badge polling still works.
+var sck =
+  typeof window.initSocket === "function" && typeof window.io === "function"
+    ? (window.initSocket(), window.getSocket())
+    : null;
+
+if (sck) {
+  sck.on("connect", () => {
+    var token = localStorage.getItem("token");
+    fetch("/messages/inbox?page=1&limit=1", { headers: { Authorization: "Bearer " + token } })
+      .then((r) => r.json())
+      .then((d) => { if (d.unread !== undefined) updateGlobalBadge(d.unread); })
+      .catch(() => {});
+  });
+
+  sck.on("mail:new", (mail) => {
+    if (emailPageLoaded) {
+      document.dispatchEvent(new CustomEvent("globalNewMail", { detail: mail }));
+    }
+  });
+
+  sck.on("mail:badge", ({ unread }) => {
+    updateGlobalBadge(unread);
+  });
+}
+
 // ── Read capabilities from localStorage ───────────────────
 // Populated during pre-login by unified-login.js
 function getCaps() {
@@ -17,8 +47,6 @@ function getCaps() {
 
 var _caps = getCaps();
 var _canPayroll = !!_caps.can_payroll;
-var _emolRoles = _caps.emol_roles || [];
-var _isEmolAdmin = _emolRoles.includes("EMOL_ADMIN");
 
 // ── Encrypt/decrypt ────────────────────────────────────────
 function encryptVal(val) {
@@ -78,7 +106,7 @@ function applyGreeting() {
       {
         icon: "🌌",
         tag: "Midnight",
-        sub: "Burning the midnight oil, Officer.",
+        sub: "Burning the midnight oil.",
       },
       {
         icon: "🌙",
@@ -92,8 +120,8 @@ function applyGreeting() {
       },
       {
         icon: "🔭",
-        tag: "Mid-Watch",
-        sub: "Keep a sharp lookout. The fleet sleeps soundly on your watch.",
+        tag: "Stargazing",
+        sub: "Clear skies tonight. Keep your eyes on the stars.",
       },
       {
         icon: "🔦",
@@ -123,14 +151,14 @@ function applyGreeting() {
         sub: "The early bird is already ahead of the game.",
       },
       {
-        icon: "⚓",
-        tag: "Anchor's Aweigh",
-        sub: "New day, new objectives. Let's make headway.",
+        icon: "🚀",
+        tag: "Lift Off",
+        sub: "New day, new objectives. Let's make progress.",
       },
       {
-        icon: "🚢",
+        icon: "🛰️",
         tag: "Full Speed Ahead",
-        sub: "Set the pace for the crew today, Officer.",
+        sub: "Set the pace for the team today.",
       },
       { icon: "🌞", tag: "Almost Noon", sub: "Keep the momentum going." },
       {
@@ -145,7 +173,7 @@ function applyGreeting() {
         tag: "Good Afternoon",
         sub: "A productive afternoon makes for a great evening.",
       },
-      { icon: "⚓", tag: "Good Afternoon", sub: "Steady as the ship goes." },
+      { icon: "🛰️", tag: "Good Afternoon", sub: "Steady in orbit." },
       {
         icon: "🌞",
         tag: "Sunny Afternoon",
@@ -154,12 +182,12 @@ function applyGreeting() {
       {
         icon: "🧭",
         tag: "Steady Course",
-        sub: "Your leadership is the compass of this unit.",
+        sub: "Keep your course steady.",
       },
       {
-        icon: "🌊",
-        tag: "Smooth Sailing",
-        sub: "You've got the helm. Keep the momentum high.",
+        icon: "🌠",
+        tag: "Smooth Flight",
+        sub: "You're at the controls. Keep the momentum high.",
       },
       {
         icon: "🌇",
@@ -176,7 +204,7 @@ function applyGreeting() {
       { icon: "🌙", tag: "Good Evening", sub: "Rest well — you've earned it." },
       {
         icon: "🌃",
-        tag: "Wonderful Evening, Officer",
+        tag: "Wonderful Evening",
         sub: "Hope the day treated you well.",
       },
       {
@@ -186,7 +214,7 @@ function applyGreeting() {
       },
       {
         icon: "🕯️",
-        tag: "Safe Harbor",
+        tag: "Safe Landing",
         sub: "The day's work is done. Time to recharge.",
       },
     ],
@@ -204,7 +232,7 @@ function applyGreeting() {
       { icon: "🌌", tag: "Good Night", sub: "Time for bed, a new day awaits." },
       {
         icon: "🔕",
-        tag: "Silence on Deck",
+        tag: "Lights Out",
         sub: "Even the best engines need a cooldown. Sleep well.",
       },
     ],
@@ -230,7 +258,7 @@ applyGreeting();
 setInterval(applyGreeting, 60 * 1000);
 
 // ══════════════════════════════════════════════════════════
-// HEADER: logo ↔ username swap + emolument bg mode
+// HEADER: logo ↔ username swap
 // ══════════════════════════════════════════════════════════
 var headerEl = document.querySelector("header");
 var headerLogo = document.getElementById("header-logo");
@@ -248,17 +276,6 @@ function updateHeaderSlot(pageId) {
   }
 }
 
-function updateHeaderEmolMode(pageId) {
-  if (!headerEl) return;
-  if (pageId === "emolument") {
-    headerEl.classList.add("emol-mode");
-    navHamburger.classList.add("emol-mode");
-  } else {
-    headerEl.classList.remove("emol-mode");
-    navHamburger.classList.remove("emol-mode");
-  }
-}
-
 // ══════════════════════════════════════════════════════════
 // CONDITIONAL NAV VISIBILITY
 // Hide payroll nav link if user is not a payroll admin.
@@ -272,10 +289,10 @@ function updateHeaderEmolMode(pageId) {
   }
 
   // Also hide any quick-action payroll buttons on the home page
- // Hide all payroll UI elements if user lacks permission
+  // Hide all payroll UI elements if user lacks permission
   if (!_canPayroll) {
     const payrollElements = document.querySelectorAll('[data-page="payroll"]');
-    payrollElements.forEach(el => el.style.display = "none");
+    payrollElements.forEach((el) => (el.style.display = "none"));
   }
 })();
 
@@ -296,103 +313,9 @@ function showPage(id) {
   if (nav) nav.classList.add("active");
 
   updateHeaderSlot(id);
-  updateHeaderEmolMode(id);
 
   sessionStorage.setItem("activePage", id);
 }
-
-// ══════════════════════════════════════════════════════════
-// EMOLUMENT — lazy load
-// ══════════════════════════════════════════════════════════
-var emolumentLoaded = false;
-
-function loadEmolumentPage() {
-  if (emolumentLoaded) return;
-  emolumentLoaded = true;
-
-  var container = document.getElementById("page-emolument");
-  var loading = document.getElementById("emolument-loading");
-
-  // ── Determine which page to load ─────────────────────────
-  // EMOL_ADMIN → emolument-admin.html (full system management)
-  // Everyone else (PERSONNEL, DO, FO, CPO) → emolument-form.html
-  // emolument-form.html + emolument-dashboard.js handle all
-  // non-admin roles internally via the capabilities check
-  var src = _isEmolAdmin
-    ? "pages/emolument-admin.html"
-    : "pages/emolument-personnel.html";
-
-  var iframe = document.createElement("iframe");
-  iframe.id = "emolument-frame";
-  iframe.src = src;
-
-  // Hide spinner and reveal iframe once it has loaded
-  iframe.addEventListener("load", function () {
-    if (loading) loading.style.display = "none";
-    iframe.classList.add("ready");
-
-    // Expose loadShipDashboard to the iframe's inner page
-    try {
-      iframe.contentWindow.loadShipDashboard = function (
-        shipName,
-        role,
-        scopeType,
-      ) {
-        sessionStorage.setItem("active_ship", shipName);
-        sessionStorage.setItem("active_ship_role", role);
-        sessionStorage.setItem("active_ship_scope", scopeType || "SHIP");
-        loadShipDashboardOverlay(shipName, role, scopeType);
-      };
-    } catch (e) {}
-  });
-
-  container.appendChild(iframe);
-}
-
-// ── Ship dashboard overlay ──────────────────────────────────
-var shipDashboardLoaded = false;
-
-function loadShipDashboardOverlay(shipName, role, scopeType) {
-  var overlay = document.getElementById("ship-dashboard-overlay");
-  if (!overlay) return;
-
-  overlay.style.display = "block";
-
-  if (!shipDashboardLoaded) {
-    // First time — fetch the ship dashboard shell
-    fetch("pages/ship-dashboard.html")
-      .then(function (r) {
-        return r.text();
-      })
-      .then(function (html) {
-        injectWithScripts(overlay, html);
-        shipDashboardLoaded = true;
-        // ship-dashboard.html calls initShipDashboard() on load via its own script
-      })
-      .catch(function () {
-        overlay.innerHTML =
-          '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#ef4444;font-size:0.875rem;">Failed to load ship dashboard.</div>';
-      });
-  } else {
-    // Already loaded — just re-init with new ship/role
-    if (typeof window._reinitShipDashboard === "function") {
-      window._reinitShipDashboard(shipName, role, scopeType);
-    }
-  }
-}
-
-// Listen for ship dashboard close event
-window.addEventListener("closeShipDashboard", function () {
-  var overlay = document.getElementById("ship-dashboard-overlay");
-  if (overlay) overlay.style.display = "none";
-  shipDashboardLoaded = false; // allow fresh re-init on next ship open
-});
-
-// Listen for openShipDashboard event (fired from within emolument pages)
-window.addEventListener("openShipDashboard", function (e) {
-  var d = e.detail || {};
-  if (d.shipName) loadShipDashboardOverlay(d.shipName, d.role, d.scopeType);
-});
 
 // ══════════════════════════════════════════════════════════
 // NAV LINKS
@@ -425,7 +348,6 @@ document.querySelectorAll("nav a[data-page]").forEach(function (link) {
 
     if (page === "email") loadEmailPage();
     if (page === "payslip") loadPayslipPage();
-    if (page === "emolument") loadEmolumentPage();
 
     showPage(page);
   });
@@ -437,7 +359,6 @@ document.querySelectorAll("button[data-page]").forEach(function (btn) {
     var page = this.getAttribute("data-page");
     if (page === "email") loadEmailPage();
     if (page === "payslip") loadPayslipPage();
-    if (page === "emolument") loadEmolumentPage();
     showPage(page);
   });
 });
@@ -447,10 +368,9 @@ document.querySelectorAll("button[data-page]").forEach(function (btn) {
 // ══════════════════════════════════════════════════════════
 (function restoreActivePage() {
   var saved = sessionStorage.getItem("activePage");
-  if (saved && saved !== "home") {
+  if (saved && saved !== "home" && document.getElementById("page-" + saved)) {
     if (saved === "email") loadEmailPage();
     if (saved === "payslip") loadPayslipPage();
-    if (saved === "emolument") loadEmolumentPage();
     showPage(saved);
   }
 })();
@@ -623,7 +543,7 @@ function startGlobalEmailPolling() {
   }, 10000);
 }
 
-startGlobalEmailPolling();
+// startGlobalEmailPolling();
 
 // ══════════════════════════════════════════════════════════
 // ALERT MODAL
