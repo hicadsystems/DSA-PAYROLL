@@ -266,14 +266,14 @@
 <!-- Preview Modal — landscape: max-w-full -->
 <div id="personnelPreviewModal"
   class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
-  <div class="bg-gray-50 rounded-lg shadow-lg w-full max-w-full max-h-[90vh] overflow-hidden">
+  <div class="bg-gray-50 rounded-lg shadow-lg w-full max-w-full max-h-[90vh] overflow-hidden flex flex-col">
     <div class="sticky top-0 bg-navy px-6 py-2 flex justify-between items-center">
       <h3 class="text-lg font-semibold text-white">Personnel Report Preview</h3>
       <button id="personnelClosePreviewBtn" class="text-white hover:text-gray-200 text-2xl">&times;</button>
     </div>
-    <div class="overflow-auto" style="max-height: calc(90vh - 100px); background: #d1d5db;">
+    <div class="overflow-hidden" style="height: calc(90vh - 100px); min-height: 0; background: #d1d5db;">
       <iframe id="personnelPreviewIframe" title="Personnel Report Preview"
-        style="width: 100%; min-height: 842px; border: none; background: white; display: block;"></iframe>
+        style="width: 100%; height: 100%; border: none; background: white; display: block;"></iframe>
     </div>
     <div class="sticky bottom-0 bg-gray-50 border-t px-6 py-2 flex justify-end space-x-2">
       <button id="personnelCancelPreviewBtn"
@@ -462,7 +462,7 @@
           const blobUrl = window.URL.createObjectURL(blob);
           window.personnelCurrentBlobUrl = blobUrl;
           iframe.src = blobUrl + '#toolbar=0';
-          iframe.style.minHeight = '842px';
+          iframe.style.minHeight = '';
           dlBtn.textContent = 'Download PDF';
         } else {
           iframe.srcdoc = `<div style="font-family:Arial,sans-serif;padding:40px;text-align:center;color:#555;">
@@ -473,7 +473,7 @@
             <p style="font-size:16pt;font-weight:bold;color:#1e40af;margin-bottom:8px;">Excel Report Ready</p>
             <p style="font-size:10pt;">Click <strong>Download Excel</strong> below to save the file.</p>
           </div>`;
-          iframe.style.minHeight = '300px';
+          iframe.style.minHeight = '';
           dlBtn.textContent = 'Download Excel';
         }
         document.getElementById('personnelPreviewModal').classList.remove('hidden');

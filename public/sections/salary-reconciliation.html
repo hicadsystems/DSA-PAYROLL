@@ -312,14 +312,14 @@
 <!-- Preview Modal (portrait) -->
 <div id="reconcilePreviewModal"
   class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
-  <div class="bg-gray-50 rounded-lg shadow-lg w-full max-w-5xl max-h-[90vh] overflow-hidden">
+  <div class="bg-gray-50 rounded-lg shadow-lg w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col">
     <div class="sticky top-0 px-6 py-2 flex justify-between items-center bg-navy">
       <h3 class="text-lg font-semibold text-white">Salary Reconciliation Preview</h3>
       <button id="reconcileClosePreviewBtn" class="text-white hover:text-gray-200 text-2xl">&times;</button>
     </div>
-    <div class="overflow-auto" style="max-height: calc(90vh - 100px); background: #d1d5db;">
+    <div class="overflow-hidden" style="height: calc(90vh - 100px); min-height: 0; background: #d1d5db;">
       <iframe id="reconcilePreviewIframe" title="Salary Reconciliation Preview"
-        style="width: 100%; min-height: 842px; border: none; background: white; display: block;"></iframe>
+        style="width: 100%; height: 100%; border: none; background: white; display: block;"></iframe>
     </div>
     <div class="sticky bottom-0 bg-gray-50 border-t px-6 py-2 flex justify-end space-x-2">
       <button id="reconcileCancelPreviewBtn"
@@ -560,7 +560,7 @@
       const blobUrl = window.URL.createObjectURL(blob);
       window.reconcileCurrentBlobUrl = blobUrl;
       iframe.src = blobUrl + '#toolbar=0';
-      iframe.style.minHeight = '842px';
+      iframe.style.minHeight = '';
       document.getElementById('reconcileDownloadPreviewBtn').textContent = 'Download PDF';
       document.getElementById('reconcilePreviewModal').classList.remove('hidden');
     } catch (error) { console.error('Error exporting report:', error); hideLoading(); showError('Error exporting report: ' + error.message); }

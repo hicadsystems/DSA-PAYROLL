@@ -242,7 +242,7 @@
   class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4"
 >
   <div
-    class="bg-gray-50 rounded-lg shadow-lg w-full max-w-4xl max-h-[90vh] overflow-hidden"
+    class="bg-gray-50 rounded-lg shadow-lg w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col"
   >
     <div
       class="sticky top-0 bg-navy border-b px-4 py-2 flex justify-between items-center"
@@ -252,15 +252,15 @@
     </div>
 
     <div
-      class="overflow-auto"
-      style="max-height: calc(90vh - 120px); background: #d1d5db"
+      class="overflow-hidden"
+      style="height: calc(90vh - 120px); min-height: 0; background: #d1d5db"
     >
       <iframe
         id="previewIframe"
         title="Payslip Preview"
         style="
           width: 100%;
-          min-height: 842px;
+          height: 100%;
           border: none;
           background: #d1d5db;
           display: block;
@@ -544,25 +544,9 @@
         const html = buildExactPayslipHTML(dataArray, logoDataUrl);
         const iframe = document.getElementById("previewIframe");
 
-        // Each A5 page is 794px + 24px gap + 32px top/bottom body padding
-        const estimatedHeight = dataArray.length * 818 + 32;
-        iframe.style.height = estimatedHeight + "px";
-
-        // Write HTML directly into the iframe
+        // Write HTML directly into the iframe. The iframe fills the preview
+        // body and scrolls its own content, so there is only one scrollbar.
         iframe.srcdoc = html;
-
-        // Refine height once content is actually loaded
-        iframe.onload = function () {
-          try {
-            const body = iframe.contentDocument.body;
-            if (body) {
-              iframe.style.height =
-                Math.max(794, body.scrollHeight + 20) + "px";
-            }
-          } catch (e) {
-            /* cross-origin safety, ignore */
-          }
-        };
 
         document.getElementById("previewModal").classList.remove("hidden");
       });
