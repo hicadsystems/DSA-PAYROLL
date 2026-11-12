@@ -28,6 +28,11 @@ class NHFReportService {
     const isSummary =
       summaryOnly === true || summaryOnly === "1" || summaryOnly === "true";
     const period = await this._getPeriod(year, month);
+    // Year used for the grade step, as Master File Update does: the year of
+    // the month after the payroll period.
+    const stepYear =
+      Number(period.year) + (Number(period.month) === 12 ? 1 : 0) ||
+      new Date().getFullYear();
 
     if (isSummary) {
       // ── Summary: one aggregate row ────────────────────────────────────────
@@ -78,16 +83,25 @@ class NHFReportService {
            DATE_FORMAT(we.dateempl, '%Y-%m-%d')                               AS date_employed,
            we.NSITFcode                                                        AS nsitf_code,
            we.gradetype                                                        AS grade_type,
-           -- Grade level + step (years since promotion). When the step
-           -- cannot be worked out (no valid promotion date, grade not in
-           -- GGSS form, step outside 1-99), show the stored grade level.
+           -- Grade level + step, worked out the way Master File Update pays
+           -- it (py_updatepayroll_05): stored step + calendar years since the
+           -- promotion year, at least 1, capped at the scale's top step
+           -- (step20, 20 if blank); no increase for location 103. When the
+           -- step cannot be worked out properly, show the stored grade level.
            CASE
              WHEN we.gradelevel REGEXP '^[0-9]{4}$'
               AND we.datepmted REGEXP '^[0-9]{8}$'
-              AND STR_TO_DATE(we.datepmted, '%Y%m%d') <= CURDATE()
-              AND TIMESTAMPDIFF(YEAR, STR_TO_DATE(we.datepmted, '%Y%m%d'), CURDATE()) BETWEEN 1 AND 99
-             THEN CONCAT(LEFT(we.gradelevel, 2),
-                         LPAD(TIMESTAMPDIFF(YEAR, STR_TO_DATE(we.datepmted, '%Y%m%d'), CURDATE()), 2, '0'))
+              AND CAST(LEFT(we.datepmted, 4) AS SIGNED) BETWEEN 1900 AND ${stepYear}
+              AND IFNULL(we.Location, '') <> '103'
+              AND ss.grade IS NOT NULL
+              AND COALESCE(ss.top_step, 20) >= 1
+              AND COALESCE(ss.top_step, 20) < 100
+             THEN CONCAT(LEFT(we.gradelevel, 2), LPAD(
+                    CAST(LEAST(COALESCE(ss.top_step, 20),
+                               GREATEST(1, CAST(RIGHT(we.gradelevel, 2) AS SIGNED)
+                                           + (${stepYear} - CAST(LEFT(we.datepmted, 4) AS SIGNED))))
+                         AS SIGNED),
+                    2, '0'))
              ELSE we.gradelevel
            END                                                                AS grade_level,
            CASE
@@ -109,6 +123,11 @@ class NHFReportService {
                                      AND mc.his_type  = ?
          LEFT  JOIN py_title        tt ON tt.Titlecode  = we.Title
          LEFT  JOIN ac_costcentre   cc ON cc.unitcode   = we.Location
+         LEFT  JOIN (SELECT salcode, grade, MAX(step20) AS top_step
+                       FROM py_salaryscale
+                      GROUP BY salcode, grade) ss
+                 ON ss.salcode = we.gradetype
+                AND ss.grade   = LEFT(we.gradelevel, 2)
          WHERE mp.his_type   = 'PR306'
            AND mp.amtthismth > 0
          ORDER BY mp.amtthismth DESC`,
