@@ -5,6 +5,78 @@ const verifyToken = require("../../middware/authentication");
 const router = express.Router();
 
 // =============================================================================
+// HELPER FUNCTION: Grade level + step for display
+// =============================================================================
+
+/**
+ * Works out the grade level and current step for display, the same way
+ * Master File Update works out the step it pays (py_updatepayroll_05):
+ *   step = stored step (last two digits of the grade level)
+ *        + calendar years since the promotion year,
+ *   at least 1, capped at the scale's top step (step20, or 20 if blank),
+ *   with no increase for location 103. The year used is the year of the
+ *   month after the current payroll period (BT05), as in Master File Update.
+ * Whenever that cannot be worked out properly (grade level not in GGSS
+ * form, no or invalid promotion date, promotion after that year,
+ * location 103, no salary scale for the grade) the stored grade level is
+ * shown as it is.
+ */
+async function computeGradeStep({ gradelevel, datepmted, gradetype, Location } = {}) {
+  const raw = gradelevel ? String(gradelevel).trim() : "";
+  const fallback = {
+    gradeLevel: raw || "N/A",
+    currentStep: null,
+    displayValue: raw || "N/A",
+  };
+  if (!/^\d{4}$/.test(raw)) return fallback;
+  if (String(Location || "").trim() === "103") return fallback;
+
+  // Promotion date, stored as YYYYMMDD. Like Master File Update, only the
+  // year is used.
+  const dateStr = datepmted ? String(datepmted).trim() : "";
+  if (!/^\d{8}$/.test(dateStr)) return fallback;
+  const y = +dateStr.slice(0, 4);
+  if (y < 1900) return fallback;
+
+  // Year used for the step: the month after the payroll period (BT05)
+  let stepYear = new Date().getFullYear();
+  try {
+    const [period] = await pool.query(
+      "SELECT ord, mth FROM py_stdrate WHERE type = 'BT05' LIMIT 1",
+    );
+    if (period && period.length && +period[0].ord) {
+      stepYear = +period[0].ord + (+period[0].mth === 12 ? 1 : 0);
+    }
+  } catch (_) {
+    /* keep the calendar year */
+  }
+  if (y > stepYear) return fallback;
+
+  const gradeLevelPrefix = raw.substring(0, 2);
+  const [scaleData] = await pool.query(
+    "SELECT COUNT(*) AS n, MAX(step20) AS top_step FROM py_salaryscale WHERE salcode = ? AND grade = ?",
+    [gradetype || "", gradeLevelPrefix],
+  );
+  if (!scaleData || !scaleData.length || !+scaleData[0].n) return fallback;
+  const topStep =
+    scaleData[0].top_step == null ? 20 : parseInt(scaleData[0].top_step, 10);
+  if (!(topStep >= 1 && topStep <= 99)) return fallback;
+
+  const yearsSincePromotion = stepYear - y;
+  const currentStep = Math.min(
+    topStep,
+    Math.max(1, +raw.slice(2) + yearsSincePromotion),
+  );
+  return {
+    gradeLevel: gradeLevelPrefix,
+    currentStep,
+    displayValue: `${gradeLevelPrefix}${String(currentStep).padStart(2, "0")}`,
+    step20: topStep,
+    yearsSincePromotion,
+  };
+}
+
+// =============================================================================
 // HELPER FUNCTION: Get Payroll Class from Current Database
 // =============================================================================
 
@@ -647,7 +719,7 @@ router.get("/employees/:id/grade-step", verifyToken, async (req, res) => {
 
     // Get employee's gradelevel and datepmted
     const [employee] = await pool.query(
-      "SELECT gradelevel, datepmted FROM hr_employees WHERE Empl_ID = ?",
+      "SELECT gradelevel, datepmted, gradetype, Location FROM hr_employees WHERE Empl_ID = ?",
       [employeeId],
     );
 
@@ -657,67 +729,10 @@ router.get("/employees/:id/grade-step", verifyToken, async (req, res) => {
         .json({ success: false, error: "Employee not found" });
     }
 
-    const { gradelevel, datepmted } = employee[0];
-
-    if (!gradelevel || !datepmted) {
-      return res.json({
-        success: true,
-        data: {
-          gradeLevel: gradelevel || "N/A",
-          currentStep: null,
-          displayValue: gradelevel || "N/A",
-        },
-      });
-    }
-
-    // Extract the first two digits (grade level)
-    const gradeLevelPrefix = gradelevel.toString().substring(0, 2);
-
-    // Get step20 from py_salaryscale
-    const [scaleData] = await pool.query(
-      "SELECT step20 FROM py_salaryscale WHERE grade = ? LIMIT 1",
-      [gradeLevelPrefix],
-    );
-
-    if (!scaleData || scaleData.length === 0) {
-      return res.json({
-        success: true,
-        data: {
-          gradeLevel: gradeLevelPrefix,
-          currentStep: null,
-          displayValue: `${gradeLevelPrefix}0`,
-        },
-      });
-    }
-
-    const step20 = parseInt(scaleData[0].step20);
-
-    // Calculate years since promotion
-    const promotionDate = new Date(datepmted);
-    const today = new Date();
-    let yearsSincePromotion = today.getFullYear() - promotionDate.getFullYear();
-    const monthDiff = today.getMonth() - promotionDate.getMonth();
-
-    if (
-      monthDiff < 0 ||
-      (monthDiff === 0 && today.getDate() < promotionDate.getDate())
-    ) {
-      yearsSincePromotion--;
-    }
-
-    // Calculate current step (capped at step20)
-    const calculatedStep = 1 + yearsSincePromotion;
-    const currentStep = Math.min(calculatedStep, step20);
-
+    // Grade level + step (falls back to the stored grade level)
     res.json({
       success: true,
-      data: {
-        gradeLevel: gradeLevelPrefix,
-        currentStep: currentStep,
-        displayValue: `${gradeLevelPrefix}0${currentStep}`,
-        step20: step20,
-        yearsSincePromotion: yearsSincePromotion,
-      },
+      data: await computeGradeStep(employee[0]),
     });
   } catch (error) {
     console.error("❌ Grade step calculation error:", error);
@@ -745,75 +760,8 @@ router.get("/employees/:id", verifyToken, async (req, res) => {
 
     const employee = employees[0];
 
-    // Calculate grade step if gradelevel and datepmted exist
-    let gradeStepData = null;
-    if (employee.gradelevel && employee.datepmted) {
-      const gradeLevelPrefix = employee.gradelevel.toString().substring(0, 2);
-
-      const [scaleData] = await pool.query(
-        "SELECT step20 FROM py_salaryscale WHERE grade = ? LIMIT 1",
-        [gradeLevelPrefix],
-      );
-
-      if (scaleData && scaleData.length > 0) {
-        const step20 = parseInt(scaleData[0].step20);
-
-        // Parse the promotion date - handle YYYYMMDD format
-        let promotionDate;
-        const dateStr = employee.datepmted.toString().trim();
-
-        if (dateStr.length === 8 && /^\d{8}$/.test(dateStr)) {
-          // Format: YYYYMMDD (e.g., "20150815")
-          const year = dateStr.substring(0, 4);
-          const month = dateStr.substring(4, 6);
-          const day = dateStr.substring(6, 8);
-          promotionDate = new Date(`${year}-${month}-${day}`);
-        } else {
-          // Try parsing as-is (for ISO dates or other formats)
-          promotionDate = new Date(employee.datepmted);
-        }
-
-        // Check if date is valid
-        if (!isNaN(promotionDate.getTime())) {
-          const today = new Date();
-          let yearsSincePromotion =
-            today.getFullYear() - promotionDate.getFullYear();
-          const monthDiff = today.getMonth() - promotionDate.getMonth();
-
-          if (
-            monthDiff < 0 ||
-            (monthDiff === 0 && today.getDate() < promotionDate.getDate())
-          ) {
-            yearsSincePromotion--;
-          }
-
-          // Ensure yearsSincePromotion is not negative
-          if (yearsSincePromotion < 0) {
-            yearsSincePromotion = 0;
-          }
-
-          const calculatedStep = 1 + yearsSincePromotion;
-          const currentStep = Math.min(calculatedStep, step20);
-
-          gradeStepData = {
-            gradeLevel: gradeLevelPrefix,
-            currentStep: currentStep,
-            displayValue: `${gradeLevelPrefix}${currentStep < 10 ? "0" : ""}${currentStep}`,
-            step20: step20,
-            yearsSincePromotion: yearsSincePromotion,
-          };
-        } else {
-          // If date is invalid, set step to 1
-          gradeStepData = {
-            gradeLevel: gradeLevelPrefix,
-            currentStep: 1,
-            displayValue: `${gradeLevelPrefix}01`,
-            step20: step20,
-            yearsSincePromotion: 0,
-          };
-        }
-      }
-    }
+    // Grade level + step (falls back to the stored grade level)
+    const gradeStepData = await computeGradeStep(employee);
 
     // Get related data (children, NOK, spouse)...
     const [children] = await pool.query(

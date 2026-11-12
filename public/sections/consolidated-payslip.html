@@ -281,7 +281,7 @@
   class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4"
 >
   <div
-    class="bg-gray-50 rounded-lg shadow-lg w-full max-w-4xl max-h-[90vh] overflow-hidden"
+    class="bg-gray-50 rounded-lg shadow-lg w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col"
   >
     <div
       class="sticky top-0 bg-navy px-6 py-2 flex justify-between items-center"
@@ -298,15 +298,15 @@
     </div>
 
     <div
-      class="overflow-auto"
-      style="max-height: calc(90vh - 120px); background: #d1d5db"
+      class="overflow-hidden"
+      style="height: calc(90vh - 120px); min-height: 0; background: #d1d5db"
     >
       <iframe
         id="consPreviewIframe"
         title="Consolidated Payslip Preview"
         style="
           width: 100%;
-          min-height: 842px;
+          height: 100%;
           border: none;
           background: #d1d5db;
           display: block;
@@ -562,15 +562,9 @@
         .then((logoDataUrl) => {
           const html = buildConsolidatedHTML(arr, logoDataUrl);
           const iframe = document.getElementById("consPreviewIframe");
-          iframe.style.height = arr.length * 818 + 32 + "px";
+          // The iframe fills the preview body and scrolls its own content,
+          // so there is only one scrollbar.
           iframe.srcdoc = html;
-          iframe.onload = function () {
-            try {
-              const b = iframe.contentDocument.body;
-              if (b)
-                iframe.style.height = Math.max(842, b.scrollHeight + 20) + "px";
-            } catch (e) {}
-          };
           document
             .getElementById("consPreviewModal")
             .classList.remove("hidden");

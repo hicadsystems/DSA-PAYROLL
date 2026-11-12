@@ -491,13 +491,13 @@
         &times;
       </button>
     </div>
-    <div class="overflow-auto flex-1" style="background: #d1d5db">
+    <div class="overflow-hidden" style="height: calc(90vh - 120px); min-height: 0; background: #d1d5db">
       <iframe
         id="sharedPreviewIframe"
         title="Preview"
         style="
           width: 100%;
-          min-height: 842px;
+          height: 100%;
           border: none;
           background: #d1d5db;
           display: block;
@@ -1006,26 +1006,9 @@
           );
         }
 
-        const arr = Array.isArray(data) ? data : [data];
-        const estH =
-          type === "salaryhistory"
-            ? arr.length * 700 + 48
-            : arr.length * 818 + 32;
-
-        if (type === "salaryhistory") {
-          previewIframe.style.width = "100%";
-          previewIframe.style.minHeight = "700px";
-        }
-        previewIframe.style.height = estH + "px";
+        // The iframe fills the preview body and scrolls its own content,
+        // so there is only one scrollbar.
         previewIframe.srcdoc = html;
-        previewIframe.onload = function () {
-          try {
-            const b = previewIframe.contentDocument.body;
-            if (b)
-              previewIframe.style.height =
-                Math.max(600, b.scrollHeight + 20) + "px";
-          } catch (e) {}
-        };
         previewModal.classList.remove("hidden");
       });
   }

@@ -45,6 +45,11 @@ class NSITFReportService {
     const isSummary =
       summaryOnly === true || summaryOnly === "1" || summaryOnly === "true";
     const period = await this._getPeriod(year, month);
+    // Year used for the grade step, as Master File Update does: the year of
+    // the month after the payroll period.
+    const stepYear =
+      Number(period.year) + (Number(period.month) === 12 ? 1 : 0) ||
+      new Date().getFullYear();
 
     // Normalise paymentCodes to an array (frontend may send string or array)
     const codes = paymentCodes
@@ -140,8 +145,32 @@ class NSITFReportService {
            DATE_FORMAT(we.dateempl, '%Y-%m-%d')                                AS date_employed,
            we.NSITFcode                                                         AS nsitf_code,
            we.gradetype                                                         AS grade_type,
-           SUBSTRING(we.gradelevel, 1, 2)                                      AS grade_level,
-           ROUND(TIMESTAMPDIFF(YEAR, we.datepmted, NOW()), 0)                  AS years_in_level,
+           -- Grade level + step, worked out the way Master File Update pays
+           -- it (py_updatepayroll_05): stored step + calendar years since the
+           -- promotion year, at least 1, capped at the scale's top step
+           -- (step20, 20 if blank); no increase for location 103. When the
+           -- step cannot be worked out properly, show the stored grade level.
+           CASE
+             WHEN we.gradelevel REGEXP '^[0-9]{4}$'
+              AND we.datepmted REGEXP '^[0-9]{8}$'
+              AND CAST(LEFT(we.datepmted, 4) AS SIGNED) BETWEEN 1900 AND ${stepYear}
+              AND IFNULL(we.Location, '') <> '103'
+              AND ss.grade IS NOT NULL
+              AND COALESCE(ss.top_step, 20) >= 1
+              AND COALESCE(ss.top_step, 20) < 100
+             THEN CONCAT(LEFT(we.gradelevel, 2), LPAD(
+                    CAST(LEAST(COALESCE(ss.top_step, 20),
+                               GREATEST(1, CAST(RIGHT(we.gradelevel, 2) AS SIGNED)
+                                           + (${stepYear} - CAST(LEFT(we.datepmted, 4) AS SIGNED))))
+                         AS SIGNED),
+                    2, '0'))
+             ELSE we.gradelevel
+           END                                                                 AS grade_level,
+           CASE
+             WHEN we.datepmted REGEXP '^[0-9]{8}$'
+              AND STR_TO_DATE(we.datepmted, '%Y%m%d') <= CURDATE()
+             THEN TIMESTAMPDIFF(YEAR, STR_TO_DATE(we.datepmted, '%Y%m%d'), CURDATE())
+           END                                                                 AS years_in_level,
            he.pfacode                                                           AS pfa_code,
            COALESCE(pfa.pfadesc, '')                                            AS pfa_name,
            ROUND(mc.his_netmth, 2)                                              AS net_pay
@@ -154,6 +183,11 @@ class NSITFReportService {
          LEFT  JOIN py_pfa        pfa ON pfa.pfacode  = he.pfacode
          LEFT  JOIN py_tblstates  st  ON st.Statecode = we.StateofOrigin
          LEFT  JOIN py_title      tt  ON tt.Titlecode = we.Title
+         LEFT  JOIN (SELECT salcode, grade, MAX(step20) AS top_step
+                       FROM py_salaryscale
+                      GROUP BY salcode, grade) ss
+                 ON ss.salcode = we.gradetype
+                AND ss.grade   = LEFT(we.gradelevel, 2)
          ${paymentJoin}
          WHERE he.pfacode   IS NOT NULL AND he.pfacode   != ''
            AND we.NSITFcode IS NOT NULL AND we.NSITFcode != ''

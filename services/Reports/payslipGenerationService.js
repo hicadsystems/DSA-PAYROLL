@@ -670,9 +670,21 @@ class PayslipGenerationService {
       paymentsByEmp.get(p.employee_id).push(p);
     }
 
+    // Query 3: Taxed flag from Personnel. Taxed staff (DSS) keep the full
+    // payslip layout; everyone else gets the simple allowances layout.
+    const taxedByEmp = new Map();
+    const [taxRows] = await this._q(
+      `SELECT Empl_ID AS employee_id, taxed FROM hr_employees WHERE Empl_ID IN (?)`,
+      [empRows.map((r) => r.employee_id)],
+    );
+    for (const t of taxRows) {
+      taxedByEmp.set(String(t.employee_id), t.taxed);
+    }
+
     // Merge
     return empRows.map((row) => ({
       ...row,
+      taxed: taxedByEmp.get(String(row.employee_id)) || null,
       payments: paymentsByEmp.get(row.employee_id) || [],
     }));
   }

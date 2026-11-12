@@ -749,14 +749,13 @@
         &times;
       </button>
     </div>
-    <div class="overflow-auto flex-1" style="background: #d1d5db">
+    <div class="overflow-hidden" style="height: calc(90vh - 120px); min-height: 0; background: #d1d5db">
       <iframe
         id="docPreviewIframe"
         title="Documentation Preview"
         style="
           width: 100%;
-          height: 842px;
-          min-height: 842px;
+          height: 100%;
           border: none;
           background: #f8fbff;
           display: block;
@@ -1852,24 +1851,9 @@
       const blob = new Blob([resolvedHtml], { type: "text/html" });
       _previewHtmlBlob = URL.createObjectURL(blob);
 
-      // Auto-resize iframe to full document height once loaded (including all page cards)
-      iframe.onload = () => {
-        try {
-          // Poll briefly to let inline <script> pagination finish rendering
-          const check = () => {
-            const docHeight =
-              iframe.contentDocument.documentElement.scrollHeight;
-            if (docHeight > 100) {
-              iframe.style.height = docHeight + "px";
-            } else {
-              setTimeout(check, 80);
-            }
-          };
-          setTimeout(check, 120);
-        } catch (e) {
-          /* cross-origin guard */
-        }
-      };
+      // The iframe fills the preview body and scrolls its own content,
+      // so there is only one scrollbar.
+      iframe.onload = null;
       iframe.src = _previewHtmlBlob;
 
       modal.classList.remove("hidden");

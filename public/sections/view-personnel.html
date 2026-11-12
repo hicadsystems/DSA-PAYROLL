@@ -285,11 +285,11 @@ class ViewPersonnelManager {
       return this.gradeStepData.displayValue;
     }
     
+    // Step could not be worked out: show the stored grade level as it is
     const emp = this.employeeData?.employee;
     if (!emp || !emp.gradelevel) return 'N/A';
-    
-    const gradeLevel = this.getFirstTwo(emp.gradelevel);
-    return `${gradeLevel}0`;
+
+    return String(emp.gradelevel);
   }
 
   getGradeStepTooltip() {
