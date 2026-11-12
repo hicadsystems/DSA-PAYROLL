@@ -140,8 +140,23 @@ class NSITFReportService {
            DATE_FORMAT(we.dateempl, '%Y-%m-%d')                                AS date_employed,
            we.NSITFcode                                                         AS nsitf_code,
            we.gradetype                                                         AS grade_type,
-           SUBSTRING(we.gradelevel, 1, 2)                                      AS grade_level,
-           ROUND(TIMESTAMPDIFF(YEAR, we.datepmted, NOW()), 0)                  AS years_in_level,
+           -- Grade level + step (years since promotion). When the step
+           -- cannot be worked out (no valid promotion date, grade not in
+           -- GGSS form, step outside 1-99), show the stored grade level.
+           CASE
+             WHEN we.gradelevel REGEXP '^[0-9]{4}$'
+              AND we.datepmted REGEXP '^[0-9]{8}$'
+              AND STR_TO_DATE(we.datepmted, '%Y%m%d') <= CURDATE()
+              AND TIMESTAMPDIFF(YEAR, STR_TO_DATE(we.datepmted, '%Y%m%d'), CURDATE()) BETWEEN 1 AND 99
+             THEN CONCAT(LEFT(we.gradelevel, 2),
+                         LPAD(TIMESTAMPDIFF(YEAR, STR_TO_DATE(we.datepmted, '%Y%m%d'), CURDATE()), 2, '0'))
+             ELSE we.gradelevel
+           END                                                                 AS grade_level,
+           CASE
+             WHEN we.datepmted REGEXP '^[0-9]{8}$'
+              AND STR_TO_DATE(we.datepmted, '%Y%m%d') <= CURDATE()
+             THEN TIMESTAMPDIFF(YEAR, STR_TO_DATE(we.datepmted, '%Y%m%d'), CURDATE())
+           END                                                                 AS years_in_level,
            he.pfacode                                                           AS pfa_code,
            COALESCE(pfa.pfadesc, '')                                            AS pfa_name,
            ROUND(mc.his_netmth, 2)                                              AS net_pay

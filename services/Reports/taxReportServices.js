@@ -101,7 +101,7 @@ class TaxReportService {
         CROSS JOIN (SELECT ord, mth FROM py_stdrate WHERE type = 'BT05') sr
         INNER JOIN py_mastercum mc ON mc.his_empno = we.empl_id AND mc.his_type = sr.mth
         LEFT JOIN py_tblstates st ON st.Statecode = we.taxstate
-        WHERE 1=1
+        WHERE mc.his_taxmth > 0 -- only staff who paid tax this month
           ${year ? "AND sr.ord = ?" : ""}
           ${month ? "AND sr.mth = ?" : ""}
           ${taxState ? "AND we.taxstate = ?" : ""}
@@ -126,7 +126,7 @@ class TaxReportService {
         FROM py_wkemployees we
         CROSS JOIN (SELECT ord, mth FROM py_stdrate WHERE type = 'BT05') sr
         INNER JOIN py_mastercum mc ON mc.his_empno = we.empl_id AND mc.his_type = sr.mth
-        WHERE 1=1
+        WHERE mc.his_taxmth > 0 -- only staff who paid tax this month
           ${year ? "AND sr.ord = ?" : ""}
           ${month ? "AND sr.mth = ?" : ""}
           ${taxState ? "AND we.taxstate = ?" : ""}
@@ -178,7 +178,7 @@ class TaxReportService {
           LEFT JOIN py_tblstates st ON st.Statecode = we.taxstate
           LEFT JOIN ac_costcentre cc ON cc.unitcode = we.Location
           LEFT JOIN py_title tt ON tt.Titlecode = we.Title
-          WHERE 1=1
+          WHERE mc.his_taxmth > 0 -- only staff who paid tax this month
             ${year ? "AND sr.ord = ?" : ""}
             ${month ? "AND sr.mth = ?" : ""}
             ${taxState ? "AND we.taxstate = ?" : ""}
