@@ -505,6 +505,28 @@
         {{/if}}
       </div>
 
+      {{#if simple_payslip}}
+      <!-- SIMPLE LAYOUT (staff not marked Taxed, incl. military):
+           allowances, deductions if any, then the total -->
+      <div class="section-header">Allowances</div>
+      <table class="items-table">
+        <tbody>
+          {{#each earnings}}
+          <tr>
+            <td>{{description}}</td>
+            <td class="amount">₦{{formatCurrency amount}}</td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+      {{#unless hide_deductions}}
+      <div class="total-row">
+        <span class="label">Total Allowances</span>
+        <span class="amount">₦{{formatCurrency total_earnings}}</span>
+      </div>
+      {{/unless}}
+      {{else}}
+      <!-- FULL LAYOUT (staff marked Taxed: DSS) -->
       <!-- TAXABLE PAYMENT — with L.Bal/Os.Mths labels on same line -->
       <div class="ded-header-row">
         <div class="dh-label">Taxable Payment</div>
@@ -557,7 +579,9 @@
           earnings "Non-Taxable"))}}</span
         >
       </div>
+      {{/if}}
 
+      {{#unless hide_deductions}}
       <!-- DEDUCTIONS -->
       <div class="ded-header-row">
         <div class="dh-label">Deductions</div>
@@ -596,6 +620,7 @@
         <span class="label">Total Deduction</span>
         <span class="amount">₦{{formatCurrency total_deductions}}</span>
       </div>
+      {{/unless}}
 
       <!-- NET PAY -->
       <div class="net-pay">

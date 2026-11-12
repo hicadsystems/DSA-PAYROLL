@@ -2039,6 +2039,34 @@
         ? '<div class="info-row"><span class="info-label">RSA (Pension):</span><span class="info-value">' + escHtml(emp.nsitfcode) + '</span></div>'
         : '';
 
+      // Simple layout (staff not marked Taxed, incl. military): allowances,
+      // deductions if any, then the total. Taxed (DSS) staff keep the full layout.
+      var allowanceRows = earnings.map(function (e) {
+        return '<tr><td>' + escHtml(e.description) + '</td><td class="amount">&#x20A6;' + formatCurrency(e.amount) + '</td></tr>';
+      }).join('');
+
+      var earningsBlock = emp.simple_payslip
+        ? '<div class="section-header">Allowances</div>'
+          + '<table class="items-table"><tbody>' + allowanceRows + '</tbody></table>'
+          + (emp.hide_deductions ? '' : '<div class="total-row"><span class="label">Total Allowances</span><span class="amount">&#x20A6;' + formatCurrency(taxableTotal + nonTaxableTotal) + '</span></div>')
+        : '<div class="ded-header-row"><div class="dh-label">Taxable Payment</div></div>'
+          + '<table class="items-table"><tbody>' + payRows('Taxable') + '</tbody></table>'
+          + '<div class="total-row"><span class="label">Total Taxable Payment</span><span class="amount">&#x20A6;' + formatCurrency(taxableTotal) + '</span></div>'
+          + '<div class="section-header">Non-Taxable Payment</div>'
+          + '<table class="items-table"><tbody>' + payRows('Non-Taxable') + '</tbody></table>'
+          + '<div class="total-row"><span class="label">Total Non-Taxable Payment</span><span class="amount">&#x20A6;' + formatCurrency(nonTaxableTotal) + '</span></div>'
+          + '<div class="emolument-row"><span class="label">Total Emolument</span><span class="amount">&#x20A6;' + formatCurrency(taxableTotal + nonTaxableTotal) + '</span></div>';
+
+      var deductionsBlock = emp.hide_deductions
+        ? ''
+        : '<div class="ded-header-row"><div class="dh-label">Deductions</div>'
+          + '<div class="dh-cols"><span class="dh-col">&#x20A6;L.Bal</span><span class="dh-col">Os.Mths</span></div></div>'
+          + '<div class="full-row">'
+          + '<div class="left-zone"><table class="ded-table"><colgroup><col class="col-desc"><col class="col-amt"></colgroup><tbody>' + dedLeftRows + '</tbody></table></div>'
+          + '<div class="right-zone"><div class="rz-rows">' + dedRightRows + '</div></div>'
+          + '</div>'
+          + '<div class="total-row"><span class="label">Total Deduction</span><span class="amount">&#x20A6;' + formatCurrency(emp.total_deductions) + '</span></div>';
+
       return '<div class="container">'
         + '<div class="header-wrapper">'
         + '<div class="className">' + (emp.payclass ? escHtml(emp.payclass_name || '') : '') + '</div>'
@@ -2059,20 +2087,8 @@
         + '<div class="info-row"><span class="info-label">Bank Account:</span><span class="info-value">' + escHtml(emp.bank_account_number) + (emp.bank_name ? ' (' + escHtml(emp.bank_name) + ')' : '') + '</span></div>'
         + nsitfRow
         + '</div>'
-        + '<div class="ded-header-row"><div class="dh-label">Taxable Payment</div></div>'
-        + '<table class="items-table"><tbody>' + payRows('Taxable') + '</tbody></table>'
-        + '<div class="total-row"><span class="label">Total Taxable Payment</span><span class="amount">&#x20A6;' + formatCurrency(taxableTotal) + '</span></div>'
-        + '<div class="section-header">Non-Taxable Payment</div>'
-        + '<table class="items-table"><tbody>' + payRows('Non-Taxable') + '</tbody></table>'
-        + '<div class="total-row"><span class="label">Total Non-Taxable Payment</span><span class="amount">&#x20A6;' + formatCurrency(nonTaxableTotal) + '</span></div>'
-        + '<div class="emolument-row"><span class="label">Total Emolument</span><span class="amount">&#x20A6;' + formatCurrency(taxableTotal + nonTaxableTotal) + '</span></div>'
-        + '<div class="ded-header-row"><div class="dh-label">Deductions</div>'
-        + '<div class="dh-cols"><span class="dh-col">&#x20A6;L.Bal</span><span class="dh-col">Os.Mths</span></div></div>'
-        + '<div class="full-row">'
-        + '<div class="left-zone"><table class="ded-table"><colgroup><col class="col-desc"><col class="col-amt"></colgroup><tbody>' + dedLeftRows + '</tbody></table></div>'
-        + '<div class="right-zone"><div class="rz-rows">' + dedRightRows + '</div></div>'
-        + '</div>'
-        + '<div class="total-row"><span class="label">Total Deduction</span><span class="amount">&#x20A6;' + formatCurrency(emp.total_deductions) + '</span></div>'
+        + earningsBlock
+        + deductionsBlock
         + '<div class="net-pay"><span class="label">Net Payment This Month</span><span class="amount">&#x20A6;' + formatCurrency(emp.net_pay) + '</span></div>'
         + '<div class="footer"><p>All rights reserved &#xA9; Hicad Systems Limited.</p></div>'
         + '</div>';

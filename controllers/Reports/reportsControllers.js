@@ -107,6 +107,15 @@ class ReportController extends BaseReportController {
 
       const netPay = totalEarnings - totalDeductions;
 
+      // Payslip layout: staff marked Taxed (DSS) keep the full layout
+      // (taxable / non-taxable / emolument). Everyone else, including
+      // military, gets the simple layout: allowances, deductions if any,
+      // then the total.
+      const isTaxed = ["YES", "Y"].includes(
+        String(employee.taxed || "").trim().toUpperCase(),
+      );
+      const simplePayslip = !isTaxed;
+
       return {
         // Employee Info
         employee_id: employee.employee_id,
@@ -136,6 +145,10 @@ class ReportController extends BaseReportController {
         total_earnings: totalEarnings,
         total_deductions: totalDeductions,
         net_pay: netPay,
+
+        // Layout flags (see above)
+        simple_payslip: simplePayslip,
+        hide_deductions: simplePayslip && deductions.length === 0,
 
         // YTD Info
         ytd_gross: parseFloat(employee.grstodate) || 0,
@@ -772,51 +785,71 @@ class ReportController extends BaseReportController {
         const totalNonTaxable = sumArr(nonTaxable);
         const totalEmolument = totalTaxable + totalNonTaxable;
 
-        // ════════════════════════════════════════════════════════════════════
-        // TAXABLE PAYMENT — mirrors .ded-header-row with L.Bal/Os.Mths labels
-        // ════════════════════════════════════════════════════════════════════
-        addDedSectionHeader("TAXABLE PAYMENT");
-        taxable.forEach((item) => addEarningRow(item.description, item.amount));
-        addTotalRow("TOTAL TAXABLE PAYMENT", totalTaxable);
+        if (emp.simple_payslip) {
+          // ══════════════════════════════════════════════════════════════════
+          // SIMPLE LAYOUT (staff not marked Taxed, incl. military):
+          // allowances, deductions if any, then the total
+          // ══════════════════════════════════════════════════════════════════
+          addSectionHeader("ALLOWANCES");
+          earnings.forEach((item) =>
+            addEarningRow(item.description, item.amount),
+          );
+          if (!emp.hide_deductions) {
+            addTotalRow("TOTAL ALLOWANCES", totalEmolument);
+          }
 
-        spacer(3);
+          spacer(3);
+        } else {
+          // ══════════════════════════════════════════════════════════════════
+          // TAXABLE PAYMENT — mirrors .ded-header-row with L.Bal/Os.Mths labels
+          // ══════════════════════════════════════════════════════════════════
+          addDedSectionHeader("TAXABLE PAYMENT");
+          taxable.forEach((item) =>
+            addEarningRow(item.description, item.amount),
+          );
+          addTotalRow("TOTAL TAXABLE PAYMENT", totalTaxable);
 
-        // ════════════════════════════════════════════════════════════════════
-        // NON-TAXABLE PAYMENT
-        // ════════════════════════════════════════════════════════════════════
-        addSectionHeader("NON-TAXABLE PAYMENT");
-        nonTaxable.forEach((item) =>
-          addEarningRow(item.description, item.amount),
-        );
-        addTotalRow("TOTAL NON-TAXABLE PAYMENT", totalNonTaxable);
+          spacer(3);
 
-        spacer(3);
+          // ══════════════════════════════════════════════════════════════════
+          // NON-TAXABLE PAYMENT
+          // ══════════════════════════════════════════════════════════════════
+          addSectionHeader("NON-TAXABLE PAYMENT");
+          nonTaxable.forEach((item) =>
+            addEarningRow(item.description, item.amount),
+          );
+          addTotalRow("TOTAL NON-TAXABLE PAYMENT", totalNonTaxable);
 
-        // ════════════════════════════════════════════════════════════════════
-        // TOTAL EMOLUMENT — mirrors .emolument-row (bordered, between totals)
-        // ════════════════════════════════════════════════════════════════════
-        addEmolumentRow("TOTAL EMOLUMENT", totalEmolument);
+          spacer(3);
 
-        spacer(3);
+          // ══════════════════════════════════════════════════════════════════
+          // TOTAL EMOLUMENT — mirrors .emolument-row (bordered, between totals)
+          // ══════════════════════════════════════════════════════════════════
+          addEmolumentRow("TOTAL EMOLUMENT", totalEmolument);
 
-        // ════════════════════════════════════════════════════════════════════
-        // DEDUCTIONS — mirrors .ded-table with L.Bal + Os.Mths cols
-        // ════════════════════════════════════════════════════════════════════
-        addSectionHeader("DEDUCTIONS");
-        deductions.forEach((item) =>
-          addDeductionRow(
-            item.description,
-            item.amount,
-            item.is_loan ? item.loan_balance : null,
-            item.is_loan ? item.outstanding_months : null,
-          ),
-        );
-        addTotalRow(
-          "TOTAL DEDUCTION",
-          emp.total_deductions || sumArr(deductions),
-        );
+          spacer(3);
+        }
 
-        spacer(4);
+        if (!emp.hide_deductions) {
+          // ══════════════════════════════════════════════════════════════════
+          // DEDUCTIONS — mirrors .ded-table with L.Bal + Os.Mths cols
+          // ══════════════════════════════════════════════════════════════════
+          addSectionHeader("DEDUCTIONS");
+          deductions.forEach((item) =>
+            addDeductionRow(
+              item.description,
+              item.amount,
+              item.is_loan ? item.loan_balance : null,
+              item.is_loan ? item.outstanding_months : null,
+            ),
+          );
+          addTotalRow(
+            "TOTAL DEDUCTION",
+            emp.total_deductions || sumArr(deductions),
+          );
+
+          spacer(4);
+        }
 
         // ════════════════════════════════════════════════════════════════════
         // NET PAY — mirrors .net-pay
