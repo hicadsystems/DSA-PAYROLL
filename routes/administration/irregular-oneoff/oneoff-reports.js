@@ -3,6 +3,7 @@ const router = express.Router();
 const pool = require("../../../config/db.js");
 const verifyToken = require("../../../middware/authentication.js");
 const ExcelJS = require("exceljs");
+const chromiumPdfGenerator = require("../../../lib/chromiumPdfGenerator");
 const path = require("path");
 
 // Batch processing size
@@ -37,24 +38,59 @@ async function getPayrollPeriod() {
 }
 
 // ============================================
-// Helper: Build @font-face CSS from disk (avoids hardcoding base64 in source)
-// ============================================
-
-// ============================================
 // Helper: Launch Puppeteer browser (fixes EACCES on Sparticuz Chromium)
+// No longer used: PDFs here go through lib/chromiumPdfGenerator.js withPage()
+// (one shared browser, app-wide limit). Kept for reference.
 // ============================================
+// eslint-disable-next-line no-unused-vars
 async function launchBrowser() {
   const fs = require("fs");
   const path = require("path");
   const isProduction =
     process.env.NODE_ENV === "production" || process.platform === "linux";
+  // App home directory (replaces hardcoded /home/hicadng)
+  const APP_HOME = process.env.PDF_APP_HOME || "/home/hicadng";
+
+  // Coolify / Docker: system Chromium (apt). cPanel: leave unset → Sparticuz.
+  const systemChromium =
+    process.env.PDF_CHROMIUM_EXECUTABLE ||
+    process.env.PUPPETEER_EXECUTABLE_PATH;
+
+  if (isProduction && systemChromium) {
+    const puppeteer = require("puppeteer-core");
+    const tempDir = process.env.PDF_CHROMIUM_TEMP_DIR || "/tmp/.chromium-temp";
+    fs.mkdirSync(tempDir, { recursive: true });
+    console.log("📍 System Chromium path:", systemChromium);
+
+    return puppeteer.launch({
+      executablePath: systemChromium,
+      headless: "new",
+      ignoreHTTPSErrors: true,
+      userDataDir: tempDir,
+      args: [
+        "--disable-gpu",
+        "--disable-dev-shm-usage",
+        "--disable-setuid-sandbox",
+        "--no-sandbox",
+        "--allow-file-access-from-files",
+        "--disable-web-security",
+        `--disk-cache-dir=${tempDir}`,
+      ],
+      env: {
+        ...process.env,
+        FONTCONFIG_PATH: process.env.PDF_SYSTEM_FONTCONFIG_PATH || "/etc/fonts",
+      },
+    });
+  }
 
   if (isProduction) {
     const chromium = require("@sparticuz/chromium");
     const puppeteer = require("puppeteer-core");
 
     // Redirect temp dirs away from /tmp to avoid EACCES on restricted servers
-    const tempDir = "/home/hicadng/tmp/.chromium-temp";
+    const tempDir =
+      process.env.PDF_CHROMIUM_TEMP_DIR ||
+      path.join(APP_HOME, "tmp/.chromium-temp");
     const extractDir = path.join(tempDir, "chromium-extract");
     [tempDir, extractDir].forEach((d) => {
       if (!fs.existsSync(d)) fs.mkdirSync(d, { recursive: true });
@@ -102,9 +138,14 @@ async function launchBrowser() {
       `--disk-cache-dir=${tempDir}`,
     ];
     console.log("Chromium launch args:", JSON.stringify(launchArgs));
+
+    const fontDebugLog =
+      process.env.PDF_FONT_DEBUG_LOG ||
+      path.join(APP_HOME, "backend/font-debug.log");
+
     try {
       fs.appendFileSync(
-        "/home/hicadng/backend/font-debug.log",
+        fontDebugLog,
         "[" +
           new Date().toISOString() +
           "] [LAUNCH] args: " +
@@ -116,8 +157,8 @@ async function launchBrowser() {
     const finalArgs = launchArgs.filter((a) => !a.startsWith("--headless"));
     console.log("Final args (headless removed):", JSON.stringify(finalArgs));
     try {
-      require("fs").appendFileSync(
-        "/home/hicadng/backend/font-debug.log",
+      fs.appendFileSync(
+        fontDebugLog,
         "[" +
           new Date().toISOString() +
           "] [LAUNCH] headless arg removed, using headless:new\n",
@@ -412,47 +453,31 @@ router.post("/generate-pdf-report", verifyToken, async (req, res) => {
         _isProdS,
       );
 
-      let browser;
+      // Shared Chromium, through the app-wide PDF gate (lib/pdfGate.js)
+      let pdfBuffer;
       try {
-        browser = await launchBrowser();
+        pdfBuffer = await chromiumPdfGenerator.withPage(
+          async (page) => {
+            const _waitS = _isProdS ? "networkidle0" : "domcontentloaded";
+            await page.setContent(html, { waitUntil: _waitS, timeout: 60000 });
+            await new Promise((r) => setTimeout(r, 800));
+            return page.pdf({
+              format: "A4",
+              landscape: true,
+              printBackground: true,
+              timeout: 60000,
+              margin: { top: "10mm", right: "10mm", bottom: "10mm", left: "10mm" },
+            });
+          },
+          { timeout: 120000 },
+        );
       } catch (err) {
-        console.error("❌ Puppeteer launch failed:", err.message);
+        console.error("❌ One-off summary PDF failed:", err.message);
         return res.status(500).json({
           success: false,
-          message:
-            "PDF generation unavailable. Please install puppeteer or @sparticuz/chromium.",
+          message: "PDF generation failed. Please try again.",
         });
       }
-
-      const page = await browser.newPage();
-
-      const fs = require("fs");
-      const path = require("path");
-      const pdfLog = (m) => {
-        const l =
-          "[" + new Date().toISOString() + "] [PDF-SUMMARY] " + m + "\n";
-        console.log(m);
-        try {
-          fs.appendFileSync("/home/hicadng/backend/font-debug.log", l);
-        } catch (_) {}
-      };
-
-      pdfLog("HTML size: " + Buffer.byteLength(html, "utf8") + " bytes");
-      const _waitS = _isProdS ? "networkidle0" : "domcontentloaded";
-      await page.setContent(html, { waitUntil: _waitS, timeout: 60000 });
-      pdfLog("setContent done, waitUntil: " + _waitS);
-      pdfLog("Generating PDF...");
-      await new Promise((r) => setTimeout(r, 800));
-
-      const pdfBuffer = await page.pdf({
-        format: "A4",
-        landscape: true,
-        printBackground: true,
-        timeout: 60000,
-        margin: { top: "10mm", right: "10mm", bottom: "10mm", left: "10mm" },
-      });
-
-      await browser.close();
 
       res.setHeader("Content-Type", "application/pdf");
       res.setHeader(
@@ -617,45 +642,22 @@ router.post("/generate-pdf-report", verifyToken, async (req, res) => {
       _isProd,
     );
 
-    let browser;
-    try {
-      browser = await launchBrowser();
-    } catch (err) {
-      console.error("❌ Puppeteer launch failed:", err.message);
-      return res.status(500).json({
-        success: false,
-        message:
-          "PDF generation unavailable. Please install puppeteer or @sparticuz/chromium.",
-      });
-    }
-
-    const page = await browser.newPage();
-
-    const _fs2 = require("fs");
-    const pdfLog2 = (m) => {
-      const l = "[" + new Date().toISOString() + "] [PDF-MAIN] " + m + "\n";
-      console.log(m);
-      try {
-        _fs2.appendFileSync("/home/hicadng/backend/font-debug.log", l);
-      } catch (_) {}
-    };
-
-    pdfLog2("HTML size: " + Buffer.byteLength(html, "utf8") + " bytes");
-    const _wait2 = _isProd ? "networkidle0" : "domcontentloaded";
-    await page.setContent(html, { waitUntil: _wait2, timeout: 60000 });
-    pdfLog2("setContent done, waitUntil: " + _wait2);
-    pdfLog2("Generating PDF...");
-    await new Promise((r) => setTimeout(r, 800));
-
-    const pdfBuffer = await page.pdf({
-      format: "A4",
-      landscape: false,
-      printBackground: true,
-      timeout: 60000,
-      margin: { top: "10mm", right: "10mm", bottom: "10mm", left: "10mm" },
-    });
-
-    await browser.close();
+    // Shared Chromium, through the app-wide PDF gate (lib/pdfGate.js)
+    const pdfBuffer = await chromiumPdfGenerator.withPage(
+      async (page) => {
+        const _wait2 = _isProd ? "networkidle0" : "domcontentloaded";
+        await page.setContent(html, { waitUntil: _wait2, timeout: 60000 });
+        await new Promise((r) => setTimeout(r, 800));
+        return page.pdf({
+          format: "A4",
+          landscape: false,
+          printBackground: true,
+          timeout: 60000,
+          margin: { top: "10mm", right: "10mm", bottom: "10mm", left: "10mm" },
+        });
+      },
+      { timeout: 120000 },
+    );
 
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader(

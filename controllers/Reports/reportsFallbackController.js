@@ -3,6 +3,40 @@
 
 const jsreport = require("jsreport-core")();
 const chromiumPdfGenerator = require("../../lib/chromiumPdfGenerator");
+const pdfGate = require("../../lib/pdfGate");
+
+// Every PDF in the app is rendered by the ONE shared Chromium in
+// lib/chromiumPdfGenerator.js, at most PDF_MAX_CONCURRENT at a time
+// (lib/pdfGate.js). jsreport's chrome-pdf starts a new Chrome for each PDF,
+// which a busy day cannot afford, so it is off unless PDF_USE_JSREPORT=true
+// (and even then each render passes the same gate).
+const USE_JSREPORT =
+  process.env.PDF_USE_JSREPORT === "true" && process.env.USE_JSREPORT_FALLBACK !== "true";
+let jsreportInit = null; // jsreport-core is one shared instance: initialise it once
+
+// helpers passed as a code string (jsreport style) → Handlebars runtime helpers,
+// so templates keep their own helpers when Chromium renders them.
+const helperCache = new Map();
+function runtimeHelpers(code) {
+  if (!code || typeof code !== "string") return undefined;
+  if (helperCache.has(code)) return helperCache.get(code);
+  const names = new Set();
+  for (const m of code.matchAll(/(?:^|\n)\s*(?:async\s+)?function\s+([A-Za-z_$][\w$]*)\s*\(/g)) names.add(m[1]);
+  for (const m of code.matchAll(/(?:^|\n)\s*(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=/g)) names.add(m[1]);
+  let helpers;
+  try {
+    const pick = [...names]
+      .map((n) => `${JSON.stringify(n)}: typeof ${n} === "function" ? ${n} : undefined`)
+      .join(", ");
+    const all = new Function(`${code}\nreturn { ${pick} };`)();
+    helpers = Object.fromEntries(Object.entries(all).filter(([, fn]) => typeof fn === "function"));
+  } catch (e) {
+    console.error("⚠️  Could not read template helpers, using the common ones:", e.message);
+    helpers = undefined;
+  }
+  helperCache.set(code, helpers);
+  return helpers;
+}
 const Handlebars = require("handlebars");
 const fs = require("fs");
 const path = require("path");
@@ -12,13 +46,8 @@ class BaseReportController {
     this.jsreportReady = false;
     this.fallbackReady = true;
 
-    const forceFallback = process.env.USE_JSREPORT_FALLBACK === "true";
-
-    if (forceFallback) {
-      console.log(
-        "⚠️  JSReport disabled via USE_JSREPORT_FALLBACK=true - using Chromium fallback",
-      );
-      this.jsreportReady = false;
+    if (!USE_JSREPORT) {
+      this.jsreportReady = false; // shared Chromium (lib/chromiumPdfGenerator.js)
     } else {
       this.initJSReport();
     }
@@ -28,9 +57,14 @@ class BaseReportController {
 
   async initJSReport() {
     try {
-      jsreport.use(require("jsreport-handlebars")());
-      jsreport.use(require("jsreport-chrome-pdf")());
-      await jsreport.init();
+      if (!jsreportInit) {
+        jsreportInit = (async () => {
+          jsreport.use(require("jsreport-handlebars")());
+          jsreport.use(require("jsreport-chrome-pdf")());
+          await jsreport.init();
+        })();
+      }
+      await jsreportInit;
       this.jsreportReady = true;
       console.log("✅ JSReport initialized");
     } catch (error) {
@@ -199,7 +233,7 @@ class BaseReportController {
     if (this.jsreportReady) {
       try {
         console.log("🔄 Attempting PDF generation with JSReport...");
-        const result = await jsreport.render({
+        const result = await pdfGate.run(() => jsreport.render({
           template: {
             content: templateContent,
             engine: "handlebars",
@@ -219,7 +253,7 @@ class BaseReportController {
           },
           data: templateData,
           options: pdfOptions.options || {},
-        });
+        }), { priority: pdfOptions.priority || "low" });
         console.log("✅ PDF generated successfully with JSReport");
         return result.content;
       } catch (jsreportError) {
@@ -233,9 +267,11 @@ class BaseReportController {
 
     console.log("🔄 Using Chromium fallback for PDF generation...");
     const template = Handlebars.compile(templateContent);
-    const html = template(templateData);
+    const html = template(templateData, { helpers: runtimeHelpers(pdfOptions.helpers) });
 
     const pdfBuffer = await chromiumPdfGenerator.generateFromHTML(html, {
+      priority: pdfOptions.priority || "low",
+      timeout: pdfOptions.timeout,
       format: pdfOptions.format || "A4",
       landscape: pdfOptions.landscape !== false,
       margin: {
@@ -308,7 +344,7 @@ class BaseReportController {
     console.log("📝 Pre-rendering HTML for all batches...");
     const htmlPages = batches.map((batch, i) => {
       const templateData = { ...extraTemplateData, employees: batch };
-      return compiledTemplate(templateData);
+      return compiledTemplate(templateData, { helpers: runtimeHelpers(pdfOptions.helpers) });
     });
     console.log(`✅ All ${htmlPages.length} HTML pages rendered`);
 
@@ -328,6 +364,7 @@ class BaseReportController {
         left: "5mm",
       },
       timeout: pdfOptions.timeout || 600000,
+      priority: pdfOptions.priority || "low",
     };
 
     await chromiumPdfGenerator.generateManyFromHTML(
@@ -368,7 +405,7 @@ class BaseReportController {
       const templateData = { ...extraTemplateData, employees: batches[i] };
 
       try {
-        const result = await jsreport.render({
+        const result = await pdfGate.run(() => jsreport.render({
           template: {
             content: templateContent,
             engine: "handlebars",
@@ -388,7 +425,7 @@ class BaseReportController {
           },
           data: templateData,
           options: pdfOptions.options || {},
-        });
+        }), { priority: pdfOptions.priority || "low" });
         pdfBuffers.push(result.content);
         console.log(`✅ JSReport batch ${i + 1}/${batches.length} complete`);
       } catch (err) {

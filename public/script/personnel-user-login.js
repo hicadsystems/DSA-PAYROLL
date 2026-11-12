@@ -110,12 +110,9 @@ document
 
     const formData = new FormData(this);
     const loginData = {
-      user_id: formData.get("user_id"),
-      password: formData.get("password"),
-      // No payroll_class — that's picked later on the dashboard
+      user_id: (formData.get("user_id") || "").trim(),
+      credential: (formData.get("credential") || "").trim(),
     };
-
-    console.log(">>> Sending pre-login payload:", loginData);
 
     try {
       const res = await fetch("/auth/users/pre-login", {
@@ -125,7 +122,6 @@ document
       });
 
       const data = await res.json();
-      console.log(">>> Pre-login response:", data);
 
       if (res.ok) {
         // Show success popup

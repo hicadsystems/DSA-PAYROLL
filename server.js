@@ -138,6 +138,8 @@ function getSSLOptions() {
 // ── Start server ───────────────────────────────────────────
 async function startServer() {
   await seamlessWrapper.initialize();
+  // Long PDF/Excel exports → background jobs (keeps them alive behind Cloudflare)
+  require("./middware/asyncExport").mount(app);
   require("./routes")(app);
 
   const ssl = getSSLOptions();

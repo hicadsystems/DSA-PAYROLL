@@ -1059,7 +1059,7 @@
       </div>
 
       <!-- Stamp toggle -->
-      <div class="ps-stamp-row" id="ps-stamp-row">
+      <div class="ps-stamp-row" id="ps-stamp-row" style="display: none">
         <span class="ps-stamp-label">Include Official Stamp <span>(optional)</span></span>
         <div class="ps-toggle" id="ps-stamp-toggle"></div>
       </div>
@@ -1165,7 +1165,7 @@
         </div>
       </div>
 
-      <div class="ps-stamp-row" id="adm-stamp-row">
+      <div class="ps-stamp-row" id="adm-stamp-row" style="display: none">
         <span class="ps-stamp-label">Include Official Stamp <span>(optional)</span></span>
         <div class="ps-toggle" id="adm-stamp-toggle"></div>
       </div>
@@ -1350,6 +1350,7 @@
           lastData = res.data;
           lastData._selectedMonth = selMonthName;
           lastData._selectedYear = selYear;
+          lastData._selectedMonthNum = selMonth;
           openPayslipPreview(lastData, stampOn);
         })
         .catch(function () {
@@ -1812,7 +1813,7 @@
       fetch('/adm/payslip/pdf', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-        body: JSON.stringify({ results: selected, delivery: delivery, stamp: admStampOn })
+        body: JSON.stringify({ results: selected, delivery: delivery })
       })
         .then(function (r) {
           if (!r.ok) throw new Error('failed');
@@ -1999,103 +2000,90 @@
       return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
     }
 
-    function renderEmployee(emp, globals) {
+    // ── Payslip renderer — same layout as the payroll payslip report
+    //    (sections/pay-slips.html → buildExactPayslipHTML) and the PDF
+    //    template (templates/payslip-template.html).
+    function sumByType(earnings, type) {
+      return (earnings || [])
+        .filter(function (e) { return e.type === type; })
+        .reduce(function (s, e) { return s + (parseFloat(e.amount) || 0); }, 0);
+    }
+
+    function renderEmployee(emp, payDate) {
+      var earnings = emp.earnings || [];
+      var deductions = emp.deductions || [];
+
+      function payRows(type) {
+        return earnings.filter(function (e) { return e.type === type; }).map(function (e) {
+          return '<tr><td>' + escHtml(e.description) + '</td><td class="amount">&#x20A6;' + formatCurrency(e.amount) + '</td></tr>';
+        }).join('');
+      }
+
+      var dedLeftRows = deductions.map(function (item) {
+        return '<tr><td class="ded-desc">' + escHtml(item.description) + '</td>'
+          + '<td class="ded-amt">&#x20A6;' + formatCurrency(item.amount) + '</td></tr>';
+      }).join('');
+
+      var dedRightRows = deductions.map(function (item) {
+        var lbal = item.is_loan && item.loan_balance ? formatCurrency(item.loan_balance) : '';
+        var osmth = item.is_loan && item.outstanding_months && item.outstanding_months !== '-' && item.outstanding_months !== 0
+          ? escHtml(String(item.outstanding_months)) : '';
+        var hasData = !!(lbal || osmth);
+        return '<div class="rz-row ' + (hasData ? 'rz-has-data' : 'rz-empty') + '">'
+          + '<span class="rz-lbal">' + lbal + '</span><span class="rz-osmths">' + osmth + '</span></div>';
+      }).join('');
+
+      var taxableTotal = sumByType(earnings, 'Taxable');
+      var nonTaxableTotal = sumByType(earnings, 'Non-Taxable');
       var nsitfRow = emp.nsitfcode
         ? '<div class="info-row"><span class="info-label">RSA (Pension):</span><span class="info-value">' + escHtml(emp.nsitfcode) + '</span></div>'
-        : '';
-      var bankInfo = escHtml(emp.bank_account_number || '') + (emp.bank_name ? ' (' + escHtml(emp.bank_name) + ')' : '');
-
-      function renderPayTable(items) {
-        if (!items || !items.length) return '';
-        return items.map(function (item) {
-          return '<tr><td>' + escHtml(item.description) + '</td>'
-            + '<td class="amount">₦' + formatCurrency(item.amount) + '</td></tr>';
-        }).join('');
-      }
-
-      function renderDeductions(items) {
-        if (!items || !items.length) return '';
-        var leftRows = items.map(function (item) {
-          return '<tr><td>' + escHtml(item.description) + '</td>'
-            + '<td class="amount">(₦' + formatCurrency(item.amount) + ')</td></tr>';
-        }).join('');
-        var rightRows = items.map(function (item) {
-          if (item.loan_balance) {
-            return '<div class="rz-row" style="min-height:13px;padding:1px 4px 1px 12px;">'
-              + '<span class="rz-lbal">' + escHtml(formatCurrency(item.loan_balance)) + '</span>'
-              + '<span class="rz-osmths">' + (item.outstanding_months && item.outstanding_months !== '-' && item.outstanding_months !== 0 ? escHtml(String(item.outstanding_months)) : '') + '</span>'
-              + '</div>';
-          }
-          return '<div class="rz-row rz-empty"></div>';
-        }).join('');
-        return '<div class="full-row">'
-          + '<div class="left-zone"><table class="items-table"><colgroup><col class="col-desc"><col class="col-amount"></colgroup><tbody>'
-          + leftRows + '</tbody></table></div>'
-          + '<div class="right-zone"><div class="rz-rows">' + rightRows + '</div></div>'
-          + '</div>';
-      }
-
-      // DSA: single payroll section (no IPPIS split)
-      var payHtml = '';
-      if (emp.pay) {
-        var pay = emp.pay;
-        payHtml += '<div class="lbal-header-row" style="margin-top:6px;">'
-          + '<div class="lh-spacer"><div class="source-header" style="margin-top:0;width:100%;">PAYMENT DETAILS</div></div>'
-          + '<div class="lh-labels"><span class="lh-col lbal">&#x20A6;L.Bal</span><span class="lh-col osmths">Os.Mths</span></div>'
-          + '</div>';
-        if (pay.taxable && pay.taxable.length)
-          payHtml += '<div class="section-header">Taxable Payment</div>'
-            + '<table class="items-table" style="width:70%"><colgroup><col class="col-desc"><col class="col-amount"></colgroup><tbody>'
-            + renderPayTable(pay.taxable) + '</tbody></table>';
-        if (pay.nontaxable && pay.nontaxable.length)
-          payHtml += '<div class="section-header">Non-Taxable Payment</div>'
-            + '<table class="items-table" style="width:70%"><colgroup><col class="col-desc"><col class="col-amount"></colgroup><tbody>'
-            + renderPayTable(pay.nontaxable) + '</tbody></table>';
-        if (pay.deductions && pay.deductions.length)
-          payHtml += '<div class="section-header">Deductions</div>' + renderDeductions(pay.deductions);
-      }
-
-      var stampHtml = globals.showStamp && globals.stampDataUrl
-        ? '<img class="stamp-box" src="' + globals.stampDataUrl + '" alt="Official Stamp" />'
-        + '<span class="stamp-date-text">' + formatDate(globals.payDate) + '</span>'
         : '';
 
       return '<div class="container">'
         + '<div class="header-wrapper">'
-        + '<div class="className">' + escHtml(globals.className || '') + '</div>'
+        + '<div class="className">' + (emp.payclass ? escHtml(emp.payclass_name || '') : '') + '</div>'
         + '<div class="header"><h1>DEFENCE SPACE ADMINISTRATION</h1><h2>OBASANJO SPACE CENTRE, ABUJA</h2></div>'
         + '</div>'
         + '<div class="pay-period">'
-        + '<span class="pp-left"><strong>Pay Period:</strong> ' + escHtml(emp.payroll_month) + ' ' + escHtml(String(emp.payroll_year)) + '</span>'
-        + '<span class="pp-center">' + escHtml(emp.surname) + ' ' + escHtml(emp.othername) + "'s PAYSLIP</span>"
-        + '<span class="pp-right"><strong>Produced On:</strong> ' + escHtml(formatDate(globals.payDate)) + '</span>'
+        + '<span class="pp-left"><strong>Pay Period:</strong> ' + escHtml(emp.payroll_month) + ' ' + escHtml(String(emp.payroll_year || '')) + '</span>'
+        + '<span class="pp-center">' + escHtml(emp.payclass_name || '') + ' PAYSLIP</span>'
+        + '<span class="pp-right"><strong>Produced On:</strong> ' + escHtml(formatDate(payDate)) + '</span>'
         + '</div>'
-        + '<div class="section-header">Official Profile</div>'
+        + '<div class="section-header">Personnel Information</div>'
         + '<div class="employee-info">'
+        + '<div class="info-row"><span class="info-label">Name:</span><span class="info-value">' + escHtml(emp.title) + '. ' + escHtml(emp.surname) + ' ' + escHtml(emp.othername) + '</span></div>'
         + '<div class="info-row"><span class="info-label">Service No:</span><span class="info-value">' + escHtml(emp.employee_id) + '</span></div>'
-        + '<div class="info-row"><span class="info-label">Grade:</span><span class="info-value">' + escHtml(emp.gradelevel) + '</span></div>'
+        + '<div class="info-row"><span class="info-label">Grade:</span><span class="info-value">' + escHtml(emp.gradelevel) + (emp.gradetype ? ' - ' + escHtml(emp.gradetype) : '') + '</span></div>'
         + '<div class="info-row"><span class="info-label">Department:</span><span class="info-value">' + escHtml(emp.department) + '</span></div>'
         + '<div class="info-row"><span class="info-label">Branch:</span><span class="info-value">' + escHtml(emp.factory) + '</span></div>'
-        + '<div class="info-row"><span class="info-label">Bank Account:</span><span class="info-value">' + bankInfo + '</span></div>'
-        + nsitfRow + '</div>'
-        + payHtml
-        + '<div class="net-pay-wrapper">'
-        + '<div class="net-pay"><span class="label">Net Payment This Month</span><span class="amount">₦' + formatCurrency(emp.net_pay) + '</span></div>'
-        + stampHtml
+        + '<div class="info-row"><span class="info-label">Bank Account:</span><span class="info-value">' + escHtml(emp.bank_account_number) + (emp.bank_name ? ' (' + escHtml(emp.bank_name) + ')' : '') + '</span></div>'
+        + nsitfRow
         + '</div>'
+        + '<div class="ded-header-row"><div class="dh-label">Taxable Payment</div></div>'
+        + '<table class="items-table"><tbody>' + payRows('Taxable') + '</tbody></table>'
+        + '<div class="total-row"><span class="label">Total Taxable Payment</span><span class="amount">&#x20A6;' + formatCurrency(taxableTotal) + '</span></div>'
+        + '<div class="section-header">Non-Taxable Payment</div>'
+        + '<table class="items-table"><tbody>' + payRows('Non-Taxable') + '</tbody></table>'
+        + '<div class="total-row"><span class="label">Total Non-Taxable Payment</span><span class="amount">&#x20A6;' + formatCurrency(nonTaxableTotal) + '</span></div>'
+        + '<div class="emolument-row"><span class="label">Total Emolument</span><span class="amount">&#x20A6;' + formatCurrency(taxableTotal + nonTaxableTotal) + '</span></div>'
+        + '<div class="ded-header-row"><div class="dh-label">Deductions</div>'
+        + '<div class="dh-cols"><span class="dh-col">&#x20A6;L.Bal</span><span class="dh-col">Os.Mths</span></div></div>'
+        + '<div class="full-row">'
+        + '<div class="left-zone"><table class="ded-table"><colgroup><col class="col-desc"><col class="col-amt"></colgroup><tbody>' + dedLeftRows + '</tbody></table></div>'
+        + '<div class="right-zone"><div class="rz-rows">' + dedRightRows + '</div></div>'
+        + '</div>'
+        + '<div class="total-row"><span class="label">Total Deduction</span><span class="amount">&#x20A6;' + formatCurrency(emp.total_deductions) + '</span></div>'
+        + '<div class="net-pay"><span class="label">Net Payment This Month</span><span class="amount">&#x20A6;' + formatCurrency(emp.net_pay) + '</span></div>'
         + '<div class="footer"><p>All rights reserved &#xA9; Hicad Systems Limited.</p></div>'
         + '</div>';
     }
 
+    // Signature kept for existing callers; stamp arguments are ignored
+    // (the payroll payslip layout has no stamp).
     function buildPayslipHTML(data, showStamp, logoDataUrl, stampDataUrl, fontsCSS) {
       var employees = data.employees || [data];
-      var globals = {
-        className: data.className || '',
-        payDate: data.payDate || new Date().toISOString(),
-        showStamp: !!showStamp,
-        stampDataUrl: stampDataUrl || ''
-      };
-      var body = employees.map(function (emp) { return renderEmployee(emp, globals); }).join('');
+      var payDate = new Date().toISOString();
+      var body = employees.map(function (emp) { return renderEmployee(emp, payDate); }).join('');
       return '<!DOCTYPE html><html><head><meta charset="UTF-8"><style>'
         + getPayslipCSS(logoDataUrl, fontsCSS)
         + '</style></head><body>' + body + '</body></html>';
@@ -2104,15 +2092,16 @@
     function getPayslipCSS(logoDataUrl, fontsCSS) {
       var logoUrl = logoDataUrl || 'photos/logo.png';
       return (fontsCSS || '')
-        + '@page{size:A5;margin:10mm;margin-top:0.2mm;margin-bottom:0.2mm;background-color:#f8fbff;}'
+        + '@page{size:A5;margin:10mm;margin-top:0.2mm;margin-bottom:0.2mm;}'
         + '*{margin:0;padding:0;box-sizing:border-box;}'
-        + 'html{background:#1e2a3a;min-height:100%;}'
-        + 'body{font-family:Helvetica,Arial,sans-serif;font-size:7pt;color:#1a1a1a;line-height:1.2;position:relative;background-color:#f8fbff;width:559px;min-height:794px;margin:16px auto;padding:10mm;padding-top:0.2mm;padding-bottom:0.2mm;box-shadow:0 8px 40px rgba(0,0,0,0.55);}'
-        + 'body::before{content:"";position:absolute;top:0;left:0;width:100%;height:100%;background-image:url("' + logoUrl + '");background-size:auto 100%;background-repeat:no-repeat;background-position:center center;opacity:0.01;pointer-events:none;}'
-        + '@media print{body{print-color-adjust:exact;-webkit-print-color-adjust:exact;}body::before{position:fixed;display:block;}}'
-        + '.container{width:100%;padding:10px;page-break-after:always;}.container:last-child{page-break-after:auto;}'
+        + 'html{font-family:Helvetica,Arial,sans-serif;font-size:7pt;color:#1a1a1a;line-height:1.2;background-color:#d1d5db;}'
+        + 'body{background-color:transparent;margin:0;padding:1px 0;}'
+        + '.container{position:relative;width:559px;min-height:794px;margin:16px auto;padding:10mm;padding-top:10px;padding-bottom:10px;background-color:#f8fbff;box-shadow:0 4px 24px rgba(0,0,0,0.28);overflow:hidden;z-index:1;}'
+        + '.container::before{content:"";position:absolute;top:0;left:0;width:100%;height:100%;background-image:url("' + logoUrl + '");background-size:auto 100%;background-repeat:no-repeat;background-position:center center;opacity:0.02;z-index:0;pointer-events:none;}'
+        + '.container>*{position:relative;z-index:1;}'
+        + '@media print{html{background:none;}.container{width:100%;min-height:0;margin:0;padding:10px;box-shadow:none;page-break-after:always;print-color-adjust:exact;-webkit-print-color-adjust:exact;}.container:last-child{page-break-after:auto;}.container::before{position:fixed;}}'
         + '.header-wrapper{display:flex;align-items:flex-start;margin-bottom:8px;border-bottom:2px solid #1a1a1a;padding-bottom:5px;}'
-        + '.className{flex-shrink:0;margin-right:20px;align-self:center;font-size:9pt;}'
+        + '.className{flex-shrink:0;margin-right:20px;align-self:center;font-size:6pt;font-weight:bold;}'
         + '.header{flex-grow:1;text-align:center;}'
         + '.header h1{font-size:13pt;font-weight:bold;margin-bottom:2px;letter-spacing:1.5px;color:#1e40af;font-family:"Libre Baskerville",Georgia,serif;}'
         + '.header h2{font-size:10pt;font-weight:normal;margin-top:2px;color:#4a4a4a;font-family:"Libre Baskerville",Georgia,serif;}'
@@ -2120,29 +2109,32 @@
         + '.pp-left,.pp-right{color:#4a4a4a;white-space:nowrap;}.pp-left strong,.pp-right strong{color:#1a1a1a;}'
         + '.pp-center{flex-grow:1;text-align:center;font-size:7pt;font-weight:bold;color:#1a1a1a;letter-spacing:0.5px;text-transform:uppercase;padding:0 5px;white-space:nowrap;font-family:"Times New Roman",Times,serif;font-style:italic;}'
         + '.section-header{font-size:8pt;font-weight:bold;margin-top:3px;margin-bottom:4px;padding:2px 5px;color:#1e40af;text-transform:uppercase;letter-spacing:0.5px;width:70%;}'
-        + '.source-header{font-size:8.5pt;font-weight:bold;margin-top:6px;margin-bottom:2px;padding:3px 6px;color:#1e40af;text-transform:uppercase;letter-spacing:0.8px;width:70%;text-align:center;border-bottom:1.5px solid #1e40af;}'
         + '.employee-info{margin-bottom:6px;padding:2px 6px;background-color:#fafafa;border:1px solid #d0d0d0;width:70%;}'
         + '.info-row{display:flex;padding:2px 0;font-size:7pt;border-bottom:1px solid #f0f0f0;}.info-row:last-child{border-bottom:none;}'
         + '.info-label{font-weight:600;min-width:85px;flex-shrink:0;color:#1a1a1a;}.info-value{flex-grow:1;color:#4a4a4a;}'
-        + '.full-row{width:100%;display:flex;align-items:flex-start;}.full-row .left-zone{width:70%;flex-shrink:0;}.full-row .right-zone{width:30%;flex-shrink:0;padding-left:8px;}'
-        + '.lbal-header-row{width:100%;display:flex;align-items:flex-end;margin-bottom:2px;}.lbal-header-row .lh-spacer{width:70%;flex-shrink:0;}.lbal-header-row .lh-labels{width:30%;display:flex;justify-content:space-between;padding-left:12px;padding-right:4px;padding-bottom:3px;box-sizing:border-box;}'
-        + '.lh-col{font-size:7pt;font-weight:600;color:#4a4a4a;}.lh-col.lbal{text-align:left;}.lh-col.osmths{text-align:right;}'
-        + '.items-table{width:100%;border-collapse:collapse;margin-bottom:0;}.items-table col.col-desc{width:auto;}.items-table col.col-amount{width:80px;}'
-        + '.items-table thead{border-bottom:1px solid #1a1a1a;}.items-table th{font-size:7pt;font-weight:600;padding:1px 4px;text-align:left;color:#1a1a1a;}.items-table th.amount-col{text-align:right;}'
-        + '.items-table tbody tr{border-bottom:1px solid #f0f0f0;}.items-table tbody td{padding:1px 4px;font-size:7pt;vertical-align:middle;color:#4a4a4a;}'
-        + '.items-table tbody td.amount{text-align:right;white-space:nowrap;font-family:"Courier New",monospace;color:#1a1a1a;font-weight:700;font-size:7.5pt;padding-right:8px;}'
-        + '.rz-rows{width:100%;}.rz-row{display:flex;justify-content:space-between;align-items:center;min-height:13px;padding:1px 4px 1px 12px;box-sizing:border-box;}.rz-empty{border:none!important;visibility:hidden;}'
-        + '.rz-lbal{text-align:left;font-family:"Courier New",monospace;font-size:7pt;font-weight:600;color:#1a1a1a;}.rz-osmths{text-align:right;font-family:"Courier New",monospace;font-size:7pt;font-weight:600;color:#7c3aed;}'
+        + '.items-table{width:70%;border-collapse:collapse;margin-bottom:0;}'
+        + '.items-table tbody tr{border-bottom:1px solid #f0f0f0;}'
+        + '.items-table tbody td{padding:1px 4px;font-size:7pt;vertical-align:middle;color:#4a4a4a;}'
+        + '.items-table tbody td.amount{text-align:right;white-space:nowrap;font-family:"Courier New",monospace;color:#1a1a1a;font-weight:700;font-size:7.5pt;padding-right:8px;width:90px;}'
+        + '.full-row{width:100%;display:flex;align-items:flex-start;}.full-row .left-zone{width:70%;flex-shrink:0;}.full-row .right-zone{width:30%;flex-shrink:0;padding-left:0;}'
+        + '.ded-table{width:100%;border-collapse:collapse;margin-bottom:0;}.ded-table tbody tr{border-bottom:1px solid #f0f0f0;}'
+        + '.ded-table col.col-desc{width:auto;}.ded-table col.col-amt{width:90px;}'
+        + '.ded-table td{padding:1px 4px;font-size:7pt;vertical-align:middle;}.ded-table td.ded-desc{color:#4a4a4a;}'
+        + '.ded-table td.ded-amt{text-align:right;white-space:nowrap;font-family:"Courier New",monospace;color:#1a1a1a;font-weight:700;font-size:7.5pt;padding-right:8px;}'
+        + '.rz-rows{width:100%;}.rz-row{display:flex;justify-content:space-between;align-items:center;min-height:14.8px;padding:1px 4px 1px 12px;box-sizing:border-box;}'
+        + '.rz-row.rz-has-data{border-bottom:1px solid #f0f0f0;}.rz-row.rz-empty{border-bottom:none;}'
+        + '.rz-lbal{text-align:left;font-family:"Courier New",monospace;font-size:7pt;font-weight:600;color:#1a1a1a;}'
+        + '.rz-osmths{text-align:right;font-family:"Courier New",monospace;font-size:7pt;font-weight:600;color:#7c3aed;}'
+        + '.ded-header-row{width:100%;display:flex;align-items:flex-end;}'
+        + '.ded-header-row .dh-label{width:70%;flex-shrink:0;font-size:8pt;font-weight:bold;margin-top:3px;margin-bottom:4px;padding:2px 5px;color:#1e40af;text-transform:uppercase;letter-spacing:0.5px;}'
+        + '.ded-header-row .dh-cols{width:30%;flex-shrink:0;display:flex;justify-content:space-between;padding:0 4px 4px 12px;}'
+        + '.dh-col{font-size:7pt;font-weight:600;color:#4a4a4a;}'
         + '.total-row{background-color:#f5f5f5;border-top:1px solid #d0d0d0;border-bottom:1px solid #d0d0d0;padding:2px 6px;display:flex;justify-content:space-between;font-size:8pt;font-weight:600;width:70%;}'
         + '.total-row .label{text-transform:uppercase;color:#1a1a1a;}.total-row .amount{text-align:right;min-width:90px;font-family:"Courier New",monospace;color:#1a1a1a;font-weight:700;}'
+        + '.emolument-row{background-color:#f5f5f5;border:1px solid #1a1a1a;padding:3px 6px;margin:2px 0;display:flex;justify-content:space-between;font-size:8.5pt;font-weight:bold;width:70%;}'
+        + '.emolument-row .label{text-transform:uppercase;color:#1a1a1a;}.emolument-row .amount{text-align:right;min-width:90px;font-family:"Courier New",monospace;color:#1a1a1a;font-weight:700;}'
         + '.net-pay{background-color:#f0f0f0;border:2px solid #1a1a1a;padding:5px 6px;margin:4px 0;display:flex;justify-content:space-between;font-size:9pt;font-weight:bold;width:70%;}'
-        + '.net-pay-wrapper{position:relative;width:100%;margin:4px 0;}'
-        + '.net-pay{background-color:#f0f0f0;border:2px solid #1a1a1a;padding:5px 6px;display:flex;justify-content:space-between;font-size:9pt;font-weight:bold;width:70%;}'
         + '.net-pay .label{text-transform:uppercase;letter-spacing:1px;}.net-pay .amount{text-align:right;min-width:80px;font-family:"Courier New",monospace;font-weight:800;}'
-        + '.stamp-box{position:absolute;left:calc(70% - 39px);top:150%;transform:translateY(-50%) rotate(-15deg);transform-origin:center center;width:195px;height:145px;object-fit:contain;opacity:0.5;}'
-        + '.stamp-date-text{position:absolute;font-family:"Caveat",cursive;font-size:7pt;color:#1a4080; font-weight:600;'
-        + 'left:calc(70% + 52px);top:calc(150% + 19px);transform:translateY(-50%) rotate(-15deg);'
-        + 'transform-origin:center center;white-space:nowrap;pointer-events:none;}'
         + '.footer{margin-top:3px;padding-top:1px;border-top:2px solid #d0d0d0;text-align:center;font-size:6pt;color:#6a6a6a;}.footer p{margin:1px 0;}.footer p:first-child{font-weight:600;color:#4a4a4a;}';
     }
 
@@ -2229,18 +2221,52 @@
       };
     }
 
-    function downloadPayslipPdf(data, showStamp) {
+    // When many people download at once the server answers 503 "busy" with
+    // Retry-After (seconds). The download then waits that long and tries again
+    // by itself, showing a countdown, up to PDF_MAX_TRIES times.
+    var PDF_MAX_TRIES = 20;
+
+    function fetchPayslipPdf(data, dlBtn, tryNo) {
       var token = localStorage.getItem('token');
+      // Own payslip: the server rebuilds it from year/month (figures are never
+      // posted from the browser). Admin preview slides use the admin route.
+      var isOwn = !!data._selectedMonthNum;
+      return fetch(isOwn ? '/payslip/pdf' : '/adm/payslip/pdf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify(isOwn
+          ? { year: data._selectedYear, month: data._selectedMonthNum }
+          : { results: [{ empId: data.employee_id, data: data }], delivery: 'merged' })
+      }).then(function (r) {
+        if (r.status === 503 && tryNo < PDF_MAX_TRIES) {
+          var hdr = parseInt(r.headers.get('Retry-After'), 10);
+          return r.json().catch(function () { return {}; }).then(function (j) {
+            var wait = Math.max(2, Math.min(120, hdr || (j && j.retryAfter) || 5));
+            return new Promise(function (resolve) {
+              var left = wait;
+              var tick = function () {
+                if (dlBtn) dlBtn.textContent = 'Busy, retrying in ' + left + 's…';
+                if (left <= 0) { resolve(); return; }
+                left -= 1;
+                setTimeout(tick, 1000);
+              };
+              tick();
+            }).then(function () {
+              if (dlBtn) dlBtn.textContent = 'Preparing…';
+              return fetchPayslipPdf(data, dlBtn, tryNo + 1);
+            });
+          });
+        }
+        if (!r.ok) throw new Error(r.status === 503 ? 'busy' : 'failed');
+        return r.blob();
+      });
+    }
+
+    function downloadPayslipPdf(data, showStamp) {
       var dlBtn = document.getElementById('attPreviewDownloadBtn');
       if (dlBtn) { dlBtn.disabled = true; dlBtn.textContent = 'Preparing…'; }
 
-      // Single-employee PDF always goes through /payslip/pdf (same as original)
-      fetch('/payslip/pdf', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-        body: JSON.stringify({ data: data, stamp: showStamp })
-      })
-        .then(function (r) { if (!r.ok) throw new Error('failed'); return r.blob(); })
+      fetchPayslipPdf(data, dlBtn, 1)
         .then(function (blob) {
           var url = URL.createObjectURL(blob);
           var link = document.createElement('a');
@@ -2260,9 +2286,13 @@
               + 'd="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg> Download';
           }
         })
-        .catch(function () {
+        .catch(function (err) {
           if (dlBtn) { dlBtn.disabled = false; dlBtn.textContent = 'Download'; }
-          if (typeof DashAlertModal !== 'undefined') DashAlertModal.show('PDF generation failed. Please try again.');
+          if (typeof DashAlertModal !== 'undefined') {
+            DashAlertModal.show(err && err.message === 'busy'
+              ? 'Many people are downloading payslips right now. Please try again in a few minutes.'
+              : 'PDF generation failed. Please try again.');
+          }
         });
     }
 

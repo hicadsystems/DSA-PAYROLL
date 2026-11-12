@@ -32,6 +32,7 @@ const arrearsCalculationsRoutes = require("./data-entry/arrearsCalculations");
 const cummulativePayrollRoutes = require("./data-entry/cummulativePayroll");
 const inputDocumentationRoutes = require("./data-entry/inputDocumentation");
 const payHeadAdjustments = require("./data-entry/payHeadAdjustments");
+const monthlyAllowanceRoutes = require("./data-entry/monthlyAllowance");
 
 //File Update
 const inputVariableRoutes = require("./file-update/inputVariable");
@@ -201,6 +202,7 @@ module.exports = (app) => {
   app.use("/cumulative", cummulativePayrollRoutes);
   app.use("/documentation", inputDocumentationRoutes);
   app.use("/payhead", payHeadAdjustments);
+  app.use("/allowance", monthlyAllowanceRoutes);
 
   //file update
   app.use("/inputvariable", inputVariableRoutes);

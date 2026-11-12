@@ -3,6 +3,8 @@ const router = express.Router();
 const pool = require('../../../config/db'); // mysql2 pool
 const verifyToken = require('../../../middware/authentication');
 //const puppeteer = require('puppeteer'); 
+// PDFs go through the app's one shared Chromium and its app-wide limit (lib/pdfGate.js).
+const chromiumPdfGenerator = require('../../../lib/chromiumPdfGenerator');
 
 // Utility to format currency (copied from your frontend)
 const formatCurrency = (amount) => {
@@ -28,7 +30,6 @@ const resolveName = (indicator, type) => {
 // NEW: GET REPORT DATA AND STREAM AS PDF
 // --------------------------------------------------------
 router.get('/report/pdf', verifyToken, async (req, res) => {
-    let browser;
     try {
         // 1. FETCH ALL REPORT DATA (No LIMIT/OFFSET)
         const dataQuery = `
@@ -196,24 +197,18 @@ router.get('/report/pdf', verifyToken, async (req, res) => {
             </html>
         `;
 
-        // 3. LAUNCH PUPPETEER AND GENERATE PDF
-        browser = await puppeteer.launch({
-            // 'new' is slightly faster, but 'headless: true' is the classic default
-            headless: true, 
-            // Required flags for running in common environments (e.g., Docker/Linux)
-            args: ['--no-sandbox', '--disable-setuid-sandbox'] 
-        });
-        const page = await browser.newPage();
-        
-        // Set the content and wait for it to load
-        await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
+        // 3. GENERATE PDF on the shared browser (tab always closed afterwards)
+        const pdfBuffer = await chromiumPdfGenerator.withPage(async (page) => {
+            // Set the content and wait for it to load
+            await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
 
-        // Generate the PDF buffer
-        const pdfBuffer = await page.pdf({
-            format: 'A4',
-            printBackground: true, // Crucial for including table background colors
-            margin: { top: '0.5in', right: '0.5in', bottom: '0.5in', left: '0.5in' },
-        });
+            // Generate the PDF buffer
+            return page.pdf({
+                format: 'A4',
+                printBackground: true, // Crucial for including table background colors
+                margin: { top: '0.5in', right: '0.5in', bottom: '0.5in', left: '0.5in' },
+            });
+        }, { timeout: 120000 });
 
         // 4. STREAM PDF TO CLIENT
         res.setHeader('Content-Type', 'application/pdf');
@@ -223,10 +218,6 @@ router.get('/report/pdf', verifyToken, async (req, res) => {
     } catch (error) {
         console.error('Error generating PDF report:', error);
         res.status(500).json({ error: 'Failed to generate PDF report' });
-    } finally {
-        if (browser) {
-            await browser.close(); // Ensure the browser instance is closed
-        }
     }
 });
 

@@ -19,7 +19,8 @@
  */
 
 const crypto = require("crypto");
-const argon2 = require("argon2");
+// WebAssembly argon2 (no native binary — works on the cPanel host)
+const argon2 = require("./argon2");
 
 /** @returns {'argon2'|'identity'|'md5'|'plaintext'|'unknown'} */
 function detectFormat(stored) {

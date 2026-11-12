@@ -1,0 +1,1154 @@
+<!-- MONTHLY ALLOWANCE UPLOAD (DSA) -->
+<div id="mau-root" class="p-6">
+  <!-- TABS -->
+  <div
+    class="flex flex-wrap justify-between bg-white/50 rounded-xl border border-amber-50 shadow-sm p-2 gap-2 mb-6"
+  >
+    <div class="flex flex-wrap justify-start gap-2">
+      <button
+        type="button"
+        id="mau-tab-upload"
+        class="px-4 py-2 rounded-md bg-yellow-400 text-gray-900 hover:bg-blue-600"
+      >
+        + New Upload
+      </button>
+    </div>
+    <div class="flex flex-wrap justify-end gap-2">
+      <button
+        type="button"
+        id="mau-tab-history"
+        class="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-600"
+      >
+        Upload History
+      </button>
+      <button
+        type="button"
+        id="mau-tab-map"
+        class="px-4 py-2 rounded-md bg-yellow-400 text-gray-900 hover:bg-blue-600"
+      >
+        Sheet Mapping
+      </button>
+    </div>
+  </div>
+
+  <!-- ============ UPLOAD VIEW ============ -->
+  <div id="mau-view-upload" class="hidden">
+    <!-- form -->
+    <div id="mau-form" class="flex flex-col items-center">
+      <div class="w-full max-w-md rounded-2xl">
+        <div class="mb-6">
+          <h4 class="font-semibold text-blue-700 mb-2">Please Note:</h4>
+          <ul class="list-disc list-inside text-gray-700 text-sm space-y-1">
+            <li>Upload this month's DSA workbook as received.</li>
+            <li>
+              Every row is loaded as
+              <span class="font-semibold">Temporary (T)</span>, tenor
+              <span class="font-semibold">1</span>, at the monthly amount on the
+              sheet.
+            </li>
+            <li>
+              Nothing is saved until you check the results and click Load.
+            </li>
+          </ul>
+        </div>
+
+        <form id="mau-upload-form" class="space-y-6">
+          <div>
+            <label
+              for="mau-file"
+              class="block text-sm font-medium text-gray-700 mb-2"
+              >Upload File</label
+            >
+            <input
+              type="file"
+              id="mau-file"
+              accept=".xlsx,.xls"
+              class="mt-1 block w-full border border-blue-300 bg-white rounded-lg px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400"
+            />
+            <p class="text-xs text-gray-500 mt-2">
+              Only <span class="font-semibold">.xlsx</span> or
+              <span class="font-semibold">.xls</span> files are allowed.
+            </p>
+          </div>
+
+          <div class="space-y-3 text-sm text-gray-700">
+            <label class="flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" id="mau-opt-stale" class="mt-1" checked />
+              <span>
+                Stop payments for staff not on this month's sheet
+                <span class="block text-xs text-gray-500">
+                  Removes their entries for the payment types in this file.
+                </span>
+              </span>
+            </label>
+            <label class="flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" id="mau-opt-conflicts" class="mt-1" />
+              <span>
+                Load new service numbers used for more than one person
+                <span class="block text-xs text-gray-500">
+                  Only for staff not yet in Personnel. Held back by default.
+                </span>
+              </span>
+            </label>
+            <label class="flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" id="mau-opt-mismatch" class="mt-1" />
+              <span>
+                Load rows whose name and account both differ from Personnel
+                <span class="block text-xs text-gray-500">
+                  Payment would go to the account on the personnel record. Held
+                  back by default.
+                </span>
+              </span>
+            </label>
+          </div>
+
+          <div class="flex justify-end gap-3">
+            <button
+              type="button"
+              id="mau-form-cancel"
+              class="px-5 py-2 bg-gray-300 hover:bg-gray-400 rounded-lg text-gray-800 font-medium shadow-sm"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              id="mau-analyse"
+              class="px-5 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white font-medium shadow-md disabled:opacity-50"
+              disabled
+            >
+              Check Workbook
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- preview -->
+    <div id="mau-preview" class="hidden">
+      <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+        <p class="text-sm text-gray-600">
+          File:
+          <span id="mau-file-name" class="font-semibold text-gray-800"></span>
+        </p>
+        <div class="flex flex-wrap gap-4 text-sm text-gray-700">
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" id="mau-opt-stale-2" checked /> Stop payments
+            for staff not on sheet
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" id="mau-opt-conflicts-2" /> Load shared new
+            service numbers
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" id="mau-opt-mismatch-2" /> Load name/account
+            mismatches
+          </label>
+        </div>
+      </div>
+
+      <div id="mau-alerts"></div>
+      <div
+        id="mau-tiles"
+        class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6"
+      ></div>
+
+      <div class="overflow-x-auto border rounded-lg shadow-sm mb-6">
+        <table class="min-w-full border-collapse">
+          <thead class="bg-blue-100 text-gray-700 text-sm">
+            <tr>
+              <th class="border px-4 py-2 text-left">Payroll Class</th>
+              <th class="border px-4 py-2 text-center">Period</th>
+              <th class="border px-4 py-2 text-left">Payment Types</th>
+              <th class="border px-4 py-2 text-right">Records</th>
+              <th class="border px-4 py-2 text-right">Amount</th>
+              <th class="border px-4 py-2 text-right">New vs Last Month</th>
+              <th class="border px-4 py-2 text-right">Changed</th>
+              <th class="border px-4 py-2 text-right">Same</th>
+              <th class="border px-4 py-2 text-right">Not on Sheet</th>
+              <th class="border px-4 py-2 text-right">Replaced</th>
+              <th class="border px-4 py-2 text-right">Removed</th>
+            </tr>
+          </thead>
+          <tbody id="mau-class-body" class="text-sm"></tbody>
+        </table>
+      </div>
+
+      <div id="mau-subtabs" class="flex flex-wrap gap-2 mb-4"></div>
+      <div id="mau-tools" class="flex flex-wrap items-center gap-2 mb-3"></div>
+      <!-- fixed header table + scrolling body table (columns share widths) -->
+      <div class="border rounded-lg shadow-sm overflow-hidden">
+        <div id="mau-thead-wrap" class="overflow-hidden bg-blue-100">
+          <table
+            id="mau-thead"
+            class="min-w-full border-collapse"
+            style="table-layout: fixed; width: 100%; min-width: 960px"
+          ></table>
+        </div>
+        <div id="mau-tbody-wrap" class="max-h-96 overflow-auto">
+          <table
+            id="mau-tbody"
+            class="min-w-full border-collapse"
+            style="table-layout: fixed; width: 100%; min-width: 960px"
+          ></table>
+        </div>
+      </div>
+      <div id="mau-pager" class="mt-3 flex items-center justify-between"></div>
+
+      <div class="flex justify-end gap-3 mt-6">
+        <button
+          type="button"
+          id="mau-cancel"
+          class="px-5 py-2 bg-gray-300 hover:bg-gray-400 rounded-lg text-gray-800 font-medium shadow-sm"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          id="mau-commit"
+          class="px-5 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-white font-medium shadow-md disabled:opacity-50"
+          disabled
+        >
+          Load into Payments/Deductions
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ HISTORY VIEW ============ -->
+  <div id="mau-view-history">
+    <div class="overflow-x-auto border rounded-lg shadow-sm">
+      <table class="min-w-full border-collapse">
+        <thead class="bg-blue-100 text-gray-700 text-sm">
+          <tr>
+            <th class="border px-4 py-2 text-center">Batch</th>
+            <th class="border px-4 py-2 text-center">Period</th>
+            <th class="border px-4 py-2 text-center">File</th>
+            <th class="border px-4 py-2 text-center">Uploaded</th>
+            <th class="border px-4 py-2 text-center">By</th>
+            <th class="border px-4 py-2 text-center">Records</th>
+            <th class="border px-4 py-2 text-center">Amount</th>
+            <th class="border px-4 py-2 text-center">Status</th>
+            <th class="border px-4 py-2 text-center">Action</th>
+          </tr>
+        </thead>
+        <tbody id="mau-history-body" class="text-sm text-center"></tbody>
+      </table>
+    </div>
+    <p class="text-xs text-gray-500 mt-2">
+      Only the most recent upload can be undone, and only before payroll
+      processing starts.
+    </p>
+  </div>
+
+  <!-- ============ SHEET MAPPING VIEW ============ -->
+  <div id="mau-view-map" class="hidden">
+    <p class="text-sm text-gray-600 mb-3">
+      Payment type each sheet loads into. New sheets are added automatically
+      with the next free PT3XX code. Skip ignores the sheet for every class.
+    </p>
+    <div class="overflow-x-auto border rounded-lg shadow-sm">
+      <table class="min-w-full border-collapse">
+        <thead class="bg-blue-100 text-gray-700 text-sm">
+          <tr>
+            <th class="border px-4 py-2 text-center">Sheet</th>
+            <th class="border px-4 py-2 text-center">Class</th>
+            <th class="border px-4 py-2 text-center">Payment Type</th>
+            <th class="border px-4 py-2 text-center">Skip</th>
+            <th class="border px-4 py-2 text-center">Added By</th>
+            <th class="border px-4 py-2 text-center">Action</th>
+          </tr>
+        </thead>
+        <tbody id="mau-map-body" class="text-sm text-center"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ============ MODAL ============ -->
+  <div
+    id="mau-modal"
+    class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+  >
+    <div class="bg-white rounded-xl shadow-lg p-6 max-w-md w-full">
+      <h2
+        id="mau-modal-title"
+        class="text-xl font-bold text-blue-600 mb-4"
+      ></h2>
+      <div id="mau-modal-body" class="text-gray-700 text-sm"></div>
+      <div class="flex justify-end gap-3 mt-6">
+        <button
+          id="mau-modal-cancel"
+          class="px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded-lg text-gray-800 font-medium"
+        >
+          Cancel
+        </button>
+        <button
+          id="mau-modal-ok"
+          class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium"
+        >
+          OK
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    const API = "allowance";
+    const auth = window.authService;
+    const $ = (id) => document.getElementById(id);
+
+    const TAB_ON =
+      "px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-600";
+    const TAB_OFF =
+      "px-4 py-2 rounded-md bg-yellow-400 text-gray-900 hover:bg-blue-600";
+    const SUB_ON =
+      "px-3 py-1 rounded-md text-sm bg-blue-600 text-white hover:bg-blue-600";
+    const SUB_OFF =
+      "px-3 py-1 rounded-md text-sm bg-yellow-400 text-gray-900 hover:bg-blue-600";
+    const TH = "border px-4 py-2 text-left";
+    const THN = "border px-4 py-2 text-right";
+    const TD = "border px-4 py-2 text-left break-words";
+    const TDN = "border px-4 py-2 text-right whitespace-nowrap";
+    const PILL = {
+      new: "bg-blue-100 text-blue-800",
+      changed: "bg-yellow-100 text-yellow-800",
+      same: "bg-gray-100 text-gray-700",
+      bad: "bg-red-100 text-red-800",
+      ok: "bg-green-100 text-green-800",
+    };
+    const ALERT = {
+      bad: "bg-red-50 border border-red-200 text-red-800",
+      warn: "bg-yellow-50 border border-yellow-200 text-yellow-800",
+      ok: "bg-green-50 border border-green-200 text-green-800",
+    };
+    const PAGE_SIZE = 50;
+
+    let previewId = null;
+    let plan = null;
+    let subTab = "records";
+    let page = 1;
+    let search = "";
+    let changeFilter = "";
+
+    const esc = (v) =>
+      v === null || v === undefined
+        ? ""
+        : String(v).replace(
+            /[&<>"']/g,
+            (c) =>
+              ({
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#39;",
+              })[c],
+          );
+    const money = (n) =>
+      n === null || n === undefined
+        ? "—"
+        : Number(n).toLocaleString("en-NG", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          });
+    const int = (n) => Number(n || 0).toLocaleString("en-NG");
+    const dt = (v) => (v ? new Date(v).toLocaleString("en-NG") : "");
+    const pill = (text, kind) =>
+      `<span class="inline-block px-2 py-1 rounded-full text-xs font-semibold ${PILL[kind]}">${esc(text)}</span>`;
+    const muted = (html) => `<div class="text-xs text-gray-500">${html}</div>`;
+
+    // ------------------------------------------------------------- tabs
+    function showView(view) {
+      $("mau-view-upload").classList.toggle("hidden", view !== "upload");
+      $("mau-view-history").classList.toggle("hidden", view !== "history");
+      $("mau-view-map").classList.toggle("hidden", view !== "map");
+      $("mau-tab-upload").className = view === "upload" ? TAB_ON : TAB_OFF;
+      $("mau-tab-history").className = view === "history" ? TAB_ON : TAB_OFF;
+      $("mau-tab-map").className = view === "map" ? TAB_ON : TAB_OFF;
+      if (view === "history") loadHistory();
+      if (view === "map") loadMap();
+    }
+
+    function resetUpload() {
+      previewId = null;
+      plan = null;
+      $("mau-file").value = "";
+      $("mau-analyse").disabled = true;
+      $("mau-form").classList.remove("hidden");
+      $("mau-preview").classList.add("hidden");
+    }
+
+    $("mau-tab-upload").addEventListener("click", () => {
+      if (!plan) resetUpload();
+      showView("upload");
+    });
+    $("mau-tab-history").addEventListener("click", () => showView("history"));
+    $("mau-tab-map").addEventListener("click", () => showView("map"));
+    $("mau-form-cancel").addEventListener("click", () => {
+      resetUpload();
+      showView("history");
+    });
+
+    // ------------------------------------------------------------- modal
+    function modal({
+      title,
+      html,
+      okText = "OK",
+      okColor = "blue",
+      cancel = true,
+    }) {
+      return new Promise((resolve) => {
+        const ok = $("mau-modal-ok");
+        const cancelBtn = $("mau-modal-cancel");
+        const colors = {
+          blue: "bg-blue-600 hover:bg-blue-700",
+          green: "bg-green-600 hover:bg-green-700",
+          red: "bg-red-600 hover:bg-red-700",
+        };
+        $("mau-modal-title").textContent = title;
+        $("mau-modal-title").className = `text-xl font-bold mb-4 ${
+          okColor === "red"
+            ? "text-red-600"
+            : okColor === "green"
+              ? "text-green-600"
+              : "text-blue-600"
+        }`;
+        $("mau-modal-body").innerHTML = html;
+        ok.textContent = okText;
+        ok.className = `px-4 py-2 ${colors[okColor]} text-white rounded-lg font-medium`;
+        cancelBtn.classList.toggle("hidden", !cancel);
+        $("mau-modal").classList.remove("hidden");
+        const done = (val) => {
+          $("mau-modal").classList.add("hidden");
+          ok.onclick = null;
+          cancelBtn.onclick = null;
+          resolve(val);
+        };
+        ok.onclick = () => done(true);
+        cancelBtn.onclick = () => done(false);
+      });
+    }
+    const showError = (msg) =>
+      modal({
+        title: "Something went wrong",
+        html: `<p>${esc(msg)}</p>`,
+        okColor: "red",
+        okText: "Close",
+        cancel: false,
+      });
+
+    async function api(url, opts = {}) {
+      const res = await auth.fetchWithAuth(url, opts);
+      let body = {};
+      try {
+        body = await res.json();
+      } catch (_) {
+        body = {};
+      }
+      if (!res.ok || body.success === false) {
+        const msg =
+          body.details && body.details !== body.error
+            ? `${body.error} (${body.details})`
+            : body.error;
+        throw new Error(msg || `Request failed (${res.status})`);
+      }
+      return body;
+    }
+
+    // ------------------------------------------------------------- options
+    // the form checkboxes and the preview checkboxes stay in step
+    const OPT_PAIRS = [
+      ["mau-opt-stale", "mau-opt-stale-2"],
+      ["mau-opt-conflicts", "mau-opt-conflicts-2"],
+      ["mau-opt-mismatch", "mau-opt-mismatch-2"],
+    ];
+    const options = () => ({
+      removeStale: $("mau-opt-stale").checked,
+      includeConflicts: $("mau-opt-conflicts").checked,
+      includeMismatches: $("mau-opt-mismatch").checked,
+    });
+    OPT_PAIRS.forEach(([a, b]) => {
+      $(a).addEventListener("change", () => ($(b).checked = $(a).checked));
+      $(b).addEventListener("change", async () => {
+        $(a).checked = $(b).checked;
+        if (!previewId) return;
+        try {
+          const body = await api(`${API}/preview/${previewId}/plan`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(options()),
+          });
+          plan = body.plan;
+          page = 1;
+          renderPlan();
+        } catch (err) {
+          showError(err.message);
+        }
+      });
+    });
+
+    // ------------------------------------------------------------- check workbook
+    $("mau-file").addEventListener("change", () => {
+      $("mau-analyse").disabled = !$("mau-file").files.length;
+    });
+
+    $("mau-analyse").addEventListener("click", async () => {
+      const file = $("mau-file").files[0];
+      if (!file) return;
+      const fd = new FormData();
+      fd.append("file", file);
+      Object.entries(options()).forEach(([k, v]) => fd.append(k, String(v)));
+
+      const btn = $("mau-analyse");
+      btn.disabled = true;
+      btn.textContent = "Checking…";
+      try {
+        const body = await api(`${API}/preview`, { method: "POST", body: fd });
+        previewId = body.previewId;
+        plan = body.plan;
+        page = 1;
+        subTab = "records";
+        OPT_PAIRS.forEach(([a, b]) => ($(b).checked = $(a).checked));
+        $("mau-form").classList.add("hidden");
+        $("mau-preview").classList.remove("hidden");
+        renderPlan();
+      } catch (err) {
+        showError(err.message);
+      } finally {
+        btn.disabled = !$("mau-file").files.length;
+        btn.textContent = "Check Workbook";
+      }
+    });
+
+    // ------------------------------------------------------------- preview
+    const tile = (label, value, tone = "") =>
+      `<div class="rounded-lg border p-3 ${
+        tone === "bad"
+          ? "bg-red-50 border-red-200"
+          : tone === "warn"
+            ? "bg-yellow-50 border-yellow-200"
+            : "bg-white"
+      }">
+        <div class="text-lg font-bold text-gray-800">${value}</div>
+        <div class="text-xs text-gray-500">${esc(label)}</div>
+      </div>`;
+
+    const alert = (tone, html) =>
+      `<div class="rounded-lg p-3 mb-3 text-sm ${ALERT[tone]}">${html}</div>`;
+
+    function renderPlan() {
+      $("mau-file-name").textContent = plan.fileName || "";
+      const t = plan.totals;
+
+      let alerts = "";
+      if (plan.blockers.length) {
+        alerts += alert(
+          "bad",
+          `<b>Cannot load yet:</b><br>${plan.blockers.map(esc).join("<br>")}`,
+        );
+      }
+      if (plan.missingSheets && plan.missingSheets.length) {
+        alerts += alert(
+          "warn",
+          `These sheets are usually in the file but are missing this month: <b>${plan.missingSheets
+            .map(esc)
+            .join(", ")}</b>. Their payment types are not touched.`,
+        );
+      }
+      const created = plan.newElements.filter((e) => e.create);
+      if (created.length) {
+        alerts += alert(
+          "warn",
+          `New sheet(s) found — new payment types will be created: ${created
+            .map(
+              (e) =>
+                `<b>${esc(e.code)}</b> “${esc(e.desc)}” (${esc(e.className)})`,
+            )
+            .join(", ")}.`,
+        );
+      }
+      $("mau-alerts").innerHTML = alerts;
+
+      $("mau-tiles").innerHTML = [
+        tile("Records to load", int(t.rows)),
+        tile("Amount this month", money(t.amount)),
+        tile(
+          "Found by account no.",
+          int(t.matchedByAccount),
+          t.matchedByAccount ? "warn" : "",
+        ),
+        tile(
+          "New staff to create",
+          int(t.newEmployees),
+          t.newEmployees ? "warn" : "",
+        ),
+        tile(
+          "New payment types",
+          int(t.newElements),
+          t.newElements ? "warn" : "",
+        ),
+        tile("Entries removed", int(t.removed), t.removed ? "warn" : ""),
+        tile("Held back", int(t.excluded), t.excluded ? "bad" : ""),
+        tile(
+          "Rows with problems",
+          int(plan.issues.length),
+          plan.issues.length ? "bad" : "",
+        ),
+      ].join("");
+
+      $("mau-class-body").innerHTML =
+        plan.classes
+          .map(
+            (c) => `<tr>
+              <td class="${TD} font-semibold">${esc(c.name)}</td>
+              <td class="border px-4 py-2 text-center">${esc(String(c.period.month).padStart(2, "0"))}/${esc(c.period.year)}</td>
+              <td class="${TD}">${c.codes.map(esc).join(", ")}</td>
+              <td class="${TDN}">${int(c.rows)}</td>
+              <td class="${TDN}">${money(c.amount)}</td>
+              <td class="${TDN}">${int(c.changes.new)}</td>
+              <td class="${TDN}">${int(c.changes.changed)}</td>
+              <td class="${TDN}">${int(c.changes.same)}</td>
+              <td class="${TDN}">${int(c.changes.dropped)}</td>
+              <td class="${TDN}">${int(c.replaced)}</td>
+              <td class="${TDN}">${int(c.removed)}</td>
+            </tr>`,
+          )
+          .join("") ||
+        `<tr><td colspan="11" class="border px-4 py-2 text-center text-gray-500">Nothing to load.</td></tr>`;
+
+      $("mau-commit").disabled = !plan.canCommit;
+      renderSubTabs();
+    }
+
+    const SUBTABS = [
+      ["records", "Records", () => plan.records.length],
+      ["sheets", "Sheets", () => plan.sheets.length],
+      ["employees", "New Staff", () => plan.newEmployees.length],
+      ["elements", "New Payment Types", () => plan.newElements.length],
+      ["removals", "Removed", () => plan.removals.length],
+      ["excluded", "Held Back", () => plan.excluded.length],
+      ["issues", "Problems", () => plan.issues.length],
+    ];
+
+    function renderSubTabs() {
+      $("mau-subtabs").innerHTML = SUBTABS.map(
+        ([key, label, count]) =>
+          `<button type="button" data-sub="${key}" class="${key === subTab ? SUB_ON : SUB_OFF}">${label} (${int(count())})</button>`,
+      ).join("");
+      $("mau-subtabs")
+        .querySelectorAll("button")
+        .forEach((b) =>
+          b.addEventListener("click", () => {
+            subTab = b.dataset.sub;
+            page = 1;
+            search = "";
+            changeFilter = "";
+            renderSubTabs();
+          }),
+        );
+      renderSubTab();
+    }
+
+    function tools(withFilter) {
+      $("mau-tools").innerHTML = `
+        <input type="text" id="mau-search" value="${esc(search)}" placeholder="Search service no, name, code…"
+          class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500" />
+        ${
+          withFilter
+            ? `<select id="mau-filter" class="border border-gray-300 rounded px-2 py-2 text-sm">
+                 <option value="">All records</option>
+                 <option value="new" ${changeFilter === "new" ? "selected" : ""}>New vs last month</option>
+                 <option value="changed" ${changeFilter === "changed" ? "selected" : ""}>Changed</option>
+                 <option value="same" ${changeFilter === "same" ? "selected" : ""}>Same</option>
+                 <option value="newstaff" ${changeFilter === "newstaff" ? "selected" : ""}>New staff</option>
+                 <option value="notes" ${changeFilter === "notes" ? "selected" : ""}>Found by account / account differs</option>
+               </select>`
+            : ""
+        }`;
+      $("mau-search").addEventListener("input", (e) => {
+        search = e.target.value.trim().toLowerCase();
+        page = 1;
+        renderSubTab(true);
+      });
+      if (withFilter) {
+        $("mau-filter").addEventListener("change", (e) => {
+          changeFilter = e.target.value;
+          page = 1;
+          renderSubTab(true);
+        });
+      }
+    }
+
+    const matches = (obj, keys) =>
+      !search ||
+      keys.some((k) =>
+        String(obj[k] ?? "")
+          .toLowerCase()
+          .includes(search),
+      );
+
+    function paged(rows) {
+      const pages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
+      if (page > pages) page = pages;
+      const from = rows.length ? (page - 1) * PAGE_SIZE + 1 : 0;
+      const to = Math.min(page * PAGE_SIZE, rows.length);
+      $("mau-pager").innerHTML = `
+        <div class="text-sm text-gray-600">Showing ${int(from)} to ${int(to)} of ${int(rows.length)} records</div>
+        <div class="flex items-center space-x-2 ${pages > 1 ? "" : "hidden"}">
+          <button id="mau-prev" class="px-3 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 disabled:opacity-50" ${page <= 1 ? "disabled" : ""}>Previous</button>
+          <span class="text-sm">Page ${page} of ${pages}</span>
+          <button id="mau-next" class="px-3 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 disabled:opacity-50" ${page >= pages ? "disabled" : ""}>Next</button>
+        </div>`;
+      $("mau-prev").addEventListener("click", () => {
+        page--;
+        renderSubTab(true);
+      });
+      $("mau-next").addEventListener("click", () => {
+        page++;
+        renderSubTab(true);
+      });
+      return rows.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+    }
+
+    // column widths (%) per sub-tab; header and body tables use the same ones
+    const COL_WIDTHS = {
+      records: [11, 22, 9, 7, 11, 11, 8, 21],
+      sheets: [20, 18, 32, 12, 18],
+      employees: [13, 20, 10, 14, 12, 9, 12, 10],
+      elements: [10, 30, 15, 20, 25],
+      removals: [16, 14, 10, 16, 10, 10, 24],
+      excluded: [13, 18, 10, 8, 11, 18, 22],
+      issues: [16, 6, 14, 18, 46],
+    };
+
+    const headWrap = $("mau-thead-wrap");
+    const bodyWrap = $("mau-tbody-wrap");
+    // keep the header lined up when the body scrolls sideways
+    bodyWrap.addEventListener("scroll", () => {
+      headWrap.scrollLeft = bodyWrap.scrollLeft;
+    });
+    // leave room above the body's vertical scrollbar so columns line up
+    const alignHeader = () => {
+      headWrap.style.paddingRight = `${bodyWrap.offsetWidth - bodyWrap.clientWidth}px`;
+      headWrap.scrollLeft = bodyWrap.scrollLeft;
+    };
+    if (window.__mauAlignHeader)
+      window.removeEventListener("resize", window.__mauAlignHeader);
+    window.__mauAlignHeader = alignHeader;
+    window.addEventListener("resize", alignHeader);
+
+    function table(head, rows, empty) {
+      const widths = COL_WIDTHS[subTab] || [];
+      const cols = `<colgroup>${head
+        .map(
+          (_, i) =>
+            `<col style="width: ${widths[i] || Math.floor(100 / head.length)}%" />`,
+        )
+        .join("")}</colgroup>`;
+
+      $("mau-thead").innerHTML =
+        cols +
+        `<thead class="text-gray-700 text-sm"><tr>${head
+          .map(([h, num]) => `<th class="${num ? THN : TH}">${h}</th>`)
+          .join("")}</tr></thead>`;
+      $("mau-tbody").innerHTML =
+        cols +
+        `<tbody class="text-sm">${
+          rows.length
+            ? rows.join("")
+            : `<tr><td colspan="${head.length}" class="border px-4 py-2 text-center text-gray-500">${empty}</td></tr>`
+        }</tbody>`;
+
+      bodyWrap.scrollTop = 0;
+      requestAnimationFrame(alignHeader);
+    }
+
+    function renderSubTab(keepTools) {
+      if (!keepTools) tools(subTab === "records");
+
+      if (subTab === "records") {
+        let rows = plan.records.filter((r) =>
+          matches(r, ["emp", "name", "code", "className"]),
+        );
+        if (changeFilter === "newstaff")
+          rows = rows.filter((r) => r.newEmployee);
+        else if (changeFilter === "notes")
+          rows = rows.filter((r) => r.notes && r.notes.length);
+        else if (changeFilter)
+          rows = rows.filter((r) => r.change === changeFilter);
+        const label = { new: "New", changed: "Changed", same: "Same" };
+        table(
+          [
+            ["Svc. No."],
+            ["Name"],
+            ["Class"],
+            ["Type"],
+            ["Amount", 1],
+            ["Last Month", 1],
+            ["Change"],
+            ["From"],
+          ],
+          paged(rows).map(
+            (r) => `<tr>
+              <td class="${TD} whitespace-nowrap">${esc(r.emp)}</td>
+              <td class="${TD}">${esc(r.name)}
+                ${r.newEmployee ? pill("new staff", "new") : ""}
+                ${r.exited ? pill("exited", "bad") : ""}
+                ${r.flag ? pill(r.flag === "conflict" ? "shared svc no" : "name/account differ", "bad") : ""}
+                ${(r.notes || []).map((n) => muted(esc(n))).join("")}</td>
+              <td class="${TD}">${esc(r.className)}</td>
+              <td class="${TD}">${esc(r.code)}</td>
+              <td class="${TDN}">${money(r.amount)}</td>
+              <td class="${TDN}">${r.prev === null ? "—" : money(r.prev)}</td>
+              <td class="${TD}">${pill(label[r.change], r.change)}</td>
+              <td class="${TD}">${muted(r.sources.map(esc).join("<br>"))}</td>
+            </tr>`,
+          ),
+          "No records match.",
+        );
+      } else if (subTab === "sheets") {
+        const rows = plan.sheets.filter((s) =>
+          matches(s, ["name", "status", "reason"]),
+        );
+        table(
+          [["Sheet"], ["Status"], ["Loads Into"], ["Rows", 1], ["Amount", 1]],
+          paged(rows).map((s) => {
+            const into = Object.values(s.byClass || {})
+              .map((b) => {
+                const cls = plan.classes.find((c) => c.code === b.cls);
+                return `${esc(b.code || "?")} – ${esc(cls ? cls.name : b.cls)} (${int(b.rows)}) ${b.isNew ? pill("new", "new") : ""}`;
+              })
+              .join("<br>");
+            const status =
+              s.status === "loaded"
+                ? pill("Loaded", "ok")
+                : s.status === "skipped"
+                  ? pill("Skipped", "same")
+                  : pill("Error", "bad");
+            return `<tr>
+              <td class="${TD} font-semibold">${esc(s.name)}</td>
+              <td class="${TD}">${status}${s.reason ? muted(esc(s.reason)) : ""}</td>
+              <td class="${TD}">${into || "—"}</td>
+              <td class="${TDN}">${s.rows === undefined ? "—" : int(s.rows)}</td>
+              <td class="${TDN}">${s.amount === undefined ? "—" : money(s.amount)}</td>
+            </tr>`;
+          }),
+          "No sheets.",
+        );
+      } else if (subTab === "employees") {
+        const rows = plan.newEmployees.filter((e) =>
+          matches(e, ["emp", "name", "sheet", "className"]),
+        );
+        table(
+          [
+            ["Svc. No."],
+            ["Name"],
+            ["Class"],
+            ["Bank"],
+            ["Account"],
+            ["Grade Level"],
+            ["From"],
+            ["Notes"],
+          ],
+          paged(rows).map(
+            (e) => `<tr>
+              <td class="${TD} whitespace-nowrap">${esc(e.emp)}</td>
+              <td class="${TD}">${esc(e.name)}</td>
+              <td class="${TD}">${esc(e.className)}</td>
+              <td class="${TD}">${esc(e.bank || "—")}</td>
+              <td class="${TD}">${esc(e.account || "—")}</td>
+              <td class="${TD}">${esc(e.gradelevel || "—")}</td>
+              <td class="${TD}">${muted(`${esc(e.sheet)} row ${esc(e.row)}`)}</td>
+              <td class="${TD}">${e.warnings.map((w) => `<div class="text-xs text-yellow-700">${esc(w)}</div>`).join("")}</td>
+            </tr>`,
+          ),
+          "No new staff — everyone on the sheet is already in Personnel.",
+        );
+      } else if (subTab === "elements") {
+        table(
+          [["Code"], ["Description"], ["Class"], ["Sheet"], ["Action"]],
+          plan.newElements.map(
+            (e) => `<tr>
+              <td class="${TD} font-semibold">${esc(e.code)}</td>
+              <td class="${TD}">${esc(e.desc)}</td>
+              <td class="${TD}">${esc(e.className)}</td>
+              <td class="${TD}">${esc(e.sheetName)}</td>
+              <td class="${TD}">${e.create ? "Create payment type and map sheet" : "Map sheet to existing type"}</td>
+            </tr>`,
+          ),
+          "No new sheets this month.",
+        );
+        $("mau-pager").innerHTML = "";
+      } else if (subTab === "removals") {
+        const rows = plan.removals.filter((r) =>
+          matches(r, ["emp", "type", "className"]),
+        );
+        table(
+          [
+            ["Svc. No."],
+            ["Class"],
+            ["Type"],
+            ["Current Amount", 1],
+            ["Indicator"],
+            ["Tenor", 1],
+            ["Batch"],
+          ],
+          paged(rows).map(
+            (r) => `<tr>
+              <td class="${TD} whitespace-nowrap">${esc(r.emp)}</td>
+              <td class="${TD}">${esc(r.className)}</td>
+              <td class="${TD}">${esc(r.type)}</td>
+              <td class="${TDN}">${money(r.amtp)}</td>
+              <td class="${TD}">${esc(r.payind)}</td>
+              <td class="${TDN}">${esc(r.nomth)}</td>
+              <td class="${TD}">${muted(esc(r.batchName || ""))}</td>
+            </tr>`,
+          ),
+          plan.options.removeStale
+            ? "No one loses an entry this month."
+            : "Removal is switched off — existing entries stay.",
+        );
+      } else if (subTab === "excluded") {
+        const rows = plan.excluded.filter((r) =>
+          matches(r, ["emp", "name", "code", "detail"]),
+        );
+        table(
+          [
+            ["Svc. No."],
+            ["Name"],
+            ["Class"],
+            ["Type"],
+            ["Amount", 1],
+            ["Reason"],
+            ["Detail"],
+          ],
+          paged(rows).map(
+            (r) => `<tr>
+              <td class="${TD} whitespace-nowrap">${esc(r.emp)}</td>
+              <td class="${TD}">${esc(r.name)}</td>
+              <td class="${TD}">${esc(r.className)}</td>
+              <td class="${TD}">${esc(r.code)}</td>
+              <td class="${TDN}">${money(r.amount)}</td>
+              <td class="${TD}">${pill(r.reason, "bad")}</td>
+              <td class="${TD}">${muted(esc(r.detail))}</td>
+            </tr>`,
+          ),
+          "Nothing held back.",
+        );
+      } else if (subTab === "issues") {
+        const rows = plan.issues.filter((r) =>
+          matches(r, ["sheet", "svc", "name", "message"]),
+        );
+        table(
+          [["Sheet"], ["Row", 1], ["Svc. No."], ["Name"], ["Problem"]],
+          paged(rows).map(
+            (i) => `<tr>
+              <td class="${TD}">${esc(i.sheet)}</td>
+              <td class="${TDN}">${esc(i.row ?? "")}</td>
+              <td class="${TD} whitespace-nowrap">${esc(i.svc || "")}</td>
+              <td class="${TD}">${esc(i.name || "")}</td>
+              <td class="${TD}">${esc(i.message)}</td>
+            </tr>`,
+          ),
+          "No problems found.",
+        );
+      }
+    }
+
+    $("mau-cancel").addEventListener("click", () => {
+      resetUpload();
+      showView("history");
+    });
+
+    // ------------------------------------------------------------- load
+    $("mau-commit").addEventListener("click", async () => {
+      if (!plan || !plan.canCommit) return;
+      const t = plan.totals;
+      const ok = await modal({
+        title: "Load this month's allowances?",
+        okText: "Load Now",
+        okColor: "green",
+        html: `<p class="mb-2"><b>${int(t.rows)}</b> records totalling <b>${money(t.amount)}</b> will be loaded as Temporary (T), tenor 1.</p>
+               <ul class="list-disc list-inside space-y-1">
+                 <li>${int(t.replaced)} existing entries replaced</li>
+                 <li>${int(t.removed)} entries removed (staff not on the sheet)</li>
+                 <li>${int(t.newEmployees)} new staff created in Personnel</li>
+                 <li>${int(t.newElements)} new payment type(s) created</li>
+                 ${t.excluded ? `<li><b>${int(t.excluded)}</b> records held back</li>` : ""}
+               </ul>
+               <p class="text-xs text-gray-500 mt-3">Everything replaced is backed up, so this upload can be undone from Upload History.</p>`,
+      });
+      if (!ok) return;
+
+      const btn = $("mau-commit");
+      btn.disabled = true;
+      btn.textContent = "Loading…";
+      try {
+        const body = await api(`${API}/commit`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ previewId, ...options() }),
+        });
+        const r = body.result;
+        const lines = Object.values(r.perClass)
+          .map(
+            (c) =>
+              `<li>${esc(c.name)}: ${int(c.inserted)} loaded (${money(c.amount)}), ${int(c.replaced)} replaced, ${int(c.removed)} removed</li>`,
+          )
+          .join("");
+        resetUpload();
+        showView("history");
+        await modal({
+          title: "Upload complete",
+          okColor: "green",
+          cancel: false,
+          html: `<p class="mb-2">Batch <b>${esc(r.batchName)}</b></p>
+                 <ul class="list-disc list-inside space-y-1">${lines}</ul>
+                 <p class="mt-3">New staff created: ${int(r.employeesCreated)}${
+                   r.employeesSkipped.length
+                     ? ` (already existed: ${r.employeesSkipped.map(esc).join(", ")})`
+                     : ""
+                 }.</p>
+                 ${
+                   r.elementsCreated.length
+                     ? `<p>New payment types: ${r.elementsCreated
+                         .map(
+                           (e) =>
+                             `${esc(e.code)} ${esc(e.desc)} (${esc(e.className)})`,
+                         )
+                         .join(", ")}.</p>`
+                     : ""
+                 }`,
+        });
+      } catch (err) {
+        showError(err.message);
+        btn.disabled = false;
+      } finally {
+        btn.textContent = "Load into Payments/Deductions";
+      }
+    });
+
+    // ------------------------------------------------------------- history
+    async function loadHistory() {
+      const body = $("mau-history-body");
+      body.innerHTML = `<tr><td colspan="9" class="border px-4 py-2 text-gray-500">Loading…</td></tr>`;
+      try {
+        const res = await api(`${API}/history`);
+        body.innerHTML =
+          res.data
+            .map(
+              (h) => `<tr>
+                <td class="border px-4 py-2 whitespace-nowrap">${esc(h.batchName)}</td>
+                <td class="border px-4 py-2">${esc(h.period || "")}</td>
+                <td class="border px-4 py-2">${esc(h.fileName || "")}</td>
+                <td class="border px-4 py-2 whitespace-nowrap">${esc(dt(h.uploadedAt))}</td>
+                <td class="border px-4 py-2">${esc(h.uploadedBy || "")}</td>
+                <td class="border px-4 py-2 text-right">${h.totals ? int(h.totals.rows) : ""}</td>
+                <td class="border px-4 py-2 text-right whitespace-nowrap">${h.totals ? money(h.totals.amount) : ""}</td>
+                <td class="border px-4 py-2">${
+                  h.status === "undone"
+                    ? `${pill("Undone", "same")}${muted(`${esc(h.undoneBy || "")} ${esc(dt(h.undoneAt))}`)}`
+                    : pill("Loaded", "ok")
+                }</td>
+                <td class="border px-4 py-2">${
+                  h.canUndo
+                    ? `<button data-undo="${esc(h.batchName)}" class="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-sm">Undo</button>`
+                    : ""
+                }</td>
+              </tr>`,
+            )
+            .join("") ||
+          `<tr><td colspan="9" class="border px-4 py-2 text-gray-500">No uploads yet. Use + New Upload to load this month's workbook.</td></tr>`;
+        body
+          .querySelectorAll("[data-undo]")
+          .forEach((b) =>
+            b.addEventListener("click", () => undo(b.dataset.undo)),
+          );
+      } catch (err) {
+        body.innerHTML = `<tr><td colspan="9" class="border px-4 py-2 text-red-600">${esc(err.message)}</td></tr>`;
+      }
+    }
+
+    async function undo(batchName) {
+      const ok = await modal({
+        title: "Undo this upload?",
+        okText: "Undo Upload",
+        okColor: "red",
+        html: `<p>Batch <b>${esc(batchName)}</b> will be removed from Payments/Deductions and the entries it replaced will be put back.
+               Staff and payment types it created are removed if nothing else uses them.</p>`,
+      });
+      if (!ok) return;
+      try {
+        const { result: r } = await api(`${API}/undo`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ batchName }),
+        });
+        await modal({
+          title: "Upload undone",
+          okColor: "green",
+          cancel: false,
+          html: `<p>Removed ${int(r.removed)} loaded entries, restored ${int(r.restored)} previous entries, removed ${int(
+            r.employeesRemoved,
+          )} staff${r.elementsRemoved.length ? ` and payment type(s) ${r.elementsRemoved.map(esc).join(", ")}` : ""}.</p>`,
+        });
+        loadHistory();
+      } catch (err) {
+        showError(err.message);
+      }
+    }
+
+    // ------------------------------------------------------------- sheet mapping
+    async function loadMap() {
+      const body = $("mau-map-body");
+      body.innerHTML = `<tr><td colspan="6" class="border px-4 py-2 text-gray-500">Loading…</td></tr>`;
+      try {
+        const res = await api(`${API}/sheet-map`);
+        body.innerHTML =
+          res.data
+            .map(
+              (m) => `<tr data-id="${m.id}">
+                <td class="border px-4 py-2 font-semibold">${esc(m.sheetName)}</td>
+                <td class="border px-4 py-2">${esc(m.className)}</td>
+                <td class="border px-4 py-2">
+                  <input type="text" value="${esc(m.paytype || "")}" maxlength="6"
+                    class="mau-map-code w-20 border border-gray-300 rounded px-2 py-1 text-sm" />
+                </td>
+                <td class="border px-4 py-2"><input type="checkbox" class="mau-map-skip" ${m.skip ? "checked" : ""} /></td>
+                <td class="border px-4 py-2">${esc(m.createdBy || "—")}</td>
+                <td class="border px-4 py-2">
+                  <button class="mau-map-save px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm">Save</button>
+                </td>
+              </tr>`,
+            )
+            .join("") ||
+          `<tr><td colspan="6" class="border px-4 py-2 text-gray-500">No mappings yet.</td></tr>`;
+        body.querySelectorAll(".mau-map-save").forEach((btn) =>
+          btn.addEventListener("click", async () => {
+            const tr = btn.closest("tr");
+            try {
+              await api(`${API}/sheet-map/${tr.dataset.id}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  paytype:
+                    tr.querySelector(".mau-map-code").value.trim() || null,
+                  skip: tr.querySelector(".mau-map-skip").checked,
+                }),
+              });
+              btn.textContent = "Saved";
+              setTimeout(loadMap, 600);
+            } catch (err) {
+              showError(err.message);
+            }
+          }),
+        );
+      } catch (err) {
+        body.innerHTML = `<tr><td colspan="6" class="border px-4 py-2 text-red-600">${esc(err.message)}</td></tr>`;
+      }
+    }
+
+    showView("history");
+  })();
+</script>

@@ -89,6 +89,45 @@ async function checkPassword(password, stored) {
   return { ok: result.ok, needsRehash: result.needsRehash };
 }
 
+// ── Direct login with account number ─────────────────────────
+// Most DSA personnel have no email or phone on file, so they sign in with
+// User ID + bank account number (hr_employees.BankACNumber). Anyone who has a
+// password set can still use it. Capabilities (incl. payroll) are resolved the
+// same way for both.
+function normAcct(v) {
+  return String(v ?? "").replace(/[\s-]/g, "").trim();
+}
+
+// Per-User-ID lockout after repeated failures (in-memory, per process).
+const LOGIN_MAX_FAILS = 5;
+const LOGIN_WINDOW_MS = 15 * 60 * 1000;
+const loginFails = new Map(); // key -> { count, first }
+
+function loginLockedFor(key) {
+  const rec = loginFails.get(key);
+  if (!rec) return 0;
+  const age = Date.now() - rec.first;
+  if (age > LOGIN_WINDOW_MS) {
+    loginFails.delete(key);
+    return 0;
+  }
+  return rec.count >= LOGIN_MAX_FAILS ? LOGIN_WINDOW_MS - age : 0;
+}
+function recordLoginFail(key) {
+  const rec = loginFails.get(key);
+  if (!rec || Date.now() - rec.first > LOGIN_WINDOW_MS) {
+    loginFails.set(key, { count: 1, first: Date.now() });
+  } else {
+    rec.count += 1;
+  }
+}
+setInterval(() => {
+  const now = Date.now();
+  for (const [k, v] of loginFails) {
+    if (now - v.first > LOGIN_WINDOW_MS) loginFails.delete(k);
+  }
+}, LOGIN_WINDOW_MS).unref();
+
 // Short-lived token issued by /verify-identity and required by
 // /set-password, so a first-time password can only be set by someone
 // who just proved the User ID + bank account number pair.
@@ -105,13 +144,30 @@ const SETUP_TOKEN_TTL = "15m";
 // ─────────────────────────────────────────────────────────────
 router.post("/pre-login", async (req, res) => {
   const user_id = (req.body.user_id || "").trim();
-  const password = (req.body.password || "").trim();
+  // One field on the login page: account number OR password.
+  // (account_number / password are still accepted for older clients.)
+  const credential = String(
+    req.body.credential ?? req.body.account_number ?? req.body.password ?? "",
+  ).trim();
 
-  if (!user_id || !password) {
+  if (!user_id || !credential) {
     return res
       .status(400)
-      .json({ error: "User ID and password are required" });
+      .json({ error: "User ID and account number or password are required" });
   }
+
+  const lockKey = user_id.toUpperCase();
+  const lockedMs = loginLockedFor(lockKey);
+  if (lockedMs > 0) {
+    return res.status(429).json({
+      error: `Too many failed attempts. Try again in ${Math.ceil(lockedMs / 60000)} minute(s).`,
+    });
+  }
+  const INVALID = "Invalid User ID, account number or password";
+  const fail = () => {
+    recordLoginFail(lockKey);
+    return res.status(401).json({ error: INVALID });
+  };
 
   try {
     pool.useDatabase(OFFICERS_DB());
@@ -120,7 +176,7 @@ router.post("/pre-login", async (req, res) => {
     const [empRows] = await pool.query(
       `SELECT
          Empl_ID, Surname, OtherName, Title,
-         email, gsm_number, payrollclass,
+         email, gsm_number, payrollclass, BankACNumber,
          password, force_change, exittype
        FROM hr_employees
        WHERE Empl_ID = ?
@@ -128,11 +184,7 @@ router.post("/pre-login", async (req, res) => {
       [user_id],
     );
 
-    if (!empRows.length) {
-      return res
-        .status(401)
-        .json({ error: "Invalid User ID or password" });
-    }
+    if (!empRows.length) return fail();
 
     const emp = empRows[0];
 
@@ -142,56 +194,50 @@ router.post("/pre-login", async (req, res) => {
         .json({ error: "Account deactivated. Contact administrator." });
     }
 
-    if (emp.force_change || emp.force_change === 1) {
-      return res.status(401).json({
-        error: "Use the 'First Time?' option to change your password.",
-      });
+    let authMethod = null;
+
+    // ── 1a. Account number (works for everyone) ──────────────
+    const storedAcct = normAcct(emp.BankACNumber);
+    if (storedAcct.length >= 6 && plaintextEquals(normAcct(credential), storedAcct)) {
+      authMethod = "account";
     }
 
-    if (!emp.password) {
-      return res
-        .status(401)
-        .json({ error: "Invalid User ID or password" });
-    }
-
-    // ── Verify against whatever format is stored ─────────────
+    // ── 1b. Password (anyone who already has one set) ────────
     // argon2 -> verify natively; md5/identity(PBKDF2)/plaintext -> verify
     // then rehash to argon2 below.
-    let passwordValid = false;
-    let needsRehash = false;
-    try {
-      const result = await checkPassword(password, emp.password);
-      passwordValid = result.ok;
-      needsRehash = result.needsRehash;
-    } catch (err) {
-      console.error(`[pre-login] ${user_id}: verify threw:`, err);
-      return res
-        .status(401)
-        .json({ error: "Invalid User ID or Password" });
-    }
-
-    if (!passwordValid) {
-      return res
-        .status(401)
-        .json({ error: "Invalid User ID or Password" });
-    }
-
-    // ── Verify-and-rehash: upgrade a verified legacy (plaintext/md5/PBKDF2) value to
-    //    argon2 in place. Transparent to the user; runs once per account.
-    if (needsRehash) {
+    if (!authMethod && emp.password) {
+      let result = { ok: false, needsRehash: false };
       try {
-        const upgraded = await hashPassword(password);
-        await pool.query(
-          "UPDATE hr_employees SET password = ?, password_changed_at = NOW() WHERE Empl_ID = ?",
-          [upgraded, user_id],
-        );
+        result = await checkPassword(credential, emp.password);
       } catch (err) {
-        // Non-fatal: the user still authenticated. Log and continue.
-        console.error(`Rehash failed for ${user_id}:`, err);
+        console.error(`[pre-login] ${user_id}: verify threw:`, err);
+      }
+
+      if (result.ok) {
+        authMethod = "password";
+
+        // Verify-and-rehash: upgrade a verified legacy value to argon2 in
+        // place. Transparent to the user; runs once per account.
+        if (result.needsRehash) {
+          try {
+            const upgraded = await hashPassword(credential);
+            await pool.query(
+              "UPDATE hr_employees SET password = ?, password_changed_at = NOW() WHERE Empl_ID = ?",
+              [upgraded, user_id],
+            );
+          } catch (err) {
+            // Non-fatal: the user still authenticated. Log and continue.
+            console.error(`Rehash failed for ${user_id}:`, err);
+          }
+        }
       }
     }
 
-    // ── 2. Resolve capabilities ───────────────────────────────
+    if (!authMethod) return fail();
+
+    loginFails.delete(lockKey);
+
+    // ── 2. Resolve capabilities (same for both sign-in methods) ─
     const capabilities = await resolveCapabilities(user_id);
 
     // ── 3. Determine user type ────────────────────────────────
@@ -234,6 +280,7 @@ router.post("/pre-login", async (req, res) => {
       primary_class: primaryClass, // null for non-payroll
       created_in: OFFICERS_DB(),
       user_type: userType,
+      auth_method: authMethod, // "account" | "password"
     };
 
     const token = jwt.sign(tokenPayload, SECRET, { expiresIn: "8h" });

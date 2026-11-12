@@ -65,6 +65,7 @@ class MenuHighlighter {
       // Data Input menu items
       'payments-deductions': 'data-entry',
       'payments-deductions-upload': 'data-entry',
+      'monthly-allowance-upload': 'data-entry',
       'variation-payments': 'data-entry',
       'cumulative-payroll': 'data-entry',
       'input-documentation': 'data-entry',

@@ -168,6 +168,12 @@ class QuickAccessManager {
         section: "payments-deductions-upload",
         title: "Payments/Deductions Upload",
       },
+      "monthly-allowance-upload": {
+        id: "monthly-allowance-upload",
+        label: "Monthly Allowance",
+        section: "monthly-allowance-upload",
+        title: "Monthly Allowance Upload",
+      },
       "variation-payments": {
         id: "variation-payments",
         label: "Variation-To Pay/Ded",
@@ -552,6 +558,7 @@ class QuickAccessManager {
     return [
       "payments-deductions",
       "payments-deductions-upload",
+      "monthly-allowance-upload",
       "variation-payments",
       "cumulative-payroll",
       "input-documentation",

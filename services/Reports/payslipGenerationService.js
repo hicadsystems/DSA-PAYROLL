@@ -14,6 +14,21 @@ const INSERT_BATCH_SIZE = 100;
 const CONCURRENCY = 50;
 
 class PayslipGenerationService {
+  // All SQL in this service goes through _q(). By default that is pool.query
+  // (looked up at call time, so the historical-report wrapper still applies to
+  // the payroll payslip report exactly as before). withQuery() returns a copy
+  // that sends its SQL through another function instead, used by the
+  // self-service payslip to run in its own isolated DB context.
+  _q(sql, params) {
+    return pool.query(sql, params);
+  }
+
+  withQuery(queryFn) {
+    const clone = Object.create(this);
+    clone._q = (sql, params) => queryFn(sql, params);
+    return clone;
+  }
+
   // ==========================================================================
   // MAIN: Generate Payslips
   // ==========================================================================
@@ -27,6 +42,7 @@ class PayslipGenerationService {
       optbank, // Option: By bank
       optloc, // Option: By location
       optindividual, // Option: Individual employee
+      empIds: idList, // Option: explicit list of employee IDs (self-service / admin)
       wxdate, // Processing date
       station, // Workstation/user ID (from req.user_fullname)
       year,
@@ -88,6 +104,7 @@ class PayslipGenerationService {
         optbank,
         optloc,
         optindividual,
+        empIds: idList,
       });
 
       if (employees.length === 0) {
@@ -189,7 +206,7 @@ class PayslipGenerationService {
   async bulkGetCumulative(empIds, month) {
     if (empIds.length === 0) return new Map();
 
-    const [rows] = await pool.query(
+    const [rows] = await this._q(
       `SELECT
          his_empno,
          his_taxtodate    AS taxtodate,
@@ -216,7 +233,7 @@ class PayslipGenerationService {
   async bulkGetPayments(empIds) {
     if (empIds.length === 0) return new Map();
 
-    const [rows] = await pool.query(
+    const [rows] = await this._q(
       `SELECT
          his_empno,
          his_type,
@@ -263,32 +280,28 @@ class PayslipGenerationService {
     // Run all 4 lookup queries in parallel
     const [factoryRows, deptRows, bankRows, titleRows] = await Promise.all([
       factoryCodes.length
-        ? pool
-            .query(
+        ? this._q(
               `SELECT busline, busdesc FROM ac_businessline WHERE busline IN (?)`,
               [factoryCodes],
             )
             .then((r) => r[0])
         : [],
       locationCodes.length
-        ? pool
-            .query(
+        ? this._q(
               `SELECT unitcode, unitdesc FROM ac_costcentre WHERE unitcode IN (?)`,
               [locationCodes],
             )
             .then((r) => r[0])
         : [],
       bankCodes.length
-        ? pool
-            .query(
+        ? this._q(
               `SELECT bankcode, bankname FROM py_bank WHERE bankcode IN (?)`,
               [bankCodes],
             )
             .then((r) => r[0])
         : [],
       titleCodes.length
-        ? pool
-            .query(
+        ? this._q(
               `SELECT Titlecode, Description FROM py_title WHERE Titlecode IN (?)`,
               [titleCodes],
             )
@@ -332,7 +345,7 @@ class PayslipGenerationService {
   // Replaces per-payment-row lookup inside insertPayslipRecord
   // ==========================================================================
   async bulkGetElementDescriptions() {
-    const [rows] = await pool.query(
+    const [rows] = await this._q(
       `SELECT PaymentType, elmDesc FROM py_elementtype`,
     );
     const map = new Map();
@@ -345,7 +358,7 @@ class PayslipGenerationService {
   // Single month description (called once, not per-payment-row)
   // ==========================================================================
   async getMonthDescription(month) {
-    const [rows] = await pool.query(
+    const [rows] = await this._q(
       `SELECT mthdesc FROM ac_months WHERE cmonth = ? LIMIT 1`,
       [month],
     );
@@ -457,7 +470,7 @@ class PayslipGenerationService {
 
     for (let i = 0; i < rows.length; i += INSERT_BATCH_SIZE) {
       const chunk = rows.slice(i, i + INSERT_BATCH_SIZE);
-      await pool.query(`INSERT INTO py_tempslipnlpc ${columns} VALUES ?`, [
+      await this._q(`INSERT INTO py_tempslipnlpc ${columns} VALUES ?`, [
         chunk,
       ]);
     }
@@ -476,6 +489,7 @@ class PayslipGenerationService {
       optbank,
       optloc,
       optindividual,
+      empIds,
     } = options;
 
     let query = `
@@ -493,7 +507,10 @@ class PayslipGenerationService {
       params.push(branch);
     }
 
-    if (optall === "1") {
+    if (Array.isArray(empIds) && empIds.length > 0) {
+      query += ` AND empl_id IN (?) ORDER BY empl_id`;
+      params.push(empIds.map(String));
+    } else if (optall === "1") {
       query += ` ORDER BY factory, location, empl_id`;
     } else if (optrange === "1") {
       query += ` AND empl_id BETWEEN ? AND ? ORDER BY factory, location, empl_id`;
@@ -511,7 +528,7 @@ class PayslipGenerationService {
       query += ` ORDER BY factory, location, empl_id`;
     }
 
-    const [rows] = await pool.query(query, params);
+    const [rows] = await this._q(query, params);
     return rows;
   }
 
@@ -524,7 +541,7 @@ class PayslipGenerationService {
         `📅 Using manual period: Year=${manualYear}, Month=${manualMonth}`,
       );
 
-      const [rows] = await pool.query(
+      const [rows] = await this._q(
         `SELECT ord, mth, pmth FROM py_stdrate
          WHERE type = 'BT05' AND ord = ? AND mth = ? LIMIT 1`,
         [manualYear, manualMonth],
@@ -538,7 +555,7 @@ class PayslipGenerationService {
       return { ord: manualYear, mth: manualMonth, pmth: null };
     }
 
-    const [rows] = await pool.query(
+    const [rows] = await this._q(
       `SELECT ord, mth, pmth FROM py_stdrate WHERE type = 'BT05' LIMIT 1`,
     );
     if (rows.length > 0)
@@ -552,7 +569,7 @@ class PayslipGenerationService {
   // Get BT05 period info including sun flag (unchanged)
   // ==========================================================================
   async getStdRatePeriod() {
-    const [rows] = await pool.query(
+    const [rows] = await this._q(
       `SELECT sun, ord AS year, mth AS month FROM py_stdrate WHERE type = 'BT05' LIMIT 1`,
     );
     return rows[0];
@@ -562,7 +579,7 @@ class PayslipGenerationService {
   // Clear temp data for user (unchanged)
   // ==========================================================================
   async clearTempData(station) {
-    await pool.query(`DELETE FROM py_tempslipnlpc WHERE work_station = ?`, [
+    await this._q(`DELETE FROM py_tempslipnlpc WHERE work_station = ?`, [
       station,
     ]);
   }
@@ -571,7 +588,7 @@ class PayslipGenerationService {
   // Clean up zero records (unchanged)
   // ==========================================================================
   async cleanupZeroRecords(station) {
-    await pool.query(
+    await this._q(
       `DELETE FROM py_tempslipnlpc WHERE work_station = ? AND currtax = 0 AND bpm = 0`,
       [station],
     );
@@ -581,7 +598,7 @@ class PayslipGenerationService {
   // Retrieve generated payslips (unchanged)
   // ==========================================================================
   async getGeneratedPayslips(station) {
-    const [rows] = await pool.query(
+    const [rows] = await this._q(
       `SELECT * FROM py_tempslipnlpc WHERE work_station = ? ORDER BY netpay DESC, NUMB, bpc, BP`,
       [station],
     );
@@ -595,7 +612,7 @@ class PayslipGenerationService {
   // ==========================================================================
   async getPayslipsGroupedByEmployee(station) {
     // Query 1: employee-level summary
-    const [empRows] = await pool.query(
+    const [empRows] = await this._q(
       `SELECT
          p.NUMB            AS employee_id,
          p.title, p.surname, p.othername,
@@ -627,7 +644,7 @@ class PayslipGenerationService {
     if (empRows.length === 0) return [];
 
     // Query 2: all payment rows for this station in one shot
-    const [paymentRows] = await pool.query(
+    const [paymentRows] = await this._q(
       `SELECT
          NUMB             AS employee_id,
          bpc              AS category_code,
